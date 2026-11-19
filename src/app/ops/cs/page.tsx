@@ -65,7 +65,14 @@ type Detail = {
   template: { id: string; name: string | null } | null
   lead: Lead | null
   messages: Message[]
-  escalations: { id: string; reason: string; priority: string; status: string; summary: string | null }[]
+  escalations: {
+    id: string
+    reason: string
+    priority: string
+    status: string
+    summary: string | null
+    created_at: string
+  }[]
   draft: { draft: Record<string, unknown>; status: string; updated_at: string } | null
   editorUrl: string | null
 }
@@ -110,6 +117,7 @@ export default function OpsCsPage() {
   const [detail, setDetail] = useState<Detail | null>(null)
   const [filter, setFilter] = useState<"all" | "needs" | "human" | "closed">("all")
   const [search, setSearch] = useState("")
+  const [openEscalation, setOpenEscalation] = useState(false)
   // Polling & refresh setelah aksi harus tetap memakai kata kunci yang aktif,
   // kalau tidak hasil pencarian tertimpa daftar 80 terbaru.
   const searchRef = useRef("")
@@ -470,7 +478,7 @@ export default function OpsCsPage() {
             </div>
           ) : (
             <>
-              <header className="shrink-0 px-3 md:px-4 py-2.5 border-b border-outline-variant flex flex-wrap items-center gap-2 md:gap-3 bg-background">
+              <header className="shrink-0 px-3 md:px-4 py-2 border-b border-outline-variant flex flex-wrap items-center gap-x-2 gap-y-1.5 md:gap-3 bg-background">
                 <button
                   onClick={() => setSelectedId(null)}
                   className="md:hidden w-9 h-9 border border-outline-variant flex items-center justify-center"
@@ -501,7 +509,7 @@ export default function OpsCsPage() {
                         ? "AI membalas otomatis. Klik untuk menghentikan AI dan menangani sendiri."
                         : "AI dijeda. Klik untuk mengaktifkan balasan otomatis lagi."
                     }
-                    className={`inline-flex items-center gap-2 px-3 py-2 text-[10px] font-label-md uppercase tracking-widest disabled:opacity-50 ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 md:px-3 md:py-2 text-[10px] font-label-md uppercase tracking-widest disabled:opacity-50 ${
                       detail.conversation.status === "bot"
                         ? "bg-emerald-600 text-white"
                         : "border border-amber-300 bg-amber-100 text-amber-900"
@@ -524,18 +532,44 @@ export default function OpsCsPage() {
                 </div>
               </header>
 
-              {detail.escalations.length > 0 && (
-                <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
-                  <p className="text-xs font-semibold text-amber-900">
-                    Eskalasi: {detail.escalations[0].reason} ({detail.escalations[0].priority})
-                  </p>
-                  {detail.escalations[0].summary && (
-                    <pre className="text-[11px] text-amber-900 whitespace-pre-wrap mt-1 font-body-md">
-                      {detail.escalations[0].summary}
-                    </pre>
-                  )}
-                </div>
-              )}
+              {detail.escalations.length > 0 && (() => {
+                const escalation = detail.escalations[0]
+                // Ringkasan eskalasi berisi laporan lengkap (banyak baris "-").
+                // Yang berguna langsung: alasannya, prioritasnya, dan sejak kapan.
+                const lines = String(escalation.summary || "")
+                  .split("\n")
+                  .map((line) => line.trim())
+                  .filter((line) => line && !/:\s*-\s*$/.test(line))
+                return (
+                  <div className="bg-amber-50 border-b border-amber-200">
+                    <button
+                      type="button"
+                      onClick={() => setOpenEscalation((value) => !value)}
+                      aria-expanded={openEscalation}
+                      className="w-full px-3 md:px-4 py-2 flex items-center gap-2 text-left"
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-amber-900">priority_high</span>
+                      <span className="text-xs font-semibold text-amber-900">
+                        Eskalasi {escalation.reason}
+                      </span>
+                      <span className="text-[10px] uppercase tracking-widest text-amber-800">
+                        {escalation.priority}
+                      </span>
+                      <span className="text-[10px] text-amber-800">{fmt(escalation.created_at)}</span>
+                      <span className="ml-auto material-symbols-outlined text-[18px] text-amber-900">
+                        {openEscalation ? "expand_less" : "expand_more"}
+                      </span>
+                    </button>
+                    {openEscalation && lines.length > 0 && (
+                      <div className="px-3 md:px-4 pb-2 max-h-40 overflow-y-auto">
+                        <p className="text-[11px] text-amber-900 whitespace-pre-wrap break-words">
+                          {lines.slice(0, 14).join("\n")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
 
               <CsConversationContext
                 status={detail.conversation.status}

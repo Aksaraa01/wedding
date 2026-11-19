@@ -57,6 +57,29 @@ function waitingLabel(lastInboundAt: string | null, lastOutboundAt: string | nul
   return `Menunggu ${Math.round(hours / 24)} hari`
 }
 
+// Istilah internal jangan tampil mentah ke staf ("cta", "buku_tamu").
+const STAGE_LABELS: Record<string, string> = {
+  new: "Baru",
+  qualifying: "Kualifikasi",
+  recommending: "Rekomendasi",
+  objection: "Keberatan",
+  cta: "Siap daftar",
+  handoff: "Diserahkan ke tim",
+  support: "Bantuan",
+}
+
+const NEED_LABELS: Record<string, string> = {
+  undangan: "Undangan",
+  buku_tamu: "Buku tamu QR",
+  galeri: "Galeri tamu",
+  belum_tahu: "Belum tahu",
+}
+
+function prettify(value: string | null | undefined): string | null {
+  if (!value) return null
+  return value.replace(/_/g, " ")
+}
+
 function labelFor(key: string): string {
   const raw = FIELD_LABELS[key] || key
   return raw.split(" (")[0]
@@ -100,15 +123,16 @@ export default function CsConversationContext({
   if (couple) {
     const names = [couple.groom_name, couple.bride_name].filter(Boolean).join(" & ")
     if (names) chips.push({ label: "Pasangan", value: names })
-    if (couple.slug) chips.push({ label: "Alamat", value: `${couple.slug}.wedding.aksaraa.com` })
   }
   if (templateName) chips.push({ label: "Template", value: templateName })
-  if (lead?.stage) chips.push({ label: "Tahap", value: lead.stage })
+  if (lead?.stage) chips.push({ label: "Tahap", value: STAGE_LABELS[lead.stage] || prettify(lead.stage) || lead.stage })
   if (lead?.wedding_date) chips.push({ label: "Tanggal", value: lead.wedding_date })
   if (lead?.city) chips.push({ label: "Kota", value: lead.city })
   if (lead?.guest_count) chips.push({ label: "Tamu", value: `${lead.guest_count}` })
-  if (lead?.need) chips.push({ label: "Kebutuhan", value: lead.need })
-  if (lead?.package_interest) chips.push({ label: "Paket", value: lead.package_interest })
+  if (lead?.need) chips.push({ label: "Kebutuhan", value: NEED_LABELS[lead.need] || prettify(lead.need) || lead.need })
+  if (lead?.package_interest) {
+    chips.push({ label: "Paket", value: prettify(lead.package_interest) || lead.package_interest })
+  }
   if (lead?.budget_band) {
     chips.push({ label: "Budget", value: budgetLabels[lead.budget_band] || lead.budget_band })
   }
@@ -133,9 +157,9 @@ export default function CsConversationContext({
 
   return (
     <section className="border-b border-outline-variant bg-surface-container-low">
-      <div className="px-3 md:px-4 py-2.5 space-y-2">
+      <div className="px-3 md:px-4 py-2.5 flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
         {hasAnything ? (
-          <div className="flex gap-1.5 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 snap-x">
+          <div className="flex gap-1.5 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 snap-x md:flex-1 md:min-w-0">
             {chips.map((chip) => (
               <span
                 key={`${chip.label}-${chip.value}`}
@@ -149,13 +173,6 @@ export default function CsConversationContext({
                 <span className="font-semibold">{chip.value}</span>
               </span>
             ))}
-            {draftFields.length > 0 && (
-              <span className="snap-start shrink-0 inline-flex items-baseline gap-1.5 border border-outline-variant bg-white px-2 py-1 text-[11px]">
-                <span className="text-[9px] uppercase tracking-widest text-on-surface-variant">Data CS</span>
-                <span className="font-semibold">{draftFields.length} terisi</span>
-                {pendingKey && <span className="text-on-surface-variant">· berikutnya {labelFor(pendingKey)}</span>}
-              </span>
-            )}
           </div>
         ) : (
           <p className="text-[11px] text-on-surface-variant">
@@ -163,7 +180,7 @@ export default function CsConversationContext({
           </p>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 md:shrink-0">
           {draftFields.length > 0 && (
             <button
               type="button"
@@ -173,7 +190,8 @@ export default function CsConversationContext({
               <span className="material-symbols-outlined text-[14px]">
                 {openDraft ? "expand_less" : "expand_more"}
               </span>
-              Data CS
+              Data CS · {draftFields.length}
+              {pendingKey && <span className="normal-case tracking-normal">· {labelFor(pendingKey)}</span>}
             </button>
           )}
           {(lead || chips.length > 4) && (
