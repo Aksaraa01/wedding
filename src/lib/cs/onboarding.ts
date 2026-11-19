@@ -766,6 +766,20 @@ async function answerGift(
   const lower = text.trim().toLowerCase()
   if (lower === "batal") return null
 
+  // Pertanyaan di tengah pengisian hadiah ("masih kosong?", "apa saja?") tidak
+  // boleh tersimpan sebagai nama bank.
+  if (looksLikeQuestion(text) || ASK_ABOUT_DATA.test(lower)) {
+    const profileNow = await profileRow(profileId)
+    await saveState(profileId, contactId, draft, state)
+    const summary = await describeData(profileId, profileNow || {}, "hadiah")
+    const step = state.giftStep ?? 0
+    const question =
+      state.giftPhase === "account"
+        ? GIFT_ACCOUNT_QUESTIONS[step]?.question
+        : GIFT_ADDRESS_QUESTIONS[step]?.question
+    return question ? `${summary}\n\n${question}` : summary
+  }
+
   if (state.giftPhase === "account") {
     const step = state.giftStep ?? 0
     const question = GIFT_ACCOUNT_QUESTIONS[step]
