@@ -307,6 +307,9 @@ function EditorInner({ id }: { id: string }) {
   const [pubState, setPubState] = useState<"ask" | "choose" | "error">("ask")
   const [pubError, setPubError] = useState("")
   const [reviewMode, setReviewMode] = useState(false)
+  // Tautan yang dibagikan CS memakai ?review=1 supaya langsung terbuka di
+  // layar pratinjau (tombol Konfirmasi), bukan editor konten.
+  const autoReviewDone = useRef(false)
 
   // Collapse the mobile action sheet whenever the editor switches between edit
   // and preview (or enters review), so preview always lands on the floating
@@ -1278,6 +1281,16 @@ function EditorInner({ id }: { id: string }) {
       setPreparingReview(false)
     }
   }, [reviewMode, flushPendingSave, isInhouse, fetchProfile, syncToWp, showMobilePreview, scrollCanvasToTop])
+
+  useEffect(() => {
+    if (autoReviewDone.current) return
+    if (initialLoading) return
+    if (searchParams.get("review") !== "1") return
+    autoReviewDone.current = true
+    setReviewMode(true)
+    if (typeof window !== "undefined" && window.innerWidth < 768) setShowMobilePreview(true)
+    scrollCanvasToTop()
+  }, [initialLoading, searchParams, scrollCanvasToTop])
 
   const exitReview = useCallback(() => {
     setReviewError("")

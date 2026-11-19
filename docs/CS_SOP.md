@@ -137,7 +137,8 @@ Dipicu oleh intent isi/ubah data (`data_collection`/`data_change`).
      `active_wp_post_id`, dan dicatat di `cs_audit`.
 4. **Pratinjau**: `https://wedding.aksaraa.com/preview/{id}` (belum tayang).
 5. **Konfirmasi**: "sudah oke?" → belum: sebutkan bagian, agent mengulang bagian
-   itu; sudah: agent mengirim tautan **editor** (`/dashboard/{id}/web-invitation/editor`)
+   itu; sudah: agent mengirim tautan **pratinjau editor** (`/dashboard/{id}/web-invitation/editor?review=1`,
+langsung membuka layar pratinjau + tombol Konfirmasi, bukan form isi)
    dengan instruksi login → pratinjau → tombol **Konfirmasi**.
    Jangan memakai `/dashboard/{id}/web-invitation` (itu hanya halaman hub berisi
    kartu feedback/templates/editor, tanpa tombol publikasi).
