@@ -19,6 +19,8 @@ import {
   useMultiFileAuthState,
   DisconnectReason,
   downloadMediaMessage,
+  normalizeMessageContent,
+  getContentType,
 } from "@whiskeysockets/baileys"
 import pino from "pino"
 import QRCode from "qrcode"
@@ -41,6 +43,7 @@ let starting = false
 // ID pesan yang kita kirim sendiri: echo fromMe-nya tidak boleh diteruskan
 // kembali ke app (kalau tidak, balasan bot tercatat sebagai pesan masuk).
 const sentIds = new Set()
+const seenInbound = new Set()
 
 const log = (...args) => console.log(new Date().toISOString(), ...args)
 
@@ -52,6 +55,20 @@ function jidFor(phone) {
       ? digits
       : `62${digits}`
   return `${normalized}@s.whatsapp.net`
+}
+
+async function safeSend(jid, text) {
+  let timer = null
+  try {
+    return await Promise.race([
+      sock.sendMessage(jid, { text }),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("send timeout")), 15000)
+      }),
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
 }
 
 async function forwardInbound(message) {
@@ -67,7 +84,13 @@ async function forwardInbound(message) {
   const fromJid = alt.endsWith("@s.whatsapp.net") ? alt : remote
   log("inbound", key.fromMe ? "me" : "them", remote.endsWith("@lid") ? "lid" : "pn", (key.id || "").slice(0, 12))
 
-  const content = message.message || {}
+  // Pesan dari perangkat tertaut (WhatsApp Web/Desktop) dibungkus
+  // deviceSentMessage / ephemeral / viewOnce. Tanpa normalisasi, imageMessage
+  // tidak terlihat dan pesan dibuang diam-diam.
+  const content = normalizeMessageContent(message.message) || {}
+  const type = getContentType(content)
+  log("inbound type", type || "unknown")
+
   const text =
     content.conversation ||
     content.extendedTextMessage?.text ||
@@ -82,19 +105,25 @@ async function forwardInbound(message) {
     else if (content.documentMessage) unsupported = "dokumen"
     else if (content.locationMessage) unsupported = "lokasi"
     else if (content.contactMessage) unsupported = "kontak"
+    else if (type === "imageMessage") unsupported = "foto"
+    else if (type === "videoMessage") unsupported = "video"
     else return
   }
 
   let mediaBase64 = ""
   let mimeType = ""
-  const image = content.imageMessage
+  const image = content.imageMessage || content.documentWithCaptionMessage?.message?.documentMessage
   if (image) {
     try {
-      const buffer = await downloadMediaMessage(message, "buffer", {}, { logger: pino({ level: "fatal" }), reuploadRequest: sock.updateMediaMessage })
+      const buffer = await Promise.race([
+        downloadMediaMessage(message, "buffer", {}, { logger: pino({ level: "fatal" }), reuploadRequest: sock.updateMediaMessage }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("media timeout")), 20000)),
+      ])
       mediaBase64 = Buffer.from(buffer).toString("base64")
       mimeType = image.mimetype || "image/jpeg"
     } catch (error) {
       log("media download failed", String(error?.message || error))
+      unsupported = "foto"
     }
   }
 
@@ -117,15 +146,32 @@ async function forwardInbound(message) {
       signal: AbortSignal.timeout(60_000),
     })
     const data = await res.json().catch(() => ({}))
+    log("forward ok", "replies", (data.replies || []).length)
     for (const reply of data.replies || []) {
       if (!reply?.text) continue
       if (key.fromMe) continue
-      const sent = await sock.sendMessage(remote, { text: reply.text })
-      const id = sent?.key?.id
-      if (id) {
-        sentIds.add(id)
-        if (sentIds.size > 300) sentIds.delete(sentIds.values().next().value)
+
+      // Kirim ke chat asal (lid) dulu; kalau gagal/timeout, coba JID telepon.
+      const candidates = [remote, fromJid].filter(
+        (jid, index, list) => !!jid && jid !== list[index - 1]
+      )
+      let delivered = false
+      for (const target of candidates) {
+        try {
+          const sent = await safeSend(target, reply.text)
+          delivered = true
+          const id = sent?.key?.id
+          if (id) {
+            sentIds.add(id)
+            if (sentIds.size > 300) sentIds.delete(sentIds.values().next().value)
+          }
+          log("reply sent", id ? "ok" : "no-id", target.endsWith("@lid") ? "lid" : "pn")
+          break
+        } catch (error) {
+          log("reply failed", target.endsWith("@lid") ? "lid" : "pn", String(error?.message || error))
+        }
       }
+      if (!delivered) log("reply undelivered")
     }
   } catch (error) {
     log("forward failed", String(error?.message || error))
@@ -145,7 +191,13 @@ async function connect() {
 
     sock.ev.on("creds.update", saveCreds)
     sock.ev.on("messages.upsert", async (event) => {
+      if (event.type && event.type !== "notify") return
       for (const message of event.messages || []) {
+        const id = message?.key?.id
+        if (!id) continue
+        if (seenInbound.has(id)) continue
+        seenInbound.add(id)
+        if (seenInbound.size > 500) seenInbound.delete(seenInbound.values().next().value)
         await forwardInbound(message)
       }
     })
@@ -226,8 +278,26 @@ async function logout() {
 
 async function send(phone, message) {
   if (!connected || !sock) return { error: "Gateway belum terhubung ke WhatsApp." }
-  await sock.sendMessage(jidFor(phone), { text: message })
-  return { ok: true }
+
+  // Nomor mentah belum tentu JID yang bisa dikirimi; tanya WhatsApp dulu.
+  let target = jidFor(phone)
+  try {
+    const [resolved] = (await Promise.race([
+      sock.onWhatsApp(phone),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("lookup timeout")), 8000)),
+    ])) || []
+    if (resolved?.jid) target = resolved.jid
+    else return { error: "nomor tidak terdaftar di WhatsApp" }
+  } catch {
+    // lanjut dengan JID tebakan
+  }
+
+  try {
+    await safeSend(target, message)
+    return { ok: true, jid: target }
+  } catch (error) {
+    return { error: String(error?.message || error) }
+  }
 }
 
 function json(res, status, body) {
