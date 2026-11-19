@@ -48,6 +48,36 @@ const seenInbound = new Set()
 // sedang diproses (2-15 detik) harus dibatalkan di titik terakhir ini, karena
 // app bisa saja belum sempat melihat pesan manusia tersebut.
 const humanBlock = new Map()
+// Nomor telepon -> JID chat asli (@lid). Sejak 2025 banyak chat memakai @lid;
+// mengirim ke nomor mentah bisa gagal/timeout, sedangkan JID chat selalu bisa.
+const chatByPhone = new Map()
+const CHAT_MAP_FILE = new URL("./chat-map.json", import.meta.url)
+
+async function loadChatMap() {
+  try {
+    const { readFile } = await import("node:fs/promises")
+    const raw = await readFile(CHAT_MAP_FILE, "utf8")
+    for (const [phone, jid] of Object.entries(JSON.parse(raw))) chatByPhone.set(phone, jid)
+    log("chat map loaded", chatByPhone.size)
+  } catch {}
+}
+
+let chatMapTimer = null
+function rememberChat(phone, jid) {
+  const digits = String(phone || "").replace(/\D/g, "")
+  if (!digits || !jid) return
+  if (chatByPhone.get(digits) === jid) return
+  chatByPhone.set(digits, jid)
+  if (chatByPhone.size > 2000) chatByPhone.delete(chatByPhone.keys().next().value)
+  if (chatMapTimer) return
+  chatMapTimer = setTimeout(async () => {
+    chatMapTimer = null
+    try {
+      const { writeFile } = await import("node:fs/promises")
+      await writeFile(CHAT_MAP_FILE, JSON.stringify(Object.fromEntries(chatByPhone)))
+    } catch {}
+  }, 3000)
+}
 const HUMAN_BLOCK_MS = 120_000
 
 function humanOwns(jid) {
@@ -108,6 +138,9 @@ async function forwardInbound(message) {
   // fromMe yang BUKAN kiriman bot = manusia ikut membalas. Tandai segera
   // (sebelum antrean diproses) supaya balasan bot yang sedang jalan dibatalkan.
   if (key.fromMe) markHuman(remote)
+  if (!key.fromMe && remote.endsWith("@lid") && fromJid.endsWith("@s.whatsapp.net")) {
+    rememberChat(fromJid.split("@")[0], remote)
+  }
   log("inbound", key.fromMe ? "me" : "them", remote.endsWith("@lid") ? "lid" : "pn", (key.id || "").slice(0, 12))
 
   // Pesan dari perangkat tertaut (WhatsApp Web/Desktop) dibungkus
@@ -316,7 +349,7 @@ async function send(phone, message, jid) {
 
   // App bisa mengirim langsung ke JID chat (lid) untuk balasan yang tidak
   // lewat antrean `replies`.
-  if (jid && (jid.endsWith("@lid") || jid.endsWith("@s.whatsapp.net"))) {
+  if (jid && (jid.endsWith("@lid") || jid.endsWith("@s.whatsapp.net") || jid.endsWith("@g.us"))) {
     try {
       await safeSend(jid, message)
       log("jid send ok", jid.endsWith("@lid") ? "lid" : "pn")
@@ -324,6 +357,18 @@ async function send(phone, message, jid) {
     } catch (error) {
       log("jid send failed", String(error?.message || error))
       return { error: String(error?.message || error) }
+    }
+  }
+
+  const digits = String(phone || "").replace(/\D/g, "")
+  const knownChat = chatByPhone.get(digits) || chatByPhone.get(String(jid || "").replace(/\D/g, ""))
+  if (knownChat) {
+    try {
+      await safeSend(knownChat, message)
+      log("chat send ok", "lid")
+      return { ok: true, jid: knownChat }
+    } catch (error) {
+      log("chat send failed", String(error?.message || error))
     }
   }
 
@@ -348,6 +393,20 @@ async function send(phone, message, jid) {
   }
 }
 
+// Node's http.IncomingMessage has no .json(); reading the stream is on us.
+// Dulu `await req.json()` selalu throw dan ditelan catch kosong, sehingga
+// SEMUA /send tiba dengan body kosong lalu dijawab "nomor tidak terdaftar".
+async function readJson(req) {
+  const chunks = []
+  for await (const chunk of req) chunks.push(chunk)
+  if (!chunks.length) return {}
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString("utf8"))
+  } catch {
+    return {}
+  }
+}
+
 function json(res, status, body) {
   res.writeHead(status, { "content-type": "application/json" })
   res.end(JSON.stringify(body))
@@ -363,10 +422,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && (url.pathname === "/pair" || url.pathname === "/logout" || url.pathname === "/send")) {
-    let body = {}
-    try {
-      body = await req.json()
-    } catch {}
+    const body = await readJson(req)
     if (url.pathname === "/pair") return json(res, 200, await startPairing(String(body.phone || "")))
     if (url.pathname === "/logout") return json(res, 200, await logout())
     return json(res, 200, await send(String(body.phone || ""), String(body.message || ""), String(body.jid || "")))
@@ -375,5 +431,6 @@ const server = http.createServer(async (req, res) => {
   return json(res, 404, { error: "not found" })
 })
 
+await loadChatMap()
 server.listen(PORT, "127.0.0.1", () => log(`gateway listening on ${PORT}`))
 connect()

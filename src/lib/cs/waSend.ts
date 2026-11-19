@@ -46,7 +46,14 @@ export async function sendCsWhatsApp(
         body: JSON.stringify(jid ? { jid, phone, message } : { phone, message }),
         signal: AbortSignal.timeout(timeoutMs),
       })
-      if (res.ok) return true
+      if (res.ok) {
+        // Gateway menjawab 200 walau gagal kirim (mis. "nomor tidak
+        // terdaftar"); hanya {ok:true} yang dihitung berhasil.
+        const payload = await res.json().catch(() => null)
+        if (payload && typeof payload === "object" && (payload as { ok?: boolean }).ok === true) {
+          return true
+        }
+      }
     } catch {
       // tidak ada jalur lain: jangan pernah pindah ke nomor bot lama
     }

@@ -13,6 +13,22 @@ Boundary yang di-hardcode di kode:
 | Guard output | `guard.ts` → `validateReply()` | angka tanpa bukti, klaim (nett/gratis/garansi/diskon/ETA/unlimited), PII, link di luar allowlist, kebocoran kode voucher, >1 pertanyaan, >90 kata → fallback |
 | Kebijakan layanan | `cs_settings.guardrails` | jawaban estimasi waktu (bisa diubah tanpa deploy) |
 
+## Satu nomor pengirim untuk pesan ke klien
+
+Semua pesan ke klien (balasan AI, balasan tim dari `/ops/cs`, OTP/PIN, konfirmasi
+foto) keluar lewat **gateway CS** (`CS_WA_SEND_URL` → nomor 6281265781778).
+
+- `WA_SCHOOL_API_URL` (gateway bot sekolah di :3001) **tidak boleh** dipakai
+  untuk pesan klien: klien akan menerima balasan dari nomor asing. Kode hanya
+  memakai jalur itu kalau `CS_WA_SEND_URL` belum diset sama sekali.
+- Gateway CS mewajibkan header `x-cs-secret` di semua endpoint; tanpa header
+  semua kiriman ditolak 401.
+- `POST /send` menerima `{ jid, phone, message }`. `jid` (chat `@lid`) dipakai
+  lebih dulu karena nomor mentah tidak selalu bisa di-resolve.
+- Gateway menjawab `{ ok: true }` hanya kalau benar-benar terkirim; `{ error }`
+  diperlakukan gagal oleh app, jadi UI menampilkan "gateway gagal mengirim"
+  alih-alih mengaku terkirim.
+
 ## Toggle AI per percakapan (ambil alih manual)
 
 Setiap percakapan punya satu pemilik: `bot` atau `human` (`cs_conversations.status`).
