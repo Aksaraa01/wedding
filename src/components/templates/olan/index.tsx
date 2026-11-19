@@ -631,7 +631,27 @@ export default function Olan(profile: TemplateProps) {
                 <div className="video-outer">
                   <div className="video autoplay-video-box">
                     <div className="preview" data-aos="zoom-in" data-aos-duration="1000">
-                      <img src={videoPoster(video) || cover} alt="" loading="lazy" />
+                      {/* Plays immediately (muted, looped, no controls) so the film
+                          is already running when the section scrolls in — the
+                          poster only covers the first frames, and the button
+                          opens the same clip with sound. */}
+                      <div className="olan-footage__media">
+                        {video.kind === "file" ? (
+                          <video
+                            src={video.src}
+                            poster={videoPoster(video) || cover}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                          />
+                        ) : youtubeId(video.src) ? (
+                          <AutoplayYouTube videoId={youtubeId(video.src)} title={content.video_title || "Our Footage"} />
+                        ) : (
+                          <iframe src={video.src} title={content.video_title || "Our Footage"} allow="autoplay; encrypted-media" />
+                        )}
+                      </div>
                       <button type="button" className="play-btn" onClick={() => setVideoLive(video)} aria-label={content.video_title || "Our Footage"}>
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
                           <path d="M8 5v14l11-7z" />
