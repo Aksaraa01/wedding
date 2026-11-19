@@ -455,6 +455,9 @@ async function answerField(
     const attempts = { ...(state.attempts || {}) }
     attempts[field.key] = (attempts[field.key] || 0) + 1
     state.attempts = attempts
+    // Simpan hitungan SEBELUM kembali, kalau tidak percobaan tidak pernah
+    // terakumulasi dan field opsional berputar selamanya.
+    await saveState(profileId, contactId, draft, state)
 
     // Field opsional tidak boleh membuat klien terjebak: setelah 3 kali gagal,
     // lewati dan lanjut (mis. klien mengetik nama pada pertanyaan Instagram).
