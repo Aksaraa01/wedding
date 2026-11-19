@@ -183,7 +183,9 @@ async function applyField(profileId: string, key: string, value: unknown): Promi
   } else if (key === "gallery_photos" || key === "cover_photos") {
     const current = Array.isArray(profile[key]) ? (profile[key] as unknown[]) : []
     const next = Array.isArray(value) ? value : [...current, value]
-    patch[key] = key === "cover_photos" ? next.slice(0, 3) : next
+    // Jumlah slot sudah dijaga oleh handler (coverSlotCount); jangan memotong
+    // lagi di sini, itu yang membuang foto ke-4/ke-5.
+    patch[key] = next
   } else return
 
   const { error } = await supabaseAdmin.from("wedding_profiles").update(patch).eq("id", profileId)
