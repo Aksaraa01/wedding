@@ -636,7 +636,7 @@ body.eh-locked {
 .eh-couple {
   position: relative;
   /* clears the fan that hangs out of the countdown above */
-  padding: 150px 0 26px;
+  padding: 200px 0 26px;
   overflow: hidden;
 }
 
@@ -1070,9 +1070,9 @@ body.eh-locked {
 .eh-count__scene img {
   position: absolute;
   left: 0;
-  top: -96px;
+  top: -91px;
   width: 100%;
-  height: calc(100% + 96px);
+  height: calc(100% + 91px);
   object-fit: cover;
   object-position: center bottom;
 }
@@ -1088,15 +1088,15 @@ body.eh-locked {
 .eh-count__dial {
   position: relative;
   z-index: 2;
-  padding: 116px 24px 0;
+  padding: 220px 24px 0;
 }
 
 .eh-count__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 26px 8px;
+  gap: 10px 8px;
   margin: 0 auto;
-  max-width: 100%;
+  max-width: 62%;
 }
 
 .eh-count__unit {
@@ -1109,7 +1109,7 @@ body.eh-locked {
 .eh-count__unit b {
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: 8.4cqw;
+  font-size: 7cqw;
   line-height: 1;
   color: var(--eh-cream);
 }
@@ -1117,7 +1117,7 @@ body.eh-locked {
 .eh-count__unit span {
   font-family: var(--eh-sans);
   font-weight: 300;
-  font-size: 5.6cqw;
+  font-size: 4.6cqw;
   letter-spacing: 0.01em;
   color: var(--eh-cream);
 }
@@ -1125,10 +1125,13 @@ body.eh-locked {
 .eh-count__cta {
   position: relative;
   z-index: 2;
-  margin: 24px auto 0;
+  margin: 18px auto 0;
   display: flex;
   width: fit-content;
   gap: 8px;
+  min-height: 42px;
+  padding: 0 22px;
+  font-size: 4cqw;
 }
 
 .eh-count__cta svg {
@@ -1144,12 +1147,12 @@ body.eh-locked {
 .eh-count__fan {
   position: absolute;
   left: 50%;
-  bottom: -46%;
+  bottom: -386px;
+  width: 137.7%;
   translate: -50% 0;
   z-index: 1;
   display: flex;
   justify-content: center;
-  width: 100%;
 }
 
 .eh-count__shadow {
