@@ -41,11 +41,8 @@ export function statusReplyText(input: StatusReplyInput): string {
     lines.push(`• Undangan: ${input.published ? "sudah tayang" : "belum tayang"}`)
   }
 
-  const packageParts = [
-    input.packageName ? `paket ${input.packageName}` : null,
-    `pembayaran ${PAYMENT_LABEL[input.payment] || "belum ada pembayaran"}`,
-  ].filter(Boolean)
-  lines.push(`• ${packageParts.join(" · ")}`)
+  const packageLabel = input.packageName ? `Paket: ${input.packageName}` : "Paket: belum dipilih"
+  lines.push(`• ${packageLabel} · Pembayaran: ${PAYMENT_LABEL[input.payment] || "belum ada pembayaran"}`)
 
   const date = formatWeddingDate(input.weddingDate)
   if (date) lines.push(`• Tanggal acara: ${date}`)

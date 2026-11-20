@@ -160,6 +160,35 @@ async function lastOutboundBody(conversationId: string): Promise<string> {
   return String(data?.body || "")
 }
 
+// Pertanyaan yang tadi tertahan verifikasi. Dipakai supaya klien tidak perlu
+// mengulang "status undangan saya?" setelah PIN benar. Diambil dari beberapa
+// pesan masuk terakhir karena di antaranya ada "ya" dan PIN itu sendiri.
+async function resumePendingQuestion(conversationId: string, profileId: string): Promise<string | null> {
+  const { data } = await supabaseAdmin
+    .from("cs_messages")
+    .select("body,created_at")
+    .eq("conversation_id", conversationId)
+    .eq("direction", "in")
+    .order("created_at", { ascending: false })
+    .limit(8)
+
+  const cutoff = Date.now() - 15 * 60_000
+  const pending = (data || []).find((row) => {
+    const at = new Date(String(row.created_at)).getTime()
+    if (!Number.isFinite(at) || at < cutoff) return false
+    return ["status", "invitation_link"].includes(classify(String(row.body || "")))
+  })
+  if (!pending) return null
+
+  const intent = classify(String(pending.body || ""))
+  if (intent === "status") {
+    const { invitationStatusReply } = await import("@/lib/cs/invitationStatus")
+    return invitationStatusReply(profileId)
+  }
+  const { invitationLinkReply } = await import("@/lib/cs/invitationLink")
+  return invitationLinkReply(profileId)
+}
+
 async function lastBotAskedPin(conversationId: string): Promise<boolean> {
   const { data } = await supabaseAdmin
     .from("cs_messages")
@@ -402,6 +431,10 @@ export async function POST(request: Request) {
       })
 
       await reply(conversationId, verificationSuccessReply())
+      if (profile?.id) {
+        const resumed = await resumePendingQuestion(conversationId, profile.id).catch(() => null)
+        if (resumed) await reply(conversationId, resumed)
+      }
       return NextResponse.json({ replies: [] })
     }
   }
@@ -500,6 +533,8 @@ export async function POST(request: Request) {
         })
 
         await reply(conversationId, verificationSuccessReply())
+        const resumed = await resumePendingQuestion(conversationId, profile.id).catch(() => null)
+        if (resumed) await reply(conversationId, resumed)
         return NextResponse.json({ replies: [] })
       }
 
