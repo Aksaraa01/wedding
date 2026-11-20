@@ -47,14 +47,14 @@ export default function Film({ videoUrl, title, intro, caption, poster }: Props)
               <div className={`preview autoplay-video-box${started ? " is-playing" : ""}`}>
                 {genericEmbed ? (
                   <iframe
-                    className="autoplay-video"
+                    className="autoplay-video show"
                     src={source.src}
                     title={caption || title}
                     allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                     allowFullScreen
                   />
                 ) : source?.kind === "file" ? (
-                  <video className="autoplay-video" autoPlay muted loop playsInline poster={poster || undefined} controls>
+                  <video className="autoplay-video show" autoPlay muted loop playsInline poster={poster || undefined} controls>
                     <source src={source.src} />
                   </video>
                 ) : youtubeId ? (
@@ -73,7 +73,7 @@ export default function Film({ videoUrl, title, intro, caption, poster }: Props)
                     ) : null}
                     {started ? (
                       <iframe
-                        className="autoplay-video"
+                        className="autoplay-video show"
                         src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=1&rel=0&modestbranding=1&playsinline=1`}
                         title={caption || title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
