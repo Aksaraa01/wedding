@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto"
 import { supabaseAdmin } from "@/lib/supabase"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
-import { aiPaused } from "@/lib/cs/handoff"
+import { aiPaused, shouldAutoResume } from "@/lib/cs/handoff"
 import { countUnknownStrikes, detectSentiment } from "@/lib/cs/policy"
 import { handleInbound } from "@/lib/cs/orchestrator"
 import { COUPLE_COOKIE, getSessionToken, verifySession } from "@/lib/sessionToken"
@@ -158,7 +158,14 @@ export async function POST(request: Request) {
 
   // Toggle AI per percakapan (dashboard /ops): saat tim mengambil alih,
   // widget tidak boleh dibalas otomatis. Pesan tetap tersimpan untuk tim.
-  if (aiPaused(existing)) {
+  // Jeda otomatis (balasan tim 10 menit / eskalasi) yang sudah lewat
+  // dikembalikan ke bot, sama seperti jalur WhatsApp.
+  if (shouldAutoResume(existing)) {
+    await supabaseAdmin
+      .from("cs_conversations")
+      .update({ status: "bot", ai_paused_until: null })
+      .eq("id", conversationId)
+  } else if (aiPaused(existing)) {
     return NextResponse.json({ reply: "", paused: true })
   }
 

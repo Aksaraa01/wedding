@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 import { sendCsWhatsApp } from "@/lib/cs/waSend"
+import { nextPauseUntil } from "@/lib/cs/handoff"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -336,7 +337,7 @@ export async function POST(req: Request) {
 
   const { data: conversation } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id,contact_id,status,channel,cs_contacts!inner(id,phone,name,wa_jid)")
+    .select("id,contact_id,status,channel,ai_paused_until,cs_contacts!inner(id,phone,name,wa_jid)")
     .eq("id", conversationId)
     .maybeSingle()
 
@@ -427,13 +428,19 @@ export async function POST(req: Request) {
       error: sent ? null : "gateway_send_failed",
     })
 
+    // Balasan tim dari /ops/cs juga menjeda AI 10 menit (direset tiap balasan),
+    // kecuali sudah ada jeda yang lebih panjang (eskalasi 4 jam).
+    const pausedUntil = nextPauseUntil(
+      (conversation as { ai_paused_until?: string | null }).ai_paused_until
+    )
+
     await supabaseAdmin
       .from("cs_conversations")
       .update({
         status: "human",
         assigned_to: auth.employee.id,
         last_outbound_at: now,
-        ai_paused_until: null,
+        ai_paused_until: pausedUntil,
       })
       .eq("id", conversationId)
 
@@ -441,7 +448,7 @@ export async function POST(req: Request) {
       actor: `ops:${auth.employee.id}`,
       action: "human_reply",
       subject: conversationId,
-      detail: { sent, length: text.length },
+      detail: { sent, length: text.length, paused_until: pausedUntil, auto_resume: true },
     })
 
     return NextResponse.json({ ok: true, sent })

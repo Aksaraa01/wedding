@@ -36,13 +36,25 @@ Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
 
 - **AI dijeda** = `status = human`. AI tidak membalas pesan baru maupun pesan
   yang sedang diproses; pesan klien tetap tersimpan supaya tim melihatnya.
-- **Membalas dari WhatsApp** (HP atau WhatsApp Web, termasuk lampiran) otomatis
-  mematikan AI untuk percakapan itu, dan pesannya disimpan sebagai pesan keluar
-  (`model = human:wa`) — bukan sebagai ucapan klien.
+- **Membalas dari WhatsApp** (HP atau WhatsApp Web, termasuk lampiran) menjeda
+  AI **10 menit** untuk percakapan itu (`ai_paused_until`), dan pesannya
+  disimpan sebagai pesan keluar (`model = human:wa`) — bukan ucapan klien.
+- Balasan tim dari `/ops/cs` (`model = human:ops`) juga menjeda AI **10 menit**.
+- Jeda itu **direset setiap balasan manusia berikutnya** (sliding), jadi selama
+  tim aktif membalas, bot tetap diam.
+- Setelah 10 menit, AI menyala lagi saat pesan klien berikutnya masuk. Pesan
+  klien yang datang di dalam jendela jeda tetap tersimpan, tidak dibalas.
+- Durasi bisa diubah tanpa deploy lewat env `CS_HUMAN_COOLDOWN_MIN` (default 10).
+- **Jeda yang lebih lama menang:** kalau percakapan sedang dalam jeda eskalasi
+  4 jam, balasan manusia tidak memperpendeknya.
+- **Toggle AI dijeda dan claim tetap permanen** (`ai_paused_until = null`), tidak
+  auto-nyala — itu satu-satunya cara mengunci percakapan selama tim menangani.
 - **AI aktif** = `status = bot`. Balasan otomatis jalan lagi; tidak ada balasan
   susulan untuk pesan lama.
-- Balasan tim dari `/ops/cs` ditandai `model = human:ops`, dan otomatis menjeda AI.
-- Perubahan toggle dicatat di `cs_audit` (`ai_off` / `ai_on`) beserta sumbernya.
+- Perubahan toggle dicatat di `cs_audit` (`ai_off` / `ai_on`) beserta sumbernya;
+  balasan manusia mencatat `paused_until` + `auto_resume: true`.
+- `/ops/cs` menampilkan sisa waktunya: "AI dijeda · 8 mnt" (otomatis) vs
+  "AI dijeda" (manual/permanen).
 - Gateway punya blok 120 detik terakhir: kalau manusia membalas saat bot sedang
   menyusun jawaban, balasan bot dibatalkan sebelum dikirim.
 

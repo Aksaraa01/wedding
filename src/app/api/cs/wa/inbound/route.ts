@@ -4,7 +4,7 @@ import { createHash, timingSafeEqual } from "node:crypto"
 import { supabaseAdmin } from "@/lib/supabase"
 import { fromJid, generateCode, maskPhone, normalizeWhatsApp } from "@/lib/cs/identity"
 import { checkRateLimit, rateLimited } from "@/lib/rateLimit"
-import { aiPaused, shouldAutoResume } from "@/lib/cs/handoff"
+import { aiPaused, nextPauseUntil, shouldAutoResume } from "@/lib/cs/handoff"
 import { getCsSettings } from "@/lib/cs/settings"
 import { classify } from "@/lib/cs/policy"
 import { handleInbound } from "@/lib/cs/orchestrator"
@@ -310,15 +310,26 @@ export async function POST(request: Request) {
         model: "human:wa",
       })
     }
+    // Tim membalas dari perangkat: AI diam 10 menit (direset tiap balasan
+    // berikutnya), lalu menyala sendiri. Toggle manual tetap permanen.
+    const { data: current } = await supabaseAdmin
+      .from("cs_conversations")
+      .select("ai_paused_until")
+      .eq("id", conversationId)
+      .maybeSingle()
+    const pausedUntil = nextPauseUntil(
+      (current as { ai_paused_until?: string | null } | null)?.ai_paused_until
+    )
+
     await supabaseAdmin
       .from("cs_conversations")
-      .update({ status: "human", ai_paused_until: null, last_outbound_at: now })
+      .update({ status: "human", ai_paused_until: pausedUntil, last_outbound_at: now })
       .eq("id", conversationId)
     await supabaseAdmin.from("cs_audit").insert({
       actor: "human:wa",
       action: "ai_off",
       subject: conversationId,
-      detail: { source: "wa_device" },
+      detail: { source: "wa_device", paused_until: pausedUntil, auto_resume: true },
     })
     return NextResponse.json({ replies: [] })
   }

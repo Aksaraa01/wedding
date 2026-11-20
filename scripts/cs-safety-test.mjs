@@ -34,7 +34,13 @@ import {
   toJid,
 } from "../src/lib/cs/identity.ts"
 import { validateReply } from "../src/lib/cs/guard.ts"
-import { aiPaused, shouldAutoResume } from "../src/lib/cs/handoff.ts"
+import {
+  aiPaused,
+  humanCooldownMinutes,
+  humanCooldownUntil,
+  nextPauseUntil,
+  shouldAutoResume,
+} from "../src/lib/cs/handoff.ts"
 import { escalationReply } from "../src/lib/cs/replies.ts"
 import { csWidgetEnabledOn } from "../src/lib/cs/widgetRoutes.ts"
 import {
@@ -344,6 +350,33 @@ test("re-engage: pesan singkat, tanpa harga dan tanpa link", () => {
   assert.match(text, /Rafi & Novi/)
   assert.doesNotMatch(text, /Rp|http|diskon|promo/i)
   assert.equal(validateReply({ reply: text }).ok, true)
+})
+
+test("handoff: balasan manusia menjeda 10 menit, toggle manual permanen", () => {
+  const now = Date.parse("2026-11-20T03:00:00Z")
+  assert.equal(humanCooldownMinutes({}), 10)
+  assert.equal(humanCooldownMinutes({ CS_HUMAN_COOLDOWN_MIN: "15" }), 15)
+  assert.equal(humanCooldownMinutes({ CS_HUMAN_COOLDOWN_MIN: "abc" }), 10)
+  assert.equal(humanCooldownMinutes({ CS_HUMAN_COOLDOWN_MIN: "-3" }), 10)
+  assert.equal(humanCooldownUntil(now, 10), "2026-11-20T03:10:00.000Z")
+
+  // Balasan baru mengisi batas waktu.
+  const until = nextPauseUntil(null, now, 10)
+  assert.equal(until, "2026-11-20T03:10:00.000Z")
+
+  // Reset berantai: balasan berikutnya memperpanjang dari waktu terbaru.
+  assert.equal(nextPauseUntil(until, now + 5 * 60_000, 10), "2026-11-20T03:15:00.000Z")
+
+  // Jeda eskalasi 4 jam tidak boleh diperpendek oleh balasan manusia.
+  const escalation = "2026-11-20T07:00:00.000Z"
+  assert.equal(nextPauseUntil(escalation, now, 10), escalation)
+
+  // Perilaku baca: masih dijeda → true, sudah lewat → auto resume.
+  assert.equal(aiPaused({ status: "human", ai_paused_until: "2026-11-20T03:10:00.000Z" }, now), true)
+  assert.equal(aiPaused({ status: "human", ai_paused_until: null }, now), true)
+  assert.equal(shouldAutoResume({ status: "human", ai_paused_until: "2026-11-20T03:10:00.000Z" }, now + 11 * 60_000), true)
+  assert.equal(shouldAutoResume({ status: "human", ai_paused_until: null }, now + 11 * 60_000), false)
+  assert.equal(aiPaused({ status: "bot", ai_paused_until: null }, now), false)
 })
 
 test("wa send: hanya gateway CS, tidak pernah nomor bot lama", () => {

@@ -101,6 +101,42 @@ function statusLabel(status: string): string {
   return "Bot"
 }
 
+// Jeda otomatis (balasan tim) punya batas waktu; toggle manual tidak.
+function aiPauseInfo(conversation: { status: string; ai_paused_until: string | null }): {
+  active: boolean
+  label: string
+  hint: string
+} {
+  if (conversation.status !== "human") {
+    return {
+      active: true,
+      label: "AI aktif",
+      hint: "AI membalas otomatis. Klik untuk menghentikan AI dan menangani sendiri.",
+    }
+  }
+  if (!conversation.ai_paused_until) {
+    return {
+      active: false,
+      label: "AI dijeda",
+      hint: "AI dijeda manual. Klik untuk mengaktifkan balasan otomatis lagi.",
+    }
+  }
+  const remainingMs = new Date(conversation.ai_paused_until).getTime() - Date.now()
+  if (remainingMs <= 0) {
+    return {
+      active: false,
+      label: "AI dijeda",
+      hint: "Jeda otomatis sudah lewat; AI menyala saat pesan klien berikutnya masuk.",
+    }
+  }
+  const minutes = Math.max(1, Math.ceil(remainingMs / 60_000))
+  return {
+    active: false,
+    label: `AI dijeda · ${minutes} mnt`,
+    hint: `AI menyala sendiri dalam ${minutes} menit kalau tidak ada balasan tim lagi.`,
+  }
+}
+
 const BUDGET_LABELS: Record<string, string> = {
   under_1m: "< 1 juta",
   "1_3m": "1–3 juta",
@@ -501,24 +537,20 @@ export default function OpsCsPage() {
                   <button
                     type="button"
                     role="switch"
-                    aria-checked={detail.conversation.status === "bot"}
+                    aria-checked={aiPauseInfo(detail.conversation).active}
                     onClick={() => act(detail.conversation.status === "bot" ? "ai_off" : "ai_on")}
                     disabled={busy}
-                    title={
-                      detail.conversation.status === "bot"
-                        ? "AI membalas otomatis. Klik untuk menghentikan AI dan menangani sendiri."
-                        : "AI dijeda. Klik untuk mengaktifkan balasan otomatis lagi."
-                    }
+                    title={aiPauseInfo(detail.conversation).hint}
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 md:px-3 md:py-2 text-[10px] font-label-md uppercase tracking-widest disabled:opacity-50 ${
-                      detail.conversation.status === "bot"
+                      aiPauseInfo(detail.conversation).active
                         ? "bg-emerald-600 text-white"
                         : "border border-amber-300 bg-amber-100 text-amber-900"
                     }`}
                   >
                     <span className="material-symbols-outlined text-[14px]">
-                      {detail.conversation.status === "bot" ? "smart_toy" : "pause_circle"}
+                      {aiPauseInfo(detail.conversation).active ? "smart_toy" : "pause_circle"}
                     </span>
-                    {detail.conversation.status === "bot" ? "AI aktif" : "AI dijeda"}
+                    {aiPauseInfo(detail.conversation).label}
                   </button>
                   {detail.conversation.status !== "closed" && (
                     <button
