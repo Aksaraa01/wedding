@@ -4,6 +4,7 @@ import assert from "node:assert/strict"
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import { csSendUrls } from "../src/lib/cs/waSend.ts"
+import { switchTemplateReply } from "../src/lib/cs/contact.ts"
 import { detectTemplateCategory, templateAnswerKind } from "../src/lib/cs/templateFilter.ts"
 import { formatCategoryReply, formatShelfReply } from "../src/lib/cs/templateCategoryReply.ts"
 import { reengageMessage, reengageSettings, withinQuietWindow, wibHour } from "../src/lib/cs/reengagePolicy.ts"
@@ -427,6 +428,14 @@ test("template: rak terbaru/populer menyebut nama dari data", () => {
   assert.doesNotMatch(popular, /Template 3/) // nama placeholder dibuang
   assert.match(formatShelfReply("newest", rows), /terbaru/)
   assert.doesNotMatch(popular, /Rp/)
+})
+
+test("template: ganti template tidak dijanjikan", () => {
+  const text = switchTemplateReply()
+  assert.match(text, /tim/)
+  assert.match(text, /tidak bisa diganti sendiri/)
+  assert.doesNotMatch(text, /sudah (aku )?ganti|bisa kami ganti/i)
+  assert.equal(validateReply({ reply: text }).ok, true)
 })
 
 test("template: filter Basic/Premium dijelaskan, bukan paket buku tamu", () => {

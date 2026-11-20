@@ -49,3 +49,15 @@ export function premiumTemplateReply(): string {
     'https://wedding.aksaraa.com/templates',
   ].join("\n")
 }
+
+// "Bisa ganti template setelah daftar?" — bot tidak boleh menjanjikan apa pun,
+// dan tidak perlu membuat tiket kalau klien baru bertanya. Kalau klien minta
+// diproses, itu baru `data_change`.
+export function switchTemplateReply(): string {
+  return [
+    "Template yang sudah dipakai tidak bisa diganti sendiri dari halaman undangan.",
+    "Kalau memang perlu diganti, tim yang memproses (datanya tetap aman).",
+    "",
+    "Mau aku teruskan ke tim sekarang? Balas \"ya, teruskan\" dan aku buatkan tiketnya.",
+  ].join("\n")
+}

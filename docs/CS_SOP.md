@@ -117,8 +117,8 @@ Lima aturan yang tidak boleh dilanggar:
 | "template premium itu apa?" / "bedanya basic sama premium?" | filter **paket** di galeri: Basic = bonus cetak undangan, Premium = perlu paket berbayar. Bukan tingkatan kualitas, bukan paket Buku Tamu Digital | **K** |
 | "template untuk khitanan / aqiqah / ulang tahun?" | katalog anak: `https://ceriavite.aksaraa.com` | **K** |
 | "undangan saya template apa?" | perlu verifikasi dulu, lalu sebut template dari profil (`profile_status`) | **D** |
-| "bisa ganti template setelah daftar?" | jangan dijanjikan; sampaikan tim yang memproses → tiket `data_change` | **T** |
-| "template saya bisa diganti?" | sama: verifikasi → tiket, tanpa janji | **T** |
+| "bisa ganti template setelah daftar?" | balasan tetap: tidak bisa diganti sendiri dari halaman undangan, tim yang memproses; tawarkan "mau aku teruskan ke tim?" — tiket `data_change` hanya kalau klien setuju | **K** |
+| "template saya bisa diganti?" | sama; jangan pernah bilang "sudah aku ganti" | **K** |
 | "template bisa custom desain?" | custom desain dikonsultasikan ke tim; jangan sebut harga custom | **T** |
 | "template bisa ganti warna / ubah isi sendiri?" | isi (nama, foto, jadwal, rekening) diubah dari editor; perubahan struktur/warna = tim | **B/T** |
 | "template ini bisa dipakai paket Essential/Signature?" | cocokkan `package_eligibility`; kalau desain tidak eligible, sebut desain lain yang eligible | **D** |

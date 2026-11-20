@@ -9,6 +9,7 @@ import {
   type EscalationReason,
   type Priority,
 } from "@/lib/cs/policy"
+import { asksToSwitchTemplate } from "@/lib/cs/templateFilter"
 import { buildSystemPrompt } from "@/lib/cs/prompt"
 import { runAgentLoop, type LoopResult } from "@/lib/cs/agentLoop"
 import { chatCompletion } from "@/lib/cs/llm"
@@ -253,6 +254,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     asksPremiumTemplate:
       /premium/i.test(input.text) &&
       /template|desain|filter|badge|label|tanda/i.test(input.text),
+    asksSwitchTemplate: asksToSwitchTemplate(input.text),
     channel: input.channel,
   }
 

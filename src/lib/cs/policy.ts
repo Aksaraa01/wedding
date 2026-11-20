@@ -1,5 +1,10 @@
 import { detectPackageInterest } from "./playbook"
-import { paymentContactReply, premiumTemplateReply, templateGalleryReply } from "./contact"
+import {
+  paymentContactReply,
+  premiumTemplateReply,
+  switchTemplateReply,
+  templateGalleryReply,
+} from "./contact"
 import {
   asksToSwitchTemplate,
   detectTemplateCategory,
@@ -80,6 +85,8 @@ export interface DecisionContext {
   kidsTopic?: boolean
   // "template premium itu apa?" → soal filter Basic/Premium di galeri.
   asksPremiumTemplate?: boolean
+  // "bisa ganti template setelah daftar?" → kebijakan, bukan permintaan galeri.
+  asksSwitchTemplate?: boolean
   // Web anonim tidak punya jalur verifikasi (PIN/OTP dikirim ke WhatsApp),
   // jadi permintaan data langsung dieskalasi, bukan disuruh kirim PIN.
   channel?: "web" | "wa"
@@ -645,6 +652,9 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       return { action: "tool", intent, tool: "list_packages" }
 
     case "template":
+      if (ctx.asksSwitchTemplate) {
+        return { action: "contact", intent, message: switchTemplateReply() }
+      }
       if (ctx.asksPremiumTemplate) {
         return { action: "contact", intent, message: premiumTemplateReply() }
       }
