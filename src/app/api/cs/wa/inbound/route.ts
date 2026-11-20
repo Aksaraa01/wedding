@@ -361,7 +361,7 @@ export async function POST(request: Request) {
   // Kill switch global: pesan tersimpan (muncul di /ops/cs) tetapi bot diam.
   // Status percakapan tidak disentuh, jadi saat AI dinyalakan lagi setiap
   // percakapan kembali ke status terakhirnya (bot/human/closed).
-  if (!settings.enabled) {
+  if (!settings.channels.wa) {
     return NextResponse.json({ replies: [] })
   }
 

@@ -1,8 +1,15 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { resolvePolicies, type CsPolicies } from "@/lib/cs/policies"
 
+export interface CsChannels {
+  wa: boolean
+  web: boolean
+}
+
 export interface CsSettings {
   enabled: boolean
+  // Kill switch per kanal. WhatsApp dan widget web bisa dimatikan terpisah.
+  channels: CsChannels
   model: string
   maxReplyWords: number
   persona: string | null
@@ -11,6 +18,7 @@ export interface CsSettings {
 
 const DEFAULTS: CsSettings = {
   enabled: true,
+  channels: { wa: true, web: true },
   model: "anthropic/claude-haiku-5.5",
   maxReplyWords: 90,
   persona: null,
@@ -35,8 +43,19 @@ export async function getCsSettings(): Promise<CsSettings> {
 
   if (error || !data) return DEFAULTS
 
+  const master = data.enabled !== false
+  const rawGuardrails = (data.guardrails || {}) as Record<string, unknown>
+  const rawChannels =
+    rawGuardrails.channels && typeof rawGuardrails.channels === "object"
+      ? (rawGuardrails.channels as Record<string, unknown>)
+      : {}
+
   const value: CsSettings = {
-    enabled: data.enabled !== false,
+    enabled: master,
+    channels: {
+      wa: master && rawChannels.wa !== false,
+      web: master && rawChannels.web !== false,
+    },
     model: data.model || DEFAULTS.model,
     maxReplyWords: Number(data.max_reply_words) || DEFAULTS.maxReplyWords,
     persona: data.persona || null,

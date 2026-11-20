@@ -153,7 +153,7 @@ export async function POST(request: Request) {
   // Kill switch global: pesan tetap disimpan (tim melihatnya di /ops/cs), tapi
   // bot tidak membalas dan status percakapan TIDAK diubah. Saat AI dinyalakan
   // lagi, setiap percakapan kembali ke status terakhirnya (bot/human/closed).
-  if (!settings.enabled) {
+  if (!settings.channels.web) {
     return NextResponse.json({
       reply: "CS Aksaraa sedang tidak aktif. Silakan coba lagi nanti atau hubungi kami lewat WhatsApp.",
       offline: true,

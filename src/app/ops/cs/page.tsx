@@ -216,7 +216,7 @@ export default function OpsCsPage() {
   } | null>(null)
   const [waPhone, setWaPhone] = useState("")
   const [waBusy, setWaBusy] = useState(false)
-  const [globalAi, setGlobalAi] = useState<{ enabled: boolean } | null>(null)
+  const [globalAi, setGlobalAi] = useState<{ whatsapp: boolean; website: boolean } | null>(null)
   const [globalBusy, setGlobalBusy] = useState(false)
 
   useEffect(() => {
@@ -291,32 +291,40 @@ export default function OpsCsPage() {
     return () => window.clearInterval(timer)
   }, [loadGlobalAi])
 
-  const toggleGlobalAi = useCallback(async () => {
-    if (!globalAi) return
-    const next = !globalAi.enabled
-    if (!next) {
-      const ok = window.confirm(
-        "Matikan AI untuk SEMUA percakapan?\n\nBot berhenti membalas di WhatsApp dan widget web. Pesan klien tetap tersimpan dan muncul di daftar."
-      )
-      if (!ok) return
-    }
-    setGlobalBusy(true)
-    setError("")
-    try {
-      const res = await fetch("/api/ops/cs/global", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ enabled: next }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data?.error || "gagal mengubah AI global")
-      setGlobalAi({ enabled: !!data.enabled })
-    } catch (err) {
-      setError(String((err as Error)?.message || "gagal mengubah AI global"))
-    } finally {
-      setGlobalBusy(false)
-    }
-  }, [globalAi, headers])
+  const toggleChannel = useCallback(
+    async (channel: "wa" | "web") => {
+      if (!globalAi) return
+      const current = channel === "wa" ? globalAi.whatsapp : globalAi.website
+      const next = !current
+      if (!next) {
+        const label = channel === "wa" ? "WhatsApp" : "Website (widget)"
+        const ok = window.confirm(
+          `Matikan AI di ${label}?\n\nBot berhenti membalas di kanal itu saja. Pesan klien tetap tersimpan dan muncul di daftar.`
+        )
+        if (!ok) return
+      }
+      setGlobalBusy(true)
+      setError("")
+      try {
+        const res = await fetch("/api/ops/cs/global", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ channel, enabled: next }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(data?.error || "gagal mengubah AI kanal")
+        setGlobalAi({
+          whatsapp: !!data.whatsapp,
+          website: !!data.website,
+        })
+      } catch (err) {
+        setError(String((err as Error)?.message || "gagal mengubah AI kanal"))
+      } finally {
+        setGlobalBusy(false)
+      }
+    },
+    [globalAi, headers]
+  )
 
   const fetchList = useCallback(async (query?: string) => {
     const term = query === undefined ? searchRef.current : query
@@ -503,50 +511,43 @@ export default function OpsCsPage() {
               )}
             </div>
 
-            {/* Kill switch: satu tombol untuk seluruh percakapan. Status tiap
-                percakapan tidak diubah, jadi saat dinyalakan lagi semuanya
-                kembali ke status terakhirnya. */}
-            <div
-              className={`border p-3 space-y-2 ${
-                globalAi?.enabled === false
-                  ? "border-red-300 bg-red-50"
-                  : "border-outline-variant bg-white"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] font-label-md uppercase tracking-widest text-on-surface-variant">
-                  AI Bot (semua)
-                </p>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded ${
-                    globalAi?.enabled === false
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
-                >
-                  {globalAi?.enabled === false ? "MATI" : "AKTIF"}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={toggleGlobalAi}
-                disabled={!globalAi || globalBusy}
-                className={`w-full px-3 py-2 text-[10px] font-label-md uppercase tracking-widest disabled:opacity-50 ${
-                  globalAi?.enabled === false
-                    ? "bg-emerald-600 text-white"
-                    : "bg-red-600 text-white"
-                }`}
-              >
-                {globalBusy
-                  ? "Memproses…"
-                  : globalAi?.enabled === false
-                    ? "Nyalakan AI untuk semua"
-                    : "Matikan AI untuk semua"}
-              </button>
+            {/* Kill switch per kanal: WhatsApp dan widget web terpisah.
+                Status tiap percakapan tidak diubah, jadi saat dinyalakan lagi
+                semuanya kembali ke status terakhirnya. */}
+            <div className="border border-outline-variant bg-white p-3 space-y-2">
+              <p className="text-[10px] font-label-md uppercase tracking-widest text-on-surface-variant">
+                AI Bot per kanal
+              </p>
+              {[
+                { key: "wa" as const, label: "WhatsApp", active: globalAi?.whatsapp !== false },
+                { key: "web" as const, label: "Website (widget)", active: globalAi?.website !== false },
+              ].map((row) => (
+                <div key={row.key} className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold truncate">{row.label}</p>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded ${
+                        row.active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {row.active ? "AKTIF" : "MATI"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleChannel(row.key)}
+                    disabled={!globalAi || globalBusy}
+                    className={`px-2.5 py-1.5 text-[10px] font-label-md uppercase tracking-widest disabled:opacity-50 ${
+                      row.active ? "bg-red-600 text-white" : "bg-emerald-600 text-white"
+                    }`}
+                  >
+                    {row.active ? "Matikan" : "Nyalakan"}
+                  </button>
+                </div>
+              ))}
               <p className="text-[10px] text-on-surface-variant leading-snug">
-                {globalAi?.enabled === false
-                  ? "Bot diam di semua percakapan. Pesan klien tetap masuk ke daftar. Menyalakan lagi mengembalikan tiap percakapan ke status terakhirnya."
-                  : "Mematikan ini menghentikan bot di WhatsApp dan widget web sekaligus. Toggle per percakapan tetap tersimpan."}
+                Mati di satu kanal tidak memengaruhi kanal lain. Pesan klien tetap masuk
+                ke daftar; menyalakan lagi mengembalikan tiap percakapan ke status terakhirnya.
               </p>
             </div>
 
@@ -565,6 +566,7 @@ export default function OpsCsPage() {
                 </button>
               ))}
             </div>
+
             <div className="relative">
               <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">
                 search

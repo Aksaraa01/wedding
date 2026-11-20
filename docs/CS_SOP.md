@@ -60,20 +60,26 @@ Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
 - Gateway punya blok 120 detik terakhir: kalau manusia membalas saat bot sedang
   menyusun jawaban, balasan bot dibatalkan sebelum dikirim.
 
-### Kill switch AI (semua percakapan)
+### Kill switch AI per kanal (WhatsApp / Website)
 
-Di `/ops/cs` ada satu tombol **"AI Bot (semua)"**:
+Di `/ops/cs` ada kartu **"AI Bot per kanal"** dengan dua baris terpisah:
 
-- **Matikan AI untuk semua** → `cs_settings.enabled = false`. Bot berhenti di
-  WhatsApp dan widget web sekaligus. Pesan klien **tetap disimpan** dan muncul
-  di daftar, tetapi tidak dibalas dan status percakapan **tidak diubah**.
-- **Nyalakan AI untuk semua** → `cs_settings.enabled = true`. Setiap percakapan
-  **kembali ke status terakhirnya**: `bot` membalas lagi, `human` tetap diam
-  (termasuk jeda manual), `closed` tetap selesai.
-- Berlaku seketika (cache pengaturan dibersihkan saat tombol ditekan).
-- Setiap perubahan dicatat di `cs_audit` (`ai_global_on` / `ai_global_off`).
-- Ini berbeda dari toggle per percakapan: toggle per percakapan tetap tersimpan
-  dan tidak diubah oleh kill switch.
+| Kanal | Saklar | Efek |
+|---|---|---|
+| **WhatsApp** | Matikan / Nyalakan | hanya jalur WhatsApp (`/api/cs/wa/inbound`) yang berhenti membalas |
+| **Website (widget)** | Matikan / Nyalakan | hanya widget web (`/api/cs/chat`) yang berhenti membalas |
+
+- Nilai disimpan di `cs_settings.guardrails.channels` (`{ wa, web }`);
+  `cs_settings.enabled` tetap menjadi master (kalau false, keduanya mati).
+- Mematikan satu kanal **tidak** memengaruhi kanal lain.
+- Pesan klien **tetap disimpan** dan muncul di daftar, tetapi tidak dibalas dan
+  status percakapan **tidak diubah**.
+- Menyalakan lagi mengembalikan setiap percakapan ke **status terakhirnya**:
+  `bot` membalas, `human` tetap diam (termasuk jeda manual), `closed` tetap.
+- Berlaku seketika (cache pengaturan dibersihkan saat tombol ditekan) dan
+  dicatat di `cs_audit` sebagai `ai_channel_off` / `ai_channel_on` dengan detail
+  `{ channel }`.
+- Toggle per percakapan tetap tersimpan dan tidak diubah oleh kill switch.
 
 ### Grup tidak pernah dibalas
 
