@@ -17,8 +17,22 @@ export function paymentContactReply(): string {
 // Pertanyaan "semua template" dijawab dengan galeri, bukan 8 link acak.
 // Pertanyaan pembayaran: rekening resmi + langkah kirim bukti. Nomor rekening
 // hanya boleh datang dari sini (bukan dari KB/model) supaya tidak pernah salah.
-export function paymentInstructionsReply(): string {
-  return [
+//
+// Pembayaran TIDAK mensyaratkan akun: klien boleh transfer lebih dulu. Yang
+// belum terdaftar tetap diingatkan mendaftar + diberi tautannya, supaya
+// pembayaran punya akun yang bisa dicatat.
+export interface PaymentReplyOptions {
+  registered?: boolean
+  kids?: boolean
+}
+
+export function paymentInstructionsReply(options: PaymentReplyOptions = {}): string {
+  const registered = options.registered !== false
+  const registerUrl = options.kids
+    ? "https://ceriavite.aksaraa.com/daftar"
+    : "https://wedding.aksaraa.com/register"
+
+  const lines = [
     "Untuk pembayaran paket, silakan transfer ke salah satu rekening berikut:",
     "",
     "• BRI: 108901019687509",
@@ -28,9 +42,21 @@ export function paymentInstructionsReply(): string {
     "",
     "Untuk pelunasan, pastikan kirim ke *M RAFI ALHARIRI* ya Kak.",
     "Setelah transfer, kirim bukti transfernya di chat ini (sebutkan juga nama pemilik rekening pengirim kalau berbeda).",
-    "",
-    "Aku sudah buatkan catatan untuk tim supaya pembayaran Kakak dicek dan dikonfirmasi.",
-  ].join("\n")
+  ]
+
+  if (!registered) {
+    lines.push("")
+    lines.push(
+      `Kakak belum punya akun, dan itu tidak masalah — pembayaran tetap bisa dilakukan.`
+    )
+    lines.push(
+      `Supaya pembayarannya tercatat di akun Kakak, daftar dulu di ${registerUrl} (pilih paket dan template, lalu konfirmasi).`
+    )
+  }
+
+  lines.push("")
+  lines.push("Aku sudah buatkan catatan untuk tim supaya pembayaran Kakak dicek dan dikonfirmasi.")
+  return lines.join("\n")
 }
 
 export function templateGalleryReply(kids: boolean): string {

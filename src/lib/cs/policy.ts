@@ -688,7 +688,15 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       // Pertanyaan "mau bayar / rekening / pelunasan": kirim instruksi transfer
       // (deterministik) DAN buat tiket supaya masuk filter "Perlu" di /ops/cs.
       // AI tidak dijeda supaya klien tetap bisa bertanya hal lain.
-      return { action: "contact", intent, message: paymentInstructionsReply() }
+      // Belum terdaftar tetap boleh bayar, tapi diberi tautan pendaftaran.
+      return {
+        action: "contact",
+        intent,
+        message: paymentInstructionsReply({
+          registered: ctx.hasProfile,
+          kids: ctx.kidsTopic,
+        }),
+      }
 
     case "complaint":
       return { action: "escalate", intent, reason: "complaint", priority: "high" }

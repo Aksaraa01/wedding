@@ -435,6 +435,12 @@ knowledge base di `cs_documents` / `cs_chunks`:
 
   Balasan juga meminta bukti transfer dan mengingatkan bahwa **pelunasan**
   harus ke **M RAFI ALHARIRI**.
+- **Pembayaran tidak mensyaratkan akun.** Klien yang belum terdaftar tetap
+  boleh transfer; balasannya menambahkan "belum punya akun, itu tidak masalah —
+  pembayaran tetap bisa dilakukan" lalu tautan pendaftaran
+  (`https://wedding.aksaraa.com/register`, anak: `https://ceriavite.aksaraa.com/daftar`)
+  supaya pembayarannya tercatat di akun. Klien yang sudah punya profil tidak
+  disuruh daftar lagi.
 - Setiap pertanyaan pembayaran **membuat tiket `payment`** supaya muncul di
   filter **Perlu** di `/ops/cs`, tetapi **AI tidak dijeda** (pola yang sama
   dengan voucher): klien biasanya langsung lanjut bertanya soal paket.

@@ -139,7 +139,23 @@ test("pembayaran: 'mau bayar' masuk payment, bukan unknown", () => {
   assert.match(reply, /BCA: 4410040111/)
   assert.match(reply, /M RAFI ALHARIRI/)
   assert.match(reply, /pelunasan/i)
+  // Sudah punya akun: tidak perlu disuruh daftar lagi.
+  assert.doesNotMatch(reply, /wedding\.aksaraa\.com\/register/)
   assert.equal(validateReply({ reply }).ok, true)
+})
+
+test("pembayaran: belum terdaftar tetap boleh bayar + diberi link daftar", () => {
+  const guest = paymentInstructionsReply({ registered: false })
+  assert.match(guest, /BRI: 108901019687509/)
+  assert.match(guest, /BCA: 4410040111/)
+  assert.match(guest, /belum punya akun/)
+  assert.match(guest, /pembayaran tetap bisa dilakukan/)
+  assert.match(guest, /https:\/\/wedding\.aksaraa\.com\/register/)
+  assert.equal(validateReply({ reply: guest }).ok, true)
+
+  const kids = paymentInstructionsReply({ registered: false, kids: true })
+  assert.match(kids, /https:\/\/ceriavite\.aksaraa\.com\/daftar/)
+  assert.doesNotMatch(kids, /wedding\.aksaraa\.com\/register/)
 })
 
 test("classify: pertanyaan undangan cetak", () => {
