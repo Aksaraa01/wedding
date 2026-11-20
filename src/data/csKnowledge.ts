@@ -225,6 +225,28 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
     ],
   },
   {
+    key: "video-sinematik",
+    title: "Video sinematik di undangan",
+    url: "https://wedding.aksaraa.com/premium-web-invitation",
+    chunks: [
+      {
+        heading: "Apa itu video sinematik",
+        content:
+          "Video sinematik adalah bagian video di undangan yang menampilkan video perjalanan cinta pasangan. Isinya video YouTube yang dikirim pasangan sendiri lewat editor (bagian Video) atau dibantu tim CS — tim tidak memproduksi videonya. Jadi kalau belum punya video, bagian ini bisa dikosongkan atau dimatikan.",
+      },
+      {
+        heading: "Paket yang termasuk",
+        content:
+          "Bagian video sinematik termasuk pada paket Signature, Prestige, Elite, dan paket BONUS. Tidak termasuk pada paket Essential, Galeri Tamu, dan Ceriavite. Kalau paket Kakak belum termasuk, bagian Video terkunci; untuk membukanya perlu naik paket lewat tim.",
+      },
+      {
+        heading: "Cara mengisi bagian video",
+        content:
+          "Buka dashboard → Web Invitation → editor → bagian Video, lalu tempel tautan YouTube (bentuk https://youtu.be/... atau https://www.youtube.com/watch?v=...). Kalau lewat CS, kirim tautannya di chat dan tim/CS akan memasukkannya. Tautan video biasa (bukan YouTube) tidak didukung.",
+      },
+    ],
+  },
+  {
     key: "musik",
     title: "Musik latar undangan",
     url: "https://wedding.aksaraa.com/fitur/undangan-digital",

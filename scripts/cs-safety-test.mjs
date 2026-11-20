@@ -181,6 +181,26 @@ test("di luar intent: sapaan tidak dieskalasi, pertanyaan asing dieskalasi", () 
   assert.equal(classify("beda paket essential dan signature"), "package_info")
 })
 
+test("pertanyaan di tengah pengisian tidak dianggap jawaban field", () => {
+  // "cinematic video itu apa" dulu tidak terdeteksi (tidak diawali kata tanya,
+  // tanpa "?") sehingga ditolak validator URL.
+  assert.equal(looksLikeQuestion("cinematic video itu apa"), true)
+  assert.equal(looksLikeQuestion("maksudnya gimana"), true)
+  assert.equal(looksLikeQuestion("bedanya apa"), true)
+  assert.equal(looksLikeQuestion("video sinematik termasuk ga"), true)
+  // Tautan YouTube dengan "?" BUKAN pertanyaan — ini yang dulu bikin link gagal.
+  assert.equal(looksLikeQuestion("https://www.youtube.com/watch?v=dQw4w9WgXcQ"), false)
+  assert.equal(looksLikeQuestion("https://youtu.be/abc123"), false)
+  // Jawaban biasa tetap jawaban.
+  assert.equal(looksLikeQuestion("Budi Santoso"), false)
+})
+
+test("video sinematik punya cabang dan penjelasan", () => {
+  assert.equal(classify("cinematic video itu apa?"), "technical")
+  assert.equal(classify("video sinematik termasuk ga?"), "technical")
+  assert.equal(classify("bagian video di undangan"), "technical")
+})
+
 test("classify: pertanyaan undangan cetak", () => {
   assert.equal(classify("ada undangan cetak ga?"), "print_question")
 })

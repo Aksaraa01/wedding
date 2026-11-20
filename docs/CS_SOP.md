@@ -359,6 +359,28 @@ undangan, "berapa kali revisi"). Butuh verifikasi seperti permintaan data lain.
 - Kalau klasifikasi AI berhasil menebak cabang, pesan diproses normal seperti
   intent biasa — tidak ada eskalasi.
 
+### Bagian Video vs video sinematik
+
+Dua hal berbeda yang sering tertukar saat mengisi data:
+
+| | Bagian Video di undangan | Video sinematik (produksi tim) |
+|---|---|---|
+| Isi | video YouTube yang dikirim pasangan | **tidak ada** — tim tidak memproduksi video |
+| Letak | editor → bagian **Video** (`video_url`) | — |
+| Paket | Signature, Prestige, Elite, BONUS (Essential/Ceriavite tidak) | — |
+
+- Pertanyaan seperti "cinematic video itu apa?" dijawab dari KB
+  (`video-sinematik`), termasuk paket yang memuatnya dan cara mengisinya.
+- Saat alur pengisian berada di langkah Video, pertanyaan seperti itu
+  **dilepas ke router** (bukan disimpan sebagai link) karena
+  `looksLikeQuestion()` kini mengenali pola "itu apa", "maksudnya", "bedanya",
+  "termasuk ga" — bukan hanya kalimat yang diawali kata tanya.
+- Tautan YouTube (`https://youtube.com/watch?v=...`) **tidak** dianggap
+  pertanyaan walau mengandung `?`, jadi bisa disimpan sebagai `video_url`.
+- Kalau paket belum termasuk video sinematik, CS menjelaskan bahwa bagian itu
+  terkunci dan menaikkan paket diproses tim (tiket), bukan menjanjikan tambahan
+  gratis.
+
 ## Yang dilakukan setiap eskalasi
 
 1. Baris `cs_escalations` (status `open`, ada alasan + prioritas + ringkasan).

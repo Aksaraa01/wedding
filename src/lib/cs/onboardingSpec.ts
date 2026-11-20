@@ -240,7 +240,8 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
       {
         key: "video_url",
         label: "Link Video",
-        question: "Kirim link video (YouTube) untuk bagian sinematik ya Kak.",
+        question:
+          "Kirim tautan YouTube untuk bagian Video ya Kak (contoh: https://youtu.be/xxxx). Bagian ini bukan video sinematik produksi tim — kalau mau tanya soal itu, tulis saja pertanyaannya.",
         kind: "url",
       },
     ],
@@ -571,10 +572,19 @@ export function questionForField(field: FlowField): string {
 // Klien sering membalas pertanyaan dengan pertanyaan lain ("maksudnya apa?",
 // "berapa harganya?"). Deteksi ini dipakai agar jawaban seperti itu tidak
 // tersimpan sebagai nilai field.
+// Pertanyaan yang tidak diawali kata tanya, mis. "cinematic video itu apa",
+// "maksudnya gimana", "bedanya apa". Tanpa ini, pertanyaan seperti itu
+// dianggap jawaban field dan ditolak validator ("Link harus diawali https://").
+const QUESTION_PHRASE =
+  /\b(apa itu|itu apa|itu apa ya|apa ya|maksudnya|maksud nya|bedanya|beda nya|gimana|bagaimana|berapa|kenapa|kok bisa|bisa ga|bisa gak|bisakah|apakah|yang mana|caranya|contohnya|fungsinya|gunanya|termasuk ga|termasuk gak)\b/i
+
 export function looksLikeQuestion(text: string): boolean {
   const value = (text || "").trim()
   if (!value) return false
+  // URL yang ditempel (YouTube "watch?v=...") bukan pertanyaan.
+  if (/^https?:\/\//i.test(value)) return false
   if (value.includes("?")) return true
+  if (QUESTION_PHRASE.test(value)) return true
   return /^(apa|apakah|berapa|gimana|bagaimana|kenapa|kok|maksud|maksudnya|bisa|bisakah|kapan|dimana|di mana|siapa|yang benar|contohnya)\b/i.test(
     value
   )

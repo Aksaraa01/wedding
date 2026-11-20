@@ -57,8 +57,11 @@ async function main() {
     .select("id,title,url,checksum")
   if (error) throw error
 
+  // Kunci = judul, bukan URL: beberapa entri KB berbagi URL yang sama
+  // (mis. semua ke /premium-web-invitation), dan kunci URL membuat entri baru
+  // menimpa dokumen lain alih-alih dibuat.
   const byKey = new Map()
-  for (const row of existing || []) byKey.set(row.url || row.title, row)
+  for (const row of existing || []) byKey.set(row.title, row)
 
   let inserted = 0
   let updated = 0
@@ -66,7 +69,7 @@ async function main() {
   const seen = new Set()
 
   for (const doc of docs) {
-    const key = doc.url || doc.title
+    const key = doc.title
     seen.add(key)
     const checksum = checksumOf(
       `${doc.title}\n${doc.chunks.map((chunk) => `${chunk.heading || ""}|${chunk.content}`).join("\n")}`
