@@ -579,6 +579,17 @@ test("status undangan: lunas + konten lengkap = tinggal konfirmasi", () => {
   assert.deepEqual(pendingBlockers({ contentBlockers: [], published: true }), [])
 })
 
+test("classify: rekomendasi template bukan kualifikasi paket", () => {
+  assert.equal(classify("kak rekomendasi template"), "template")
+  assert.equal(classify("bingung pilih template"), "template")
+  assert.equal(classify("template yang cocok buat adat"), "template")
+  assert.equal(classify("saran desain dong"), "template")
+  // Rekomendasi paket tetap masuk playbook kualifikasi.
+  assert.equal(classify("rekomendasi paket"), "recommendation")
+  assert.equal(classify("paket mana yang cocok"), "recommendation")
+  assert.equal(classify("bingung pilih paket"), "recommendation")
+})
+
 test("classify: permintaan tautan vs keluhan teknis", () => {
   assert.equal(classify("link undangan saya apa?"), "invitation_link")
   assert.equal(classify("minta link undangan"), "invitation_link")

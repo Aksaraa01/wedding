@@ -453,6 +453,16 @@ export function classify(text: string): Intent {
     return "timeline"
   }
 
+  // "Rekomendasi template / desain" itu soal DESAIN, bukan kualifikasi paket.
+  // Tanpa cabang ini, kata "rekomendasi" menangkap semuanya dan klien yang minta
+  // template malah ditanya "butuh undangan digital, buku tamu QR, atau galeri?".
+  if (
+    hasAny(t, ["template", "desain", "tema"]) &&
+    hasAny(t, ["rekomendasi", "rekomen", "rekomendasiin", "saran", "cocok", "bingung", "pilih", "bagus"])
+  ) {
+    return "template"
+  }
+
   if (
     hasAny(t, [
       "rekomendasi",
