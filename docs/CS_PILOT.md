@@ -67,9 +67,33 @@ async function forwardToCs(
   const data = await res.json().catch(() => null)
   const replies = Array.isArray(data?.replies) ? data.replies : []
   for (const reply of replies) {
-    if (typeof reply?.text !== "string" || !reply.text.trim()) continue
-    if (reply.typing) await sock.sendPresenceUpdate("composing", jid)
-    await sock.sendMessage(jid, { text: reply.text })
+    if (reply?.typing) await sock.sendPresenceUpdate("composing", jid)
+
+    if (typeof reply?.text === "string" && reply.text.trim()) {
+      await sock.sendMessage(jid, { text: reply.text })
+    }
+
+    const media = Array.isArray(reply?.media) ? reply.media : []
+    for (const item of media) {
+      if (!item || typeof item.url !== "string") continue
+      if (item.type === "image") {
+        await sock.sendMessage(jid, {
+          image: { url: item.url },
+          caption: typeof item.caption === "string" ? item.caption : undefined,
+        })
+      } else if (item.type === "document") {
+        await sock.sendMessage(jid, {
+          document: { url: item.url },
+          mimetype: typeof item.mimetype === "string" ? item.mimetype : "application/pdf",
+          fileName:
+            typeof item.filename === "string"
+              ? item.filename
+              : typeof item.fileName === "string"
+                ? item.fileName
+                : "dokumen.pdf",
+        })
+      }
+    }
   }
   return true
 }
@@ -135,7 +159,9 @@ Tidak ada perubahan database di sisi bot, jadi rollback aman.
 - rate limit 30 pesan/menit per nomor
 - debounce `CS_DEBOUNCE_MS` (default 2500): 3 pesan beruntun → 1 balasan
 - verifikasi: nomor terdaftar → kode 6 digit dikirim ke nomor itu
-- balasan dikembalikan sebagai `{ replies: [{ text, typing }] }`
+- balasan dikembalikan sebagai `{ replies: [{ text, typing, media? }] }`
+  - `media` (opsional, khusus WhatsApp): array lampiran `{ type: "image"|"document", url, filename?, caption?, mimetype? }`
+  - untuk intent paket/harga di WhatsApp, CS mengirim teks singkat + 4 foto paket (Essential/Signature/Prestige/Elite) + pricelist PDF (visual-first)
 
 Env tambahan di app:
 

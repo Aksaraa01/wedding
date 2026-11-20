@@ -5,8 +5,6 @@ import { randomUUID } from "node:crypto"
 import { supabaseAdmin } from "@/lib/supabase"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
-import { aiPaused, shouldAutoResume } from "@/lib/cs/handoff"
-import { countUnknownStrikes, detectSentiment } from "@/lib/cs/policy"
 import { handleInbound } from "@/lib/cs/orchestrator"
 import { COUPLE_COOKIE, getSessionToken, verifySession } from "@/lib/sessionToken"
 
@@ -49,6 +47,12 @@ export async function POST(request: Request) {
   if (text.length > 1000) return NextResponse.json({ error: "pesan terlalu panjang" }, { status: 400 })
 
   const settings = await getCsSettings()
+  if (!settings.enabled) {
+    return NextResponse.json({
+      reply: "CS Aksaraa sedang tidak aktif. Silakan coba lagi nanti atau hubungi kami lewat WhatsApp.",
+      offline: true,
+    })
+  }
 
   const cookieStore = await cookies()
   let sessionId = cookieStore.get(COOKIE)?.value || ""
@@ -101,7 +105,7 @@ export async function POST(request: Request) {
 
   const { data: existing } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id,status,ai_paused_until")
+    .select("id")
     .eq("contact_id", contact.id)
     .eq("channel", "web")
     .neq("status", "closed")
@@ -150,46 +154,15 @@ export async function POST(request: Request) {
     .update({ last_inbound_at: now })
     .eq("id", conversationId)
 
-  // Kill switch global: pesan tetap disimpan (tim melihatnya di /ops/cs), tapi
-  // bot tidak membalas dan status percakapan TIDAK diubah. Saat AI dinyalakan
-  // lagi, setiap percakapan kembali ke status terakhirnya (bot/human/closed).
-  if (!settings.channels.web) {
-    return NextResponse.json({
-      reply: "CS Aksaraa sedang tidak aktif. Silakan coba lagi nanti atau hubungi kami lewat WhatsApp.",
-      offline: true,
-      conversationId,
-    })
-  }
-
-  // Toggle AI per percakapan (dashboard /ops): saat tim mengambil alih,
-  // widget tidak boleh dibalas otomatis. Pesan tetap tersimpan untuk tim.
-  // Jeda otomatis (balasan tim 10 menit / eskalasi) yang sudah lewat
-  // dikembalikan ke bot, sama seperti jalur WhatsApp.
-  if (shouldAutoResume(existing)) {
-    await supabaseAdmin
-      .from("cs_conversations")
-      .update({ status: "bot", ai_paused_until: null })
-      .eq("id", conversationId)
-  } else if (aiPaused(existing)) {
-    return NextResponse.json({ reply: "", paused: true })
-  }
-
   const { data: historyRows } = await supabaseAdmin
     .from("cs_messages")
-    .select("direction,body,created_at,intent")
+    .select("direction,body,created_at")
     .eq("conversation_id", conversationId)
     .lt("created_at", inbound.created_at)
     .order("created_at", { ascending: false })
     .limit(10)
 
-  const rows = (historyRows || []) as {
-    direction: string
-    body: string
-    intent: string | null
-  }[]
-
-  const history = rows
-    .slice()
+  const history = ((historyRows || []) as { direction: string; body: string }[])
     .reverse()
     .filter((row) => row.body)
     .map((row) => ({
@@ -204,9 +177,8 @@ export async function POST(request: Request) {
     verified: !!profile,
     hasProfile: !!profile,
     published: profile?.is_published === true,
-    strikeCount: countUnknownStrikes(rows),
-    sentiment: detectSentiment(text),
-    channel: "web",
+    strikeCount: 0,
+    sentiment: "neutral",
     text,
     history,
     model: settings.model,
@@ -215,15 +187,8 @@ export async function POST(request: Request) {
     policies: settings.policies,
     contactName,
     phone: null,
+    channel: "web",
   })
-
-  // Balapan dengan toggle tim: cek ulang tepat sebelum balasan dikirim.
-  const { data: owner } = await supabaseAdmin
-    .from("cs_conversations")
-    .select("status,ai_paused_until")
-    .eq("id", conversationId)
-    .maybeSingle()
-  if (aiPaused(owner)) return NextResponse.json({ reply: "", paused: true, conversationId })
 
   const reply = result.replies[0]?.text || ""
   const response = NextResponse.json({ reply, conversationId })
@@ -239,44 +204,4 @@ export async function POST(request: Request) {
   }
 
   return response
-}
-
-// GET /api/cs/chat?conversationId=...&since=ISO
-// Dipakai widget untuk menerima balasan manusia dari /ops/cs (dan balasan bot
-// yang telat) tanpa mengirim pesan baru.
-export async function GET(request: Request) {
-  const url = new URL(request.url)
-  const conversationId = url.searchParams.get("conversationId") || ""
-  const since = url.searchParams.get("since") || "1970-01-01T00:00:00.000Z"
-  if (!conversationId) return NextResponse.json({ error: "conversationId wajib" }, { status: 400 })
-
-  const cookieStore = await cookies()
-  const sessionId = cookieStore.get(COOKIE)?.value || ""
-  if (!SESSION_RE.test(sessionId)) return NextResponse.json({ messages: [] })
-
-  const { data: contact } = await supabaseAdmin
-    .from("cs_contacts")
-    .select("id")
-    .eq("wa_jid", `web:${sessionId}`)
-    .maybeSingle()
-  if (!contact) return NextResponse.json({ messages: [] })
-
-  const { data: conversation } = await supabaseAdmin
-    .from("cs_conversations")
-    .select("id,contact_id")
-    .eq("id", conversationId)
-    .eq("contact_id", contact.id)
-    .maybeSingle()
-  if (!conversation) return NextResponse.json({ error: "forbidden" }, { status: 403 })
-
-  const { data } = await supabaseAdmin
-    .from("cs_messages")
-    .select("id,direction,role,body,model,created_at")
-    .eq("conversation_id", conversationId)
-    .eq("direction", "out")
-    .gt("created_at", since)
-    .order("created_at", { ascending: true })
-    .limit(50)
-
-  return NextResponse.json({ messages: data || [] })
 }

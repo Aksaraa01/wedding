@@ -2,12 +2,9 @@
 // data. Angka selalu datang dari sini, tidak pernah dari model.
 
 import { supabaseAdmin } from "@/lib/supabase"
-import { coupleUrl } from "@/lib/coupleUrl"
-import { eventSite } from "@/lib/eventType"
-import { getPublishBlockers } from "@/lib/publishBlockers"
-import { pendingBlockers } from "@/lib/cs/statusReply"
 import { getPriceBook } from "@/lib/priceBook"
 import { PACKAGE_CODES, PACKAGE_LABELS, calcTotalBook } from "@/lib/packages"
+import { FEATURE_LABELS } from "@/lib/opsConstants"
 import {
   FIELD_BY_KEY,
   applyAnswer,
@@ -20,7 +17,14 @@ import { ensureLead, saveLeadFact } from "@/lib/cs/leads"
 import { missingCoreFacts, nextQualifyingQuestion, recommendPackage } from "@/lib/cs/playbook"
 import { isPlaceholderTemplate, matchesTemplateCategory } from "@/lib/cs/templateFilter"
 import { isCustomerFeature, isSellablePackage } from "@/lib/cs/catalog"
-import { enqueuePatch } from "@/lib/wpSyncWorker"
+import {
+  detectProduct,
+  formatProductDetail,
+  getProductDetail,
+  listProductDetails,
+  productForPackage,
+  type ProductKey,
+} from "@/lib/cs/productKnowledge"
 
 export interface CsToolContext {
   contactId: string
@@ -65,7 +69,7 @@ function presentFields(profile: Record<string, unknown>): Set<string> {
 }
 
 const PROFILE_SELECT =
-  "display_name,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,estimated_guest_count,sessions,quote_text,quote_source,stories,inviting_families,selected_template_id,payment_status,is_published,package_type,estimated_wedding_date,active_wp_post_id,slug,guest_link_strict,event_type,invitation_disabled_at"
+  "display_name,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,estimated_guest_count,sessions,quote_text,quote_source,stories,inviting_families,selected_template_id,payment_status,is_published,package_type,estimated_wedding_date,active_wp_post_id,slug"
 
 async function getProfile(weddingProfileId: string) {
   const { data, error } = await supabaseAdmin
@@ -94,23 +98,34 @@ async function toolGetPriceBook(): Promise<ToolResult> {
   ])
 
   const featureMap: Record<string, string[]> = {}
+  const featureLabelMap: Record<string, string[]> = {}
   for (const row of (features || []) as { package_code: string; feature_code: string; is_included: boolean }[]) {
     if (!row.is_included) continue
     if (!isCustomerFeature(row.feature_code)) continue
     featureMap[row.package_code] = featureMap[row.package_code] || []
+    featureLabelMap[row.package_code] = featureLabelMap[row.package_code] || []
     featureMap[row.package_code].push(row.feature_code)
+    featureLabelMap[row.package_code].push(FEATURE_LABELS[row.feature_code] || row.feature_code)
   }
 
   const data = ((packages || []) as { code: string; name: string; description: string; is_active: boolean }[])
     .filter((p) => p.is_active && isSellablePackage(p.code))
-    .map((p) => ({
-      code: p.code,
-      name: p.name,
-      description: p.description,
-      price: book.base[p.code] ?? null,
-      price_old: book.old[p.code] ?? null,
-      features: featureMap[p.code] || [],
-    }))
+    .map((p) => {
+      const productKey = productForPackage(p.code)
+      const detail = productKey ? getProductDetail(productKey, p.code) : null
+      const highlight = detail?.packages[0]?.description || ""
+      return {
+        code: p.code,
+        name: p.name,
+        description: p.description,
+        category: detail?.name || "",
+        price: book.base[p.code] ?? null,
+        price_old: book.old[p.code] ?? null,
+        features: featureMap[p.code] || [],
+        feature_labels: featureLabelMap[p.code] || [],
+        highlight,
+      }
+    })
 
   return { data: { packages: data, wa_blast_tiers: book.waTiers, express: book.express }, evidence: data }
 }
@@ -215,22 +230,10 @@ async function toolListTemplates(args: Record<string, unknown>): Promise<ToolRes
   const inactiveRows = rows.filter((row) => row.is_active === false)
   const selected = activeRows.slice(0, limit)
 
-  // Jumlah sebenarnya di katalog (bisa > 60 baris yang diambil di atas).
-  const { count: catalogCount } = await supabaseAdmin
-    .from("web_templates")
-    .select("id", { count: "exact", head: true })
-    .eq("is_active", true)
-
   return {
     data: {
       category_filter: term || "(semua)",
       total_matches: activeRows.length,
-      total_active_in_catalog: catalogCount ?? activeRows.length,
-      gallery_url: term ? "https://wedding.aksaraa.com/templates" : "https://wedding.aksaraa.com/templates",
-      note:
-        "templates[] hanya cuplikan, bukan seluruh katalog. Kalau klien minta SEMUA template, " +
-        "kirim gallery_url saja dan jangan menyebut jumlah dari daftar ini. " +
-        "Sebut angka hanya dari total_active_in_catalog.",
       templates: selected.map((row) => ({
         id: row.id,
         code: row.code,
@@ -349,29 +352,13 @@ async function toolProfileStatus(ctx: CsToolContext): Promise<ToolResult> {
     .eq("wedding_profile_id", ctx.weddingProfileId)
     .neq("status", "resolved")
 
-  const published = profile.is_published === true
-  const contentBlockers = published
-    ? []
-    : (await getPublishBlockers(ctx.weddingProfileId).catch(() => [])).map((item) => item.label)
-  // Pembayaran dan konfirmasi bukan bagian dari getPublishBlockers, tapi keduanya
-  // juga menahan undangan tayang.
-  const blockers = pendingBlockers({ contentBlockers, published })
-  const linkMode = profile.guest_link_strict === false ? "fleksibel" : "terbatas"
-
   const data = {
     package_type: profile.package_type,
     payment_status: profile.payment_status,
-    is_published: published,
-    invitation_disabled: !!profile.invitation_disabled_at,
+    is_published: profile.is_published === true,
     estimated_wedding_date: profile.estimated_wedding_date,
     slug: profile.slug,
     pending_feedback: pendingFeedback || 0,
-    // Tautan & mode: Terbatas = hanya tamu terdaftar ( tautan per tamu ada di
-    // dashboard), Fleksibel = satu tautan + ?to=nama.
-    invitation_link: profile.slug ? coupleUrl(String(profile.slug), "", profile.event_type) : null,
-    link_mode: linkMode,
-    dashboard_guest_links: `${eventSite(profile.event_type)}/dashboard/${ctx.weddingProfileId}/qr-guestbook`,
-    publish_blockers: blockers,
   }
 
   return { data, evidence: data }
@@ -497,97 +484,6 @@ async function toolSaveDraftField(ctx: CsToolContext, args: Record<string, unkno
   }
 }
 
-async function toolApplyDraft(ctx: CsToolContext, args: Record<string, unknown>): Promise<ToolResult> {
-  if (!ctx.verified || !ctx.weddingProfileId) {
-    return { data: { applied: false, error: "butuh verifikasi nomor terdaftar" }, evidence: null }
-  }
-  if (args.confirm !== true) {
-    return {
-      data: {
-        applied: false,
-        needs_confirmation: true,
-        question: "Aku terapkan data ini ke undangan sekarang, ya? Balas \"ya, terapkan\".",
-      },
-      evidence: null,
-    }
-  }
-
-  const { data: row } = await supabaseAdmin
-    .from("cs_profile_drafts")
-    .select("id,draft,status")
-    .eq("wedding_profile_id", ctx.weddingProfileId)
-    .maybeSingle()
-
-  const draft = asRecord((row as { draft?: unknown } | null)?.draft)
-  const { patch, rejected } = buildPatch(draft)
-
-  // Ganti template punya rantai sendiri (duplicate → patch → cleanup); jangan
-  // pernah diterapkan lewat CS.
-  if ("selected_template_id" in patch) delete patch.selected_template_id
-
-  const fields = Object.keys(patch)
-  if (!fields.length) {
-    return {
-      data: {
-        applied: false,
-        error: "belum ada data tersimpan untuk diterapkan",
-        rejected,
-      },
-      evidence: { rejected },
-    }
-  }
-
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from("wedding_profiles")
-    .update(patch)
-    .eq("id", ctx.weddingProfileId)
-    .select("id,active_wp_post_id")
-    .maybeSingle()
-
-  if (profileError) {
-    return { data: { applied: false, error: profileError.message }, evidence: null }
-  }
-
-  let patchJob: { id: string; status: string } | null = null
-  const postId = (profile as { active_wp_post_id?: number | null } | null)?.active_wp_post_id
-  if (postId) {
-    try {
-      const job = await enqueuePatch(ctx.weddingProfileId, postId, { source: "cs" })
-      patchJob = { id: String(job.job_id), status: String(job.status) }
-    } catch {
-      // Data sudah tersimpan; patch WP akan menyusul lewat antrian berikutnya.
-    }
-  }
-
-  if (row?.id) {
-    await supabaseAdmin
-      .from("cs_profile_drafts")
-      .update({ status: "submitted", updated_at: new Date().toISOString() })
-      .eq("id", row.id)
-  }
-
-  await supabaseAdmin.from("cs_audit").insert({
-    actor: `wa:${ctx.contactId}`,
-    action: "profile_applied",
-    subject: ctx.weddingProfileId,
-    detail: { fields, rejected, wp_patch: patchJob },
-  })
-
-  return {
-    data: {
-      applied: true,
-      profile_updated: true,
-      fields,
-      rejected,
-      wp_patch: patchJob,
-      note: patchJob
-        ? "Data undangan diperbarui; halaman WordPress dipatch lewat antrian."
-        : "Data undangan diperbarui.",
-    },
-    evidence: { profile_updated: true, applied: true, fields, wp_patch: patchJob },
-  }
-}
-
 async function toolGetLeadState(ctx: CsToolContext): Promise<ToolResult> {
   const lead = await ensureLead(ctx.contactId, ctx.weddingProfileId)
   const missing = missingCoreFacts(lead.facts)
@@ -641,6 +537,39 @@ async function toolRecommendPackage(ctx: CsToolContext): Promise<ToolResult> {
   return { data, evidence: data }
 }
 
+async function toolGetProductDetails(args: Record<string, unknown>): Promise<ToolResult> {
+  const rawProduct = String(args.product || "").trim() as ProductKey
+  const rawPackage = typeof args.package_code === "string" ? args.package_code.trim() : ""
+  const query = typeof args.query === "string" ? args.query : ""
+
+  let product: ProductKey | null = null
+  if (rawProduct === "undangan_digital" || rawProduct === "buku_tamu_digital" || rawProduct === "galeri_tamu") {
+    product = rawProduct
+  } else if (rawPackage) {
+    product = productForPackage(rawPackage)
+  } else if (query) {
+    product = detectProduct(query)
+  }
+
+  if (!product) {
+    const all = listProductDetails().map((d) => ({
+      key: d.key,
+      name: d.name,
+      detail: formatProductDetail(d),
+    }))
+    const data = { products: all }
+    return { data, evidence: data }
+  }
+
+  const detail = getProductDetail(product, rawPackage || undefined)
+  const data = {
+    product: detail.key,
+    name: detail.name,
+    detail: formatProductDetail(detail),
+  }
+  return { data, evidence: data }
+}
+
 export async function runTool(name: string, args: Record<string, unknown>, ctx: CsToolContext): Promise<ToolResult> {
   switch (name) {
     case "get_price_book":
@@ -661,14 +590,14 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
       return toolDraftState(ctx)
     case "save_draft_field":
       return toolSaveDraftField(ctx, args)
-    case "apply_profile_draft":
-      return toolApplyDraft(ctx, args)
     case "get_lead_state":
       return toolGetLeadState(ctx)
     case "save_lead_fact":
       return toolSaveLeadFact(ctx, args)
     case "recommend_package":
       return toolRecommendPackage(ctx)
+    case "get_product_details":
+      return toolGetProductDetails(args)
     default:
       return { data: { error: `tool ${name} tidak dikenal` }, evidence: null }
   }
@@ -705,10 +634,7 @@ export const TOOL_SCHEMAS = [
     type: "function",
     function: {
       name: "list_templates",
-      description:
-        "Cari template untuk rekomendasi SPESIFIK (kategori, dengan/tanpa foto). " +
-        "Untuk permintaan 'semua template / daftar template / lihat di mana', jangan pakai tool ini: " +
-        "kirim gallery_url https://wedding.aksaraa.com/templates.",
+      description: "Daftar template undangan aktif untuk direkomendasikan.",
       parameters: {
         type: "object",
         properties: {
@@ -784,19 +710,6 @@ export const TOOL_SCHEMAS = [
   {
     type: "function",
     function: {
-      name: "apply_profile_draft",
-      description:
-        "Terapkan data pengantin yang sudah tersimpan di draft ke undangan. Panggil HANYA setelah klien menyetujui ringkasan (confirm=true). Field uang/paket/tanggal/template tidak pernah diterapkan lewat tool ini.",
-      parameters: {
-        type: "object",
-        properties: { confirm: { type: "boolean" } },
-        required: ["confirm"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
       name: "get_lead_state",
       description: "Tahap lead, fakta yang sudah terkumpul, dan pertanyaan kualifikasi berikutnya.",
       parameters: { type: "object", properties: {}, required: [] },
@@ -836,6 +749,26 @@ export const TOOL_SCHEMAS = [
       description:
         "Rekomendasi paket deterministik dari tanggal, kota, jumlah tamu, dan budget. Bukan harga final.",
       parameters: { type: "object", properties: {}, required: [] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_product_details",
+      description:
+        "Rincian fitur produk dan paket dalam bahasa sederhana: Undangan Digital (Essential/Signature/Prestige/Elite), Buku Tamu Digital (Sistem/Pro/Premium/Prestige), atau Galeri Tamu. Gunakan saat klien menanyakan fitur, isi, atau perbedaan paket/produk.",
+      parameters: {
+        type: "object",
+        properties: {
+          product: {
+            type: "string",
+            enum: ["undangan_digital", "buku_tamu_digital", "galeri_tamu"],
+          },
+          package_code: { type: "string" },
+          query: { type: "string" },
+        },
+        required: [],
+      },
     },
   },
 ] as const

@@ -2,14 +2,11 @@ import { supabaseAdmin } from "@/lib/supabase"
 import {
   classify,
   decide,
-  detectPaymentClaim,
-  wantsAllTemplates,
   type Decision,
   type DecisionContext,
   type EscalationReason,
   type Priority,
 } from "@/lib/cs/policy"
-import { asksToSwitchTemplate } from "@/lib/cs/templateFilter"
 import { buildSystemPrompt } from "@/lib/cs/prompt"
 import { runAgentLoop, type LoopResult } from "@/lib/cs/agentLoop"
 import { chatCompletion } from "@/lib/cs/llm"
@@ -19,7 +16,6 @@ import {
   optOutReply,
   refuseReply,
   safeFallbackReply,
-  verifyPromptReply,
   verifyRequiredReply,
 } from "@/lib/cs/replies"
 import { ensureLead, leadMissing, leadPromptLine, recordObjection, saveLeadFact, updateLead } from "@/lib/cs/leads"
@@ -34,12 +30,14 @@ import {
   type ObjectionKind,
 } from "@/lib/cs/playbook"
 import { formatPolicies, POLICIES, type CsPolicies } from "@/lib/cs/policies"
-import { findSources } from "@/lib/cs/retrieval"
-import { citationLine, isCitationRelevant } from "@/lib/cs/knowledge"
-import { CS_WHATSAPP } from "@/lib/cs/contact"
-import { escalationMessage } from "@/lib/cs/escalationMessage"
-import { sendCsWhatsApp } from "@/lib/cs/waSend"
-import { getOnboardingState, handleOnboarding } from "@/lib/cs/onboarding"
+import {
+  detectProduct,
+  packageMedia,
+  shortPackageIntro,
+  shouldAttachPackageMedia,
+  siteBaseUrl,
+  type CsMedia,
+} from "@/lib/cs/productKnowledge"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -57,7 +55,6 @@ export interface InboundInput {
   published: boolean
   strikeCount: number
   sentiment: "neutral" | "frustrated" | "angry"
-  channel?: "web" | "wa"
   text: string
   history: { role: "user" | "assistant"; content: string }[]
   model: string
@@ -66,160 +63,31 @@ export interface InboundInput {
   policies?: CsPolicies
   contactName?: string | null
   phone?: string | null
+  channel?: "wa" | "web"
   deps?: Partial<AgentDeps>
 }
 
 export interface InboundResult {
-  replies: { text: string; typing?: boolean }[]
+  replies: { text: string; typing?: boolean; media?: CsMedia[] }[]
   escalation?: { reason: EscalationReason; priority: Priority }
   guarded: boolean
   toolNames: string[]
 }
 
-const REASON_LABEL: Record<EscalationReason, string> = {
-  human_requested: "klien minta dihubungkan ke manusia",
-  refund: "refund / pembatalan",
-  reschedule: "ubah tanggal acara",
-  data_change: "permintaan ubah data undangan",
-  discount: "nego harga",
-  voucher: "voucher / kode promo",
-  payment: "pembayaran / bukti bayar",
-  complaint: "komplain",
-  sensitive_data: "permintaan data sensitif",
-  low_confidence: "agent tidak yakin — perlu dicek manusia",
-  no_profile: "profil tidak ditemukan untuk nomor ini",
-}
-
-// Notifikasi eskalasi: ringkas, hanya baris yang ada, dengan prioritas dan
-// satu baris tindakan. Tujuan: grup ops (atau nomor koordinator).
-async function notifyOps(text: string): Promise<void> {
-  const target = process.env.CS_ESCALATION_TARGET || CS_WHATSAPP
+async function notifyOpsGroup(text: string): Promise<void> {
+  const url = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
+  const target = process.env.WA_TARGET_GROUP_JID || ""
   if (!target) return
   try {
-    // Grup (@g.us) harus dikirim sebagai jid, bukan phone — kalau tidak,
-    // gateway menganggapnya nomor telepon dan pesan tidak pernah terkirim.
-    await sendCsWhatsApp(target.includes("@") ? { jid: target } : target, text, 5000, {
-      allowGroup: true,
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: target, message: text }),
+      signal: AbortSignal.timeout(4000),
     })
   } catch {
     // Notifikasi gagal tidak boleh menggagalkan balasan ke klien.
   }
-}
-
-// Konteks untuk notifikasi grup: siapa, sudah berapa lama menunggu, paket/
-// template/revisi, dan 4 giliran terakhir. Semua dari DB, bukan dari input
-// pesan, supaya tidak bisa dipalsukan klien.
-async function buildEscalationNotice(input: {
-  conversationId: string
-  contactId: string
-  reason: EscalationReason
-  priority: Priority
-}): Promise<string> {
-  const [{ data: conversation }, { data: contact }] = await Promise.all([
-    supabaseAdmin
-      .from("cs_conversations")
-      .select("channel,last_inbound_at")
-      .eq("id", input.conversationId)
-      .maybeSingle(),
-    supabaseAdmin
-      .from("cs_contacts")
-      .select("name,phone,wedding_profile_id,verified_at")
-      .eq("id", input.contactId)
-      .maybeSingle(),
-  ])
-
-  const profileId = (contact as { wedding_profile_id?: string | null } | null)?.wedding_profile_id || null
-  const [profileResult, leadResult, messagesResult] = await Promise.all([
-    profileId
-      ? supabaseAdmin
-          .from("wedding_profiles")
-          .select("display_name,groom_name,bride_name,package_type,selected_template_id")
-          .eq("id", profileId)
-          .maybeSingle()
-      : Promise.resolve({ data: null }),
-    supabaseAdmin.from("cs_leads").select("stage").eq("contact_id", input.contactId).maybeSingle(),
-    supabaseAdmin
-      .from("cs_messages")
-      .select("direction,body,created_at")
-      .eq("conversation_id", input.conversationId)
-      .order("created_at", { ascending: false })
-      .limit(4),
-  ])
-
-  const profile = profileResult.data as Record<string, unknown> | null
-  let templateName: string | null = null
-  if (profile?.selected_template_id) {
-    const { data: template } = await supabaseAdmin
-      .from("web_templates")
-      .select("name")
-      .eq("id", profile.selected_template_id)
-      .maybeSingle()
-    templateName = (template?.name as string) || null
-  }
-
-  let feedbackOpen = 0
-  if (profileId) {
-    const { count } = await supabaseAdmin
-      .from("feedback_submissions")
-      .select("id", { count: "exact", head: true })
-      .eq("wedding_profile_id", profileId)
-      .neq("status", "resolved")
-    feedbackOpen = count || 0
-  }
-
-  const lastInbound = (conversation as { last_inbound_at?: string | null } | null)?.last_inbound_at
-  const waitingMinutes = lastInbound
-    ? Math.max(0, (Date.now() - new Date(lastInbound).getTime()) / 60_000)
-    : null
-
-  const recent = ((messagesResult.data || []) as { direction: string; body: string }[])
-    .slice()
-    .reverse()
-    .filter((row) => row.body && row.body.trim())
-    .map((row) => ({
-      role: row.direction === "in" ? ("user" as const) : ("assistant" as const),
-      content: row.body,
-    }))
-
-  const coupleName =
-    (profile?.display_name as string) ||
-    [profile?.groom_name, profile?.bride_name].filter(Boolean).join(" & ") ||
-    null
-
-  const phone = (contact as { phone?: string | null } | null)?.phone || null
-  const query = phone ? `?q=${encodeURIComponent(phone.replace(/\D/g, ""))}` : ""
-
-  return escalationMessage({
-    reason: input.reason,
-    reasonLabel: REASON_LABEL[input.reason] || input.reason,
-    priority: input.priority,
-    channel: ((conversation as { channel?: string } | null)?.channel as "wa" | "web") || "wa",
-    contactName: (contact as { name?: string | null } | null)?.name || null,
-    phone,
-    coupleName,
-    registered: Boolean((contact as { wedding_profile_id?: string | null } | null)?.wedding_profile_id),
-    stage: (leadResult.data as { stage?: string | null } | null)?.stage || null,
-    waitingMinutes,
-    packageName: (profile?.package_type as string) || null,
-    templateName,
-    feedbackOpen,
-    recent,
-    opsUrl: `https://wedding.aksaraa.com/ops/cs${query}`,
-  })
-}
-
-async function recordUnanswered(
-  conversationId: string,
-  question: string,
-  reason: string
-): Promise<void> {
-  const text = (question || "").trim()
-  if (!text) return
-  await supabaseAdmin.from("cs_unanswered").insert({
-    conversation_id: conversationId,
-    question: text.slice(0, 1000),
-    reason,
-  })
 }
 
 async function createEscalation(input: {
@@ -228,26 +96,7 @@ async function createEscalation(input: {
   reason: EscalationReason
   priority: Priority
   summary: string
-  // Voucher (dan tiket informatif lain) tetap membuat tiket + ping ops tanpa
-  // mematikan AI 4 jam, supaya satu pertanyaan promo tidak mengakhiri percakapan.
-  pauseAi?: boolean
 }): Promise<void> {
-  const pauseAi = input.pauseAi !== false
-
-  if (!pauseAi) {
-    // Tanpa jeda AI, klien bisa bertanya voucher berkali-kali. Satu tiket
-    // terbuka per alasan sudah cukup; jangan spam grup ops.
-    const { data: open } = await supabaseAdmin
-      .from("cs_escalations")
-      .select("id")
-      .eq("conversation_id", input.conversationId)
-      .eq("reason", input.reason)
-      .eq("status", "open")
-      .limit(1)
-      .maybeSingle()
-    if (open) return
-  }
-
   await supabaseAdmin.from("cs_escalations").insert({
     conversation_id: input.conversationId,
     reason: input.reason,
@@ -257,15 +106,11 @@ async function createEscalation(input: {
 
   await supabaseAdmin
     .from("cs_conversations")
-    .update(
-      pauseAi
-        ? {
-            status: "human",
-            escalated_at: new Date().toISOString(),
-            ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString(),
-          }
-        : { escalated_at: new Date().toISOString() }
-    )
+    .update({
+      status: "human",
+      escalated_at: new Date().toISOString(),
+      ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString(),
+    })
     .eq("id", input.conversationId)
 
   await supabaseAdmin.from("cs_audit").insert({
@@ -275,19 +120,20 @@ async function createEscalation(input: {
     detail: { reason: input.reason, priority: input.priority },
   })
 
-  await notifyOps(
-    await buildEscalationNotice({
-      conversationId: input.conversationId,
-      contactId: input.contactId,
-      reason: input.reason,
-      priority: input.priority,
-    }).catch(() => input.summary.slice(0, 1200))
+  await notifyOpsGroup(
+    [
+      `🔔 CS perlu tindakan (${input.priority})`,
+      `Alasan: ${input.reason}`,
+      input.summary.slice(0, 700),
+      `Buka: https://wedding.aksaraa.com/ops/cs`,
+    ].join("\n")
   )
 }
 
 const TOOL_NAMES: Record<string, string> = {
   quote: "quote_price",
   list_packages: "get_price_book",
+  product_details: "get_product_details",
   list_templates: "list_templates",
   check_voucher: "check_voucher",
   list_vouchers: "list_vouchers",
@@ -302,11 +148,13 @@ function directiveFor(decision: Decision): string {
       const name = TOOL_NAMES[decision.tool] || decision.tool
       const extra =
         decision.tool === "profile_draft"
-          ? ' Mulai dengan "get_draft_state", lalu simpan jawaban klien dengan "save_draft_field". Untuk sesi, cerita, jumlah tamu, atau template: panggil dulu dengan confirmed=false, bacakan ringkasannya, lalu ulangi dengan confirmed=true setelah klien setuju. Setelah semua data inti terkumpul, bacakan ringkasan dan panggil "apply_profile_draft" dengan confirm=true HANYA setelah klien membalas setuju. Jangan pernah bilang data sudah diterapkan sebelum tool itu mengembalikan applied=true.'
+          ? ' Mulai dengan "get_draft_state", lalu simpan jawaban klien dengan "save_draft_field". Untuk sesi, cerita, jumlah tamu, atau template: panggil dulu dengan confirmed=false, bacakan ringkasannya, lalu ulangi dengan confirmed=true setelah klien setuju.'
           : ""
       const priceHint =
         decision.tool === "quote"
           ? " Sebutkan nominal paket yang ditanyakan langsung dari DATA SISTEM; jangan hanya bilang sudah dicek."
+          : decision.tool === "product_details"
+            ? " Jelaskan fitur/isi produk dan perbedaan paket dari DATA SISTEM dengan bahasa sederhana dan mudah dimengerti (hindari istilah teknis). Kalau membahas Galeri Tamu, tegaskan bahwa Galeri Tamu khusus foto dan belum termasuk video sinematik."
           : decision.tool === "list_templates"
             ? ' Sebutkan 2-3 nama template dan sertakan link demo lengkap (awali dengan https://wedding.aksaraa.com). Jangan mengarang nama template. Kalau templates kosong tetapi ada inactive_matches, sebut nama yang belum aktif, bilang belum tersedia, dan tawarkan cek tim tanpa memberi link.'
             : decision.tool === "list_vouchers"
@@ -355,140 +203,10 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     missingFacts: leadMissing(lead),
     leadStage: lead.stage,
     voucherCode,
-    paidClaim: detectPaymentClaim(input.text),
-    wantsAllTemplates: wantsAllTemplates(input.text),
-    kidsTopic: /ceriavite|khitanan|aqiqah|ulang tahun/i.test(input.text),
-    asksPremiumTemplate:
-      /premium/i.test(input.text) &&
-      /template|desain|filter|badge|label|tanda/i.test(input.text),
-    asksSwitchTemplate: asksToSwitchTemplate(input.text),
-    channel: input.channel,
   }
 
-  let intent = classify(input.text)
-  const { templateAnswerKind } = await import("@/lib/cs/templateFilter")
-
-  // Lapis kedua: kalau aturan tidak menemukan cabang, tanya klasifikasi AI
-  // (enum yang sama, ambang keyakinan, cache). Tujuannya supaya parafrase baru
-  // tidak langsung dianggap "di luar intent".
-  if (intent === "unknown") {
-    const { aiIntentEnabled, aiIntentWorthTrying, classifyIntentWithAi } = await import(
-      "@/lib/cs/intentAi"
-    )
-    const { isSocialMessage } = await import("@/lib/cs/policy")
-    if (!isSocialMessage(input.text) && aiIntentEnabled() && aiIntentWorthTrying(input.text)) {
-      const ai = await classifyIntentWithAi(input.text, input.model).catch(() => null)
-      if (ai) {
-        intent = ai.intent
-        await supabaseAdmin.from("cs_audit").insert({
-          actor: "system:cs",
-          action: "intent_ai",
-          subject: input.conversationId,
-          detail: {
-            intent: ai.intent,
-            confidence: ai.confidence,
-            text: input.text.slice(0, 160),
-          },
-        })
-      }
-    }
-  }
-
-  // Pertanyaan template yang jawabannya sudah pasti: kategori/daerah ("template
-  // adat ada apa aja?"), rak terbaru/populer, filter paket, dan acara anak.
-  // Dijawab dari DB + kode, bukan dari ingatan model dan bukan seluruh galeri.
-  const templateIntent =
-    intent === "template" ||
-    (intent === "unknown" &&
-      (templateAnswerKind(input.text) === "category" || templateAnswerKind(input.text) === "package"))
-  if (templateIntent) {
-    const { templateAnswer } = await import("@/lib/cs/templateReply")
-    const listing = await templateAnswer(input.text)
-    if (listing) {
-      await persistOutbound(input.conversationId, listing, { intent, model: null })
-      return { replies: [{ text: listing }], guarded: true, toolNames: ["list_templates"] }
-    }
-  }
-
-  // Status revisi/masukan undangan: dijawab dari feedback_submissions milik
-  // profil yang terikat. Jangan pernah menyebut masukan pasangan lain.
-  if (intent === "feedback_status" && input.verified && input.weddingProfileId) {
-    const { feedbackStatusReply } = await import("@/lib/cs/feedbackStatus")
-    const feedback = await feedbackStatusReply(input.weddingProfileId)
-    await persistOutbound(input.conversationId, feedback, { intent, model: null })
-    return { replies: [{ text: feedback }], guarded: true, toolNames: [] }
-  }
-
-  // Status undangan: tayang/belum, apa yang kurang, paket & pembayaran, dan
-  // tautan sesuai mode. Dijawab dari DB, bukan dikarang model.
-  if (intent === "status" && input.verified && input.weddingProfileId && !decisionContext.paidClaim) {
-    const { invitationStatusReply } = await import("@/lib/cs/invitationStatus")
-    const status = await invitationStatusReply(input.weddingProfileId)
-    if (status) {
-      await persistOutbound(input.conversationId, status, { intent, model: null })
-      return { replies: [{ text: status }], guarded: true, toolNames: [] }
-    }
-  }
-
-  // Permintaan tautan undangan: jawabannya bergantung mode tautan (Terbatas /
-  // Fleksibel) dan status tayang, jadi jangan diserahkan ke model.
-  if (intent === "invitation_link" && input.verified && input.weddingProfileId) {
-    const { invitationLinkReply } = await import("@/lib/cs/invitationLink")
-    const linkAnswer = await invitationLinkReply(input.weddingProfileId)
-    if (linkAnswer) {
-      await persistOutbound(input.conversationId, linkAnswer, { intent, model: null })
-      return { replies: [{ text: linkAnswer }], guarded: true, toolNames: [] }
-    }
-  }
-
-  let decision: Decision = decide(intent, decisionContext)
-
-  // Di luar intent: jangan biarkan model menjawab bebas. Matikan AI untuk
-  // percakapan ini dan buat tiket tim. Sapaan/akuan singkat dikecualikan.
-  if (intent === "unknown") {
-    const { isSocialMessage } = await import("@/lib/cs/policy")
-    if (!isSocialMessage(input.text)) {
-      decision = {
-        action: "escalate",
-        intent,
-        reason: "low_confidence",
-        priority: "normal",
-      }
-    }
-  }
-
-  // --- Alur "Bantu Isi Undangan" -------------------------------------------
-  // Kalau onboarding sedang berjalan untuk profil ini, SEMUA pesan masuk ke
-  // alur itu dulu supaya jawaban tidak dianggap pertanyaan baru.
-  if (input.weddingProfileId) {
-    const { state: onboarding } = await getOnboardingState(input.weddingProfileId)
-    if (onboarding && onboarding.stage !== "done") {
-      const text = await handleOnboarding(input.weddingProfileId, input.contactId, input.text)
-      // null = pertanyaan di luar alur (voucher/refund/bayar): lanjut ke router.
-      if (text !== null) {
-        await persistOutbound(input.conversationId, text, { intent, model: null })
-        return { replies: [{ text }], guarded: true, toolNames: [] }
-      }
-    }
-  }
-
-  const wantsDataHelp = intent === "data_collection" || intent === "data_change"
-  if (wantsDataHelp) {
-    if (!input.verified && input.channel === "web") {
-      const text =
-        "Biar aku bisa bantu isi undangan, Kakak perlu masuk dulu ya. Buka https://wedding.aksaraa.com/login lalu balik ke chat ini."
-      await persistOutbound(input.conversationId, text, { intent, model: null })
-      return { replies: [{ text }], guarded: true, toolNames: [] }
-    }
-    if (input.verified && input.weddingProfileId) {
-      const text =
-        (await handleOnboarding(input.weddingProfileId, input.contactId, input.text)) ||
-        "Oke, lanjut isi undangannya kapan-kapan ya Kak."
-      await persistOutbound(input.conversationId, text, { intent, model: null })
-      return { replies: [{ text }], guarded: true, toolNames: [] }
-    }
-  }
-  // -------------------------------------------------------------------------
+  const intent = classify(input.text)
+  const decision = decide(intent, decisionContext)
 
   const summary = (reason: string) =>
     handoffSummary({
@@ -497,7 +215,6 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       name: input.contactName,
       phone: input.phone,
       lastMessage: input.text,
-      recent: [...input.history, { role: "user", content: input.text }],
       objectionCount: lead.objectionCount,
       stage: lead.stage,
     })
@@ -520,11 +237,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       reason: decision.reason,
       priority: decision.priority,
       summary: summary(decision.reason),
-      pauseAi: decision.reason !== "voucher",
     })
-    if (decision.reason === "low_confidence") {
-      await recordUnanswered(input.conversationId, input.text, "low_confidence")
-    }
     await updateLead(lead.id, { stage: "handoff" })
     const text = escalationReply(decision.reason, intent)
     await persistOutbound(input.conversationId, text, { intent, model: null })
@@ -542,37 +255,13 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     return { replies: [{ text }], guarded: true, toolNames: [] }
   }
 
-  if (decision.action === "contact") {
-    // Pertanyaan pembayaran tetap membuat tiket supaya muncul di filter "Perlu",
-    // tapi AI tidak dijeda: instruksi transfer sudah dikirim deterministik dan
-    // klien biasanya masih lanjut bertanya soal paket.
-    if (intent === "payment") {
-      await createEscalation({
-        conversationId: input.conversationId,
-        contactId: input.contactId,
-        reason: "payment",
-        priority: "normal",
-        summary: summary("payment"),
-        pauseAi: false,
-      }).catch(() => {})
-      await updateLead(lead.id, { stage: "handoff" })
-    }
-    await persistOutbound(input.conversationId, decision.message, { intent, model: null })
-    return { replies: [{ text: decision.message }], guarded: true, toolNames: [] }
-  }
-
   if (decision.action === "verify") {
-    const text = verifyPromptReply(input.hasProfile)
+    const text = verifyRequiredReply()
     await persistOutbound(input.conversationId, text, { intent, model: null })
     return { replies: [{ text }], guarded: true, toolNames: [] }
   }
 
   let directive = directiveFor(decision)
-
-  // Jawaban berbasis pengetahuan hanya untuk intent "answer" (teknis, kebijakan,
-  // pertanyaan produk). Harga/paket/template tetap lewat tool.
-  const sources =
-    decision.action === "answer" ? await findSources(input.text, 2) : []
 
   if (decision.action === "playbook") {
     if (decision.intent === "select_package") {
@@ -634,7 +323,6 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     persona: input.persona,
     leadFacts: leadPromptLine(lead),
     policyText: formatPolicies(input.policies || POLICIES),
-    sources,
   })
 
   const prefetched: { name: string; data: unknown }[] = []
@@ -646,24 +334,35 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       const prices = await deps.runTool("get_price_book", {}, ctx)
       prefetched.push({ name: "get_price_book", data: prices.data })
     } else if (decision.action === "tool") {
-      const prefetchTool =
-        decision.tool === "quote" || decision.tool === "list_packages"
-          ? "get_price_book"
-          : decision.tool === "list_vouchers"
-            ? "list_vouchers"
-            : decision.tool === "list_templates"
-            ? "list_templates"
-            : decision.tool === "profile_status"
-              ? "get_profile_status"
-              : decision.tool === "guest_summary"
-                ? "get_guest_summary"
-                : decision.tool === "profile_draft"
-                  ? "get_draft_state"
-                  : null
-      if (prefetchTool) {
-        const args = prefetchTool === "list_templates" ? { limit: 8 } : {}
-        const data = await deps.runTool(prefetchTool, args, ctx)
-        prefetched.push({ name: prefetchTool, data: data.data })
+      if (decision.tool === "product_details") {
+        const product = detectProduct(input.text)
+        const pkg = detectPackageInterest(input.text)
+        const args: Record<string, unknown> = {}
+        if (product) args.product = product
+        if (pkg) args.package_code = pkg
+        if (!product && !pkg) args.query = input.text
+        const data = await deps.runTool("get_product_details", args, ctx)
+        prefetched.push({ name: "get_product_details", data: data.data })
+      } else {
+        const prefetchTool =
+          decision.tool === "quote" || decision.tool === "list_packages"
+            ? "get_price_book"
+            : decision.tool === "list_vouchers"
+              ? "list_vouchers"
+              : decision.tool === "list_templates"
+              ? "list_templates"
+              : decision.tool === "profile_status"
+                ? "get_profile_status"
+                : decision.tool === "guest_summary"
+                  ? "get_guest_summary"
+                  : decision.tool === "profile_draft"
+                    ? "get_draft_state"
+                    : null
+        if (prefetchTool) {
+          const args = prefetchTool === "list_templates" ? { limit: 8 } : {}
+          const data = await deps.runTool(prefetchTool, args, ctx)
+          prefetched.push({ name: prefetchTool, data: data.data })
+        }
       }
     } else if (decision.action === "playbook" && decision.step === "qualify") {
       const data = await deps.runTool("recommend_package", {}, ctx)
@@ -696,7 +395,6 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       },
     })
   } catch (error) {
-    await recordUnanswered(input.conversationId, input.text, "llm_error")
     await createEscalation({
       conversationId: input.conversationId,
       contactId: input.contactId,
@@ -715,7 +413,6 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   }
 
   if (!result.guarded) {
-    await recordUnanswered(input.conversationId, input.text, "guard_rejected")
     await createEscalation({
       conversationId: input.conversationId,
       contactId: input.contactId,
@@ -736,19 +433,12 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     await updateLead(refreshed.id, { stage })
   }
 
-  // Sitasi ditambahkan deterministik dari sumber teratas, bukan oleh model:
-  // selalu menunjuk dokumen yang benar-benar dikirim sebagai konteks.
-  const topSource = sources[0]
-  // Jawaban yang menyerahkan ke tim tidak boleh menempel sumber acak.
-  const hedged = /(cek (dulu )?ke tim|tanyakan ke tim|tanya ke tim|belum (ada|punya) info|aku teruskan ke tim|sambungkan ke tim)/i.test(
-    result.text
-  )
-  const finalText =
-    result.guarded && topSource && !hedged && isCitationRelevant(result.text, topSource)
-      ? result.text + citationLine(topSource)
-      : result.text
+  const channel = input.channel || "wa"
+  const attachMedia = shouldAttachPackageMedia(channel, intent)
+  const outboundText = attachMedia ? shortPackageIntro() : result.text
+  const media = attachMedia ? packageMedia(siteBaseUrl()) : undefined
 
-  await persistOutbound(input.conversationId, finalText, {
+  await persistOutbound(input.conversationId, outboundText, {
     intent,
     model: result.model,
     toolNames: result.toolNames,
@@ -760,7 +450,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   })
 
   return {
-    replies: [{ text: finalText, typing: true }],
+    replies: [{ text: outboundText, typing: true, ...(media ? { media } : {}) }],
     guarded: result.guarded,
     toolNames: result.toolNames,
     ...(result.guarded

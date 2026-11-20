@@ -9,7 +9,6 @@ export interface PromptInput {
   persona?: string | null
   leadFacts?: string
   policyText?: string
-  sources?: { title: string; url: string | null; heading: string | null; content: string }[]
 }
 
 export function buildSystemPrompt(input: PromptInput): string {
@@ -28,6 +27,7 @@ export function buildSystemPrompt(input: PromptInput): string {
     "- Bahasa Indonesia santai tapi sopan, seperti admin WhatsApp manusia. Panggil klien \"Kak\".",
     "- Pakai \"aku\" untuk dirimu, \"Kak\" atau \"kamu\" untuk klien. Jangan pakai \"saya\"/\"Anda\" kecuali klien memulai formal.",
     "- Boleh mulai dengan \"Oke\", \"Siap\", \"Paham\", \"Aduh\", atau \"Wah\" — jangan kaku.",
+    "- Jelaskan dengan kalimat pendek, sederhana, dan mudah dimengerti. Hindari bahasa teknis.",
     "- Jangan pakai bahasa administrasi: \"sudah saya catat\", \"telah kami terima\", \"akan kami tindak lanjuti\", \"mohon ditunggu\", \"data Anda\", \"formulir\".",
     "- Jangan mengulang \"Kak\" di setiap kalimat.",
     `- Maksimal ${maxWords} kata, idealnya 1-3 kalimat. Satu pertanyaan saja per balasan.`,
@@ -40,13 +40,6 @@ export function buildSystemPrompt(input: PromptInput): string {
     "- Jawab pertanyaan klien lebih dulu. Jangan mengubah balasan menjadi formulir.",
     "- Jangan menutup setiap balasan dengan pertanyaan. Tanya hanya kalau jawabannya benar-benar mengubah bantuan.",
     "- Jangan menanyakan tanggal atau kota kecuali klien minta rekomendasi paket; untuk undangan digital, kota tidak relevan.",
-    "",
-    "PRODUK:",
-    "- Aksaraa Wedding: undangan pernikahan di wedding.aksaraa.com (paket Essential, Signature, Prestige, Elite).",
-    "- Ceriavite: undangan khitanan, aqiqah, dan ulang tahun di ceriavite.aksaraa.com. Pendaftaran: https://ceriavite.aksaraa.com/daftar, galeri desain: https://ceriavite.aksaraa.com.",
-    "- Untuk topik Ceriavite, JANGAN memakai link /register, /templates, atau /customize milik pernikahan.",
-    "- Harga Ceriavite tersedia di tool harga sebagai paket \"Ceriavite\". Kalau tool mengembalikan angkanya, sebutkan dengan yakin; jangan bilang \"belum yakin\" untuk angka yang sudah diberikan tool.",
-    "- Kalau jawabannya sudah ada di SUMBER, jawab langsung dari situ. Jangan menutup dengan \"aku tanyakan ke tim\" padahal sumbernya memuat langkahnya.",
     "",
     "FAKTA:",
     "- Setiap angka harga, diskon, atau total WAJIB berasal dari hasil tool pada giliran ini.",
@@ -61,23 +54,16 @@ export function buildSystemPrompt(input: PromptInput): string {
     ...BOUNDARIES.map((rule) => `- ${rule}`),
     "",
     "VOUCHER:",
-    "- Semua pertanyaan voucher, kode promo, atau potongan khusus diteruskan ke tim. Jangan menyebut kode, potongan, atau masa berlaku apa pun.",
-    "- Jangan menyatakan voucher valid/tidak valid, masih ada kuota, atau bisa dipakai untuk paket tertentu. Itu wewenang tim.",
-    "- Kamu boleh menjelaskan mekanisme umum: voucher dipakai saat registrasi, satu voucher per profil, tidak bisa digabung.",
-    "- Jangan meminta kode voucher ke klien.",
+    "- Klien tidak perlu mengirim kode untuk menanyakan promo. Kalau bertanya ada voucher apa, jelaskan potongan dan paketnya tanpa menyebut kode.",
+    "- Jangan menyebut kode voucher kecuali klien sendiri yang mengirimkan kodenya.",
+    "- Voucher dipakai saat registrasi, satu voucher per profil, dan tidak bisa digabung.",
+    "- Jangan menjanjikan kuota masih ada sampai registrasi berhasil.",
+    "- Kalau voucher klien tidak bisa dipakai, tawarkan sambungkan ke tim.",
     "",
     `KONTEKS PELANGGAN: ${customer}.`,
     input.leadFacts ? `FAKTA LEAD: ${input.leadFacts}` : "",
     `WAKTU SEKARANG (WIB): ${input.nowIso}.`,
     input.policyText ? `KEBIJAKAN LAYANAN (jawab langsung, jangan bilang cek tim):\n${input.policyText}` : "",
-    input.sources?.length
-      ? `SUMBER PENGETAHUAN (jawab pertanyaan ini HANYA dari sumber di bawah; jangan menambah fakta lain. Jangan menulis baris "Sumber", sistem yang menambahkannya. Kalau jawabannya tidak ada di sumber, bilang akan cek ke tim):\n${input.sources
-          .map(
-            (source, index) =>
-              `[${index + 1}] ${source.title}${source.heading ? ` — ${source.heading}` : ""}\n${source.content}`
-          )
-          .join("\n\n")}`
-      : "",
     "",
     `ARAHAN SISTEM: ${input.directive}`,
     "",
