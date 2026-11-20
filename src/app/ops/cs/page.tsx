@@ -216,6 +216,8 @@ export default function OpsCsPage() {
   } | null>(null)
   const [waPhone, setWaPhone] = useState("")
   const [waBusy, setWaBusy] = useState(false)
+  const [globalAi, setGlobalAi] = useState<{ enabled: boolean } | null>(null)
+  const [globalBusy, setGlobalBusy] = useState(false)
 
   useEffect(() => {
     const raw = sessionStorage.getItem("ops_employee")
@@ -272,6 +274,49 @@ export default function OpsCsPage() {
     },
     [headers, loadWa, waPhone]
   )
+
+  const loadGlobalAi = useCallback(async () => {
+    if (!employee) return
+    try {
+      const res = await fetch("/api/ops/cs/global", { headers, cache: "no-store" })
+      if (res.ok) setGlobalAi(await res.json())
+    } catch {
+      // polling berikutnya mencoba lagi
+    }
+  }, [employee, headers])
+
+  useEffect(() => {
+    void loadGlobalAi()
+    const timer = window.setInterval(loadGlobalAi, 15000)
+    return () => window.clearInterval(timer)
+  }, [loadGlobalAi])
+
+  const toggleGlobalAi = useCallback(async () => {
+    if (!globalAi) return
+    const next = !globalAi.enabled
+    if (!next) {
+      const ok = window.confirm(
+        "Matikan AI untuk SEMUA percakapan?\n\nBot berhenti membalas di WhatsApp dan widget web. Pesan klien tetap tersimpan dan muncul di daftar."
+      )
+      if (!ok) return
+    }
+    setGlobalBusy(true)
+    setError("")
+    try {
+      const res = await fetch("/api/ops/cs/global", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ enabled: next }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error || "gagal mengubah AI global")
+      setGlobalAi({ enabled: !!data.enabled })
+    } catch (err) {
+      setError(String((err as Error)?.message || "gagal mengubah AI global"))
+    } finally {
+      setGlobalBusy(false)
+    }
+  }, [globalAi, headers])
 
   const fetchList = useCallback(async (query?: string) => {
     const term = query === undefined ? searchRef.current : query
@@ -456,6 +501,53 @@ export default function OpsCsPage() {
                   )}
                 </>
               )}
+            </div>
+
+            {/* Kill switch: satu tombol untuk seluruh percakapan. Status tiap
+                percakapan tidak diubah, jadi saat dinyalakan lagi semuanya
+                kembali ke status terakhirnya. */}
+            <div
+              className={`border p-3 space-y-2 ${
+                globalAi?.enabled === false
+                  ? "border-red-300 bg-red-50"
+                  : "border-outline-variant bg-white"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-label-md uppercase tracking-widest text-on-surface-variant">
+                  AI Bot (semua)
+                </p>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded ${
+                    globalAi?.enabled === false
+                      ? "bg-red-100 text-red-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
+                  {globalAi?.enabled === false ? "MATI" : "AKTIF"}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleGlobalAi}
+                disabled={!globalAi || globalBusy}
+                className={`w-full px-3 py-2 text-[10px] font-label-md uppercase tracking-widest disabled:opacity-50 ${
+                  globalAi?.enabled === false
+                    ? "bg-emerald-600 text-white"
+                    : "bg-red-600 text-white"
+                }`}
+              >
+                {globalBusy
+                  ? "Memproses…"
+                  : globalAi?.enabled === false
+                    ? "Nyalakan AI untuk semua"
+                    : "Matikan AI untuk semua"}
+              </button>
+              <p className="text-[10px] text-on-surface-variant leading-snug">
+                {globalAi?.enabled === false
+                  ? "Bot diam di semua percakapan. Pesan klien tetap masuk ke daftar. Menyalakan lagi mengembalikan tiap percakapan ke status terakhirnya."
+                  : "Mematikan ini menghentikan bot di WhatsApp dan widget web sekaligus. Toggle per percakapan tetap tersimpan."}
+              </p>
             </div>
 
             <div className="flex gap-2">

@@ -243,9 +243,6 @@ export async function POST(request: Request) {
   if (!rate.ok) return rateLimited(rate.retryAfterMs!)
 
   const settings = await getCsSettings()
-  if (!settings.enabled) {
-    return NextResponse.json({ replies: [] })
-  }
 
   const now = new Date().toISOString()
 
@@ -356,6 +353,13 @@ export async function POST(request: Request) {
     .from("cs_conversations")
     .update({ last_inbound_at: now })
     .eq("id", conversationId)
+
+  // Kill switch global: pesan tersimpan (muncul di /ops/cs) tetapi bot diam.
+  // Status percakapan tidak disentuh, jadi saat AI dinyalakan lagi setiap
+  // percakapan kembali ke status terakhirnya (bot/human/closed).
+  if (!settings.enabled) {
+    return NextResponse.json({ replies: [] })
+  }
 
   // Toggle AI per percakapan: kalau tim sudah mengambil alih, AI diam.
   // Pesannya tetap disimpan supaya tim melihatnya (sudah di-insert di atas).

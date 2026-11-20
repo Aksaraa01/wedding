@@ -60,6 +60,21 @@ Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
 - Gateway punya blok 120 detik terakhir: kalau manusia membalas saat bot sedang
   menyusun jawaban, balasan bot dibatalkan sebelum dikirim.
 
+### Kill switch AI (semua percakapan)
+
+Di `/ops/cs` ada satu tombol **"AI Bot (semua)"**:
+
+- **Matikan AI untuk semua** → `cs_settings.enabled = false`. Bot berhenti di
+  WhatsApp dan widget web sekaligus. Pesan klien **tetap disimpan** dan muncul
+  di daftar, tetapi tidak dibalas dan status percakapan **tidak diubah**.
+- **Nyalakan AI untuk semua** → `cs_settings.enabled = true`. Setiap percakapan
+  **kembali ke status terakhirnya**: `bot` membalas lagi, `human` tetap diam
+  (termasuk jeda manual), `closed` tetap selesai.
+- Berlaku seketika (cache pengaturan dibersihkan saat tombol ditekan).
+- Setiap perubahan dicatat di `cs_audit` (`ai_global_on` / `ai_global_off`).
+- Ini berbeda dari toggle per percakapan: toggle per percakapan tetap tersimpan
+  dan tidak diubah oleh kill switch.
+
 ## Matriks topik
 
 | Topik | Perilaku | Alasan / prioritas |

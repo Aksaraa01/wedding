@@ -19,6 +19,11 @@ const DEFAULTS: CsSettings = {
 
 let cached: { value: CsSettings; at: number } | null = null
 
+// Kill switch global harus berlaku seketika, bukan setelah TTL 60 detik.
+export function clearCsSettingsCache(): void {
+  cached = null
+}
+
 export async function getCsSettings(): Promise<CsSettings> {
   if (cached && Date.now() - cached.at < 60_000) return cached.value
 

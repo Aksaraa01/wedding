@@ -49,12 +49,6 @@ export async function POST(request: Request) {
   if (text.length > 1000) return NextResponse.json({ error: "pesan terlalu panjang" }, { status: 400 })
 
   const settings = await getCsSettings()
-  if (!settings.enabled) {
-    return NextResponse.json({
-      reply: "CS Aksaraa sedang tidak aktif. Silakan coba lagi nanti atau hubungi kami lewat WhatsApp.",
-      offline: true,
-    })
-  }
 
   const cookieStore = await cookies()
   let sessionId = cookieStore.get(COOKIE)?.value || ""
@@ -155,6 +149,17 @@ export async function POST(request: Request) {
     .from("cs_conversations")
     .update({ last_inbound_at: now })
     .eq("id", conversationId)
+
+  // Kill switch global: pesan tetap disimpan (tim melihatnya di /ops/cs), tapi
+  // bot tidak membalas dan status percakapan TIDAK diubah. Saat AI dinyalakan
+  // lagi, setiap percakapan kembali ke status terakhirnya (bot/human/closed).
+  if (!settings.enabled) {
+    return NextResponse.json({
+      reply: "CS Aksaraa sedang tidak aktif. Silakan coba lagi nanti atau hubungi kami lewat WhatsApp.",
+      offline: true,
+      conversationId,
+    })
+  }
 
   // Toggle AI per percakapan (dashboard /ops): saat tim mengambil alih,
   // widget tidak boleh dibalas otomatis. Pesan tetap tersimpan untuk tim.
