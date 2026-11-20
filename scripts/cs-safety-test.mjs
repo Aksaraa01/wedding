@@ -505,15 +505,18 @@ test("status undangan: tayang/belum, pembayaran, dan penghalang", () => {
   })
   assert.match(draft, /belum tayang/)
   assert.match(draft, /belum ada pembayaran/)
-  // Pembayaran, konten, dan konfirmasi semuanya disebut sebagai penghalang.
+  // Penghalang tayang: hanya konten + konfirmasi (pembayaran tidak mengunci).
   assert.match(draft, /Yang menahan undangan belum tayang/)
-  assert.match(draft, /Pembayaran belum lunas/)
   assert.match(draft, /Profil Mempelai/)
   assert.match(draft, /Galeri Foto/)
   assert.match(draft, /Undangan belum dikonfirmasi/)
-  // Pembayaran yang belum lunas diarahkan ke jalur "cara bayar" yang benar.
-  assert.match(draft, /cara bayar/)
   assert.match(draft, /Konfirmasi/)
+  // Pembayaran disebut sebagai catatan terpisah, bukan penghalang.
+  assert.match(draft, /Catatan: pembayaran belum lunas/)
+  assert.match(draft, /tetap bisa dikonfirmasi/)
+  assert.match(draft, /cara bayar/)
+  const blockersSection = draft.split("Yang menahan undangan belum tayang")[1]?.split("\n\n")[0] || ""
+  assert.doesNotMatch(blockersSection, /Pembayaran/)
   assert.doesNotMatch(draft, /\?to=/)
   assert.equal(formatWeddingDate("bukan tanggal"), null)
 })
@@ -531,14 +534,16 @@ test("status undangan: lunas + konten lengkap = tinggal konfirmasi", () => {
     dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
   })
   assert.doesNotMatch(ready, /Pembayaran belum lunas/)
-  assert.match(ready, /Konten sudah lengkap dan pembayaran lunas/)
+  assert.doesNotMatch(ready, /Catatan: pembayaran/)
+  assert.match(ready, /Konten sudah lengkap/)
   assert.match(ready, /Konfirmasi/)
 
-  // Urutan penghalang: pembayaran → konten → konfirmasi.
+  // Pembayaran TIDAK memblokir konfirmasi: hanya konten + konfirmasi.
   assert.deepEqual(
-    pendingBlockers({ payment: "PARTIAL_DP", contentBlockers: ["Galeri Foto"], published: false }),
-    ["Pembayaran belum lunas (baru DP)", "Galeri Foto", "Undangan belum dikonfirmasi"]
+    pendingBlockers({ contentBlockers: ["Galeri Foto"], published: false }),
+    ["Galeri Foto", "Undangan belum dikonfirmasi"]
   )
+  assert.deepEqual(pendingBlockers({ contentBlockers: [], published: true }), [])
 })
 
 test("classify: permintaan tautan vs keluhan teknis", () => {

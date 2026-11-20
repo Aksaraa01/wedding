@@ -21,24 +21,23 @@ export interface StatusReplyInput {
 
 export const CONFIRM_BLOCKER = "Undangan belum dikonfirmasi"
 
-// Semua yang menahan undangan tayang, berurutan: pembayaran → konten →
-// konfirmasi. Pembayaran dan konfirmasi BUKAN bagian dari getPublishBlockers,
-// jadi harus ditambahkan di sini supaya status tidak terlihat "hampir selesai".
+// Yang benar-benar menahan undangan tayang: konten yang kosong, lalu langkah
+// konfirmasi. PEMBAYARAN TIDAK MEMBLOKIR: tombol Konfirmasi tetap bisa ditekan
+// saat status masih UNPAID/DP, jadi jangan pernah menyebutnya sebagai penghalang.
 export function pendingBlockers(input: {
-  payment: PaymentState
   contentBlockers: string[]
   published: boolean
 }): string[] {
   if (input.published) return []
-  const out: string[] = []
-  if (input.payment !== "FULLY_PAID") {
-    out.push(
-      input.payment === "PARTIAL_DP" ? "Pembayaran belum lunas (baru DP)" : "Pembayaran belum lunas"
-    )
-  }
-  out.push(...input.contentBlockers.filter(Boolean))
-  out.push(CONFIRM_BLOCKER)
-  return out
+  return [...input.contentBlockers.filter(Boolean), CONFIRM_BLOCKER]
+}
+
+// Catatan pembayaran ditampilkan terpisah dari penghalang tayang.
+export function paymentNote(payment: PaymentState): string | null {
+  if (payment === "FULLY_PAID") return null
+  return payment === "PARTIAL_DP"
+    ? 'Catatan: pembayaran baru DP. Undangan tetap bisa dikonfirmasi sekarang; pelunasan diurus dengan tim — balas "cara bayar".'
+    : 'Catatan: pembayaran belum lunas. Undangan tetap bisa dikonfirmasi sekarang; pelunasan diurus dengan tim — balas "cara bayar".'
 }
 
 const PAYMENT_LABEL: Record<PaymentState, string> = {
@@ -81,14 +80,18 @@ export function statusReplyText(input: StatusReplyInput): string {
 
   if (!input.published && !input.disabled) {
     const blockers = pendingBlockers({
-      payment: input.payment,
       contentBlockers: input.contentBlockers,
       published: input.published,
     })
+    const note = paymentNote(input.payment)
 
     if (blockers.length === 1 && blockers[0] === CONFIRM_BLOCKER) {
-      lines.push("Konten sudah lengkap dan pembayaran lunas. Tinggal konfirmasi:")
+      lines.push("Konten sudah lengkap. Tinggal konfirmasi:")
       lines.push("Buka halaman pratinjau, lalu tekan *Konfirmasi* — undangan langsung tayang.")
+      if (note) {
+        lines.push("")
+        lines.push(note)
+      }
       return lines.join("\n")
     }
 
@@ -97,12 +100,13 @@ export function statusReplyText(input: StatusReplyInput): string {
       lines.push(blocker === CONFIRM_BLOCKER ? `• ${blocker} (tombol *Konfirmasi* di pratinjau)` : `• ${blocker}`)
     }
     lines.push("")
-    if (input.payment !== "FULLY_PAID") {
-      lines.push("Untuk pembayaran, balas \"cara bayar\" — aku kirim nomor tim CS-nya.")
-    }
     lines.push(
       "Setelah semua beres, tekan *Konfirmasi* di halaman pratinjau — undangan langsung tayang."
     )
+    if (note) {
+      lines.push("")
+      lines.push(note)
+    }
     return lines.join("\n")
   }
 

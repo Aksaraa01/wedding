@@ -10,6 +10,8 @@ export interface LinkReplyInput {
   mode: "terbatas" | "fleksibel"
   published: boolean
   blockers: string[]
+  // Catatan pembayaran (tidak memblokir konfirmasi, jadi tidak masuk blockers).
+  paymentNote?: string | null
   dashboardUrl: string
   disabled?: boolean
 }
@@ -30,8 +32,11 @@ export function linkReplyText(input: LinkReplyInput): string {
       lines.push(`Yang menahan undangan belum tayang: ${input.blockers.join(", ")}.`)
     }
     lines.push(
-      "Kalau semua sudah beres (termasuk pembayaran), tekan *Konfirmasi* di halaman pratinjau — tautan langsung aktif."
+      "Kalau semua sudah beres, tekan *Konfirmasi* di halaman pratinjau — tautan langsung aktif."
     )
+    if (input.paymentNote) {
+      lines.push(input.paymentNote)
+    }
     lines.push("")
   }
 
