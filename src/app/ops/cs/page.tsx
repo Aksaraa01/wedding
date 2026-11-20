@@ -26,6 +26,7 @@ type Lead = {
 type Item = {
   id: string
   status: string
+  channel?: string | null
   intent: string | null
   ai_paused_until: string | null
   escalated_at: string | null
@@ -55,6 +56,7 @@ type Detail = {
   conversation: {
     id: string
     status: string
+    channel?: string | null
     intent: string | null
     ai_paused_until: string | null
     last_inbound_at: string | null
@@ -99,6 +101,47 @@ function statusLabel(status: string): string {
   if (status === "human") return "Ditangani tim"
   if (status === "closed") return "Selesai"
   return "Bot"
+}
+
+type IdentityRow = {
+  channel?: string | null
+  contact: { name?: string | null; phone?: string | null; verified_at?: string | null } | null
+  couple: { groom_name?: string | null; bride_name?: string | null } | null
+}
+
+function channelLabel(channel?: string | null): "Website" | "WhatsApp" {
+  return channel === "web" ? "Website" : "WhatsApp"
+}
+
+function coupleName(couple: IdentityRow["couple"]): string {
+  if (!couple) return ""
+  return [couple.groom_name, couple.bride_name].filter(Boolean).join(" & ")
+}
+
+// Nomor WhatsApp selalu ditampilkan untuk kontak WA; kalau nomornya terdaftar,
+// nama pasangan yang jadi judul. Pengunjung web tampil sebagai "Website",
+// dan baru memakai nama kalau memang sudah terhubung ke profil.
+function contactTitle(row: IdentityRow): string {
+  const name = coupleName(row.couple)
+  const registered = Boolean(row.couple)
+  if (channelLabel(row.channel) === "Website") {
+    return registered && name ? name : "Website"
+  }
+  if (registered && name) return name
+  return row.contact?.phone || row.contact?.name || "Tanpa nama"
+}
+
+function contactMeta(row: IdentityRow): string {
+  const parts: string[] = [channelLabel(row.channel)]
+  const registered = Boolean(row.couple)
+  const phone = row.contact?.phone || ""
+  if (channelLabel(row.channel) === "Website") {
+    parts.push(registered ? "terdaftar" : "belum terdaftar")
+  } else {
+    if (phone) parts.push(phone)
+    parts.push(registered ? "terdaftar" : "belum terdaftar")
+  }
+  return parts.join(" · ")
 }
 
 // Jeda otomatis (balasan tim) punya batas waktu; toggle manual tidak.
@@ -472,18 +515,12 @@ export default function OpsCsPage() {
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold text-sm truncate">
-                    {item.contact?.name || item.contact?.phone || "Tanpa nama"}
-                    {item.couple?.groom_name && (
-                      <span className="ml-1.5 text-[10px] font-normal text-on-surface-variant">
-                        {item.couple.groom_name} &amp; {item.couple.bride_name}
-                      </span>
-                    )}
-                  </p>
+                  <p className="font-semibold text-sm truncate">{contactTitle(item)}</p>
                   <span className={`text-[10px] px-2 py-0.5 rounded ${statusBadge(item.status)}`}>
                     {statusLabel(item.status)}
                   </span>
                 </div>
+                <p className="text-[10px] text-on-surface-variant truncate mt-0.5">{contactMeta(item)}</p>
                 <p className="text-xs text-on-surface-variant truncate mt-1">
                   {item.last_message?.direction === "out" ? "↩ " : ""}
                   {item.last_message?.body || "—"}
@@ -524,10 +561,10 @@ export default function OpsCsPage() {
                 </button>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold truncate">
-                    {detail.contact?.name || detail.contact?.phone || "Tanpa nama"}
+                    {contactTitle({ ...detail, channel: detail.conversation.channel })}
                   </p>
                   <p className="text-xs text-on-surface-variant">
-                    {detail.contact?.phone || "-"} ·{" "}
+                    {contactMeta({ ...detail, channel: detail.conversation.channel })} ·{" "}
                     {detail.contact?.verified_at ? "Terverifikasi" : "Belum terverifikasi"} ·{" "}
                     {statusLabel(detail.conversation.status)}
                   </p>

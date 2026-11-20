@@ -15,6 +15,24 @@ export function paymentContactReply(): string {
 }
 
 // Pertanyaan "semua template" dijawab dengan galeri, bukan 8 link acak.
+// Pertanyaan pembayaran: rekening resmi + langkah kirim bukti. Nomor rekening
+// hanya boleh datang dari sini (bukan dari KB/model) supaya tidak pernah salah.
+export function paymentInstructionsReply(): string {
+  return [
+    "Untuk pembayaran paket, silakan transfer ke salah satu rekening berikut:",
+    "",
+    "• BRI: 108901019687509",
+    "  a.n. M RAFI ALHARIRI",
+    "• BCA: 4410040111",
+    "  a.n. M RAFI ALHARIRI",
+    "",
+    "Untuk pelunasan, pastikan kirim ke *M RAFI ALHARIRI* ya Kak.",
+    "Setelah transfer, kirim bukti transfernya di chat ini (sebutkan juga nama pemilik rekening pengirim kalau berbeda).",
+    "",
+    "Aku sudah buatkan catatan untuk tim supaya pembayaran Kakak dicek dan dikonfirmasi.",
+  ].join("\n")
+}
+
 export function templateGalleryReply(kids: boolean): string {
   if (kids) {
     return [

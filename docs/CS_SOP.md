@@ -81,8 +81,8 @@ Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
 | Ubah data undangan (nama, foto, rekening, nomor) | verifikasi PIN dulu → eskalasi | `data_change` · normal |
 | Ubah tanggal | eskalasi | `reschedule` · high |
 | Komplain | eskalasi | `complaint` · high |
-| Bukti bayar / invoice / DP / cicilan | eskalasi | `payment` · normal |
-| "Cara bayar?" (belum klaim) | jawab nomor tim + link WhatsApp | `contact` (tanpa tiket) |
+| Bukti bayar / invoice / DP / cicilan / "mau bayar" / "pelunasan" / nomor rekening | balasan tetap berisi rekening resmi **+ tiket** `payment` (AI tidak dijeda) | `payment` · normal |
+| Klaim sudah transfer ("sudah tf", "ini buktinya") | eskalasi, AI dijeda 4 jam | `payment` · normal |
 | Politik, saham, judi, pinjol, medis | tolak sopan | — |
 | Tidak jelas + marah atau 2× gagal | eskalasi | `low_confidence` · normal |
 | Guard menolak output model | fallback "aku cek dulu ke tim" + eskalasi | `low_confidence` · normal |
@@ -423,9 +423,25 @@ knowledge base di `cs_documents` / `cs_chunks`:
 
 ## Pembayaran
 
-- "Cara bayar" dijawab deterministik: nomor tim `6281161613071` + tautan
-  `wa.me` (tidak membuat tiket).
-- Klaim sudah bayar / minta invoice / tagihan tetap jadi tiket `payment`.
+- Pertanyaan pembayaran ("mau bayar", "cara bayar", "pelunasan", "nomor
+  rekening", "mau transfer") dijawab **deterministik** oleh
+  `paymentInstructionsReply()` — rekening hanya boleh datang dari kode, bukan
+  dari model atau KB:
+
+  | Bank | Nomor | Atas nama |
+  |---|---|---|
+  | BRI | 108901019687509 | M RAFI ALHARIRI |
+  | BCA | 4410040111 | M RAFI ALHARIRI |
+
+  Balasan juga meminta bukti transfer dan mengingatkan bahwa **pelunasan**
+  harus ke **M RAFI ALHARIRI**.
+- Setiap pertanyaan pembayaran **membuat tiket `payment`** supaya muncul di
+  filter **Perlu** di `/ops/cs`, tetapi **AI tidak dijeda** (pola yang sama
+  dengan voucher): klien biasanya langsung lanjut bertanya soal paket.
+- Klaim sudah bayar / minta invoice / tagihan tetap eskalasi dengan jeda AI
+  4 jam.
+- Nomor rekening di dalam balasan tidak boleh dianggap PII nomor HP — guard
+  membuang nomor yang menempel pada label bank sebelum memeriksa.
 - Widget punya tombol WhatsApp di header chat menuju nomor tim.
 
 ## Alur "Bantu Isi Undangan"

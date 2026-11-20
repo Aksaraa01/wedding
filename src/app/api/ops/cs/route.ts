@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     const { data: conversation, error } = await supabaseAdmin
       .from("cs_conversations")
       .select(
-        "id,status,intent,strike_count,ai_paused_until,assigned_to,last_inbound_at,last_outbound_at,escalated_at,closed_at,created_at,contact_id,cs_contacts!inner(id,name,phone,verified_at,wedding_profile_id)"
+        "id,status,channel,intent,strike_count,ai_paused_until,assigned_to,last_inbound_at,last_outbound_at,escalated_at,closed_at,created_at,contact_id,cs_contacts!inner(id,name,phone,wa_jid,verified_at,wedding_profile_id)"
       )
       .eq("id", id)
       .maybeSingle()
@@ -221,7 +221,7 @@ export async function GET(req: Request) {
   let listQuery = supabaseAdmin
     .from("cs_conversations")
     .select(
-      "id,status,intent,ai_paused_until,assigned_to,last_inbound_at,last_outbound_at,escalated_at,created_at,contact_id,cs_contacts!inner(id,name,phone,verified_at,wedding_profile_id)"
+      "id,status,channel,intent,ai_paused_until,assigned_to,last_inbound_at,last_outbound_at,escalated_at,created_at,contact_id,cs_contacts!inner(id,name,phone,wa_jid,verified_at,wedding_profile_id)"
     )
     .order("last_inbound_at", { ascending: false, nullsFirst: false })
     .limit(q ? 50 : 80)
@@ -299,6 +299,7 @@ export async function GET(req: Request) {
     return {
       id: row.id,
       status: row.status,
+      channel: row.channel,
       intent: row.intent,
       ai_paused_until: row.ai_paused_until,
       escalated_at: row.escalated_at,

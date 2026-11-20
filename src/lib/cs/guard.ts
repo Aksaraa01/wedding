@@ -99,6 +99,16 @@ const INTERNAL_LEAK_RE =
 const VOUCHER_CODE_RE = /\b(?=[A-Z0-9-]{4,24}\b)(?=[A-Z0-9-]*\d)[A-Z][A-Z0-9-]*\b/g
 
 const PHONE_RE = /(?:\+?62|0)8\d{7,12}/g
+
+// Rekening bank/e-wallet bukan nomor HP. Nomor rekening BRI "108901019687509"
+// mengandung "0890101968" sehingga dulu salah dianggap nomor HP. Buang nomor
+// yang menempel pada label bank sebelum memeriksa PII.
+const ACCOUNT_NUMBER_RE =
+  /\b(BRI|BCA|BNI|Mandiri|BSI|CIMB|Permata|Danamon|BTN|GoPay|OVO|DANA|ShopeePay|Jago|SeaBank)\b[^\n]{0,20}?\d[\d.\s-]{5,}/gi
+
+function withoutAccountNumbers(text: string): string {
+  return text.replace(ACCOUNT_NUMBER_RE, "$1")
+}
 const EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi
 const URL_RE = /\bhttps?:\/\/[^\s<>"')]+/gi
 const MONEY_RE = /(?:\brp\.?\s*|\b)(\d[\d.,]*)(?:\s*(juta|jt|ribu|rb|k)\b)?/gi
@@ -240,9 +250,10 @@ export function validateReply(input: GuardInput): GuardResult {
     })
   }
 
+  const phoneText = withoutAccountNumbers(reply)
   PHONE_RE.lastIndex = 0
   let phoneMatch: RegExpExecArray | null
-  while ((phoneMatch = PHONE_RE.exec(reply)) !== null) {
+  while ((phoneMatch = PHONE_RE.exec(phoneText)) !== null) {
     const normalized = `+62${phoneMatch[0].replace(/\D/g, "").replace(/^0+/, "").replace(/^62/, "")}`
     const allowed = allowedPhone(normalized, input.verifiedPhone)
     if (!allowed) {

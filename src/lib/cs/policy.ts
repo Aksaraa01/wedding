@@ -1,6 +1,6 @@
 import { detectPackageInterest } from "./playbook"
 import {
-  paymentContactReply,
+  paymentInstructionsReply,
   premiumTemplateReply,
   switchTemplateReply,
   templateGalleryReply,
@@ -362,6 +362,16 @@ export function classify(text: string): Intent {
       "cicil",
       " dp ",
       "cara bayar",
+      "cara pembayaran",
+      "mau bayar",
+      "mau transfer",
+      "mau tf",
+      "transfer ke",
+      "bayar paket",
+      "pelunasan",
+      "nomor rekening",
+      "no rekening",
+      "rekening pembayaran",
     ])
   ) {
     return "payment"
@@ -675,7 +685,10 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       // "Cara bayar" → arahkan ke nomor tim. Klaim sudah bayar / minta invoice
       // tetap jadi tiket supaya dicek.
       if (ctx.paidClaim) return { action: "escalate", intent, reason: "payment", priority: "normal" }
-      return { action: "contact", intent, message: paymentContactReply() }
+      // Pertanyaan "mau bayar / rekening / pelunasan": kirim instruksi transfer
+      // (deterministik) DAN buat tiket supaya masuk filter "Perlu" di /ops/cs.
+      // AI tidak dijeda supaya klien tetap bisa bertanya hal lain.
+      return { action: "contact", intent, message: paymentInstructionsReply() }
 
     case "complaint":
       return { action: "escalate", intent, reason: "complaint", priority: "high" }

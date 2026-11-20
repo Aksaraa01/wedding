@@ -29,6 +29,8 @@ export interface LlmRequest {
   tools?: readonly unknown[]
   temperature?: number
   maxTokens?: number
+  /** Batas waktu permintaan. Default 35 detik; klasifikasi intent memakai 2,5 detik. */
+  timeoutMs?: number
 }
 
 export class LlmUnavailableError extends Error {
@@ -60,7 +62,7 @@ export async function chatCompletion(request: LlmRequest): Promise<LlmResult> {
       temperature: request.temperature ?? 0.7,
       max_tokens: request.maxTokens ?? 1200,
     }),
-    signal: AbortSignal.timeout(35_000),
+    signal: AbortSignal.timeout(request.timeoutMs ?? 35_000),
   })
 
   if (!res.ok) {

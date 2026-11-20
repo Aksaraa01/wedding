@@ -4,7 +4,7 @@ import assert from "node:assert/strict"
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import { csSendUrls } from "../src/lib/cs/waSend.ts"
-import { switchTemplateReply } from "../src/lib/cs/contact.ts"
+import { switchTemplateReply, paymentInstructionsReply } from "../src/lib/cs/contact.ts"
 import { linkReplyText } from "../src/lib/cs/linkReply.ts"
 import { statusReplyText, formatWeddingDate, pendingBlockers } from "../src/lib/cs/statusReply.ts"
 import { detectTemplateCategory, templateAnswerKind } from "../src/lib/cs/templateFilter.ts"
@@ -121,6 +121,25 @@ test("paket: 'aku mau signature' terdeteksi", () => {
   assert.equal(detectPackageInterest("aku mau signature kak"), "signature")
   assert.equal(detectPackageInterest("mau buku tamu prestige"), "dgb_prestige")
   assert.equal(detectPackageInterest("ambil galeri tamu"), "gt")
+})
+
+test("pembayaran: 'mau bayar' masuk payment, bukan unknown", () => {
+  assert.equal(classify("saya mau bayar"), "payment")
+  assert.equal(classify("mau transfer paket signature"), "payment")
+  assert.equal(classify("pelunasan gimana"), "payment")
+  assert.equal(classify("nomor rekeningnya berapa"), "payment")
+  // Klaim sudah bayar tetap payment, dan ditandai paidClaim.
+  assert.equal(classify("sudah transfer kak"), "payment")
+  assert.equal(detectPaymentClaim("sudah transfer kak"), true)
+  assert.equal(detectPaymentClaim("saya mau bayar"), false)
+
+  // Rekening resmi hanya dari kode, bukan dari model/KB.
+  const reply = paymentInstructionsReply()
+  assert.match(reply, /BRI: 108901019687509/)
+  assert.match(reply, /BCA: 4410040111/)
+  assert.match(reply, /M RAFI ALHARIRI/)
+  assert.match(reply, /pelunasan/i)
+  assert.equal(validateReply({ reply }).ok, true)
 })
 
 test("classify: pertanyaan undangan cetak", () => {
@@ -253,11 +272,14 @@ test("decide: permintaan data dari WhatsApp minta PIN dulu", () => {
 
 // ---------- pembayaran ----------
 
-test("payment: cara bayar dijawab nomor tim + link WhatsApp", () => {
+test("payment: cara bayar dijawab rekening resmi + tiket", () => {
   const d = decide("payment", ctx)
   assert.equal(d.action, "contact")
-  assert.match(d.message, new RegExp(CS_WHATSAPP))
-  assert.match(d.message, /wa\.me/)
+  assert.match(d.message, /BRI: 108901019687509/)
+  assert.match(d.message, /BCA: 4410040111/)
+  assert.match(d.message, /M RAFI ALHARIRI/)
+  // Guard tidak boleh mengira nomor rekening sebagai nomor HP.
+  assert.equal(validateReply({ reply: d.message }).ok, true)
 })
 
 test("payment: klaim sudah bayar tetap jadi tiket", () => {

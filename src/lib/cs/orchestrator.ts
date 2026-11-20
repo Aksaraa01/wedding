@@ -387,6 +387,20 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   }
 
   if (decision.action === "contact") {
+    // Pertanyaan pembayaran tetap membuat tiket supaya muncul di filter "Perlu",
+    // tapi AI tidak dijeda: instruksi transfer sudah dikirim deterministik dan
+    // klien biasanya masih lanjut bertanya soal paket.
+    if (intent === "payment") {
+      await createEscalation({
+        conversationId: input.conversationId,
+        contactId: input.contactId,
+        reason: "payment",
+        priority: "normal",
+        summary: summary("payment"),
+        pauseAi: false,
+      }).catch(() => {})
+      await updateLead(lead.id, { stage: "handoff" })
+    }
     await persistOutbound(input.conversationId, decision.message, { intent, model: null })
     return { replies: [{ text: decision.message }], guarded: true, toolNames: [] }
   }
