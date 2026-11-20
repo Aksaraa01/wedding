@@ -257,6 +257,24 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   }
 
   const intent = classify(input.text)
+  const { templateAnswerKind } = await import("@/lib/cs/templateFilter")
+
+  // Pertanyaan template yang jawabannya sudah pasti: kategori/daerah ("template
+  // adat ada apa aja?"), rak terbaru/populer, filter paket, dan acara anak.
+  // Dijawab dari DB + kode, bukan dari ingatan model dan bukan seluruh galeri.
+  const templateIntent =
+    intent === "template" ||
+    (intent === "unknown" &&
+      (templateAnswerKind(input.text) === "category" || templateAnswerKind(input.text) === "package"))
+  if (templateIntent) {
+    const { templateAnswer } = await import("@/lib/cs/templateReply")
+    const listing = await templateAnswer(input.text)
+    if (listing) {
+      await persistOutbound(input.conversationId, listing, { intent, model: null })
+      return { replies: [{ text: listing }], guarded: true, toolNames: ["list_templates"] }
+    }
+  }
+
   const decision = decide(intent, decisionContext)
 
   // --- Alur "Bantu Isi Undangan" -------------------------------------------

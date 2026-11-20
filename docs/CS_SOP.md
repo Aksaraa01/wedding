@@ -51,7 +51,10 @@ Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
 | Topik | Perilaku | Alasan / prioritas |
 |---|---|---|
 | Harga, paket, bandingkan vendor | jawab lewat tool (`quote`, `list_packages`) | — |
-| Template spesifik ("ada yang adat batak?", "rekomendasi elegan") | tool `list_templates` — sebut maksimal beberapa contoh | — |
+| Template per kategori/daerah ("template adat ada apa aja?", "ada yang batak?") | **balasan tetap dari DB: daftar desain kategori itu + link kategorinya** | lihat [Katalog pertanyaan klien](#a-template--desain) |
+| Template terbaru / paling populer | balasan tetap dari DB: rak `created_at` / `popular_rank` | idem |
+| "Template saya apa?" | verifikasi dulu → nama template dari profil | — |
+| "Bisa ganti template?" | tiket `data_change`; tidak menjanjikan penggantian | idem |
 | **Minta SEMUA template / "lihat di mana" / daftar / galeri** | **balasan tetap dari kode: `https://wedding.aksaraa.com/templates`** (Ceriavite: `https://ceriavite.aksaraa.com`) | jangan kirim 3–8 link preview dan jangan sebut "ada N template" dari cuplikan tool |
 | Estimasi waktu, pertanyaan teknis, undangan cetak | jawab dari kebijakan | — |
 | Rekomendasi paket, nego pertama, pilih paket, cara daftar | playbook (qualify / objection / cta) | — |
@@ -69,6 +72,205 @@ Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
 | Politik, saham, judi, pinjol, medis | tolak sopan | — |
 | Tidak jelas + marah atau 2× gagal | eskalasi | `low_confidence` · normal |
 | Guard menolak output model | fallback "aku cek dulu ke tim" + eskalasi | `low_confidence` · normal |
+
+## Katalog pertanyaan klien (jawaban yang sudah ditentukan)
+
+Bagian ini yang dipakai kalau klien bertanya hal spesifik. Setiap baris punya
+satu jawaban yang benar; jangan mengarang di luar itu.
+
+Sumber jawaban:
+
+| Kode | Arti | Contoh |
+|---|---|---|
+| **K** | balasan tetap dari kode, model tidak dipakai | galeri, kategori template, nomor tim |
+| **D** | dibaca dari database (nama desain, paket, status) | daftar template adat, harga |
+| **B** | knowledge base + sitasi | cara pakai buku tamu, masa aktif |
+| **T** | tiket ke tim (AI dijeda 4 jam, kecuali voucher) | refund, nego, ubah tanggal |
+
+Lima aturan yang tidak boleh dilanggar:
+
+1. **Nama template selalu dari database.** Model tidak boleh menyebut nama desain
+   dari ingatan — nama karangan langsung terlihat klien saat dibuka.
+2. **"Template X ada apa aja?" bukan permintaan seluruh galeri.** Jawab daftar
+   desain kategori itu + link kategorinya. Jangan balas "semua template ada di
+   galeri" dan jangan kirim 2–3 link preview.
+3. **"Semua template"** baru dijawab satu link galeri, tanpa menyebut jumlah dari
+   cuplikan tool.
+4. Bot **tidak pernah** menjanjikan penggantian template, penghapusan data,
+   perubahan tanggal, atau refund. Itu tiket tim.
+5. **Harga hanya dari tool** `quote_price`. KB dan model tidak menyebut nominal.
+
+### A. Template & desain
+
+| Klien menulis | Jawaban yang benar | Sumber |
+|---|---|---|
+| "template adat ada apa aja kk?" | daftar desain adat/tradisional (maks 8 nama) + `…/templates/kategori/adat` + tawaran bantu pilihkan | **D** |
+| "ada template batak?" / "horas" | daftar desain Batak (alias: horas) | **D** |
+| "template jawa / minang / padang / melayu / bugis / dayak / banjar / bali / betawi / palembang / tionghoa" | daftar desain daerah itu; `padang`→Minang, `cina/chinese`→Tionghoa | **D** |
+| "template tanpa foto ada?" / "yang nggak pakai foto" | daftar desain `no_photo` + `…/templates/kategori/tanpa-foto` | **D** |
+| "yang pakai foto" / "ada fotonya?" | daftar desain dengan foto | **D** |
+| "template elegan / floral / modern / minimalis" | daftar kategori itu + halaman kategorinya | **D** |
+| "yang minang dong" (tanpa kata "template") | tetap daftar Minang — konteksnya percakapan template | **D** |
+| "template terbaru apa aja?" | rak **terbaru** (urut `created_at`), maks 8 nama | **D** |
+| "template paling populer?" / "favorit?" | rak **populer** (`popular_rank` 1–10) | **D** |
+| "semua template / daftar / list / lihat di mana" | satu link galeri `https://wedding.aksaraa.com/templates` + info filter kategori & dengan/tanpa foto | **K** |
+| "template premium itu apa?" / "bedanya basic sama premium?" | filter **paket** di galeri: Basic = bonus cetak undangan, Premium = perlu paket berbayar. Bukan tingkatan kualitas, bukan paket Buku Tamu Digital | **K** |
+| "template untuk khitanan / aqiqah / ulang tahun?" | katalog anak: `https://ceriavite.aksaraa.com` | **K** |
+| "undangan saya template apa?" | perlu verifikasi dulu, lalu sebut template dari profil (`profile_status`) | **D** |
+| "bisa ganti template setelah daftar?" | jangan dijanjikan; sampaikan tim yang memproses → tiket `data_change` | **T** |
+| "template saya bisa diganti?" | sama: verifikasi → tiket, tanpa janji | **T** |
+| "template bisa custom desain?" | custom desain dikonsultasikan ke tim; jangan sebut harga custom | **T** |
+| "template bisa ganti warna / ubah isi sendiri?" | isi (nama, foto, jadwal, rekening) diubah dari editor; perubahan struktur/warna = tim | **B/T** |
+| "template ini bisa dipakai paket Essential/Signature?" | cocokkan `package_eligibility`; kalau desain tidak eligible, sebut desain lain yang eligible | **D** |
+| "ada contoh undangan yang sudah jadi?" | arahkan ke galeri (setiap kartu punya preview) | **K** |
+| "template ada RSVP / amplop digital / maps / countdown / musik?" | jawab dari KB fitur undangan; jangan mengarang fitur yang tidak ada di desain itu | **B** |
+| "template bahasa Inggris ada?" | sebut kalau ada di katalog; kalau tidak yakin, jangan mengarang — tawarkan bantu carikan | **B/D** |
+
+**Contoh jawaban yang salah (jangan diulang).** Pertanyaan
+"template adat ada apa aja kk?" pernah dijawab dengan:
+
+> Semua template undangan pernikahan bisa dilihat di galeri ini: …
+> Di sana bisa disaring per kategori (adat, modern, elegan, floral) …
+
+Itu tidak menjawab pertanyaan: klien minta **daftar desain adat**, bukan
+petunjuk cara memfilter. Sekarang pertanyaan itu masuk `templateAnswerKind()`
+= `category` dan dijawab dengan nama desain dari database.
+
+### B. Harga & paket
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "harganya berapa?" | `quote_price` untuk paket yang relevan; sebut apa yang termasuk | **D** |
+| "paket apa saja?" / "bedanya paket?" | `list_packages`, bandingkan isi bukan hanya harga | **D** |
+| "ada yang lebih murah?" / "paket paling murah?" | sebut paket terendah yang eligible + isinya | **D** |
+| "harga sudah termasuk cetak?" | jawab dari isi paket (bonus cetak hanya di paket tertentu) | **D** |
+| "bisa nego?" (pertama) | playbook objection; jangan memutuskan potongan | **T** kalau berulang |
+| "harga naik tahun depan?" | jangan berspekulasi; tawarkan tim | **T** |
+| "harga untuk 2 acara / akad + resepsi?" | `quote_price` untuk paket yang mendukung 2 sesi | **D** |
+
+### C. Pembayaran
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "cara bayar?" (belum klaim) | nomor tim **6281161613071** + tautan `wa.me` | **K** |
+| "sudah transfer, ini buktinya" | tiket `payment`; jangan menyatakan lunas | **T** |
+| "minta invoice / tagihan" | tiket `payment` | **T** |
+| "bisa cicil / DP?" | tiket `payment` | **T** |
+| "rekening atas nama siapa?" | nomor tim; jangan menyebut nomor rekening perusahaan dari ingatan | **K** |
+| "status pembayaran saya?" | verifikasi dulu → status dari profil; kalau tidak ada bukti, tiket | **D/T** |
+
+### D. Voucher, promo, diskon
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "ada voucher / promo?" | "Boleh aku cek dulu ya Kak…" + tiket `voucher` (AI **tidak** dijeda) | **T** |
+| "kode X valid?" | jangan menilai valid/tidak; tiket | **T** |
+| "voucher bisa digabung?" | boleh jelaskan mekanisme umum (satu voucher per profil, tidak digabung) | **B** |
+| "diskon khusus / nego" | playbook; berulang → tiket `discount` | **T** |
+
+### E. Refund, batal, ubah tanggal
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "mau refund" / "batalkan" | tiket `refund` · high; jangan menjanjikan nominal | **T** |
+| "ganti tanggal acara" | tiket `reschedule` · high | **T** |
+| "undangan sudah aktif, bisa dibatalkan?" | tiket `refund` | **T** |
+| "pindah ke pasangan/template lain" | tiket `data_change` | **T** |
+
+### F. Registrasi, akun, login
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "cara daftar?" | alur registrasi + link `/register` | **B** |
+| "lupa PIN" | verifikasi nomor terdaftar; PIN dari pendaftaran; kalau tetap gagal → tim | **T** |
+| "nomor saya ganti" | tiket `data_change` (nomor adalah identitas akun) | **T** |
+| "akun saya tidak bisa dibuka" | cek nomor terdaftar dulu; bukan akun ini → minta nomor terdaftar | **B/T** |
+| "boleh daftar pakai email?" | jawab dari alur registrasi yang berlaku | **B** |
+
+### G. Isi & kirim data undangan
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "bantu isi undangan" | alur "Bantu Isi Undangan" (lihat bagian bawah) | **D** |
+| "apa saja yang sudah terisi?" | read-back dari profil yang terverifikasi saja | **D** |
+| "hapus foto / ganti nama" | verifikasi → tiket `data_change` (bot tidak menghapus) | **T** |
+| "tambah sesi acara" | bagian Acara pada alur isi undangan | **D** |
+| "alamat hadiah kosong, emang boleh?" | boleh; alamat opsional, rekening tetap tampil | **B** |
+| "foto saya lebih dari slot template" | konfirmasi foto mana yang dipakai, jangan buang diam-diam | **D** |
+
+### H. Link undangan & domain
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "link undangan saya mana?" | `https://{slug}.wedding.aksaraa.com` (atau `/w/{slug}` bila slug >63 karakter) | **D** |
+| "bisa pakai domain sendiri?" | jawab dari kebijakan; kalau tidak ada di KB → tim | **B/T** |
+| "link saya error / tidak bisa dibuka" | cek status publish; kalau tetap gagal → tiket `technical` | **D/T** |
+| "link untuk tamu bagaimana?" | `?to=Nama Tamu`; nama boleh diketik bebas | **B** |
+
+### I. Tamu, RSVP, buku tamu QR
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "cara kirim ke tamu?" | link + `?to=` per tamu, atau daftar tamu di dashboard | **B** |
+| "RSVP-nya ke mana?" | masuk dashboard, bisa diekspor | **B** |
+| "buku tamu QR cara pakainya?" | PIN kios + scanner; jawab dari KB | **B** |
+| "tamu tidak bisa buka link" | cek salah ketik/`?to=`; kalau masih gagal → tiket `technical` | **B/T** |
+| "bisa import tamu dari Excel?" | jawab dari fitur yang ada; jangan mengarang | **B** |
+
+### J. Fitur undangan
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "ada musiknya?" | musik latar tersedia; baru diputar setelah tamu membuka undangan | **B** |
+| "bisa video YouTube?" | bagian Video (bisa dimatikan) | **B** |
+| "ada maps / lokasi?" | lokasi acara + tombol peta | **B** |
+| "amplop digital / rekening?" | bagian Hadiah (bisa dimatikan) | **B** |
+| "hitung mundur?" | jawab sesuai template; jangan menjanjikan di semua desain | **B** |
+| "bisa bahasa Indonesia & Inggris?" | jawab dari template yang mendukung | **B** |
+
+### K. Cetak
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "undangan cetak termasuk?" | bonus cetak hanya pada paket/desain tertentu | **D** |
+| "berapa lembar cetaknya?" | dari isi paket | **D** |
+| "bisa tambah cetak?" | tiket | **T** |
+| "desain cetak sama dengan web?" | jawab dari kebijakan; kalau tidak yakin → tim | **B/T** |
+
+### L. WA blast
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "bisa blast WhatsApp?" | kuota tambahan per paket (kumulatif) | **D** |
+| "kuota saya berapa?" | dari profil/paket | **D** |
+| "blast gagal / nomor tidak terdaftar" | tiket `technical` | **T** |
+
+### M. Publikasi & revisi
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "sudah bisa dipublish?" | cek penghalang publikasi, sebut yang kurang | **D** |
+| "publish sekarang" | bot **tidak** mempublish; klien menekan Konfirmasi di editor (`?review=1`) | **K** |
+| "masih bisa diubah setelah publish?" | ya, dari editor; perubahan tampil setelah disimpan | **B** |
+| "berapa lama revisi?" | dari kebijakan; jangan menjanjikan tanggal | **B** |
+
+### N. Teknis
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| "foto tidak muncul" | minta cek ulang + sebutkan langkah; kalau tetap → tiket `technical` | **B/T** |
+| "musik tidak jalan di iPhone" | musik baru aktif setelah tamu menyentuh layar (kebijakan browser) | **B** |
+| "halaman lambat" | jelaskan pemuatan pertama; kalau ekstrem → tiket | **B/T** |
+| "data saya hilang" | verifikasi → tiket high; jangan menyatakan data aman/hilang | **T** |
+
+### O. Di luar cakupan
+
+| Klien menulis | Jawaban | Sumber |
+|---|---|---|
+| politik, saham, judi, pinjol, medis | tolak sopan, arahkan ke topik undangan | **K** |
+| "kalian perusahaan apa?" | profil singkat Aksaraa | **B** |
+| "mau kerja sama / jadi reseller" | tiket | **T** |
+| acara anak (khitanan/aqiqah/ultah) | Ceriavite (`https://ceriavite.aksaraa.com`) | **K** |
 
 ## Yang dilakukan setiap eskalasi
 

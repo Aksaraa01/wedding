@@ -1,5 +1,10 @@
 import { detectPackageInterest } from "./playbook"
 import { paymentContactReply, premiumTemplateReply, templateGalleryReply } from "./contact"
+import {
+  asksToSwitchTemplate,
+  detectTemplateCategory,
+  detectTemplateShelf,
+} from "./templateFilter"
 
 // Batas kewenangan agent + keputusan eskalasi.
 //
@@ -175,6 +180,13 @@ export function wantsAllTemplates(text: string): boolean {
   const value = fixTypos((text || "").toLowerCase())
   if (!value.trim()) return false
   if (OWN_INVITATION.test(value)) return false
+  // "template adat ada apa aja?" = minta daftar kategori, bukan seluruh galeri.
+  if (detectTemplateCategory(value)) return false
+  // "template terbaru apa aja?" / "yang paling populer?" punya rak sendiri.
+  if (detectTemplateShelf(value)) return false
+  // "kalau sudah daftar bisa ganti template?" itu pertanyaan kebijakan, bukan
+  // permintaan galeri — dan bot tidak boleh menjanjikan penggantian.
+  if (asksToSwitchTemplate(value)) return false
   return ALL_TEMPLATE_TRIGGERS.some((re) => re.test(value))
 }
 

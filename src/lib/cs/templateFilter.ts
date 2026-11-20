@@ -54,3 +54,93 @@ export function matchesTemplateCategory(
 export function isPlaceholderTemplate(name: string | null | undefined): boolean {
   return /^template[-\s]?\d*$/i.test((name || "").trim())
 }
+
+// Kategori/gaya yang disebut klien. Dipakai untuk memilih daftar yang benar:
+// "template adat ada apa aja?" bukan permintaan seluruh galeri.
+const CATEGORY_WORDS: { key: string; test: RegExp }[] = [
+  { key: "tanpa-foto", test: /tanpa foto|nggak pakai foto|tidak pakai foto/ },
+  { key: "dengan-foto", test: /dengan foto|pakai foto|ada fotonya/ },
+  { key: "batak", test: /\bbatak\b|\bhoras\b/ },
+  { key: "jawa", test: /\bjawa\b/ },
+  { key: "minang", test: /\bminang\b|\bpadang\b/ },
+  { key: "melayu", test: /\bmelayu\b/ },
+  { key: "bugis", test: /\bbugis\b/ },
+  { key: "dayak", test: /\bdayak\b/ },
+  { key: "banjar", test: /\bbanjar\b/ },
+  { key: "bali", test: /\bbali\b/ },
+  { key: "betawi", test: /\bbetawi\b/ },
+  { key: "palembang", test: /\bpalembang\b/ },
+  { key: "tionghoa", test: /tionghoa|chinese|\bcina\b/ },
+  { key: "adat", test: /\badat\b|tradisional|budaya/ },
+  { key: "elegansi", test: /elegan|elegant/ },
+  { key: "floral", test: /floral|bunga/ },
+  { key: "minimal", test: /minimalis|\bminimal\b/ },
+  { key: "modern", test: /modern/ },
+  { key: "nasional", test: /nasional/ },
+  { key: "interaktif", test: /interaktif|interaksi/ },
+]
+
+export function detectTemplateCategory(text: string): string | null {
+  const value = (text || "").toLowerCase()
+  // Sengaja tanpa syarat kata "template": klien sering hanya menulis
+  // "yang modern dong" setelah sebelumnya membahas template. Pemanggil yang
+  // menjaga konteksnya (intent template / pertanyaan galeri).
+  for (const entry of CATEGORY_WORDS) {
+    if (entry.test.test(value)) return entry.key
+  }
+  return null
+}
+
+// Rak/urutan yang disebut klien: "template terbaru apa aja?", "yang paling
+// populer?". Ini bukan permintaan seluruh galeri.
+export type TemplateShelf = "newest" | "popular" | null
+
+export function detectTemplateShelf(text: string): TemplateShelf {
+  const value = (text || "").toLowerCase()
+  if (/populer|terpopuler|paling banyak (dipakai|dipilih)|favorit|best ?seller|paling laris/.test(value)) {
+    return "popular"
+  }
+  if (/terbaru|paling baru|baru rilis|baru keluar|update terbaru|rilis terbaru/.test(value)) {
+    return "newest"
+  }
+  return null
+}
+
+// Acara anak punya katalog sendiri (Ceriavite), bukan galeri pernikahan.
+export function detectKidsTemplateAsk(text: string): boolean {
+  return /\b(khitanan|khitan|sunatan|aqiqah|aqikah|ulang tahun|ultah|anak|ceriavite)\b/.test(
+    (text || "").toLowerCase()
+  )
+}
+
+// "template premium itu apa?", "bedanya basic sama premium?" — ini soal FILTER
+// paket di galeri, bukan kualitas desain dan bukan paket Buku Tamu Digital.
+export function detectTemplatePackageAsk(text: string): boolean {
+  const value = (text || "").toLowerCase()
+  if (!/\b(basic|premium)\b/.test(value)) return false
+  return /template|desain|galeri|filter|beda|bedanya|maksud|arti|apa itu|paket/.test(value)
+}
+
+// Klien minta undangannya diganti ke template/desain lain. Bukan permintaan
+// daftar galeri, dan bukan sesuatu yang boleh dijanjikan bot.
+export function asksToSwitchTemplate(text: string): boolean {
+  return /\b(ganti|ubah|pindah|replace|switch)\s+(template|desain|tema)\b/.test(
+    (text || "").toLowerCase()
+  )
+}
+
+// Satu pintu untuk memilih jawaban template yang tepat. Murni (tanpa DB) supaya
+// bisa diuji, dan supaya orchestrator tidak perlu menebak.
+export type TemplateAnswerKind = "kids" | "package" | "category" | "newest" | "popular" | null
+
+export function templateAnswerKind(text: string): TemplateAnswerKind {
+  const value = (text || "").toLowerCase()
+  if (asksToSwitchTemplate(value)) return null
+  if (detectKidsTemplateAsk(value)) return "kids"
+  if (detectTemplatePackageAsk(value)) return "package"
+  if (detectTemplateCategory(value)) return "category"
+  const shelf = detectTemplateShelf(value)
+  if (shelf === "newest") return "newest"
+  if (shelf === "popular") return "popular"
+  return null
+}

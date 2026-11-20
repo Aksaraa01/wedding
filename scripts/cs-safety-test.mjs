@@ -4,6 +4,8 @@ import assert from "node:assert/strict"
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import { csSendUrls } from "../src/lib/cs/waSend.ts"
+import { detectTemplateCategory, templateAnswerKind } from "../src/lib/cs/templateFilter.ts"
+import { formatCategoryReply, formatShelfReply } from "../src/lib/cs/templateCategoryReply.ts"
 import { reengageMessage, reengageSettings, withinQuietWindow, wibHour } from "../src/lib/cs/reengagePolicy.ts"
 import {
   SECTION_SPECS,
@@ -369,6 +371,62 @@ test("handoff: status pemilik percakapan menentukan AI diam", () => {
   assert.equal(aiPaused({ status: "human", ai_paused_until: "2026-11-19T09:00:00Z" }, now), false)
   assert.equal(shouldAutoResume({ status: "human", ai_paused_until: "2026-11-19T09:00:00Z" }, now), true)
   assert.equal(shouldAutoResume({ status: "human", ai_paused_until: null }, now), false)
+})
+
+test("template: kategori disebut, bukan 'semua template'", () => {
+  // Pertanyaan kategori TIDAK boleh jatuh ke jawaban galeri umum.
+  assert.equal(wantsAllTemplates("template adat ada apa aja kk?"), false)
+  assert.equal(detectTemplateCategory("template adat ada apa aja kk?"), "adat")
+  assert.equal(detectTemplateCategory("ada template batak?"), "batak")
+  assert.equal(detectTemplateCategory("template tanpa foto"), "tanpa-foto")
+  assert.equal(detectTemplateCategory("yang modern dong"), "modern")
+  assert.equal(detectTemplateCategory("semua template"), null)
+
+  const reply = formatCategoryReply("adat", [
+    { name: "Batak Culture", category: "Adat/Tradisional", no_photo: false, is_active: true, popular_rank: 2 },
+    { name: "Adat Dayak", category: "Adat/Tradisional", no_photo: false, is_active: true, popular_rank: 10 },
+  ])
+  assert.match(reply, /Batak Culture/)
+  assert.match(reply, /templates\/kategori\/adat/)
+  assert.doesNotMatch(reply, /Rp/)
+})
+
+test("template: setiap jenis pertanyaan punya jawaban sendiri", () => {
+  // Kategori/daerah → daftar desain kategori itu, bukan seluruh galeri.
+  assert.equal(templateAnswerKind("template adat ada apa aja kk?"), "category")
+  assert.equal(templateAnswerKind("ada template batak?"), "category")
+  assert.equal(templateAnswerKind("yang minang dong"), "category")
+  assert.equal(templateAnswerKind("template tanpa foto ada?"), "category")
+  assert.equal(templateAnswerKind("template elegan yang mana?"), "category")
+  // Rak khusus.
+  assert.equal(templateAnswerKind("template terbaru apa aja?"), "newest")
+  assert.equal(templateAnswerKind("template paling populer apa?"), "popular")
+  // Filter paket di galeri.
+  assert.equal(templateAnswerKind("template premium itu apa?"), "package")
+  assert.equal(templateAnswerKind("bedanya basic sama premium?"), "package")
+  // Acara anak punya katalog sendiri.
+  assert.equal(templateAnswerKind("template untuk khitanan ada?"), "kids")
+  // Ganti template = pertanyaan kebijakan, tidak boleh dijawab galeri.
+  assert.equal(templateAnswerKind("kalau sudah daftar bisa ganti template?"), null)
+  assert.equal(templateAnswerKind("template saya bisa diganti?"), null)
+  assert.equal(wantsAllTemplates("kalau sudah daftar bisa ganti template?"), false)
+  // "semua template" tetap galeri.
+  assert.equal(wantsAllTemplates("semua template"), true)
+  assert.equal(templateAnswerKind("semua template"), null)
+})
+
+test("template: rak terbaru/populer menyebut nama dari data", () => {
+  const rows = [
+    { name: "Sandhya", category: "Elegant", no_photo: false, is_active: true, popular_rank: 1 },
+    { name: "Lace", category: "Floral", no_photo: false, is_active: true, popular_rank: 4 },
+    { name: "Template 3", category: null, no_photo: true, is_active: true, popular_rank: null },
+  ]
+  const popular = formatShelfReply("popular", rows)
+  assert.match(popular, /Sandhya/)
+  assert.match(popular, /paling banyak dipilih/)
+  assert.doesNotMatch(popular, /Template 3/) // nama placeholder dibuang
+  assert.match(formatShelfReply("newest", rows), /terbaru/)
+  assert.doesNotMatch(popular, /Rp/)
 })
 
 test("template: filter Basic/Premium dijelaskan, bukan paket buku tamu", () => {
