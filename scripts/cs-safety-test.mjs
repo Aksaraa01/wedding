@@ -3,7 +3,8 @@ import assert from "node:assert/strict"
 
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
-import { csSendUrls, isChatJid } from "../src/lib/cs/waSend.ts"
+import { canSendToJid, csSendUrls, isChatJid, isGroupJid } from "../src/lib/cs/waSend.ts"
+import { fromJid as identityFromJid, isGroupJid as identityIsGroupJid } from "../src/lib/cs/identity.ts"
 import { switchTemplateReply, paymentInstructionsReply } from "../src/lib/cs/contact.ts"
 import { linkReplyText } from "../src/lib/cs/linkReply.ts"
 import { feedbackReplyText } from "../src/lib/cs/feedbackReply.ts"
@@ -427,6 +428,20 @@ test("wa send: JID grup dikenali sebagai chat, bukan nomor telepon", () => {
   assert.equal(isChatJid("628123@s.whatsapp.net"), true)
   assert.equal(isChatJid("123@lid"), true)
   assert.equal(isChatJid("120363411058856413"), false)
+})
+
+test("grup tidak pernah dibalas bot", () => {
+  const group = "***REMOVED***"
+  // Balasan bot: grup selalu ditolak.
+  assert.equal(canSendToJid(group), false)
+  assert.equal(canSendToJid(group, true), true)
+  assert.equal(isGroupJid(group), true)
+  assert.equal(isGroupJid("628123@s.whatsapp.net"), false)
+  // JID grup tidak boleh berubah jadi nomor telepon (dulu jadi +6212036...).
+  assert.equal(identityFromJid(group), "")
+  assert.equal(identityIsGroupJid(group), true)
+  assert.equal(identityFromJid("6281234567890@s.whatsapp.net"), "+6281234567890")
+  assert.equal(identityFromJid("123456@lid"), "+62123456")
 })
 
 test("wa send: hanya gateway CS, tidak pernah nomor bot lama", () => {

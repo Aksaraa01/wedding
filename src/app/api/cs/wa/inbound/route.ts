@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { supabaseAdmin } from "@/lib/supabase"
-import { fromJid, generateCode, maskPhone, normalizeWhatsApp } from "@/lib/cs/identity"
+import { fromJid, generateCode, isGroupJid, maskPhone, normalizeWhatsApp } from "@/lib/cs/identity"
 import { checkRateLimit, rateLimited } from "@/lib/rateLimit"
 import { aiPaused, nextPauseUntil, shouldAutoResume } from "@/lib/cs/handoff"
 import { getCsSettings } from "@/lib/cs/settings"
@@ -226,6 +226,10 @@ export async function POST(request: Request) {
   }
 
   const jid = String(body.from || "").trim()
+  // Hanya chat pribadi. Grup/broadcast tidak pernah dibalas bot.
+  if (isGroupJid(jid)) {
+    return NextResponse.json({ replies: [] })
+  }
   const text = String(body.text || "").trim()
   const mediaUrl = String(body.media_url || "").trim()
   const mediaBase64 = String(body.media_base64 || "").trim()

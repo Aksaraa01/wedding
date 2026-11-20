@@ -75,6 +75,18 @@ Di `/ops/cs` ada satu tombol **"AI Bot (semua)"**:
 - Ini berbeda dari toggle per percakapan: toggle per percakapan tetap tersimpan
   dan tidak diubah oleh kill switch.
 
+### Grup tidak pernah dibalas
+
+- Gateway hanya meneruskan chat **pribadi** (`@s.whatsapp.net` / `@lid`); pesan
+  grup (`@g.us`) dan broadcast tidak pernah masuk ke app.
+- Sebagai lapis kedua, `/api/cs/wa/inbound` menolak JID grup, dan
+  `fromJid()` mengembalikan kosong untuk grup — JID grup tidak bisa berubah
+  menjadi nomor telepon (`120363…` → `+6212036…`) lalu dibalas.
+- `sendCsWhatsApp()` menolak JID grup secara default. Hanya **notifikasi
+  eskalasi ops** yang boleh mengirim ke grup (`allowGroup: true`), karena
+  memang tujuannya `CS_ESCALATION_TARGET`.
+- Balasan dari `/ops/cs` ke kontak grup juga ditolak oleh aturan yang sama.
+
 ## Matriks topik
 
 | Topik | Perilaku | Alasan / prioritas |

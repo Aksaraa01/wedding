@@ -98,7 +98,9 @@ async function notifyOps(text: string): Promise<void> {
   try {
     // Grup (@g.us) harus dikirim sebagai jid, bukan phone — kalau tidak,
     // gateway menganggapnya nomor telepon dan pesan tidak pernah terkirim.
-    await sendCsWhatsApp(target.includes("@") ? { jid: target } : target, text, 5000)
+    await sendCsWhatsApp(target.includes("@") ? { jid: target } : target, text, 5000, {
+      allowGroup: true,
+    })
   } catch {
     // Notifikasi gagal tidak boleh menggagalkan balasan ke klien.
   }

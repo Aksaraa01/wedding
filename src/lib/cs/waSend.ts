@@ -11,6 +11,11 @@ export interface CsSendTarget {
   jid?: string | null
 }
 
+export function isGroupJid(value: string | null | undefined): boolean {
+  const jid = (value || "").trim()
+  return /@g\.us$/i.test(jid) || /@broadcast$/i.test(jid) || /^status@/i.test(jid)
+}
+
 export function isChatJid(value: string | null | undefined): boolean {
   return (
     !!value &&
@@ -25,13 +30,31 @@ export function csSendUrls(): string[] {
   return legacy ? [legacy.replace(/\/$/, "")] : []
 }
 
+// Grup hanya boleh dikirimi notifikasi ops (allowGroup), tidak pernah balasan
+// bot. JID grup yang lolos ke jalur balasan akan membuat bot menjawab grup.
+export function canSendToJid(
+  value: string | null | undefined,
+  allowGroup = false
+): boolean {
+  const jid = (value || "").trim()
+  if (!jid) return false
+  if (isGroupJid(jid)) return allowGroup
+  return isChatJid(jid)
+}
+
 export async function sendCsWhatsApp(
   target: CsSendTarget | string,
   message: string,
-  timeoutMs = 6000
+  timeoutMs = 6000,
+  options: { allowGroup?: boolean } = {}
 ): Promise<boolean> {
   const value: CsSendTarget = typeof target === "string" ? { phone: target } : target
-  const jid = isChatJid(value.jid) ? value.jid : null
+  const allowGroup = options.allowGroup === true
+  const rawJid = (value.jid || "").trim()
+  // Kalau grup datang lewat field phone (CS_ESCALATION_TARGET lama), tolak juga.
+  if (!allowGroup && isGroupJid(rawJid)) return false
+  if (!allowGroup && isGroupJid((value.phone || "").trim())) return false
+  const jid = canSendToJid(rawJid, allowGroup) ? rawJid : null
   const phone = (value.phone || "").trim()
   if (!jid && !phone) return false
 

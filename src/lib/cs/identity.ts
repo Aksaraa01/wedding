@@ -20,8 +20,17 @@ export function toJid(input: string): string {
   return digits ? `${digits}@s.whatsapp.net` : ""
 }
 
+export function isGroupJid(jid: string): boolean {
+  const value = (jid || "").trim()
+  return /@g\.us$/i.test(value) || /@broadcast$/i.test(value) || /^status@/i.test(value)
+}
+
 export function fromJid(jid: string): string {
-  return normalizeWhatsApp((jid || "").split("@")[0])
+  const value = (jid || "").trim()
+  // Grup/broadcast TIDAK PERNAH punya nomor telepon. Tanpa ini, angka grup
+  // (120363...) dinormalisasi menjadi +6212036... dan bot bisa membalas grup.
+  if (!value || isGroupJid(value)) return ""
+  return normalizeWhatsApp(value.split("@")[0])
 }
 
 export function samePhone(a: string, b: string): boolean {
