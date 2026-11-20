@@ -593,6 +593,11 @@ pattern (`piano-garden` / `altar-garden`) is to sequence the downloads instead:
   (`cf-cache-status: DYNAMIC`), so music/images are re-fetched from the origin
   on every visit. If first-visit cost matters, set a long `cacheControl` on the
   storage objects (or serve them from a CDN); see the failure catalogue.
+- **A mounted player is not a visible player.** Ported CSS often ships the
+  player at `opacity:0; z-index:-1` and waits for a JS-added `.show`. Add the
+  reveal class in the same render that mounts the iframe/`<video>` (all
+  branches), then assert `opacity === "1"` on the live node after the tap — the
+  poster staying on screen is the tell (Swan Garden, 2026-11).
 
 ---
 
@@ -945,6 +950,8 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Love-story cover image invisible | extracted CSS keeps `clip-path`/`opacity:0` | add `clip-path:inset(0); opacity:1; transform:none` override |
 | Gift logo broken locally | storage-relative `ASSETS…aksaraaLogo` | vendor `aksaraa-logo.jpg` locally |
 | User video missing / reference video plays | local parallax video left in place | render `video_url` only; remove reference video |
+| "Our Footage" shows the poster, tapping play does nothing | the ported CSS hides the player (`.autoplay-video{opacity:0;z-index:-1}`) and expects the reference JS to add `.show`; the component mounted the iframe without it | add the reveal class (`autoplay-video show`) to **every** player branch — iframe, provider embed and `<video>` — then assert `getComputedStyle(iframe).opacity === "1"` after the tap |
+| An uploaded `.mp4` film is invisible but audible | same rule: the hidden player is the generic `.autoplay-video` class, so the file branch needs `.show` too | never style a new player with a reference class that starts hidden unless you also port its state machine |
 
 ---
 
@@ -1044,6 +1051,36 @@ the earlier phases. Every one of them cost at least one review round.
   (a stale `fetch-cache` re-renders the old gallery), and assert
   `grep -c '<code>' .next/server/app/templates.html` — otherwise the template is
   live but invisible in the gallery until the ISR window passes.
+
+### Reference classes that start hidden
+
+Katsudoto/Elementor CSS is written for a JS state machine that is **not** in the
+CSS: a block is shipped at `opacity:0` / `z-index:-1` / `visibility:hidden` /
+`clip-path` and some script adds a class (`show`, `is-playing`, `aos-animate`,
+`active`) later. We only port the first half unless we go looking for the second.
+
+- **Symptom is always the same:** the DOM has the right element, the network has
+  the right payload, sound may even play — but the guest sees the old poster and
+  reports "the video does not play". A screenshot of the section looks correct,
+  which is why it survives review.
+- **Before shipping any ported class, grep its CSS for the hidden start.** If a
+  rule pair exists (`x{opacity:0;z-index:-1}` + `x.show{opacity:1;z-index:10}`),
+  the component must set the second state explicitly. For a player that means:
+  `iframe`/`video` gets `show` **in the same render that mounts it**; do not wait
+  for a load event the reference's JS used to fire.
+- **Apply it to every branch, not just the one you tested.** Swan Garden had three
+  (YouTube iframe, provider embed, uploaded `<video>`); the file branch would have
+  shipped the same invisible player.
+- **Dead rules are a trap for the next port.** `olan.css` still carries
+  `.olan-root .autoplay-video{opacity:0;z-index:-1}` although `olan` never applies
+  that class. It is harmless today and lethal the moment someone reuses the name.
+  Do not reuse a reference class unless you port its reveal.
+- **Prefer the shared player.** `AutoplayYouTube` (24 templates) owns its own
+  visible container and the mute/play dance; a hand-rolled `<iframe>` inherits
+  every hidden rule in the vendored stylesheet.
+- **Verify computed style, not markup.** After the tap, assert on the live node:
+  `opacity === "1"`, a real `z-index`, and a non-zero `getBoundingClientRect()`.
+  "The iframe exists" proved nothing — it existed while invisible on every tap.
 
 ---
 

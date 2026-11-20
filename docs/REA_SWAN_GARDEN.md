@@ -216,7 +216,10 @@ WCAG names, the wish pager back label, the `Hai` salutation).
    poster falls back from `maxresdefault` to `hqdefault`, then to the first
    gallery photo. `watch`, `youtu.be`, `embed`, `shorts` and `live` URLs all
    resolve. Vimeo/other provider embeds are mounted directly so the frame is
-   never an empty box, and an unusable URL removes the section.
+   never an empty box, and an unusable URL removes the section. Every mounted
+   player also carries the reference's `.show` reveal: the vendored CSS parks
+   `.autoplay-video` at `opacity:0; z-index:-1` until that class lands, so
+   without it the iframe started but stayed invisible behind the poster.
 10. **Every EKSTRA field has a visible default.** A blank `template_content`
     value falls back to the design's own sentence (video intro/caption, inviting
     intro, wish intro, rundown session label, gift intro, closing, live
