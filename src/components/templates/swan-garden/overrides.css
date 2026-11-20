@@ -759,3 +759,13 @@ body:has(.swan-garden.is-locked) {
 .swan-garden .wedding-gift-wrap {
   padding-bottom: 36%;
 }
+
+/* Gift accordion caret: the reference tints it on the active row; as an SVG it
+   also turns over so the open/closed state is legible. */
+.swan-garden .wedding-gift-wrap .bank-caret {
+  color: var(--text-primary);
+  transition: transform 0.28s ease, color 0.28s ease;
+}
+.swan-garden .wedding-gift-wrap .accor-active .bank-caret {
+  transform: rotate(180deg);
+}

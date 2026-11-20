@@ -3,6 +3,7 @@
 import { Backdrop } from "../Ornaments"
 import { live0 } from "../ornamentData"
 import { SG } from "../assets"
+import { externalHref } from "../links"
 
 type Props = {
   title: string
@@ -13,19 +14,8 @@ type Props = {
   poster: string
 }
 
-// A usable href only: absolute URLs are kept, bare domains get https://, and
-// anything else ("jbkjbkjbk") would resolve against the invitation host, so the
-// block is not rendered at all.
-function liveHref(raw: string): string {
-  const value = (raw || "").trim()
-  if (!value) return ""
-  if (/^https?:\/\//i.test(value)) return value
-  if (/^[\w-]+(\.[\w-]+)+([/?#].*)?$/.test(value)) return `https://${value}`
-  return ""
-}
-
 export default function Live({ title, description, buttonLabel, url, youtubeId, poster }: Props) {
-  const href = liveHref(url)
+  const href = externalHref(url)
   if (!href) return null
   const thumb = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg` : poster
 

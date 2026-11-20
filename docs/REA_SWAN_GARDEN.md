@@ -238,6 +238,13 @@ WCAG names, the wish pager back label, the `Hai` salutation).
     `cover_photos[1]` the portrait inside the gate's painted arch (masked, with
     a cream fade at the bottom). A couple with one photo gets the painted arch
     only, never a stretched or broken image.
+15. **Outbound links use the couple's own address.** `externalHref()`
+    (`links.ts`) is the single rule for the maps button and the live link:
+    `https?://` is kept, `//host` becomes `https://host`, a bare domain
+    (`maps.app.goo.gl/…`, `www.zoom.us/…`) gets `https://`, and anything else
+    (`gagsgaga`, `jbkjbkjbk`) is dropped — the button/section is not rendered,
+    so no guest is ever sent to
+    `https://{slug}.wedding.aksaraa.com/{whatever-they-typed}`.
 
 ## 10. State matrix (verified)
 

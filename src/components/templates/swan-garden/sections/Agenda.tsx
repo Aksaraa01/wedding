@@ -4,6 +4,7 @@ import type { TemplateProps } from "@/types/template"
 import { Backdrop, ornAsset } from "../Ornaments"
 import { agenda0, agenda2, agenda3, agenda4, agenda10 } from "../ornamentData"
 import { SG } from "../assets"
+import { externalHref } from "../links"
 import { EventIcon } from "./EventIcon"
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -128,9 +129,9 @@ export default function Agenda({ profile, title, mapsLabel, dressTitle, dressNot
                       </div>
                     </div>
                   </div>
-                  {session.maps_url ? (
+                  {externalHref(session.maps_url) ? (
                     <div className="event-link-wrap">
-                      <a href={session.maps_url} className="event-link" target="_blank" rel="noreferrer">
+                      <a href={externalHref(session.maps_url)} className="event-link" target="_blank" rel="noreferrer">
                         {mapsLabel}
                       </a>
                     </div>
