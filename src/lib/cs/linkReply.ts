@@ -27,10 +27,10 @@ export function linkReplyText(input: LinkReplyInput): string {
   if (!input.published) {
     lines.push("Undangannya belum tayang, jadi tautannya belum bisa dibuka tamu.")
     if (input.blockers.length) {
-      lines.push(`Yang masih kurang: ${input.blockers.join(", ")}.`)
+      lines.push(`Yang menahan undangan belum tayang: ${input.blockers.join(", ")}.`)
     }
     lines.push(
-      `Selesaikan di editor, lalu tekan *Konfirmasi* di halaman pratinjau. Setelah itu tautan langsung aktif.`
+      "Kalau semua sudah beres (termasuk pembayaran), tekan *Konfirmasi* di halaman pratinjau — tautan langsung aktif."
     )
     lines.push("")
   }

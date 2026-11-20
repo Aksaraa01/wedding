@@ -97,6 +97,9 @@ export function statusReplyText(input: StatusReplyInput): string {
       lines.push(blocker === CONFIRM_BLOCKER ? `• ${blocker} (tombol *Konfirmasi* di pratinjau)` : `• ${blocker}`)
     }
     lines.push("")
+    if (input.payment !== "FULLY_PAID") {
+      lines.push("Untuk pembayaran, balas \"cara bayar\" — aku kirim nomor tim CS-nya.")
+    }
     lines.push(
       "Setelah semua beres, tekan *Konfirmasi* di halaman pratinjau — undangan langsung tayang."
     )

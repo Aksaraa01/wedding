@@ -466,6 +466,7 @@ test("link undangan: Terbatas diarahkan ke dashboard, Fleksibel dapat ?to=", () 
 
   const belum = linkReplyText({ ...base, mode: "fleksibel", published: false, blockers: ["Galeri Foto", "Kutipan"] })
   assert.match(belum, /belum tayang/)
+  assert.match(belum, /Yang menahan undangan belum tayang/)
   assert.match(belum, /Galeri Foto, Kutipan/)
 
   const tutup = linkReplyText({ ...base, mode: "terbatas", disabled: true })
@@ -510,6 +511,8 @@ test("status undangan: tayang/belum, pembayaran, dan penghalang", () => {
   assert.match(draft, /Profil Mempelai/)
   assert.match(draft, /Galeri Foto/)
   assert.match(draft, /Undangan belum dikonfirmasi/)
+  // Pembayaran yang belum lunas diarahkan ke jalur "cara bayar" yang benar.
+  assert.match(draft, /cara bayar/)
   assert.match(draft, /Konfirmasi/)
   assert.doesNotMatch(draft, /\?to=/)
   assert.equal(formatWeddingDate("bukan tanggal"), null)
