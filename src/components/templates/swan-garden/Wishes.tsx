@@ -16,7 +16,6 @@ type Props = {
   namePlaceholder: string
   messagePlaceholder: string
   submitLabel: string
-  moreLabel: string
   emptyLabel: string
 }
 
@@ -32,7 +31,6 @@ export default function Wishes({
   namePlaceholder,
   messagePlaceholder,
   submitLabel,
-  moreLabel,
   emptyLabel,
 }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
@@ -130,6 +128,10 @@ export default function Wishes({
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const paged = useMemo(() => wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [wishes, page])
 
+  useEffect(() => {
+    setPage(0)
+  }, [wishes.length])
+
   return (
     <section className="wedding-wish-wrap" data-section-order="wedding_wish">
       <div className="wedding-wish-inner">
@@ -192,18 +194,37 @@ export default function Wishes({
               {loaded && !wishes.length ? <p className="sw-wishes__empty">{emptyLabel}</p> : null}
             </div>
             {totalPages > 1 ? (
-              <div className="more-comment-wrap show">
-                {page < totalPages - 1 ? (
-                  <button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}>
-                    {moreLabel}
+              <nav className="sw-pager" aria-label={title}>
+                <button
+                  type="button"
+                  className="sw-pager__arrow"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  aria-label="Previous"
+                >
+                  ‹
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`sw-pager__page${i === page ? " active" : ""}`}
+                    aria-current={i === page ? "page" : undefined}
+                    onClick={() => setPage(i)}
+                  >
+                    {i + 1}
                   </button>
-                ) : null}
-                {page > 0 ? (
-                  <button type="button" className="sw-wishes__less" onClick={() => setPage((p) => Math.max(0, p - 1))}>
-                    Tutup
-                  </button>
-                ) : null}
-              </div>
+                ))}
+                <button
+                  type="button"
+                  className="sw-pager__arrow"
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page === totalPages - 1}
+                  aria-label="Next"
+                >
+                  ›
+                </button>
+              </nav>
             ) : null}
           </div>
         </div>

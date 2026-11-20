@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, gcalLink } from "../shared/lib"
+import { countdownTarget, firstImage, gcalLink } from "../shared/lib"
 import TopCover from "./sections/TopCover"
 import PrimaryPane from "./sections/PrimaryPane"
 import Cover from "./sections/Cover"
@@ -39,14 +39,15 @@ const COPY = {
   dresscode_title: "Dresscode",
   dresscode_note: "We kindly ask that guests please attend wearing our wedding colors.",
   rundown_title: "Rundown",
+  rundown_event_title: "Reception",
   inviting_title: "With Honor",
-  inviting_intro: "",
+  inviting_intro: "Together with the families who make this day possible.",
   live_title: "Live Streaming",
   live_button: "Open Link",
   gallery_title: "Portraits of Us",
   video_title: "Our Footage",
-  video_intro: "",
-  video_caption: "",
+  video_intro: "A short film from the days before the wedding.",
+  video_caption: "The Film",
   story_title: "Our Story",
   gift_title: "Wedding Gift",
   gift_intro:
@@ -55,16 +56,15 @@ const COPY = {
   copy_label: "Copy",
   copied_label: "Copied",
   wishes_title: "Wedding Wish",
-  wishes_intro: "",
+  wishes_intro: "Leave a wish or a prayer for us to keep.",
   wishes_name_placeholder: "Name",
   wishes_message_placeholder: "Give your wish",
   wishes_submit: "Send",
-  wishes_more: "Show more comments",
   wishes_empty: "Be the first to send a wish.",
   closing_title: "Thank You",
   closing_message:
     "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us.",
-  live_description: "",
+  live_description: "Join our ceremony from wherever you are.",
 } as const
 
 function youtubeId(url?: string): string {
@@ -88,7 +88,9 @@ function instagramValue(value?: string): string {
 
 export default function SwanGardenTemplate(profile: TemplateProps) {
   const extras = (profile.template_content || {}) as Record<string, string>
-  const copy = (key: keyof typeof COPY) => (extras[key] || COPY[key]) as string
+  // A blank EKSTRA field must fall back to the design's own copy: a real
+  // invitation should never show a bare heading where a sentence belongs.
+  const copy = (key: keyof typeof COPY) => ((extras[key] || "").trim() || COPY[key]) as string
 
   const [opened, setOpened] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
@@ -101,6 +103,9 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
   const guestName = (profile.guest_name || "").trim()
   const guestLabel = `Dear, ${guestName || GUEST_FALLBACK}`
   const hashtag = prettyHashtag(profile.display_name)
+  const coverSlots = Array.isArray(profile.cover_photos) ? profile.cover_photos : []
+  const coverPhoto = firstImage(coverSlots[0])
+  const gatePhoto = firstImage(coverSlots[1])
 
   const gates = profile.feature_gates || {}
   const sessions = profile.sessions || []
@@ -122,13 +127,6 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
   const live = profile.livestream || {}
   const liveUrl = live.url || ""
   const track = profile.track_url || ASSETS.defaultMusic
-
-  // The reference hides the gate on desktop: the side-by-side pane is already
-  // the cover, so the invitation is open on arrival. Phones keep the gate.
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (window.matchMedia("(min-width: 961px)").matches) setOpened(true)
-  }, [])
 
   // Autoplay is blocked without a gesture, so the first interaction starts the
   // music on the desktop path (and is a no-op on phones, where Open did it).
@@ -176,9 +174,11 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
     }
   }, [])
 
-  // Body scroll stays locked under the gate, exactly like the reference.
+  // Body scroll stays locked under the gate, exactly like the reference. On
+  // desktop the gate is replaced by the pinned pane, so the page must scroll.
   useEffect(() => {
     if (opened) return
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 961px)").matches) return
     const { body, documentElement } = document
     const prevBody = body.style.overflow
     const prevHtml = documentElement.style.overflow
@@ -258,7 +258,13 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
   return (
     <div className={`swan-garden${opened ? " is-open" : " is-locked"}`}>
       <section className="kat-page__side-to-side">
-        <PrimaryPane coupleLabel={coupleLabel} guestLabel={guestLabel} />
+        <PrimaryPane
+          coupleLabel={coupleLabel}
+          guestLabel={guestLabel}
+          openLabel={copy("open_button")}
+          opened={opened}
+          onOpen={openInvitation}
+        />
         <section className="secondary-pane">
           <TopCover
             hidden={opened}
@@ -266,19 +272,16 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             coupleLabel={coupleLabel}
             guestLabel={guestLabel}
             openLabel={copy("open_button")}
+            photo={gatePhoto}
           />
           <Cover
             profile={profile}
             coupleLabel={coupleLabel}
             kicker={copy("cover_kicker")}
             hashtag={hashtag}
+            photo={coverPhoto}
           />
-          <Quote
-            text={profile.quote_text || ""}
-            source={profile.quote_source || ""}
-            title={profile.quote_text ? "" : profile.opening_title || ""}
-            description={profile.quote_text ? "" : profile.opening_description || ""}
-          />
+          <Quote text={profile.quote_text || ""} source={profile.quote_source || ""} />
           <Couple
             profile={profile}
             title={copy("mempelai_title")}
@@ -300,16 +303,17 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
           <Rundown
             items={profile.rundown || []}
             title={copy("rundown_title")}
-            eventTitle={extras.rundown_event_title || ""}
+            eventTitle={copy("rundown_event_title")}
           />
           <Families families={families} title={copy("inviting_title")} intro={copy("inviting_intro")} />
           {profile.livestream_visible !== false && liveUrl ? (
             <Live
               title={live.title || copy("live_title")}
-              description={live.description || ""}
+              description={(live.description || "").trim() || copy("live_description")}
               buttonLabel={live.buttonLabel || copy("live_button")}
               url={liveUrl}
               youtubeId={youtubeId(liveUrl)}
+              poster={coverPhoto}
             />
           ) : null}
           <Gallery photos={galleryPhotos} title={copy("gallery_title")} onPhoto={openLightbox} />
@@ -325,7 +329,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
           <Story
             stories={stories}
             title={copy("story_title")}
-            coverPhoto={profile.cover_photos?.[0] || ""}
+            coverPhoto={coverPhoto}
             onPhoto={openLightbox}
           />
           <Gift
@@ -349,7 +353,6 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             namePlaceholder={copy("wishes_name_placeholder")}
             messagePlaceholder={copy("wishes_message_placeholder")}
             submitLabel={copy("wishes_submit")}
-            moreLabel={copy("wishes_more")}
             emptyLabel={copy("wishes_empty")}
           />
           <Closing title={copy("closing_title")} message={copy("closing_message")} />

@@ -6,9 +6,12 @@ import { primary0, primary2 } from "../ornamentData"
 type Props = {
   coupleLabel: string
   guestLabel: string
+  openLabel: string
+  opened: boolean
+  onOpen: () => void
 }
 
-export default function PrimaryPane({ coupleLabel, guestLabel }: Props) {
+export default function PrimaryPane({ coupleLabel, guestLabel, openLabel, opened, onOpen }: Props) {
   return (
     <section className="primary-pane" aria-hidden="true">
       <div className="inner">
@@ -27,6 +30,13 @@ export default function PrimaryPane({ coupleLabel, guestLabel }: Props) {
           </div>
           <div className=" details">
             <p>{guestLabel}</p>
+            {!opened ? (
+              <div className="link-wrap">
+                <button type="button" className="sw-open-btn" onClick={onOpen}>
+                  {openLabel}
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

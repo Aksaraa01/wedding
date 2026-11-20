@@ -79,7 +79,8 @@ rundown → inviting → live → gallery → video → story → gift → wishe
 
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
-| 1 | Cover / gate | names, `cover_photos[0]`, `display_name` | always | no photo ⇒ frame shows paper; no guest ⇒ no `Hai …` line; no hashtag ⇒ no line | `cover_kicker`, `open_button` | gate slides out 1.8 s; 190 ornaments fade/zoom per their own delay (0.5–3.5 s) |
+| 1 | Cover / gate | names, `cover_photos[0]` (oval), `cover_photos[1]` (gate portrait), `display_name` | always | no oval ⇒ frame shows paper; no gate portrait ⇒ painted arch only; no guest ⇒ no `Dear,` line; no hashtag ⇒ no line | `cover_kicker`, `open_button` | gate slides out 1.8 s; 190 ornaments fade/zoom per their own delay (0.5–3.5 s) |
+| 2 | Live | `livestream {title, description, buttonLabel, url}` | `livestream_visible !== false` and a usable URL | YouTube ⇒ poster + play disc; any other link (Zoom, Meet) ⇒ `cover_photos[0]` behind a scrim + play disc; a bare word ("jbkjbkjbk") ⇒ section hidden, never a link back to the invitation host | `live_title`, `live_button`, `live_description` | header ornament fades in; disc scales on hover |
 | 3 | Welcome | the gate itself (names, guest, open) | always | — | `cover_kicker` | as above |
 | 4 | Kalimat pembuka | `quote_text`/`quote_source`, else `opening_title`/`opening_description` | renders when either has content | quote only / body only / both | profile + `quote_*` | wreath + 18 ornaments fade with the section |
 | 5 | Mempelai | `*_full_name`, parents, IG, portraits | portraits only when a photo exists | 0 photos ⇒ `hide-picture` (frames hidden); 1 photo ⇒ one oval filled, the other paper | `mempelai_title`, `mempelai_intro` | two person blocks fade-up, 0.08 s step |
@@ -89,10 +90,10 @@ rundown → inviting → live → gallery → video → story → gift → wishe
 | 9 | Turut mengundang | `inviting_families[]` | `feature_gates.inviting_families` **and** `inviting_families_visible !== false` | 0 ⇒ section gone; long lists wrap | `inviting_title`, `inviting_intro` | reuses the rundown card reveal |
 | 10 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ section gone; 1 ⇒ one row | `rundown_title`, `rundown_event_title` | card fade, rows static |
 | 11 | Gallery | `gallery_photos[]` | needs data | 1 ⇒ single plate (first-child rule stretches it); n ⇒ mosaic; 0 ⇒ gone | `gallery_title` | reveal per plate; lightbox Esc/←/→ |
-| 12 | Video | `video_url` | `feature_gates.video` **and** `video_section_visible !== false` | mp4/webm ⇒ `<video>` loop; YouTube ⇒ `AutoplayYouTube` mounted 2 screens early; unsupported ⇒ no player | `video_title`, `video_intro`, `video_caption` | player mounts near viewport, muted loop |
+| 12 | Video | `video_url` | `feature_gates.video` **and** `video_section_visible !== false` and a playable source | mp4/webm ⇒ `<video>` loop; YouTube (`watch`, `youtu.be`, `embed`, `shorts`, `live`) ⇒ poster + play disc, iframe mounted on tap; Vimeo/other embeds ⇒ iframe straight away; unusable URL ⇒ section gone | `video_title`, `video_intro`, `video_caption` | poster reveal; player mounts on tap, muted loop |
 | 13 | Wedding gift | `gift_accounts[]`, `gift_address(_name)` | `gift_section_visible !== false`; address also `feature_gates.gift_address` | accounts only / address only / both / none | `gift_title`, `gift_intro`, `gift_address_title`, `copy_label`, `copied_label` | ribbon art static; accordions; copy toast |
 | 14 | Dress code | `dresscode {title, description, colors[]}` | `dresscode_visible !== false` and any data | colors only ⇒ swatches only; no note ⇒ no footer | `dresscode_title`, `dresscode_note` | inside the event section, fades with it |
-| 15 | Wishes | `Wishes` + `/api/wishes` | always | 0 wishes ⇒ empty line; >10 ⇒ pager | `wishes_*` | form static, rows list |
+| 15 | Wishes | `Wishes` + `/api/wishes` | always | 0 wishes ⇒ empty line; >10 ⇒ numbered pager (prev/page/next) | `wishes_*` | form static, rows list |
 | 16 | Closing | `closing_message` | always | no message ⇒ title only | `closing_title`, `closing_message` | garden band fades |
 | — | Footnote | names, `display_name` | always | names split on `&` | `cover_kicker` | fade-up |
 
@@ -188,38 +189,55 @@ WCAG names, the wish pager back label, the `Hai` salutation).
    payment source of truth. *What is lost:* couples cannot collect transfer
    proofs from the invitation. The bank cards, copy buttons and gift address
    are kept.
-3. **The reference's own RSVP block is not a section, and its cover button is
+3. **The "Kalimat Pembuka" accordion is hidden in the editor and ops**
+   (`TEMPLATES_WITHOUT_OPENING`) because this design has no such block — the
+   painted quote card carries the couple's words. The quote section itself
+   still renders from `quote_text`/`quote_source`.
+4. **The reference's own RSVP block is not a section, and its cover button is
    gone.** In the source the RSVP block is a heading with an empty body; the
    cover's plum `RSVP` pill only scrolled to it. Attendance/pax/QR belong to the
    shared `InvitationOverlay` dock, so the cover pill was **removed at the
    owner's request** (the floating dock is the only RSVP entry point in a real
    invitation). The dock is rendered inside the template with the
-   `preview_mode` / `template_demo` guards.
-4. **Story slider renders one slide at a time.** The reference's slick clones
+   `preview_mode` / `template_demo` guards and only after the invitation opens.
+5. **Story slider renders one slide at a time.** The reference's slick clones
    both slides into the DOM (2×13 ornaments); ours renders the active slide's
    ornaments once — the same pixels, half the images.
-5. **Turut Mengundang is new.** Rebuilt from the rundown's own paper card
+6. **Turut Mengundang is new.** Rebuilt from the rundown's own paper card
    (frame, ornaments, script heading, Halant names) so it reads as part of the
    design rather than a bolted-on block.
-6. **Dress code stays inside the event section** exactly as the reference draws
+7. **Dress code stays inside the event section** exactly as the reference draws
    it (Men/Women columns, same swatch list, note underneath) instead of becoming
    a separate section.
-7. **Language switcher, loading screen and vendor footer are reference chrome**
+8. **Language switcher, loading screen and vendor footer are reference chrome**
    and are not ported. The footer carries the Aksaraa badge instead.
-8. **Video is autoplaying and muted.** The reference mounts a YouTube player on
-   a play tap; ours mounts `AutoplayYouTube` two screens early (silent, looped)
-   so the frame is never an empty box, and uses `<video>` for uploads.
-9. **Gift accounts have no logo.** `gift_accounts` carries no
-   `provider_logo_url`, so the provider name is printed (the reference's bank
-   PNGs are not borrowed).
-10. **The gate's salutation is `Hai`** (the reference's own word on the gate),
-    not `Dear`.
-11. **Desktop opens on arrival.** The reference hides the gate above 961 px
-    (`section.top-cover{display:none}`) because the pinned art pane and the
-    39 % column are already the cover. We match that: on desktop the invitation
-    starts open, the music starts on the first interaction (browsers block
-    autoplay without a gesture), and the RSVP dock is available immediately.
-    Phones keep the gate and its Open button.
+9. **Video is poster-first.** The reference shows a YouTube poster with a play
+   disc; ours does the same and mounts the iframe on tap (silent, looped). The
+   poster falls back from `maxresdefault` to `hqdefault`, then to the first
+   gallery photo. `watch`, `youtu.be`, `embed`, `shorts` and `live` URLs all
+   resolve. Vimeo/other provider embeds are mounted directly so the frame is
+   never an empty box, and an unusable URL removes the section.
+10. **Every EKSTRA field has a visible default.** A blank `template_content`
+    value falls back to the design's own sentence (video intro/caption, inviting
+    intro, wish intro, rundown session label, gift intro, closing, live
+    description, open button), so a real invitation never shows a bare heading.
+    Blank/whitespace values are treated as empty.
+11. **Gift accounts have no logo.** `gift_accounts` carries no
+    `provider_logo_url`, so the provider name is printed (the reference's bank
+    PNGs are not borrowed). No logo also means no broken image slot.
+12. **The gate salutation is `Dear, …`** (the owner's request), not the
+    reference's `Hai`.
+13. **Desktop shows the cover, it does not auto-open.** Above 961 px the gate is
+    hidden and the 61/39 split is the cover: the left pane carries the names,
+    `Dear, <tamu undangan>` and an **Open Invitation** pill, the right pane the
+    carved oval portrait. The pill starts the music, drops the scroll lock and
+    reveals the floating RSVP/QR dock; the page does not start open, so guests
+    always hear music from their own tap. Phones keep the painted gate and its
+    Open button.
+14. **Two cover slots.** `cover_photos[0]` is the oval portrait on the cover,
+    `cover_photos[1]` the portrait inside the gate's painted arch (masked, with
+    a cream fade at the bottom). A couple with one photo gets the painted arch
+    only, never a stretched or broken image.
 
 ## 10. State matrix (verified)
 
@@ -227,7 +245,7 @@ WCAG names, the wish pager back label, the `Hai` salutation).
 |---|---|
 | gate idle | arch art, VIP plate, names, guest, Open; body scroll locked |
 | gate opened | `.top-cover.hide`, scroll stays at top, music starts |
-| desktop ≥961 px | gate hidden by the vendored CSS, page starts open, music on first interaction |
+| desktop ≥961 px | gate hidden by the vendored CSS, left pane shows `Dear, …` + Open Invitation; the pill starts music and reveals the RSVP/QR dock |
 | no `estimated_wedding_date` and no session date | no countdown section, no calendar link |
 | `sessions.length === 1` | one framed card, no gap |
 | `sessions = []` | no event section at all |

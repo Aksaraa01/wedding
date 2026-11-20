@@ -260,13 +260,14 @@ body:has(.swan-garden.is-locked) {
 .swan-garden .sw-dot.active { background: var(--background-tertiary); }
 
 /* ---- Gift ---- */
+/* Chevron: a real SVG so its colour is unambiguous in both states. Collapsed
+   pills sit on paper (plum chevron); an open pill flips to the brand plum. */
 .swan-garden .bank-caret {
   display: inline-block;
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid currentColor;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: currentColor;
   transition: transform 0.25s ease;
 }
 .swan-garden .accor-bank-wrap:not(.accor-active) .bank-caret { transform: rotate(-90deg); }
@@ -618,4 +619,143 @@ body:has(.swan-garden.is-locked) {
 .swan-garden .video-gallery .inner .video-outer .video .preview .play-btn:hover {
   background-color: var(--background-secondary) !important;
   opacity: 1 !important;
+}
+
+/* Gift pill states: paper when closed, plum when open. */
+.swan-garden .accor-bank-wrap .bank-btn-accordion {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--background-tertiary);
+}
+.swan-garden .accor-bank-wrap .bank-btn-accordion p.bank-btop-txt {
+  color: currentColor;
+}
+.swan-garden .accor-bank-wrap.accor-active .bank-btn-accordion {
+  background-color: var(--button-background-primary);
+  color: var(--button-text-primary);
+  border-color: var(--button-background-primary);
+}
+
+/* Shared "Open Invitation" pill (gate + desktop pane). */
+.swan-garden .sw-open-btn {
+  display: inline-block;
+  border: 0;
+  cursor: pointer;
+  background-color: var(--button-background-primary);
+  border-radius: 99px;
+  color: var(--button-text-primary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 auto;
+  outline: none;
+  padding: 12px 16px 10px;
+  text-align: center;
+}
+.swan-garden .sw-open-btn:hover {
+  background-color: rgba(var(--button-background-primary-rgb), 0.8);
+}
+.swan-garden .primary-pane .details .link-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Wish pagination: page numbers with arrow ends. */
+.swan-garden .sw-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 18px;
+}
+.swan-garden .sw-pager button {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 99px;
+  border: 1px solid var(--background-tertiary);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) - 2px);
+  line-height: 1;
+  cursor: pointer;
+}
+.swan-garden .sw-pager button.active {
+  background: var(--button-background-primary);
+  border-color: var(--button-background-primary);
+  color: var(--button-text-primary);
+}
+.swan-garden .sw-pager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.swan-garden .sw-pager .sw-pager__arrow {
+  font-size: calc(var(--body-text-size) + 2px);
+}
+
+/* Gate photo (cover slot 2): a soft-edged portrait inside the painted arch,
+   under the names and the Open button. */
+.swan-garden .top-cover .sw-gate__photo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52%;
+  aspect-ratio: 0.76;
+  transform: translateX(-50%);
+  background-size: cover;
+  background-position: center;
+  border-radius: 50% 50% 10% 10% / 44% 44% 10% 10%;
+  overflow: hidden;
+  box-shadow: 0 18px 38px rgba(46, 38, 30, 0.28);
+  z-index: 2;
+  pointer-events: none;
+}
+.swan-garden .top-cover .sw-gate__photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(234, 241, 230, 0) 42%, rgba(234, 241, 230, 0.82) 78%, #eaf1e6 100%);
+}
+.swan-garden .top-cover .inner {
+  position: relative;
+  z-index: 3;
+}
+
+/* Live: a Zoom/Meet/plain link has no YouTube thumbnail, so the couple's cover
+   photo stands in behind a scrim; the play disc stays readable either way. */
+.swan-garden .live-streaming .preview.wide.youtube {
+  position: relative;
+  overflow: hidden;
+  background: var(--background-secondary);
+}
+.swan-garden .live-streaming .preview.wide.youtube.sw-live__empty {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 62%),
+    var(--background-secondary);
+}
+.swan-garden .live-streaming .preview.wide.youtube > img {
+  position: relative;
+  z-index: 1;
+}
+.swan-garden .sw-live__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(20, 16, 14, 0.12), rgba(20, 16, 14, 0.42));
+  pointer-events: none;
+}
+.swan-garden .live-streaming .preview.wide.youtube .play-btn {
+  z-index: 3;
+}
+
+/* The gift sheet is shorter than the reference's (no transfer-proof form), so
+   the bottom-anchored bridge would climb into the intro; keep the copy clear of
+   the painting. */
+.swan-garden .wedding-gift-wrap {
+  padding-bottom: 36%;
 }

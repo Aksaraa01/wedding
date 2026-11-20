@@ -7,14 +7,10 @@ import { SG } from "../assets"
 type Props = {
   text: string
   source: string
-  title?: string
-  description?: string
 }
 
-export default function Quote({ text, source, title, description }: Props) {
-  const hasQuote = Boolean(text || source)
-  const hasBody = Boolean(title || description)
-  if (!hasQuote && !hasBody) return null
+export default function Quote({ text, source }: Props) {
+  if (!text && !source) return null
 
   return (
     <section className="quote-wrap" data-section-order="quote">
@@ -23,19 +19,11 @@ export default function Quote({ text, source, title, description }: Props) {
         <div className="quotes-frame">
           <img src={SG.frameQuote} alt="" aria-hidden="true" width={1200} height={1112} loading="eager" />
           <div className="quotes-content">
-            {hasQuote ? (
-              <p className="quote-caption">
-                {text ? <>&ldquo;{text}&rdquo;</> : null}
-                {text && source ? <br /> : null}
-                {source ? <span className="sw-quote__source">{source}</span> : null}
-              </p>
-            ) : null}
-            {hasBody ? (
-              <div className="sw-quote__body">
-                {title ? <p className="sw-quote__title">{title}</p> : null}
-                {description ? <p className="sw-quote__text">{description}</p> : null}
-              </div>
-            ) : null}
+            <p className="quote-caption">
+              {text ? <>&ldquo;{text}&rdquo;</> : null}
+              {text && source ? <br /> : null}
+              {source ? <span className="sw-quote__source">{source}</span> : null}
+            </p>
           </div>
           <Backdrop items={quote1} />
         </div>

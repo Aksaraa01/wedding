@@ -7,7 +7,8 @@
 -- the template reads sessions, stories, rundown, dresscode, livestream,
 -- gift_accounts, inviting_families and template_content.
 --
--- Content spec lives in TEMPLATE_CONFIGS: one cover slot, portraits on, story
+-- Content spec lives in TEMPLATE_CONFIGS: two cover slots (the oval on the
+-- cover and the portrait inside the entry arch), portraits on, story
 -- photos on, and gallery, video, gift, dress code, rundown, inviting and
 -- livestream on. The reference's RSVP block and transfer-confirmation form are
 -- not shipped (see docs/REA_SWAN_GARDEN.md §9).

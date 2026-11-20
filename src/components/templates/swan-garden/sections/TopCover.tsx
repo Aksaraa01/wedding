@@ -9,12 +9,14 @@ type Props = {
   coupleLabel: string
   guestLabel: string
   openLabel: string
+  photo: string
 }
 
-export default function TopCover({ hidden, onOpen, coupleLabel, guestLabel, openLabel }: Props) {
+export default function TopCover({ hidden, onOpen, coupleLabel, guestLabel, openLabel, photo }: Props) {
   return (
     <section className={`top-cover${hidden ? " hide" : ""}`} data-section-order="opening_cover" aria-hidden={hidden}>
       <Backdrop items={topcover0} eager />
+      {photo ? <div className="sw-gate__photo" style={{ backgroundImage: `url(${photo})` }} aria-hidden="true" /> : null}
       <div className=" inner">
         <div className="head-tc">
           <div>
@@ -32,7 +34,7 @@ export default function TopCover({ hidden, onOpen, coupleLabel, guestLabel, open
         <div className=" details">
           <p className="sw-gate__guest">{guestLabel}</p>
           <div className="link-wrap">
-            <button type="button" className="link" onClick={onOpen}>
+            <button type="button" className="link sw-open-btn" onClick={onOpen}>
               {openLabel}
             </button>
           </div>

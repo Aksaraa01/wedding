@@ -19,12 +19,19 @@ type Props = {
 export default function Film({ videoUrl, title, intro, caption, poster }: Props) {
   if (!videoUrl) return null
   const source = videoSource(videoUrl)
-  const youtubeId = videoUrl.match(/youtu\.be\/([A-Za-z0-9_-]{11})|youtube\.com\/(?:watch\?[^#]*v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)?.[1]
-    || videoUrl.match(/[?&]v=([A-Za-z0-9_-]{11})/)?.[1]
-    || ""
+  // One capture group: /embed/ links (what the editor stores) and watch links
+  // both resolve, so the poster and player never silently disappear.
+  const youtubeId =
+    videoUrl.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/))([A-Za-z0-9_-]{11})/
+    )?.[1] || ""
   const [started, setStarted] = useState(false)
   const ytPoster = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg` : ""
   const thumb = ytPoster || poster
+  // A provider embed we cannot poster-frame (Vimeo, a custom player) still has
+  // to render: mount it directly instead of leaving an empty box.
+  const genericEmbed = !youtubeId && source?.kind === "embed"
+  if (!source && !youtubeId) return null
 
   return (
     <section className="video-gallery autoplay-video-section" data-section-order="gallery_video">
@@ -38,13 +45,32 @@ export default function Film({ videoUrl, title, intro, caption, poster }: Props)
             <div className="p-relative">
               <Backdrop items={video0} />
               <div className={`preview autoplay-video-box${started ? " is-playing" : ""}`}>
-                {source?.kind === "file" ? (
+                {genericEmbed ? (
+                  <iframe
+                    className="autoplay-video"
+                    src={source.src}
+                    title={caption || title}
+                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : source?.kind === "file" ? (
                   <video className="autoplay-video" autoPlay muted loop playsInline poster={poster || undefined} controls>
                     <source src={source.src} />
                   </video>
                 ) : youtubeId ? (
                   <>
-                    {thumb ? <img className="sw-film__poster" src={thumb} alt="" loading="lazy" /> : null}
+                    {thumb ? (
+                      <img
+                        className="sw-film__poster"
+                        src={thumb}
+                        alt=""
+                        loading="lazy"
+                        onError={(e) => {
+                          const el = e.currentTarget
+                          if (el.src.includes("maxresdefault")) el.src = `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`
+                        }}
+                      />
+                    ) : null}
                     {started ? (
                       <iframe
                         className="autoplay-video"

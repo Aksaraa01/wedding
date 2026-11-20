@@ -2049,15 +2049,16 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.9, stagger: 0.06 },
     },
     content: {
-      cover_slots: 1,
-      cover_slot_labels: ["Foto Sampul"],
+      cover_slots: 2,
+      cover_slot_labels: ["Foto Oval (Undangan)", "Foto Gerbang (Sebelum Masuk)"],
       groom_photo: "single",
       bride_photo: "single",
       person_photos: true,
       story_photo: true,
       initials: false,
       sections: {
-        opening_description: true,
+        // No "Kalimat Pembuka": the painted quote card carries the couple's words.
+        opening_description: false,
         quote: true,
         countdown: true,
         inviting: true,

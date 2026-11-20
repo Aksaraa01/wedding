@@ -76,7 +76,20 @@ export default function Gift({
                           onClick={() => setOpenAccount((current) => (current === i ? null : i))}
                         >
                           <p className="bank-btop-txt">{account.provider_name || ""}</p>
-                          <span className="bank-caret" aria-hidden="true" />
+                          <svg
+                            className="bank-caret"
+                            viewBox="0 0 24 24"
+                            width="16"
+                            height="16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M6 9l6 6 6-6" />
+                          </svg>
                         </button>
                         <div className="wedding-gift-bank-wrap">
                           <div className={`bank-item${openAccount === i ? " show" : ""}`}>

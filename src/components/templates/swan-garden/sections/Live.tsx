@@ -10,11 +10,25 @@ type Props = {
   buttonLabel: string
   url: string
   youtubeId: string
+  poster: string
 }
 
-export default function Live({ title, description, buttonLabel, url, youtubeId }: Props) {
-  if (!url) return null
-  const thumb = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : ""
+// A usable href only: absolute URLs are kept, bare domains get https://, and
+// anything else ("jbkjbkjbk") would resolve against the invitation host, so the
+// block is not rendered at all.
+function liveHref(raw: string): string {
+  const value = (raw || "").trim()
+  if (!value) return ""
+  if (/^https?:\/\//i.test(value)) return value
+  if (/^[\w-]+(\.[\w-]+)+([/?#].*)?$/.test(value)) return `https://${value}`
+  return ""
+}
+
+export default function Live({ title, description, buttonLabel, url, youtubeId, poster }: Props) {
+  const href = liveHref(url)
+  if (!href) return null
+  const thumb = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg` : poster
+
   return (
     <section className="live-streaming" data-section-order="live_streaming">
       <Backdrop items={live0} />
@@ -31,9 +45,21 @@ export default function Live({ title, description, buttonLabel, url, youtubeId }
         <div className="body">
           <div className="streaming-info">
             <div>
-              <div className="preview wide youtube">
-                {thumb ? <img src={thumb} alt="" loading="lazy" /> : null}
-                <a className="play-btn" href={url} target="_blank" rel="noreferrer" aria-label={buttonLabel}>
+              <div className={`preview wide youtube${thumb ? "" : " sw-live__empty"}`}>
+                {thumb ? (
+                  <img
+                    src={thumb}
+                    alt=""
+                    loading="lazy"
+                    onError={(e) => {
+                      const el = e.currentTarget
+                      if (el.src.includes("maxresdefault")) el.src = `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`
+                      else if (poster && el.src !== poster) el.src = poster
+                    }}
+                  />
+                ) : null}
+                <span className="sw-live__veil" aria-hidden="true" />
+                <a className="play-btn" href={href} target="_blank" rel="noreferrer" aria-label={buttonLabel}>
                   <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">
                     <path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14Z" />
                   </svg>
@@ -41,7 +67,7 @@ export default function Live({ title, description, buttonLabel, url, youtubeId }
               </div>
             </div>
             <div className="link">
-              <a href={url} target="_blank" rel="noreferrer">
+              <a href={href} target="_blank" rel="noreferrer">
                 {buttonLabel}
               </a>
             </div>

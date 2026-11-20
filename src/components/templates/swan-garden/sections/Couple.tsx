@@ -1,6 +1,7 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
+import { firstImage } from "../../shared/lib"
 import { ornAsset } from "../Ornaments"
 import { SG } from "../assets"
 
@@ -134,8 +135,10 @@ function PersonBlock({
 export default function Couple({ profile, title, description, onPhoto }: Props) {
   const groom = profile.groom_full_name || profile.groom_name || ""
   const bride = profile.bride_full_name || profile.bride_name || ""
-  const groomPhoto = Array.isArray(profile.groom_photo_url) ? profile.groom_photo_url[0] : profile.groom_photo_url || ""
-  const bridePhoto = Array.isArray(profile.bride_photo_url) ? profile.bride_photo_url[0] : profile.bride_photo_url || ""
+  // These columns are JSON strings on real profiles (["https://…"]), so never
+  // read them directly: firstImage unwraps arrays and JSON.
+  const groomPhoto = firstImage(profile.groom_photo_url)
+  const bridePhoto = firstImage(profile.bride_photo_url)
   const photos = Boolean(groomPhoto || bridePhoto)
 
   return (

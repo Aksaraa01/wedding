@@ -10,11 +10,12 @@ type Props = {
   coupleLabel: string
   kicker: string
   hashtag: string
+  photo: string
 }
 
-export default function Cover({ profile, coupleLabel, kicker, hashtag }: Props) {
-  const desktop = profile.cover_photos?.[0] || ""
-  const mobile = profile.cover_photos?.[1] || desktop
+export default function Cover({ profile, coupleLabel, kicker, hashtag, photo }: Props) {
+  const desktop = photo
+  const mobile = photo
 
   return (
     <section className="cover " data-section-order="cover">

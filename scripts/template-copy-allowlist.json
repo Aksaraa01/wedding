@@ -1944,8 +1944,7 @@
         "Close": "WCAG name for the lightbox close control",
         "Previous": "WCAG name for the lightbox previous control",
         "Next": "WCAG name for the lightbox next control",
-        "Tutup": "label for the control that steps the wish feed back one page",
-        "Play music": "WCAG name for the music toggle",
+            "Play music": "WCAG name for the music toggle",
         "Pause music": "WCAG name for the music toggle",
         "Hai": "guest salutation used by the reference on the gate"
       }

@@ -3707,8 +3707,9 @@ DEMO_PROPS_BY_CODE["swan-garden"] = {
     dresscode_title: "Dresscode",
     dresscode_note: "We kindly ask that guests please attend wearing our wedding colors.",
     rundown_title: "Rundown",
+    rundown_event_title: "Reception",
     inviting_title: "With Honor",
-    inviting_intro: "",
+    inviting_intro: "Together with the families who make this day possible.",
     gallery_title: "Portraits of Us",
     video_title: "Our Footage",
     video_intro: "A short film from the days before the wedding.",
@@ -3723,7 +3724,6 @@ DEMO_PROPS_BY_CODE["swan-garden"] = {
     wishes_name_placeholder: "Name",
     wishes_message_placeholder: "Give your wish",
     wishes_submit: "Send",
-    wishes_more: "Show more comments",
     wishes_empty: "Be the first to send a wish.",
     closing_title: "Thank You",
     closing_message:
