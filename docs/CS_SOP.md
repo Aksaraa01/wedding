@@ -306,7 +306,10 @@ dari tebakan model.
    10 menit, lalu disambungkan ke tim.
 4. Balas **"bukan"** → tidak ada data yang dibuka. CS meminta nomor WhatsApp
    yang dipakai saat registrasi (jalur OTP), bukan menebak pasangan lain.
-5. Setelah terverifikasi → balasan tetap dari database:
+5. Setelah PIN benar → CS mengirim konfirmasi verifikasi **dan langsung
+   menjawab pertanyaan yang tadi tertunda** (status/tautan, maksimal 15 menit
+   ke belakang), jadi klien tidak perlu mengetik ulang pertanyaannya.
+6. Jawaban status berasal dari database:
    - undangan sudah tayang / belum tayang (atau sudah ditutup),
    - paket + status pembayaran (`belum ada pembayaran` / `DP sudah masuk` / `lunas`),
    - tanggal acara,
