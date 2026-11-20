@@ -412,7 +412,12 @@ export async function POST(request: Request) {
     const lastBot = await lastOutboundBody(conversationId)
     const askedPin = /pin undangan/i.test(lastBot)
     const askedConfirm = /nomor ini terdaftar sebagai/i.test(lastBot)
-    const accountIntent = ["data_collection", "data_change", "status"].includes(classify(text))
+    const accountIntent = [
+      "data_collection",
+      "data_change",
+      "status",
+      "invitation_link",
+    ].includes(classify(text))
 
     if (askedConfirm) {
       if (/^(ya|iya|betul|benar|yes)\b/i.test(text)) {

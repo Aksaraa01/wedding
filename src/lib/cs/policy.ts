@@ -34,6 +34,7 @@ export type Intent =
   | "cta_register"
   | "data_collection"
   | "status"
+  | "invitation_link"
   | "timeline"
   | "recommendation"
   | "package_info"
@@ -413,7 +414,24 @@ export function classify(text: string): Intent {
     return "data_collection"
   }
 
-  if (hasAny(t, ["status", "progres", "progress", "sampai mana", "sudah jadi", "kapan jadi", "udah jadi"])) {
+  if (
+    hasAny(t, [
+      "status",
+      "progres",
+      "progress",
+      "sampai mana",
+      "sudah jadi",
+      "kapan jadi",
+      "udah jadi",
+      "sudah aktif",
+      "aktif belum",
+      "publish",
+      "dipublish",
+      "di publish",
+      "tayang",
+      "terbit",
+    ])
+  ) {
     return "status"
   }
 
@@ -473,6 +491,44 @@ export function classify(text: string): Intent {
 
   if (hasAny(t, ["template", "desain", "tema", "model undangan", "contoh undangan"])) {
     return "template"
+  }
+
+  // "link pembayaran / info pembayaran" itu soal bayar, bukan soal undangan.
+  // (Dibatasi supaya "status pembayaran" tetap masuk intent status.)
+  if (/\b(link|tautan)\s+(pembayaran|bayar)\b/.test(t) || /\b(cara|info|prosedur)\s+(pembayaran|bayar)\b/.test(t)) {
+    return "payment"
+  }
+
+  // Permintaan tautan undangan. Dibedakan dari "link pembayaran/invoice/grup".
+  // Keluhan teknis ("link undangan ga bisa dibuka di android") tetap technical,
+  // bukan permintaan tautan.
+  if (
+    !hasAny(t, [
+      "bayar",
+      "pembayaran",
+      "invoice",
+      "voucher",
+      "grup",
+      "group",
+      "telegram",
+      "error",
+      "tidak bisa",
+      "ga bisa",
+      "gak bisa",
+      "nggak bisa",
+      "gagal",
+      "blank",
+      "android",
+      "ios",
+      "iphone",
+      "lambat",
+      "lemot",
+    ]) &&
+    ((hasAny(t, ["link", "tautan", "url", "share", "sebar", "bagikan"]) &&
+      hasAny(t, ["undangan", "invit", "tamu", "linknya", "tautannya"])) ||
+      /\b(link|tautan)\s*(nya)?\s*(mana|dimana|di mana|apa)\b/.test(t))
+  ) {
+    return "invitation_link"
   }
 
   if (
@@ -628,6 +684,15 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       }
       if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
       return { action: "tool", intent, tool: "profile_draft" }
+
+    case "invitation_link":
+      if (!ctx.verified) {
+        return ctx.channel === "web"
+          ? { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+          : { action: "verify", intent, reason: "register_and_verify" }
+      }
+      if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+      return { action: "tool", intent, tool: "profile_status" }
 
     case "status":
       if (!ctx.verified) {

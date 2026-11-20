@@ -56,7 +56,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
       {
         heading: "Filter paket di galeri template: Basic dan Premium",
         content:
-          "Di galeri template ada filter paket Semua, Basic, dan Premium. Basic adalah desain yang sudah termasuk paket bonus cetak undangan. Premium adalah desain yang baru bisa dipakai lewat paket berbayar (Essential, Signature, Prestige, Elite). Kedua kelompok ini saling lepas, jadi satu desain hanya masuk salah satunya.",
+          "Di galeri template ada filter paket Semua, Basic, dan Premium. Basic adalah desain yang terbuka lewat paket BONUS yang diberikan tim (bukan paket berbayar). Premium adalah desain yang baru bisa dipakai lewat paket berbayar (Essential, Signature, Prestige, Elite). Kedua kelompok ini saling lepas, jadi satu desain hanya masuk salah satunya.",
       },
       {
         heading: "Label Premium di kartu template",

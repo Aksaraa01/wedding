@@ -39,7 +39,7 @@ export function premiumTemplateReply(): string {
   return [
     'Di galeri template ada filter paket: Semua, Basic, dan Premium.',
     '',
-    '• Basic: desain yang sudah termasuk paket bonus cetak undangan.',
+    '• Basic: desain yang terbuka lewat paket BONUS (diberikan tim, bukan paket berbayar).',
     '• Premium: desain yang perlu paket berbayar (Essential, Signature, Prestige, Elite).',
     '',
     'Jadi "template premium" bukan tingkatan kualitas desain, tapi penanda bahwa desainnya tidak termasuk paket bonus.',

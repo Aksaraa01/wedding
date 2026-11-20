@@ -124,9 +124,14 @@ export function detectTemplatePackageAsk(text: string): boolean {
 // Klien minta undangannya diganti ke template/desain lain. Bukan permintaan
 // daftar galeri, dan bukan sesuatu yang boleh dijanjikan bot.
 export function asksToSwitchTemplate(text: string): boolean {
-  return /\b(ganti|ubah|pindah|replace|switch)\s+(template|desain|tema)\b/.test(
-    (text || "").toLowerCase()
-  )
+  const value = (text || "").toLowerCase()
+  // "ganti template" (aktif) dan "template saya bisa diganti?" (pasif).
+  const active = /\b(ganti|ubah|pindah|replace|switch)\s+(template|desain|tema)\b/.test(value)
+  const passive =
+    /\b(template|desain|tema)\b[^.?!]{0,25}\b(di)?(ganti|ubah|pindah)\b(?!\s*(warna|foto|isi|nama|teks|musik|lagu|tanggal|tulisan))/.test(
+      value
+    )
+  return active || passive
 }
 
 // Satu pintu untuk memilih jawaban template yang tepat. Murni (tanpa DB) supaya

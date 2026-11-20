@@ -2,6 +2,9 @@
 // data. Angka selalu datang dari sini, tidak pernah dari model.
 
 import { supabaseAdmin } from "@/lib/supabase"
+import { coupleUrl } from "@/lib/coupleUrl"
+import { eventSite } from "@/lib/eventType"
+import { getPublishBlockers } from "@/lib/publishBlockers"
 import { getPriceBook } from "@/lib/priceBook"
 import { PACKAGE_CODES, PACKAGE_LABELS, calcTotalBook } from "@/lib/packages"
 import {
@@ -61,7 +64,7 @@ function presentFields(profile: Record<string, unknown>): Set<string> {
 }
 
 const PROFILE_SELECT =
-  "display_name,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,estimated_guest_count,sessions,quote_text,quote_source,stories,inviting_families,selected_template_id,payment_status,is_published,package_type,estimated_wedding_date,active_wp_post_id,slug"
+  "display_name,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,estimated_guest_count,sessions,quote_text,quote_source,stories,inviting_families,selected_template_id,payment_status,is_published,package_type,estimated_wedding_date,active_wp_post_id,slug,guest_link_strict,event_type,invitation_disabled_at"
 
 async function getProfile(weddingProfileId: string) {
   const { data, error } = await supabaseAdmin
@@ -345,13 +348,26 @@ async function toolProfileStatus(ctx: CsToolContext): Promise<ToolResult> {
     .eq("wedding_profile_id", ctx.weddingProfileId)
     .neq("status", "resolved")
 
+  const published = profile.is_published === true
+  const blockers = published
+    ? []
+    : (await getPublishBlockers(ctx.weddingProfileId).catch(() => [])).map((item) => item.label)
+  const linkMode = profile.guest_link_strict === false ? "fleksibel" : "terbatas"
+
   const data = {
     package_type: profile.package_type,
     payment_status: profile.payment_status,
-    is_published: profile.is_published === true,
+    is_published: published,
+    invitation_disabled: !!profile.invitation_disabled_at,
     estimated_wedding_date: profile.estimated_wedding_date,
     slug: profile.slug,
     pending_feedback: pendingFeedback || 0,
+    // Tautan & mode: Terbatas = hanya tamu terdaftar ( tautan per tamu ada di
+    // dashboard), Fleksibel = satu tautan + ?to=nama.
+    invitation_link: profile.slug ? coupleUrl(String(profile.slug), "", profile.event_type) : null,
+    link_mode: linkMode,
+    dashboard_guest_links: `${eventSite(profile.event_type)}/dashboard/${ctx.weddingProfileId}/qr-guestbook`,
+    publish_blockers: blockers,
   }
 
   return { data, evidence: data }

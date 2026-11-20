@@ -5,6 +5,8 @@ import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, 
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import { csSendUrls } from "../src/lib/cs/waSend.ts"
 import { switchTemplateReply } from "../src/lib/cs/contact.ts"
+import { linkReplyText } from "../src/lib/cs/linkReply.ts"
+import { statusReplyText, formatWeddingDate } from "../src/lib/cs/statusReply.ts"
 import { detectTemplateCategory, templateAnswerKind } from "../src/lib/cs/templateFilter.ts"
 import { formatCategoryReply, formatShelfReply } from "../src/lib/cs/templateCategoryReply.ts"
 import { reengageMessage, reengageSettings, withinQuietWindow, wibHour } from "../src/lib/cs/reengagePolicy.ts"
@@ -439,6 +441,83 @@ test("template: ganti template tidak dijanjikan", () => {
   assert.match(text, /minta tim/)
   assert.equal(classify("minta tim"), "human_request")
   assert.equal(validateReply({ reply: text }).ok, true)
+})
+
+test("link undangan: Terbatas diarahkan ke dashboard, Fleksibel dapat ?to=", () => {
+  const base = {
+    link: "https://RafiNovi.aksaraa.com",
+    published: true,
+    blockers: [],
+    dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
+  }
+  const terbatas = linkReplyText({ ...base, mode: "terbatas" })
+  assert.match(terbatas, /Terbatas/)
+  assert.match(terbatas, /dashboard\/p1\/qr-guestbook/)
+  assert.match(terbatas, /Undangan dan QR Tamu/)
+  // Tautan telanjang tidak boleh jadi jawaban utama untuk mode Terbatas.
+  assert.doesNotMatch(terbatas, /https:\/\/RafiNovi\.aksaraa\.com\?to=/)
+  assert.equal(validateReply({ reply: terbatas }).ok, true)
+
+  const fleksibel = linkReplyText({ ...base, mode: "fleksibel" })
+  assert.match(fleksibel, /Fleksibel/)
+  assert.match(fleksibel, /\?to=Budi%20%26%20Ani/)
+  assert.match(fleksibel, /%26/)
+  assert.equal(validateReply({ reply: fleksibel }).ok, true)
+
+  const belum = linkReplyText({ ...base, mode: "fleksibel", published: false, blockers: ["Galeri Foto", "Kutipan"] })
+  assert.match(belum, /belum tayang/)
+  assert.match(belum, /Galeri Foto, Kutipan/)
+
+  const tutup = linkReplyText({ ...base, mode: "terbatas", disabled: true })
+  assert.match(tutup, /sudah ditutup/)
+  assert.match(tutup, /minta tim/)
+})
+
+test("status undangan: tayang/belum, pembayaran, dan penghalang", () => {
+  const published = statusReplyText({
+    coupleName: "Rafi & Novi",
+    packageName: "Signature",
+    payment: "PARTIAL_DP",
+    weddingDate: "2027-07-01",
+    published: true,
+    blockers: [],
+    linkMode: "fleksibel",
+    link: "https://RafiNovi.aksaraa.com",
+    dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
+  })
+  assert.match(published, /Rafi & Novi/)
+  assert.match(published, /sudah tayang/)
+  assert.match(published, /DP sudah masuk/)
+  assert.match(published, /1 Juli 2027/)
+  assert.match(published, /RafiNovi\.aksaraa\.com/)
+
+  const draft = statusReplyText({
+    coupleName: "Rafi & Novi",
+    packageName: "Signature",
+    payment: "UNPAID",
+    weddingDate: null,
+    published: false,
+    blockers: ["Profil Mempelai", "Galeri Foto"],
+    linkMode: "terbatas",
+    link: "https://RafiNovi.aksaraa.com",
+    dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
+  })
+  assert.match(draft, /belum tayang/)
+  assert.match(draft, /belum ada pembayaran/)
+  assert.match(draft, /Profil Mempelai, Galeri Foto/)
+  assert.match(draft, /Konfirmasi/)
+  assert.doesNotMatch(draft, /\?to=/)
+  assert.equal(formatWeddingDate("bukan tanggal"), null)
+})
+
+test("classify: permintaan tautan vs keluhan teknis", () => {
+  assert.equal(classify("link undangan saya apa?"), "invitation_link")
+  assert.equal(classify("minta link undangan"), "invitation_link")
+  assert.equal(classify("linknya mana ya"), "invitation_link")
+  assert.equal(classify("link pembayaran mana?"), "payment")
+  assert.equal(classify("link undangan ga bisa dibuka di android"), "technical")
+  assert.equal(classify("undangan saya sudah aktif?"), "status")
+  assert.equal(classify("sudah bisa dipublish belum?"), "status")
 })
 
 test("template: filter Basic/Premium dijelaskan, bukan paket buku tamu", () => {

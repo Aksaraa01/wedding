@@ -60,7 +60,9 @@ Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
 | Rekomendasi paket, nego pertama, pilih paket, cara daftar | playbook (qualify / objection / cta) | — |
 | Nego berulang | eskalasi | `discount` · normal |
 | **Voucher / kode promo / potongan khusus** | **"Boleh aku cek dulu ya Kak…" + tiket ke tim** | `voucher` · normal · **AI tidak dijeda** |
-| Status undangan / isi data, belum terverifikasi | minta verifikasi nomor dulu | — |
+| Status undangan / isi data, belum terverifikasi | konfirmasi identitas ("nomor ini terdaftar sebagai …?") → PIN | lihat [alur status](#alur-status-undangan) |
+| Status undangan, sudah terverifikasi | balasan tetap: tayang/belum + paket/pembayaran + tanggal + tautan sesuai mode | **K/D** |
+| Minta tautan undangan | Fleksibel → tautan + `?to=`; Terbatas → dashboard (tautan per tamu) | **K** |
 | Status undangan / isi data, nomor terverifikasi tapi profil tidak ada | eskalasi | `no_profile` · normal |
 | Minta manusia / telepon | eskalasi | `human_requested` · high |
 | Refund / pembatalan | eskalasi | `refund` · high |
@@ -202,10 +204,10 @@ petunjuk cara memfilter. Sekarang pertanyaan itu masuk `templateAnswerKind()`
 
 | Klien menulis | Jawaban | Sumber |
 |---|---|---|
-| "link undangan saya mana?" | `https://{slug}.wedding.aksaraa.com` (atau `/w/{slug}` bila slug >63 karakter) | **D** |
+| "link undangan saya mana?" | lihat [Status undangan & permintaan tautan](#status-undangan--permintaan-tautan): Fleksibel → tautan + `?to=`; Terbatas → dashboard (tautan per tamu) | **K** |
 | "bisa pakai domain sendiri?" | jawab dari kebijakan; kalau tidak ada di KB → tim | **B/T** |
 | "link saya error / tidak bisa dibuka" | cek status publish; kalau tetap gagal → tiket `technical` | **D/T** |
-| "link untuk tamu bagaimana?" | `?to=Nama Tamu`; nama boleh diketik bebas | **B** |
+| "link untuk tamu bagaimana?" | Fleksibel: `?to=Nama%20Tamu` (nama bebas). Terbatas: tautan per tamu dari dashboard | **K** |
 
 ### I. Tamu, RSVP, buku tamu QR
 
@@ -286,6 +288,60 @@ petunjuk cara memfilter. Sekarang pertanyaan itu masuk `templateAnswerKind()`
 
 Tiket `voucher` yang masih `open` tidak dibuat ulang pada pesan berikutnya
 (satu tiket per percakapan), supaya grup ops tidak dibanjiri pesan.
+
+## Status undangan & permintaan tautan
+
+Dua pertanyaan yang paling sering masuk, dan keduanya **tidak boleh** dijawab
+dari tebakan model.
+
+### Alur status undangan
+
+1. Klien menulis "status undangan saya?", "sudah jadi belum?", "sudah aktif?",
+   "sudah bisa dipublish?" → intent `status`.
+2. **Belum terverifikasi → jangan menjawab isinya dulu.** CS mengonfirmasi
+   identitas lebih dulu, karena nomor pengirim bukan bukti pemilik akun:
+   > Nomor ini terdaftar sebagai *Rafi & Novi*. Betul ini akun Kakak?
+3. Balas **"ya"** → CS meminta **PIN undangan** (6 angka; PIN pendaftaran
+   `users.pin`, `scanner_pin` lama tetap diterima). Maksimal 3 percobaan per
+   10 menit, lalu disambungkan ke tim.
+4. Balas **"bukan"** → tidak ada data yang dibuka. CS meminta nomor WhatsApp
+   yang dipakai saat registrasi (jalur OTP), bukan menebak pasangan lain.
+5. Setelah terverifikasi → balasan tetap dari database:
+   - undangan sudah tayang / belum tayang (atau sudah ditutup),
+   - paket + status pembayaran (`belum ada pembayaran` / `DP sudah masuk` / `lunas`),
+   - tanggal acara,
+   - tautan sesuai **mode tautan** (lihat di bawah),
+   - kalau belum tayang: daftar bagian yang masih kurang
+     (`getPublishBlockers`), lalu arahkan ke editor dan tombol **Konfirmasi**
+     di halaman pratinjau.
+
+Bot **tidak pernah** mempublish undangan dan tidak pernah menyatakan undangan
+sudah aktif kalau `is_published` masih false.
+
+### Permintaan tautan undangan
+
+Intent `invitation_link` (bukan `technical`). Jawabannya bergantung kolom
+`wedding_profiles.guest_link_strict`:
+
+| Mode | Perilaku tautan | Jawaban CS |
+|---|---|---|
+| **Terbatas** (`guest_link_strict = true`, default) | `?to=` hanya terbuka untuk tamu yang terdaftar; nama bebas → halaman tidak ditemukan | **Jangan kirim satu tautan untuk dibagikan.** Arahkan ke dashboard → **Undangan dan QR Tamu** → salin tautan/QR **per tamu**. Sebutkan juga bahwa mode bisa diubah ke Fleksibel di halaman yang sama kalau klien mau satu tautan umum |
+| **Fleksibel** (`guest_link_strict = false`) | Nama apa pun boleh; tamu yang RSVP otomatis tercatat | Kirim tautan utama + contoh `?to=Budi%20%26%20Ani`. Ingatkan spasi = `%20`, `&` = `%26` (tanpa encode, nama setelah `&` bisa hilang). Nama yang tampil mengikuti tulisan di tautan |
+
+Aturan tambahan:
+
+- Tautan selalu dibangun dari slug profil yang terikat ke percakapan
+  (`coupleUrl()`), bukan dari pesan klien — jangan pernah menyalin slug yang
+  dikirim klien ke dalam tautan.
+- Undangan belum tayang → sebut penghalangnya lebih dulu, jangan kirim tautan
+  seolah sudah bisa dibuka.
+- Undangan sudah ditutup (`invitation_disabled_at`) → tautan mati; tawarkan
+  "minta tim".
+- "Link undangan saya error / tidak bisa dibuka di Android" **bukan**
+  permintaan tautan: itu `technical`, jawab dari KB, dan eskalasi kalau tetap
+  gagal.
+- "Link pembayaran / info pembayaran" bukan permintaan tautan undangan →
+  intent `payment` (nomor tim `6281161613071`).
 
 ## Verifikasi PIN untuk permintaan data
 

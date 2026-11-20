@@ -277,6 +277,28 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     }
   }
 
+  // Status undangan: tayang/belum, apa yang kurang, paket & pembayaran, dan
+  // tautan sesuai mode. Dijawab dari DB, bukan dikarang model.
+  if (intent === "status" && input.verified && input.weddingProfileId && !decisionContext.paidClaim) {
+    const { invitationStatusReply } = await import("@/lib/cs/invitationStatus")
+    const status = await invitationStatusReply(input.weddingProfileId)
+    if (status) {
+      await persistOutbound(input.conversationId, status, { intent, model: null })
+      return { replies: [{ text: status }], guarded: true, toolNames: [] }
+    }
+  }
+
+  // Permintaan tautan undangan: jawabannya bergantung mode tautan (Terbatas /
+  // Fleksibel) dan status tayang, jadi jangan diserahkan ke model.
+  if (intent === "invitation_link" && input.verified && input.weddingProfileId) {
+    const { invitationLinkReply } = await import("@/lib/cs/invitationLink")
+    const linkAnswer = await invitationLinkReply(input.weddingProfileId)
+    if (linkAnswer) {
+      await persistOutbound(input.conversationId, linkAnswer, { intent, model: null })
+      return { replies: [{ text: linkAnswer }], guarded: true, toolNames: [] }
+    }
+  }
+
   const decision = decide(intent, decisionContext)
 
   // --- Alur "Bantu Isi Undangan" -------------------------------------------
