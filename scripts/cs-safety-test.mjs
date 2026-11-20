@@ -435,6 +435,9 @@ test("template: ganti template tidak dijanjikan", () => {
   assert.match(text, /tim/)
   assert.match(text, /tidak bisa diganti sendiri/)
   assert.doesNotMatch(text, /sudah (aku )?ganti|bisa kami ganti/i)
+  // Tawaran handoff harus berupa pemicu yang benar-benar dikenali router.
+  assert.match(text, /minta tim/)
+  assert.equal(classify("minta tim"), "human_request")
   assert.equal(validateReply({ reply: text }).ok, true)
 })
 

@@ -58,6 +58,6 @@ export function switchTemplateReply(): string {
     "Template yang sudah dipakai tidak bisa diganti sendiri dari halaman undangan.",
     "Kalau memang perlu diganti, tim yang memproses (datanya tetap aman).",
     "",
-    "Mau aku teruskan ke tim sekarang? Balas \"ya, teruskan\" dan aku buatkan tiketnya.",
+    "Kalau mau dibantu sekarang, balas \"minta tim\" dan aku sambungkan ke tim CS.",
   ].join("\n")
 }
