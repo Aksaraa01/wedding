@@ -11,8 +11,11 @@ export interface CsSendTarget {
   jid?: string | null
 }
 
-function isChatJid(value: string | null | undefined): boolean {
-  return !!value && (value.endsWith("@s.whatsapp.net") || value.endsWith("@lid"))
+export function isChatJid(value: string | null | undefined): boolean {
+  return (
+    !!value &&
+    (value.endsWith("@s.whatsapp.net") || value.endsWith("@lid") || value.endsWith("@g.us"))
+  )
 }
 
 export function csSendUrls(): string[] {

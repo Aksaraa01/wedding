@@ -3,6 +3,7 @@
 //
 //   GET  /status           → { connected, me, pairing, qr }
 //   POST /pair   { phone } → mulai pairing (kode 8 karakter + QR data URL)
+//   GET  /groups           → daftar grup yang diikuti nomor CS (untuk JID ops)
 //   POST /logout           → logout + hapus sesi
 //   POST /send   { phone, message } → kirim teks
 //
@@ -434,6 +435,22 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "GET" && url.pathname === "/status") {
     return json(res, 200, { connected, me, pairing, pairingCode, qr: qrDataUrl })
+  }
+
+  // Daftar grup yang diikuti nomor CS. Dipakai untuk mengambil JID grup ops
+  // (CS_ESCALATION_TARGET). Pesan grup sendiri TIDAK diteruskan ke app.
+  if (req.method === "GET" && url.pathname === "/groups") {
+    if (!connected || !sock) return json(res, 200, { connected: false, groups: [] })
+    try {
+      const participating = await sock.groupFetchAllParticipating()
+      const groups = Object.values(participating || {}).map((group) => ({
+        id: group.id,
+        subject: group.subject || "",
+      }))
+      return json(res, 200, { connected: true, groups })
+    } catch (error) {
+      return json(res, 200, { connected: true, groups: [], error: String(error?.message || error) })
+    }
   }
 
   if (req.method === "POST" && (url.pathname === "/pair" || url.pathname === "/logout" || url.pathname === "/send")) {

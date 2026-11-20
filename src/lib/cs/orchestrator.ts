@@ -37,6 +37,7 @@ import { formatPolicies, POLICIES, type CsPolicies } from "@/lib/cs/policies"
 import { findSources } from "@/lib/cs/retrieval"
 import { citationLine, isCitationRelevant } from "@/lib/cs/knowledge"
 import { CS_WHATSAPP } from "@/lib/cs/contact"
+import { escalationMessage } from "@/lib/cs/escalationMessage"
 import { sendCsWhatsApp } from "@/lib/cs/waSend"
 import { getOnboardingState, handleOnboarding } from "@/lib/cs/onboarding"
 
@@ -89,23 +90,120 @@ const REASON_LABEL: Record<EscalationReason, string> = {
   no_profile: "profil tidak ditemukan untuk nomor ini",
 }
 
-async function notifyEscalation(reason: EscalationReason, summary: string): Promise<void> {
-  // Tujuan notifikasi CS (bukan grup sales umum): nomor koordinator CS.
+// Notifikasi eskalasi: ringkas, hanya baris yang ada, dengan prioritas dan
+// satu baris tindakan. Tujuan: grup ops (atau nomor koordinator).
+async function notifyOps(text: string): Promise<void> {
   const target = process.env.CS_ESCALATION_TARGET || CS_WHATSAPP
   if (!target) return
-  const text = [
-    "🔔 CS perlu tindakan",
-    `Alasan: ${REASON_LABEL[reason] || reason}`,
-    "",
-    summary,
-    "",
-    "Buka: https://wedding.aksaraa.com/ops/cs",
-  ].join("\n")
   try {
-    await sendCsWhatsApp(target, text, 5000)
+    // Grup (@g.us) harus dikirim sebagai jid, bukan phone — kalau tidak,
+    // gateway menganggapnya nomor telepon dan pesan tidak pernah terkirim.
+    await sendCsWhatsApp(target.includes("@") ? { jid: target } : target, text, 5000)
   } catch {
     // Notifikasi gagal tidak boleh menggagalkan balasan ke klien.
   }
+}
+
+// Konteks untuk notifikasi grup: siapa, sudah berapa lama menunggu, paket/
+// template/revisi, dan 4 giliran terakhir. Semua dari DB, bukan dari input
+// pesan, supaya tidak bisa dipalsukan klien.
+async function buildEscalationNotice(input: {
+  conversationId: string
+  contactId: string
+  reason: EscalationReason
+  priority: Priority
+}): Promise<string> {
+  const [{ data: conversation }, { data: contact }] = await Promise.all([
+    supabaseAdmin
+      .from("cs_conversations")
+      .select("channel,last_inbound_at")
+      .eq("id", input.conversationId)
+      .maybeSingle(),
+    supabaseAdmin
+      .from("cs_contacts")
+      .select("name,phone,wedding_profile_id,verified_at")
+      .eq("id", input.contactId)
+      .maybeSingle(),
+  ])
+
+  const profileId = (contact as { wedding_profile_id?: string | null } | null)?.wedding_profile_id || null
+  const [profileResult, leadResult, messagesResult] = await Promise.all([
+    profileId
+      ? supabaseAdmin
+          .from("wedding_profiles")
+          .select("display_name,groom_name,bride_name,package_type,selected_template_id")
+          .eq("id", profileId)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabaseAdmin.from("cs_leads").select("stage").eq("contact_id", input.contactId).maybeSingle(),
+    supabaseAdmin
+      .from("cs_messages")
+      .select("direction,body,created_at")
+      .eq("conversation_id", input.conversationId)
+      .order("created_at", { ascending: false })
+      .limit(4),
+  ])
+
+  const profile = profileResult.data as Record<string, unknown> | null
+  let templateName: string | null = null
+  if (profile?.selected_template_id) {
+    const { data: template } = await supabaseAdmin
+      .from("web_templates")
+      .select("name")
+      .eq("id", profile.selected_template_id)
+      .maybeSingle()
+    templateName = (template?.name as string) || null
+  }
+
+  let feedbackOpen = 0
+  if (profileId) {
+    const { count } = await supabaseAdmin
+      .from("feedback_submissions")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", profileId)
+      .neq("status", "resolved")
+    feedbackOpen = count || 0
+  }
+
+  const lastInbound = (conversation as { last_inbound_at?: string | null } | null)?.last_inbound_at
+  const waitingMinutes = lastInbound
+    ? Math.max(0, (Date.now() - new Date(lastInbound).getTime()) / 60_000)
+    : null
+
+  const recent = ((messagesResult.data || []) as { direction: string; body: string }[])
+    .slice()
+    .reverse()
+    .filter((row) => row.body && row.body.trim())
+    .map((row) => ({
+      role: row.direction === "in" ? ("user" as const) : ("assistant" as const),
+      content: row.body,
+    }))
+
+  const coupleName =
+    (profile?.display_name as string) ||
+    [profile?.groom_name, profile?.bride_name].filter(Boolean).join(" & ") ||
+    null
+
+  const phone = (contact as { phone?: string | null } | null)?.phone || null
+  const query = phone ? `?q=${encodeURIComponent(phone.replace(/\D/g, ""))}` : ""
+
+  return escalationMessage({
+    reason: input.reason,
+    reasonLabel: REASON_LABEL[input.reason] || input.reason,
+    priority: input.priority,
+    channel: ((conversation as { channel?: string } | null)?.channel as "wa" | "web") || "wa",
+    contactName: (contact as { name?: string | null } | null)?.name || null,
+    phone,
+    coupleName,
+    registered: Boolean((contact as { wedding_profile_id?: string | null } | null)?.wedding_profile_id),
+    stage: (leadResult.data as { stage?: string | null } | null)?.stage || null,
+    waitingMinutes,
+    packageName: (profile?.package_type as string) || null,
+    templateName,
+    feedbackOpen,
+    recent,
+    opsUrl: `https://wedding.aksaraa.com/ops/cs${query}`,
+  })
 }
 
 async function recordUnanswered(
@@ -175,7 +273,14 @@ async function createEscalation(input: {
     detail: { reason: input.reason, priority: input.priority },
   })
 
-  await notifyEscalation(input.reason, input.summary.slice(0, 1200))
+  await notifyOps(
+    await buildEscalationNotice({
+      conversationId: input.conversationId,
+      contactId: input.contactId,
+      reason: input.reason,
+      priority: input.priority,
+    }).catch(() => input.summary.slice(0, 1200))
+  )
 }
 
 const TOOL_NAMES: Record<string, string> = {

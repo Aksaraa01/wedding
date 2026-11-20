@@ -3,10 +3,11 @@ import assert from "node:assert/strict"
 
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
-import { csSendUrls } from "../src/lib/cs/waSend.ts"
+import { csSendUrls, isChatJid } from "../src/lib/cs/waSend.ts"
 import { switchTemplateReply, paymentInstructionsReply } from "../src/lib/cs/contact.ts"
 import { linkReplyText } from "../src/lib/cs/linkReply.ts"
 import { feedbackReplyText } from "../src/lib/cs/feedbackReply.ts"
+import { escalationMessage, formatWaiting } from "../src/lib/cs/escalationMessage.ts"
 import { statusReplyText, formatWeddingDate, pendingBlockers } from "../src/lib/cs/statusReply.ts"
 import { detectTemplateCategory, templateAnswerKind } from "../src/lib/cs/templateFilter.ts"
 import { formatCategoryReply, formatShelfReply } from "../src/lib/cs/templateCategoryReply.ts"
@@ -418,6 +419,16 @@ test("handoff: balasan manusia menjeda 10 menit, toggle manual permanen", () => 
   assert.equal(aiPaused({ status: "bot", ai_paused_until: null }, now), false)
 })
 
+test("wa send: JID grup dikenali sebagai chat, bukan nomor telepon", () => {
+  // Regresi: CS_ESCALATION_TARGET berisi @g.us; kalau dianggap phone, gateway
+  // mengirim ke nomor telepon fiktif dan notifikasi grup tidak pernah terkirim.
+  const group = "***REMOVED***"
+  assert.equal(isChatJid(group), true)
+  assert.equal(isChatJid("628123@s.whatsapp.net"), true)
+  assert.equal(isChatJid("123@lid"), true)
+  assert.equal(isChatJid("120363411058856413"), false)
+})
+
 test("wa send: hanya gateway CS, tidak pernah nomor bot lama", () => {
   const saved = { cs: process.env.CS_WA_SEND_URL, legacy: process.env.WA_SCHOOL_API_URL }
   try {
@@ -688,6 +699,71 @@ test("status undangan: menyebut jumlah revisi yang diproses", () => {
     dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
   })
   assert.match(text, /Revisi: 3 sedang diproses · 4 selesai/)
+})
+
+test("notifikasi eskalasi: ringkas, prioritas, tanpa baris kosong", () => {
+  const text = escalationMessage({
+    reason: "payment",
+    reasonLabel: "pembayaran / bukti bayar",
+    priority: "high",
+    channel: "wa",
+    contactName: "-",
+    phone: "+6281224459435",
+    coupleName: null,
+    registered: false,
+    stage: "handoff",
+    waitingMinutes: 4,
+    packageName: null,
+    templateName: null,
+    feedbackOpen: 0,
+    recent: [
+      { role: "user", content: "saya mau bayar" },
+      { role: "assistant", content: "Untuk pembayaran paket, silakan transfer..." },
+      { role: "user", content: "essensial" },
+      { role: "assistant", content: "Oke Kak, untuk paket Essential totalnya Rp199.000" },
+    ],
+    opsUrl: "https://wedding.aksaraa.com/ops/cs?q=6281224459435",
+  })
+  assert.match(text, /CS perlu tindakan · TINGGI/)
+  assert.match(text, /Alasan: pembayaran \/ bukti bayar/)
+  assert.match(text, /Klien: \+6281224459435 · belum terdaftar · WhatsApp/)
+  assert.match(text, /Tahap handoff · menunggu 4 mnt/)
+  assert.match(text, /Tindakan: kirim rekening resmi/)
+  assert.match(text, /q=6281224459435/)
+  // Tidak ada baris field kosong seperti "-" atau "Konteks:" tanpa isi.
+  assert.doesNotMatch(text, /\n-\n/)
+  assert.doesNotMatch(text, /Konteks:/)
+  assert.match(text, /Klien: saya mau bayar/)
+
+  // Terdaftar + konteks lengkap.
+  const full = escalationMessage({
+    reason: "refund",
+    reasonLabel: "refund / pembatalan",
+    priority: "normal",
+    channel: "web",
+    contactName: "Novi & Rafi",
+    phone: null,
+    coupleName: "Novi & Rafi",
+    registered: true,
+    stage: "handoff",
+    waitingMinutes: 130,
+    packageName: "Signature",
+    templateName: "Sandhya",
+    feedbackOpen: 2,
+    recent: [],
+    opsUrl: "https://wedding.aksaraa.com/ops/cs",
+  })
+  assert.match(full, /NORMAL/)
+  assert.match(full, /terdaftar · Website/)
+  assert.match(full, /menunggu 2 j 10 mnt/)
+  assert.match(full, /Konteks: paket Signature · template Sandhya · 2 revisi terbuka/)
+  assert.match(full, /Tindakan: konfirmasi kebijakan pembatalan/)
+  assert.doesNotMatch(full, /Percakapan terakhir:/)
+
+  assert.equal(formatWaiting(0.4), "baru saja")
+  assert.equal(formatWaiting(59), "59 mnt")
+  assert.equal(formatWaiting(60), "1 j")
+  assert.equal(formatWaiting(null), null)
 })
 
 test("classify: permintaan tautan vs keluhan teknis", () => {
