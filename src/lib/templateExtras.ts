@@ -310,11 +310,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     rows: 2,
     placeholder: "Dua Insan Ini\\nAkan Menikah",
     placeholders: { "ubin-ottoman": "Tasyakuran Khitan", "love-line": "you're invited to our wedding",
-      "film-roll": "The Wedding of",
       "silver-gelatin": "Dear",
       teatro: "The Wedding of",
       "cinnabar-seal": "The Wedding Of", "ivory-lace": "The Wedding Of", lace: "The Wedding Of", "n-film": "#AlbarnFayeForever" , "boarding-pass": "#AlbarnFayeForever" },
-    templates: ["silver-gelatin", "evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
+    templates: ["silver-gelatin", "evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "love-line", "ubin-ottoman"],
   },
   {
     key: "cover_title",
@@ -837,9 +836,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "mempelai_kicker",
     label: "Label Mempelai",
-    placeholders: { "love-line": "two people, one story", "film-roll": "Starring", teatro: "The Cast" , "silver-gelatin": "The Couple" },
+    placeholders: { "love-line": "two people, one story", teatro: "The Cast" , "silver-gelatin": "The Couple" },
     placeholder: "Mempelai",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line"],
   },
   {
     key: "parents_label",

@@ -523,7 +523,7 @@ export default function FilmRoll(profile: TemplateProps) {
   const brideIg = igHandle(profile.bride_instagram)
 
   // ── copy: every visible string is reachable from the editor ──
-  const coverTitle = (tc.cover_title || "").trim() || (tc.cover_kicker || "").trim() || "The Wedding Of"
+  const coverTitle = (tc.cover_title || "").trim() || "The Wedding Of"
   const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
   const openLabel = (tc.open_button || "").trim() || "Enter"
   const dearLabel = (tc.cover_apology || "").trim() || "Dear"
@@ -535,7 +535,8 @@ export default function FilmRoll(profile: TemplateProps) {
   // a copy of it.
   const quoteCopy = (profile.quote_text || "").trim()
   const prologueQuote = quoteCopy && quoteCopy !== openingBody ? quoteCopy : ""
-  const castKicker = (tc.mempelai_kicker || "").trim() || "Starring"
+  const quoteSource = (profile.quote_source || "").trim()
+  const castKicker = ""
   const parentsLabel = (tc.parents_label || "").trim() || "With the blessing of"
   const storyKicker = (tc.story_kicker || "").trim() || "Scene"
   const storyTitle = splitTitle((tc.love_story_title || "").trim() || "Our Story")
@@ -1549,7 +1550,7 @@ export default function FilmRoll(profile: TemplateProps) {
 
               {scene.kind !== "title" && scene.kind !== "credits" && (
                 <div className="fr-head" data-p="15">
-                  <span className="fr-eyeb">{scene.kicker}</span>
+                  {scene.kicker && <span className="fr-eyeb">{scene.kicker}</span>}
                   <Title lines={scene.title} size={titlePx(scene.kind, scene.title, viewport.vw, viewport.desktop)} />
                   {scene.meta && scene.meta.length > 0 && (
                     <ul className="fr-callout">
@@ -1597,7 +1598,7 @@ export default function FilmRoll(profile: TemplateProps) {
                   </span>
                   <span className="fr-eyeb">{scene.kicker}</span>
                   <PrologueCopy body={openingBody} quote={prologueQuote} desktop={viewport.desktop} />
-                  {dateDots && <span className="fr-eyeb">{dateDots}</span>}
+                  {quoteSource && <span className="fr-eyeb fr-prologue-src">{quoteSource}</span>}
                 </div>
               )}
 

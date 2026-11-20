@@ -49,7 +49,7 @@ Thirteen scenes in this order (the count varies with the couple's data):
 | # | Scene | Reference block | Ours |
 |---|---|---|---|
 | 01 | Poster | cover with title, meta rows, countdown | gate wordmark, then the poster card with callout rows + countdown |
-| 02 | Prologue | `fr-item--title` opening block | `opening_title` / `opening_description` + quote inside `.fr-inter` |
+| 02 | Prologue | `fr-item--title` opening block | `opening_kicker` / `welcome_message` + quote and `quote_source` inside `.fr-inter` (no date) |
 | 03 | Cast — groom | cast portrait | `groom_full_name`, parents, Instagram |
 | 04 | Cast — bride | cast portrait, flipped | same, `is-flip` (head right, text left) |
 | 05 | Chapter | story reel with progress bars | story auto-advance + tap-to-jump chapters |
@@ -153,7 +153,7 @@ image fade, and forces every glyph back to `translate(0)`.
 
 | Surface | Source |
 |---|---|
-| Gate wordmark | `groom_name` + `bride_name`; kicker `cover_title` → `cover_kicker`; date `estimated_wedding_date` |
+| Gate wordmark | `groom_name` + `bride_name`; kicker `cover_title`; date `estimated_wedding_date` |
 | Gate guest | `guest_name`; "Dear" from `cover_apology` |
 | Gate button | `open_button` |
 | Couple initials | `couple_initials` (“Singkatan Pasangan”) used as typed, with the `&` removed — the template never inserts an ampersand or splits it. Only when empty fall back to the first letter of each name |
@@ -161,8 +161,8 @@ image fade, and forces every glyph back to `translate(0)`.
 | Poster meta | `Date` and `Day` (no scene number) |
 | Poster facts | `save_date_label` + date, `cover_apology` + guest, event name/venue |
 | Countdown | `countdownTarget(sessions, estimated_wedding_date)` + `gcalLink` (`Save to calendar`) on the poster |
-| Prologue | `template_content.opening_kicker`, `template_content.welcome_message`, `quote_text`, `quote_source` |
-| Cast | `*_full_name`, `*_parents`, `*_instagram`, `mempelai_kicker`, `parents_label` (default “With the blessing of”, the same text as the editor placeholder, so an untouched field never switches to “Son of”) |
+| Prologue | `template_content.opening_kicker`, `template_content.welcome_message`, `quote_text`, `quote_source` (source shown below the quote); no date |
+| Cast | `*_full_name`, `*_parents`, `*_instagram`, `parents_label` (default “With the blessing of”, the same text as the editor placeholder, so an untouched field never switches to “Son of”) |
 | Chapter | `stories[]` (`title`, `description`, `image_url`) + `story_kicker` |
 | Event | `sessions[]` (`name`, `date`, `time`, `venue`, `address`, `maps_url`) + `gcalLink` |
 | Rundown | `rundown[]` + `rundown_*` |
