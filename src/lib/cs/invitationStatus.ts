@@ -7,6 +7,7 @@ import { eventSite } from "@/lib/eventType"
 import { getPublishBlockers } from "@/lib/publishBlockers"
 import { PACKAGE_LABELS } from "@/lib/packages"
 import { statusReplyText, type PaymentState } from "@/lib/cs/statusReply"
+import { loadFeedbackSummary } from "@/lib/cs/feedbackStatus"
 
 export async function invitationStatusReply(profileId: string): Promise<string | null> {
   const { data } = await supabaseAdmin
@@ -20,6 +21,7 @@ export async function invitationStatusReply(profileId: string): Promise<string |
   if (!data) return null
 
   const published = data.is_published === true
+  const feedback = await loadFeedbackSummary(profileId).catch(() => null)
   const contentBlockers = published
     ? []
     : (await getPublishBlockers(profileId).catch(() => [])).map((item) => item.label)
@@ -37,6 +39,9 @@ export async function invitationStatusReply(profileId: string): Promise<string |
     payment: (data.payment_status as PaymentState) || "UNPAID",
     weddingDate: (data.estimated_wedding_date as string) || null,
     published,
+    feedback: feedback
+      ? { pending: feedback.pending, inProgress: feedback.inProgress, resolved: feedback.resolved }
+      : null,
     contentBlockers,
     linkMode: data.guest_link_strict === false ? "fleksibel" : "terbatas",
     link: coupleUrl(String(data.slug || ""), "", data.event_type),

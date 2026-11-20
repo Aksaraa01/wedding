@@ -277,6 +277,15 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     }
   }
 
+  // Status revisi/masukan undangan: dijawab dari feedback_submissions milik
+  // profil yang terikat. Jangan pernah menyebut masukan pasangan lain.
+  if (intent === "feedback_status" && input.verified && input.weddingProfileId) {
+    const { feedbackStatusReply } = await import("@/lib/cs/feedbackStatus")
+    const feedback = await feedbackStatusReply(input.weddingProfileId)
+    await persistOutbound(input.conversationId, feedback, { intent, model: null })
+    return { replies: [{ text: feedback }], guarded: true, toolNames: [] }
+  }
+
   // Status undangan: tayang/belum, apa yang kurang, paket & pembayaran, dan
   // tautan sesuai mode. Dijawab dari DB, bukan dikarang model.
   if (intent === "status" && input.verified && input.weddingProfileId && !decisionContext.paidClaim) {

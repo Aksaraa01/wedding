@@ -34,6 +34,7 @@ export type Intent =
   | "cta_register"
   | "data_collection"
   | "status"
+  | "feedback_status"
   | "invitation_link"
   | "timeline"
   | "recommendation"
@@ -424,6 +425,23 @@ export function classify(text: string): Intent {
     return "data_collection"
   }
 
+  // Revisi/masukan undangan: "status feedback", "revisi saya", "berapa kali
+  // revisi", "mau kasih masukan". Diletakkan sebelum status & price supaya
+  // "berapa kali revisi" tidak dianggap pertanyaan harga.
+  if (
+    hasAny(t, [
+      "feedback",
+      "revisi",
+      "masukan",
+      "perbaikan undangan",
+      "catatan dari tim",
+      "catatan revisi",
+    ]) &&
+    !hasAny(t, ["voucher", "pembayaran", "ganti template", "ganti desain"])
+  ) {
+    return "feedback_status"
+  }
+
   if (
     hasAny(t, [
       "status",
@@ -715,6 +733,15 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       }
       if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
       return { action: "tool", intent, tool: "profile_draft" }
+
+    case "feedback_status":
+      if (!ctx.verified) {
+        return ctx.channel === "web"
+          ? { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+          : { action: "verify", intent, reason: "register_and_verify" }
+      }
+      if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+      return { action: "answer", intent }
 
     case "invitation_link":
       if (!ctx.verified) {

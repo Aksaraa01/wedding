@@ -11,6 +11,9 @@ export interface StatusReplyInput {
   payment: PaymentState
   weddingDate: string | null
   published: boolean
+  // Ringkasan revisi (opsional): supaya "status undangan" juga menjawab
+  // pertanyaan soal masukan tanpa harus tanya terpisah.
+  feedback?: { pending: number; inProgress: number; resolved: number } | null
   // Penghalang KONTEN dari getPublishBlockers (bagian yang masih kosong).
   contentBlockers: string[]
   linkMode: "terbatas" | "fleksibel"
@@ -68,6 +71,16 @@ export function statusReplyText(input: StatusReplyInput): string {
 
   const date = formatWeddingDate(input.weddingDate)
   if (date) lines.push(`• Tanggal acara: ${date}`)
+
+  const feedback = input.feedback
+  if (feedback) {
+    const open = (feedback.pending || 0) + (feedback.inProgress || 0)
+    if (open > 0) {
+      lines.push(`• Revisi: ${open} sedang diproses${feedback.resolved ? ` · ${feedback.resolved} selesai` : ""}`)
+    } else if (feedback.resolved > 0) {
+      lines.push(`• Revisi: semua selesai (${feedback.resolved})`)
+    }
+  }
 
   if (input.published && !input.disabled) {
     lines.push(

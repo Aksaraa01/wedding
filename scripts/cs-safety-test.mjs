@@ -6,6 +6,7 @@ import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, 
 import { csSendUrls } from "../src/lib/cs/waSend.ts"
 import { switchTemplateReply, paymentInstructionsReply } from "../src/lib/cs/contact.ts"
 import { linkReplyText } from "../src/lib/cs/linkReply.ts"
+import { feedbackReplyText } from "../src/lib/cs/feedbackReply.ts"
 import { statusReplyText, formatWeddingDate, pendingBlockers } from "../src/lib/cs/statusReply.ts"
 import { detectTemplateCategory, templateAnswerKind } from "../src/lib/cs/templateFilter.ts"
 import { formatCategoryReply, formatShelfReply } from "../src/lib/cs/templateCategoryReply.ts"
@@ -626,6 +627,67 @@ test("classify: rekomendasi template bukan kualifikasi paket", () => {
   assert.equal(classify("rekomendasi paket"), "recommendation")
   assert.equal(classify("paket mana yang cocok"), "recommendation")
   assert.equal(classify("bingung pilih paket"), "recommendation")
+})
+
+test("feedback: pertanyaan revisi masuk cabangnya sendiri", () => {
+  assert.equal(classify("status feedback saya"), "feedback_status")
+  assert.equal(classify("revisi saya sudah diproses?"), "feedback_status")
+  assert.equal(classify("sudah berapa kali revisi?"), "feedback_status") // dulu price
+  assert.equal(classify("saya mau kasih masukan"), "feedback_status")
+  assert.equal(classify("status undangan saya"), "status") // tidak ikut tertangkap
+})
+
+test("feedback: balasan status revisi dari data, tanpa deskripsi", () => {
+  const summary = {
+    total: 3,
+    pending: 1,
+    inProgress: 1,
+    resolved: 1,
+    maxRound: 2,
+    latest: { area: "Galeri Foto", status: "in_progress", createdAt: "2026-11-18T10:00:00Z" },
+    openDays: 5,
+  }
+  const text = feedbackReplyText({
+    coupleName: "Rafi & Novi",
+    summary,
+    dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/web-invitation/feedback/new",
+  })
+  assert.match(text, /Status revisi undangan \*Rafi & Novi\*/)
+  assert.match(text, /Total masukan: 3/)
+  assert.match(text, /1 selesai/)
+  assert.match(text, /1 sedang dikerjakan/)
+  assert.match(text, /1 menunggu/)
+  assert.match(text, /Sudah 2 ronde revisi/)
+  assert.match(text, /Galeri Foto/)
+  assert.match(text, /5 hari/)
+  assert.match(text, /minta tim/)
+  assert.match(text, /feedback\/new/)
+  assert.doesNotMatch(text, /deskripsi panjang/) // isi masukan tidak dibacakan
+  assert.equal(validateReply({ reply: text }).ok, true)
+
+  const empty = feedbackReplyText({
+    coupleName: "Rafi & Novi",
+    summary: { total: 0, pending: 0, inProgress: 0, resolved: 0, maxRound: 0, latest: null, openDays: null },
+    dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/web-invitation/feedback/new",
+  })
+  assert.match(empty, /Belum ada masukan atau revisi/)
+  assert.match(empty, /feedback\/new/)
+})
+
+test("status undangan: menyebut jumlah revisi yang diproses", () => {
+  const text = statusReplyText({
+    coupleName: "Rafi & Novi",
+    packageName: "Signature",
+    payment: "FULLY_PAID",
+    weddingDate: "2027-06-12",
+    published: true,
+    feedback: { pending: 1, inProgress: 2, resolved: 4 },
+    contentBlockers: [],
+    linkMode: "fleksibel",
+    link: "https://RafiNovi.aksaraa.com",
+    dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
+  })
+  assert.match(text, /Revisi: 3 sedang diproses · 4 selesai/)
 })
 
 test("classify: permintaan tautan vs keluhan teknis", () => {

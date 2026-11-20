@@ -264,6 +264,8 @@ petunjuk cara memfilter. Sekarang pertanyaan itu masuk `templateAnswerKind()`
 | Klien menulis | Jawaban | Sumber |
 |---|---|---|
 | "sudah bisa dipublish?" | sebut penghalang tayang: konten yang kosong → undangan belum dikonfirmasi. Pembayaran disebut terpisah (tidak memblokir konfirmasi) | **D** |
+| "status feedback / revisi saya?" / "sudah berapa kali revisi?" | ringkasan `feedback_submissions`: total, selesai/sedang dikerjakan/menunggu, ronde terakhir, item terakhir + tautan kirim masukan baru | **D** |
+| "saya mau kasih masukan" | arahkan ke `/dashboard/{id}/web-invitation/feedback/new` (CS tidak membuat masukan) | **K** |
 | "publish sekarang" | bot **tidak** mempublish; klien menekan Konfirmasi di editor (`?review=1`) | **K** |
 | "masih bisa diubah setelah publish?" | ya, dari editor; perubahan tampil setelah disimpan | **B** |
 | "berapa lama revisi?" | dari kebijakan; jangan menjanjikan tanggal | **B** |
@@ -285,6 +287,24 @@ petunjuk cara memfilter. Sekarang pertanyaan itu masuk `templateAnswerKind()`
 | "kalian perusahaan apa?" | profil singkat Aksaraa | **B** |
 | "mau kerja sama / jadi reseller" | tiket | **T** |
 | acara anak (khitanan/aqiqah/ultah) | Ceriavite (`https://ceriavite.aksaraa.com`) | **K** |
+
+### Status revisi / masukan undangan
+
+Intent `feedback_status` (kata kunci: feedback, revisi, masukan, perbaikan
+undangan, "berapa kali revisi"). Butuh verifikasi seperti permintaan data lain.
+
+- Sumber: `feedback_submissions` **milik profil yang terikat** — jangan pernah
+  menyebut masukan pasangan lain. Deskripsi bebas tidak dibacakan ulang; yang
+  disebut hanya area, status, tanggal, dan ronde.
+- Balasan menyebut: total masukan, `selesai` / `sedang dikerjakan` / `menunggu`,
+  jumlah ronde revisi, item terakhir, dan tautan
+  `/dashboard/{id}/web-invitation/feedback/new`.
+- Item yang masih terbuka ≥ 3 hari → tawarkan `minta tim` (jangan menjanjikan
+  tanggal selesai, jangan bilang "sudah aku perbaiki").
+- Ringkasan status undangan ikut menyebut **"Revisi: N sedang diproses"**, jadi
+  klien tidak perlu bertanya dua kali.
+- Masukan yang sudah `resolved` tidak bisa diubah; jika hasil belum sesuai,
+  klien diminta mengirim masukan baru.
 
 ## Yang dilakukan setiap eskalasi
 

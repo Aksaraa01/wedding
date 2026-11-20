@@ -460,6 +460,7 @@ export async function POST(request: Request) {
       "data_collection",
       "data_change",
       "status",
+      "feedback_status",
       "invitation_link",
     ].includes(classify(text))
 
