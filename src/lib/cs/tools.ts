@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { eventSite } from "@/lib/eventType"
 import { getPublishBlockers } from "@/lib/publishBlockers"
+import { pendingBlockers, type PaymentState } from "@/lib/cs/statusReply"
 import { getPriceBook } from "@/lib/priceBook"
 import { PACKAGE_CODES, PACKAGE_LABELS, calcTotalBook } from "@/lib/packages"
 import {
@@ -349,9 +350,16 @@ async function toolProfileStatus(ctx: CsToolContext): Promise<ToolResult> {
     .neq("status", "resolved")
 
   const published = profile.is_published === true
-  const blockers = published
+  const contentBlockers = published
     ? []
     : (await getPublishBlockers(ctx.weddingProfileId).catch(() => [])).map((item) => item.label)
+  // Pembayaran dan konfirmasi bukan bagian dari getPublishBlockers, tapi keduanya
+  // juga menahan undangan tayang.
+  const blockers = pendingBlockers({
+    payment: (profile.payment_status as PaymentState) || "UNPAID",
+    contentBlockers,
+    published,
+  })
   const linkMode = profile.guest_link_strict === false ? "fleksibel" : "terbatas"
 
   const data = {

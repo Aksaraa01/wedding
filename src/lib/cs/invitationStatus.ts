@@ -20,7 +20,7 @@ export async function invitationStatusReply(profileId: string): Promise<string |
   if (!data) return null
 
   const published = data.is_published === true
-  const blockers = published
+  const contentBlockers = published
     ? []
     : (await getPublishBlockers(profileId).catch(() => [])).map((item) => item.label)
 
@@ -37,7 +37,7 @@ export async function invitationStatusReply(profileId: string): Promise<string |
     payment: (data.payment_status as PaymentState) || "UNPAID",
     weddingDate: (data.estimated_wedding_date as string) || null,
     published,
-    blockers,
+    contentBlockers,
     linkMode: data.guest_link_strict === false ? "fleksibel" : "terbatas",
     link: coupleUrl(String(data.slug || ""), "", data.event_type),
     dashboardUrl: `${eventSite(data.event_type)}/dashboard/${profileId}/qr-guestbook`,

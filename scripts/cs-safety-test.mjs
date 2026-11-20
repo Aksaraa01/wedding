@@ -6,7 +6,7 @@ import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, 
 import { csSendUrls } from "../src/lib/cs/waSend.ts"
 import { switchTemplateReply } from "../src/lib/cs/contact.ts"
 import { linkReplyText } from "../src/lib/cs/linkReply.ts"
-import { statusReplyText, formatWeddingDate } from "../src/lib/cs/statusReply.ts"
+import { statusReplyText, formatWeddingDate, pendingBlockers } from "../src/lib/cs/statusReply.ts"
 import { detectTemplateCategory, templateAnswerKind } from "../src/lib/cs/templateFilter.ts"
 import { formatCategoryReply, formatShelfReply } from "../src/lib/cs/templateCategoryReply.ts"
 import { reengageMessage, reengageSettings, withinQuietWindow, wibHour } from "../src/lib/cs/reengagePolicy.ts"
@@ -480,7 +480,7 @@ test("status undangan: tayang/belum, pembayaran, dan penghalang", () => {
     payment: "PARTIAL_DP",
     weddingDate: "2027-07-01",
     published: true,
-    blockers: [],
+    contentBlockers: [],
     linkMode: "fleksibel",
     link: "https://RafiNovi.aksaraa.com",
     dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
@@ -497,17 +497,45 @@ test("status undangan: tayang/belum, pembayaran, dan penghalang", () => {
     payment: "UNPAID",
     weddingDate: null,
     published: false,
-    blockers: ["Profil Mempelai", "Galeri Foto"],
+    contentBlockers: ["Profil Mempelai", "Galeri Foto"],
     linkMode: "terbatas",
     link: "https://RafiNovi.aksaraa.com",
     dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
   })
   assert.match(draft, /belum tayang/)
   assert.match(draft, /belum ada pembayaran/)
-  assert.match(draft, /Profil Mempelai, Galeri Foto/)
+  // Pembayaran, konten, dan konfirmasi semuanya disebut sebagai penghalang.
+  assert.match(draft, /Yang menahan undangan belum tayang/)
+  assert.match(draft, /Pembayaran belum lunas/)
+  assert.match(draft, /Profil Mempelai/)
+  assert.match(draft, /Galeri Foto/)
+  assert.match(draft, /Undangan belum dikonfirmasi/)
   assert.match(draft, /Konfirmasi/)
   assert.doesNotMatch(draft, /\?to=/)
   assert.equal(formatWeddingDate("bukan tanggal"), null)
+})
+
+test("status undangan: lunas + konten lengkap = tinggal konfirmasi", () => {
+  const ready = statusReplyText({
+    coupleName: "Rafi & Novi",
+    packageName: "Signature",
+    payment: "FULLY_PAID",
+    weddingDate: "2027-06-12",
+    published: false,
+    contentBlockers: [],
+    linkMode: "fleksibel",
+    link: "https://RafiNovi.aksaraa.com",
+    dashboardUrl: "https://wedding.aksaraa.com/dashboard/p1/qr-guestbook",
+  })
+  assert.doesNotMatch(ready, /Pembayaran belum lunas/)
+  assert.match(ready, /Konten sudah lengkap dan pembayaran lunas/)
+  assert.match(ready, /Konfirmasi/)
+
+  // Urutan penghalang: pembayaran → konten → konfirmasi.
+  assert.deepEqual(
+    pendingBlockers({ payment: "PARTIAL_DP", contentBlockers: ["Galeri Foto"], published: false }),
+    ["Pembayaran belum lunas (baru DP)", "Galeri Foto", "Undangan belum dikonfirmasi"]
+  )
 })
 
 test("classify: permintaan tautan vs keluhan teknis", () => {

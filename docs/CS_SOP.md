@@ -251,7 +251,7 @@ petunjuk cara memfilter. Sekarang pertanyaan itu masuk `templateAnswerKind()`
 
 | Klien menulis | Jawaban | Sumber |
 |---|---|---|
-| "sudah bisa dipublish?" | cek penghalang publikasi, sebut yang kurang | **D** |
+| "sudah bisa dipublish?" | sebut **semua** penghalang: pembayaran belum lunas → konten yang kosong → undangan belum dikonfirmasi | **D** |
 | "publish sekarang" | bot **tidak** mempublish; klien menekan Konfirmasi di editor (`?review=1`) | **K** |
 | "masih bisa diubah setelah publish?" | ya, dari editor; perubahan tampil setelah disimpan | **B** |
 | "berapa lama revisi?" | dari kebijakan; jangan menjanjikan tanggal | **B** |
@@ -314,9 +314,13 @@ dari tebakan model.
    - paket + status pembayaran (`belum ada pembayaran` / `DP sudah masuk` / `lunas`),
    - tanggal acara,
    - tautan sesuai **mode tautan** (lihat di bawah),
-   - kalau belum tayang: daftar bagian yang masih kurang
-     (`getPublishBlockers`), lalu arahkan ke editor dan tombol **Konfirmasi**
-     di halaman pratinjau.
+   - kalau belum tayang: **daftar penghalang**, berurutan
+     1. **Pembayaran belum lunas** (`UNPAID`, atau `PARTIAL_DP` = baru DP),
+     2. konten yang masih kosong (`getPublishBlockers`), mis. Profil Mempelai,
+        Galeri Foto, Kutipan,
+     3. **Undangan belum dikonfirmasi** (tombol *Konfirmasi* di pratinjau).
+     Kalau pembayaran sudah lunas dan konten lengkap, CS cukup bilang
+     "tinggal konfirmasi" — jangan menyebut penghalang yang tidak ada.
 
 Bot **tidak pernah** mempublish undangan dan tidak pernah menyatakan undangan
 sudah aktif kalau `is_published` masih false.

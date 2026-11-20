@@ -7,12 +7,13 @@ import { coupleUrl } from "@/lib/coupleUrl"
 import { eventSite } from "@/lib/eventType"
 import { getPublishBlockers } from "@/lib/publishBlockers"
 import { linkReplyText } from "@/lib/cs/linkReply"
+import { pendingBlockers, type PaymentState } from "@/lib/cs/statusReply"
 
 export async function invitationLinkReply(profileId: string): Promise<string | null> {
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
     .select(
-      "id,slug,event_type,guest_link_strict,is_published,invitation_disabled_at"
+      "id,slug,event_type,guest_link_strict,is_published,invitation_disabled_at,payment_status"
     )
     .eq("id", profileId)
     .maybeSingle()
@@ -24,9 +25,14 @@ export async function invitationLinkReply(profileId: string): Promise<string | n
   }
 
   const published = data.is_published === true
-  const blockers = published
+  const contentBlockers = published
     ? []
     : (await getPublishBlockers(profileId).catch(() => [])).map((item) => item.label)
+  const blockers = pendingBlockers({
+    payment: (data.payment_status as PaymentState) || "UNPAID",
+    contentBlockers,
+    published,
+  })
 
   return linkReplyText({
     link: coupleUrl(slug, "", data.event_type),

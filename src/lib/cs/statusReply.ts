@@ -11,11 +11,34 @@ export interface StatusReplyInput {
   payment: PaymentState
   weddingDate: string | null
   published: boolean
-  blockers: string[]
+  // Penghalang KONTEN dari getPublishBlockers (bagian yang masih kosong).
+  contentBlockers: string[]
   linkMode: "terbatas" | "fleksibel"
   link: string
   dashboardUrl: string
   disabled?: boolean
+}
+
+export const CONFIRM_BLOCKER = "Undangan belum dikonfirmasi"
+
+// Semua yang menahan undangan tayang, berurutan: pembayaran → konten →
+// konfirmasi. Pembayaran dan konfirmasi BUKAN bagian dari getPublishBlockers,
+// jadi harus ditambahkan di sini supaya status tidak terlihat "hampir selesai".
+export function pendingBlockers(input: {
+  payment: PaymentState
+  contentBlockers: string[]
+  published: boolean
+}): string[] {
+  if (input.published) return []
+  const out: string[] = []
+  if (input.payment !== "FULLY_PAID") {
+    out.push(
+      input.payment === "PARTIAL_DP" ? "Pembayaran belum lunas (baru DP)" : "Pembayaran belum lunas"
+    )
+  }
+  out.push(...input.contentBlockers.filter(Boolean))
+  out.push(CONFIRM_BLOCKER)
+  return out
 }
 
 const PAYMENT_LABEL: Record<PaymentState, string> = {
@@ -57,11 +80,25 @@ export function statusReplyText(input: StatusReplyInput): string {
   lines.push("")
 
   if (!input.published && !input.disabled) {
-    if (input.blockers.length) {
-      lines.push(`Yang masih kurang: ${input.blockers.join(", ")}.`)
+    const blockers = pendingBlockers({
+      payment: input.payment,
+      contentBlockers: input.contentBlockers,
+      published: input.published,
+    })
+
+    if (blockers.length === 1 && blockers[0] === CONFIRM_BLOCKER) {
+      lines.push("Konten sudah lengkap dan pembayaran lunas. Tinggal konfirmasi:")
+      lines.push("Buka halaman pratinjau, lalu tekan *Konfirmasi* — undangan langsung tayang.")
+      return lines.join("\n")
     }
+
+    lines.push("Yang menahan undangan belum tayang:")
+    for (const blocker of blockers) {
+      lines.push(blocker === CONFIRM_BLOCKER ? `• ${blocker} (tombol *Konfirmasi* di pratinjau)` : `• ${blocker}`)
+    }
+    lines.push("")
     lines.push(
-      "Selesaikan di editor, lalu tekan *Konfirmasi* di halaman pratinjau — setelah dikonfirmasi undangan langsung tayang."
+      "Setelah semua beres, tekan *Konfirmasi* di halaman pratinjau — undangan langsung tayang."
     )
     return lines.join("\n")
   }
