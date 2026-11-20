@@ -199,6 +199,18 @@ export function wantsAllTemplates(text: string): boolean {
   return ALL_TEMPLATE_TRIGGERS.some((re) => re.test(value))
 }
 
+// Sapaan/akuan singkat yang TIDAK boleh memicu eskalasi. Tanpa ini, "halo"
+// atau "ok" akan dianggap di luar intent dan membanjiri grup ops.
+const SOCIAL_RE =
+  /^(halo|hallo|hai|hi|hello|pagi|siang|sore|malam|assalamualaikum|salam|permisi|ok|oke|okay|siap|baik|boleh|mantap|ya|iya|tidak|belum|sudah|terima kasih|makasih|thanks|thank you|thx|test|tes|p)\b/i
+
+export function isSocialMessage(text: string): boolean {
+  const value = (text || "").trim()
+  if (!value) return true
+  if (value.length <= 2) return true
+  return value.length <= 24 && SOCIAL_RE.test(value)
+}
+
 export function classify(text: string): Intent {
   const t = norm(text)
   if (!t.trim()) return "unknown"

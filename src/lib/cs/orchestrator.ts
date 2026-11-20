@@ -365,8 +365,34 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     channel: input.channel,
   }
 
-  const intent = classify(input.text)
+  let intent = classify(input.text)
   const { templateAnswerKind } = await import("@/lib/cs/templateFilter")
+
+  // Lapis kedua: kalau aturan tidak menemukan cabang, tanya klasifikasi AI
+  // (enum yang sama, ambang keyakinan, cache). Tujuannya supaya parafrase baru
+  // tidak langsung dianggap "di luar intent".
+  if (intent === "unknown") {
+    const { aiIntentEnabled, aiIntentWorthTrying, classifyIntentWithAi } = await import(
+      "@/lib/cs/intentAi"
+    )
+    const { isSocialMessage } = await import("@/lib/cs/policy")
+    if (!isSocialMessage(input.text) && aiIntentEnabled() && aiIntentWorthTrying(input.text)) {
+      const ai = await classifyIntentWithAi(input.text, input.model).catch(() => null)
+      if (ai) {
+        intent = ai.intent
+        await supabaseAdmin.from("cs_audit").insert({
+          actor: "system:cs",
+          action: "intent_ai",
+          subject: input.conversationId,
+          detail: {
+            intent: ai.intent,
+            confidence: ai.confidence,
+            text: input.text.slice(0, 160),
+          },
+        })
+      }
+    }
+  }
 
   // Pertanyaan template yang jawabannya sudah pasti: kategori/daerah ("template
   // adat ada apa aja?"), rak terbaru/populer, filter paket, dan acara anak.
@@ -415,7 +441,21 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     }
   }
 
-  const decision = decide(intent, decisionContext)
+  let decision: Decision = decide(intent, decisionContext)
+
+  // Di luar intent: jangan biarkan model menjawab bebas. Matikan AI untuk
+  // percakapan ini dan buat tiket tim. Sapaan/akuan singkat dikecualikan.
+  if (intent === "unknown") {
+    const { isSocialMessage } = await import("@/lib/cs/policy")
+    if (!isSocialMessage(input.text)) {
+      decision = {
+        action: "escalate",
+        intent,
+        reason: "low_confidence",
+        priority: "normal",
+      }
+    }
+  }
 
   // --- Alur "Bantu Isi Undangan" -------------------------------------------
   // Kalau onboarding sedang berjalan untuk profil ini, SEMUA pesan masuk ke

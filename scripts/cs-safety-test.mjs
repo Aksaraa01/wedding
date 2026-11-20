@@ -1,7 +1,7 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 
-import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
+import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, isSocialMessage, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import { canSendToJid, csSendUrls, isChatJid, isGroupJid } from "../src/lib/cs/waSend.ts"
 import { fromJid as identityFromJid, isGroupJid as identityIsGroupJid } from "../src/lib/cs/identity.ts"
@@ -159,6 +159,26 @@ test("pembayaran: belum terdaftar tetap boleh bayar + diberi link daftar", () =>
   const kids = paymentInstructionsReply({ registered: false, kids: true })
   assert.match(kids, /https:\/\/ceriavite\.aksaraa\.com\/daftar/)
   assert.doesNotMatch(kids, /wedding\.aksaraa\.com\/register/)
+})
+
+test("di luar intent: sapaan tidak dieskalasi, pertanyaan asing dieskalasi", () => {
+  // Sapaan/akuan singkat tidak boleh memicu tiket.
+  for (const text of ["halo", "hai kak", "ok", "oke siap", "makasih", "p", "tes", "ya", "baik"]) {
+    assert.equal(isSocialMessage(text), true, text)
+    assert.equal(classify(text), "unknown")
+  }
+  // Pesan berisi yang tidak dikenali = di luar intent.
+  for (const text of [
+    "apakah besok hujan",
+    "kucing saya hilang",
+    "bantu tuliskan puisi",
+    "bisa bantu uruskan catering",
+  ]) {
+    assert.equal(isSocialMessage(text), false, text)
+    assert.equal(classify(text), "unknown")
+  }
+  // Yang punya cabang tetap punya cabang.
+  assert.equal(classify("beda paket essential dan signature"), "package_info")
 })
 
 test("classify: pertanyaan undangan cetak", () => {

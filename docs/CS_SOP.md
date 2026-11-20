@@ -119,7 +119,8 @@ Di `/ops/cs` ada kartu **"AI Bot per kanal"** dengan dua baris terpisah:
 | Bukti bayar / invoice / DP / cicilan / "mau bayar" / "pelunasan" / nomor rekening | balasan tetap berisi rekening resmi **+ tiket** `payment` (AI tidak dijeda) | `payment` · normal |
 | Klaim sudah transfer ("sudah tf", "ini buktinya") | eskalasi, AI dijeda 4 jam | `payment` · normal |
 | Politik, saham, judi, pinjol, medis | tolak sopan | — |
-| Tidak jelas + marah atau 2× gagal | eskalasi | `low_confidence` · normal |
+| **Di luar intent** (tidak cocok cabang mana pun, setelah klasifikasi AI) | **AI dimatikan untuk percakapan itu + tiket tim** | `low_confidence` · normal |
+| Sapaan/akuan singkat ("halo", "ok", "makasih", "tes") | dijawab biasa, **tidak** dieskalasi | — |
 | Guard menolak output model | fallback "aku cek dulu ke tim" + eskalasi | `low_confidence` · normal |
 
 ## Katalog pertanyaan klien (jawaban yang sudah ditentukan)
@@ -340,6 +341,23 @@ undangan, "berapa kali revisi"). Butuh verifikasi seperti permintaan data lain.
   klien tidak perlu bertanya dua kali.
 - Masukan yang sudah `resolved` tidak bisa diubah; jika hasil belum sesuai,
   klien diminta mengirim masukan baru.
+
+### Pesan di luar intent
+
+- Aturan (`classify`) diperiksa dulu. Kalau `unknown`, lapis kedua memanggil
+  klasifikasi AI (enum yang sama, ambang keyakinan 0,6 / 0,75 untuk intent
+  berisiko, timeout 2,5 detik, cache). Hasilnya dicatat di `cs_audit`
+  (`intent_ai`, beserta confidence dan potongan teks).
+- Kalau tetap `unknown` dan pesannya **bukan** sapaan/akuan singkat
+  (`isSocialMessage`), agent **berhenti menjawab bebas**:
+  - tiket `low_confidence` dibuat (muncul di filter **Perlu**),
+  - AI dimatikan untuk percakapan itu (jeda eskalasi 4 jam),
+  - balasan ke klien: "aku cek dulu ke tim", dan pertanyaannya disimpan di
+    `cs_unanswered` untuk bahan perbaikan kata kunci.
+- Sapaan/akuan singkat (`halo`, `ok`, `siap`, `makasih`, `tes`, `p`, pesan
+  ≤ 2 karakter) sengaja dikecualikan supaya grup ops tidak dibanjiri tiket.
+- Kalau klasifikasi AI berhasil menebak cabang, pesan diproses normal seperti
+  intent biasa — tidak ada eskalasi.
 
 ## Yang dilakukan setiap eskalasi
 
