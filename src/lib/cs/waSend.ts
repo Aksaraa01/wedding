@@ -1,7 +1,7 @@
 // Kirim pesan WhatsApp untuk CS.
 //
 // SATU nomor, satu jalur: gateway CS (CS_WA_SEND_URL, nomor yang sudah
-// di-pair — 6281265781778). Gateway bot lama (WA_SCHOOL_API_URL, nomor lain)
+// di-pair — 6281161613071). Gateway bot lama (WA_SCHOOL_API_URL, nomor lain)
 // TIDAK boleh dipakai lagi untuk pesan ke klien: klien akan menerima balasan
 // dari nomor asing. Fallback lama hanya dipakai kalau CS_WA_SEND_URL memang
 // belum dikonfigurasi sama sekali.

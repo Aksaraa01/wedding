@@ -16,7 +16,9 @@ Boundary yang di-hardcode di kode:
 ## Satu nomor pengirim untuk pesan ke klien
 
 Semua pesan ke klien (balasan AI, balasan tim dari `/ops/cs`, OTP/PIN, konfirmasi
-foto) keluar lewat **gateway CS** (`CS_WA_SEND_URL` → nomor 6281265781778).
+foto) keluar lewat **gateway CS** (`CS_WA_SEND_URL` → nomor **6281161613071**,
+proses PM2 `aksaraa-cs-wa-real` di port `3102`). Nomor lama `6281265781778`
+sudah dipensiunkan (`aksaraa-cs-wa` dihentikan, sesinya tidak di-logout).
 
 - `WA_SCHOOL_API_URL` (gateway bot sekolah di :3001) **tidak boleh** dipakai
   untuk pesan klien: klien akan menerima balasan dari nomor asing. Kode hanya
