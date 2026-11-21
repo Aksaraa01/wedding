@@ -9,6 +9,7 @@ import { countdownTarget, flattenPhotos, formatDotDate, gcalLink, groomPhoto, br
 import Wishes from "./Wishes"
 import WishesHeart from "./WishesHeart"
 import "./lace.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 // Art shipped with the template. Decorative surfaces only — never couple data.
 const A = (name: string) => `/templates/lace/${name}`
@@ -216,6 +217,7 @@ function sealAt(time: number) {
 }
 
 export default function Lace(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const gateFilmRef = useRef<HTMLVideoElement | null>(null)
@@ -624,7 +626,7 @@ export default function Lace(profile: TemplateProps) {
               aria-hidden="true"
             />
             <div className="lc-cover__body">
-              <p className="lc-kicker">{tc.cover_kicker || "The Wedding Of"}</p>
+              <p className="lc-kicker">{tc.cover_kicker || t("theWeddingOf", lang)}</p>
               <h1 className="lc-cover__names">
                 <span>{groom}</span>
                 <em>&amp;</em>
@@ -904,7 +906,7 @@ export default function Lace(profile: TemplateProps) {
           <section className="lc-section lc-gallery" data-section="gallery">
             <span className="lc-band lc-band--lead lc-gallery__band" style={bandStyle(ART_BAND)} aria-hidden="true" />
             <div className="lc-wrap lc-gallery__head" data-lc-reveal>
-              <h2 className="lc-display lc-heading">{tc.gallery_title || "Our Moments"}</h2>
+              <h2 className="lc-display lc-heading">{tc.gallery_title || t("secGallery", lang)}</h2>
               {tc.gallery_intro && <p className="lc-body lc-gallery__intro">{tc.gallery_intro}</p>}
             </div>
             <div className="lc-wrap lc-gallery__grid">
@@ -956,7 +958,7 @@ export default function Lace(profile: TemplateProps) {
           <section className="lc-section lc-gift" data-section="gift">
             <div className="lc-wrap lc-gift__body" data-lc-reveal>
               <h2 className="lc-display lc-heading lc-gift__heading">
-                {tc.gift_intro_title || "Wedding Gift"}
+                {tc.gift_intro_title || t("secGift", lang)}
               </h2>
               <div className="lc-gift__panel">
                 <span className="lc-gift__lace" style={bandStyle(ART_PANEL)} aria-hidden="true" />
@@ -1037,7 +1039,7 @@ export default function Lace(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel}
+              coupleName={coupleLabel} language={profile.language}
             />
           </div>
         </section>

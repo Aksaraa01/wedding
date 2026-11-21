@@ -18,6 +18,7 @@ type Props = {
   guestId?: string
   guestName?: string
   guestLinkStrict?: boolean
+  language?: "id" | "en"
 }
 
 function ArrowLeftIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
@@ -65,7 +66,7 @@ function initials(name?: string | null): string {
   return `${first}${second}`.toUpperCase()
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict , language = "id"}: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)

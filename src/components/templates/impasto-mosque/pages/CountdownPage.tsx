@@ -4,8 +4,10 @@ import type { TemplateProps } from "@/types/template"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { countdownTarget, formatLongDate, gcalLink, type SessionData } from "../../shared/lib"
 import { useCountdown } from "../../shared/useCountdown"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function CountdownPage({ profile, sessions }: { profile: TemplateProps; sessions: SessionData[] }) {
+  const lang = normalizeLanguage(profile.language)
   const target = countdownTarget(sessions, profile.estimated_wedding_date)
   const { days, hours, minutes, seconds } = useCountdown(target)
   const calLink = gcalLink(sessions[0], profile.groom_name, profile.bride_name)
@@ -53,7 +55,7 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
             style={{ ...FONT_BODY, background: "linear-gradient(135deg, #8E6B3D 0%, #b38f53 100%)" }}
           >
             <span className="material-symbols-outlined text-[16px]">event_available</span>
-            <span>Simpan ke Kalender</span>
+            <span>{t("saveToCalendar", lang)}</span>
           </a>
         )}
         </div>

@@ -19,6 +19,7 @@ import {
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./cinnabar-seal.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/cinnabar-seal/${name}.webp`
 
@@ -147,6 +148,7 @@ function AccentTitle({ text, className }: { text: string; className?: string }) 
 }
 
 export default function CinnabarSeal(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -235,7 +237,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const quoteText = (profile.quote_text || "").trim()
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
 
-  const coverKicker = (tc.cover_kicker || "").trim() || "The Wedding Of"
+  const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
   const openLabel = (tc.open_button || "").trim() || "Open Invitation"
   const saveLabel = (tc.save_date_label || "").trim() || "Save the Date"
   const copyAddressLabel = (tc.copy_address_button || "").trim() || "Salin Alamat"
@@ -250,12 +252,12 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const eventsKicker = (tc.events_kicker || "").trim() || "Save the Date"
   const eventsTitle = (tc.events_title || "").trim() || "The Celebration"
   const eventsIntro = (tc.events_intro || "").trim()
-  const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || "Turut Mengundang"
+  const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
+  const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Sahabat"
   const invitingIntro = (tc.inviting_intro || "").trim()
   const rundownKicker = (tc.rundown_kicker || "").trim() || "Rundown"
-  const rundownTitle = (tc.rundown_title || "").trim() || "Rangkaian Acara"
+  const rundownTitle = (tc.rundown_title || "").trim() || t("secEvent", lang)
   const rundownIntro = (tc.rundown_intro || "").trim()
   const galleryKicker = (tc.gallery_kicker || "").trim() || "Precious"
   const galleryTitle = (tc.gallery_title || "").trim() || "Moments"
@@ -278,7 +280,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const wishCopy = {
     nameLabel: (tc.wishes_name_label || "").trim() || "Nama",
     namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Nama lengkap",
-    messageLabel: (tc.wishes_message_label || "").trim() || "Ucapan & Doa",
+    messageLabel: (tc.wishes_message_label || "").trim() || t("secWishes", lang),
     messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Titipkan pesan dan doa terbaik",
     submit: (tc.wishes_submit || "").trim() || "Kirim Ucapan",
     empty: (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama.",
@@ -1009,7 +1011,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy}
+              copy={wishCopy} language={profile.language}
             />
           </div>
         </section>

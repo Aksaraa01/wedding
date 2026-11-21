@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react"
 import { createPortal } from "react-dom"
 import { normalizeGuestSlug } from "@/lib/guest-slug"
+import { t, tf } from "@/lib/i18n"
 
 interface InvitationOverlayProps {
   guestId?: string
@@ -23,6 +24,7 @@ interface InvitationOverlayProps {
   // distance from the viewport edge when anchored bottom (e.g. above a dock).
   anchor?: "center" | "bottom"
   bottom?: number
+  language?: "id" | "en"
 }
 
 export default function InvitationOverlay({
@@ -40,6 +42,7 @@ export default function InvitationOverlay({
   qrEnabled,
   anchor = "center",
   bottom = 24,
+  language = "id",
 }: InvitationOverlayProps) {
   const [qrOpen, setQrOpen] = useState(false)
   // Rendered into <body> so template-scoped element rules (p/span/button
@@ -95,7 +98,7 @@ export default function InvitationOverlay({
       if (!activeId) {
         const flexSlug = normalizeGuestSlug(guestSlug)
         if (!allowFlexibleRsvp || !flexSlug) {
-          setRsvpError("Gagal menyimpan kehadiran. Silakan coba lagi.")
+          setRsvpError(language === "en" ? "Failed to save your RSVP. Please try again." : "Gagal menyimpan kehadiran. Silakan coba lagi.")
           setRsvpStatus("error")
           return
         }
@@ -118,8 +121,8 @@ export default function InvitationOverlay({
         if (!flex.ok || !flexData.guest?.id) {
           setRsvpError(
             flex.status === 400
-              ? "Nama tamu tidak dikenali. Silakan minta tautan undangan pribadi Anda ke mempelai."
-              : flexData.error || "Gagal menyimpan kehadiran. Silakan coba lagi."
+              ? (language === "en" ? "Guest name not recognized. Please ask the couple for your personal invitation link." : "Nama tamu tidak dikenali. Silakan minta tautan undangan pribadi Anda ke mempelai.")
+              : flexData.error || (language === "en" ? "Failed to save your RSVP. Please try again." : "Gagal menyimpan kehadiran. Silakan coba lagi.")
           )
           setRsvpStatus("error")
           return
@@ -137,7 +140,7 @@ export default function InvitationOverlay({
           }),
         })
         if (!res.ok) {
-          setRsvpError("Gagal menyimpan kehadiran. Silakan coba lagi.")
+          setRsvpError(language === "en" ? "Failed to save your RSVP. Please try again." : "Gagal menyimpan kehadiran. Silakan coba lagi.")
           setRsvpStatus("error")
           return
         }
@@ -157,14 +160,14 @@ export default function InvitationOverlay({
           }),
         })
         if (wish.status !== 409 && !wish.ok) {
-          setRsvpError("Kehadiran tersimpan, namun ucapan gagal dikirim.")
+          setRsvpError(language === "en" ? "RSVP saved, but your wish could not be sent." : "Kehadiran tersimpan, namun ucapan gagal dikirim.")
           setRsvpStatus("error")
           return
         }
       }
       setRsvpStatus("done")
     } catch {
-      setRsvpError("Gagal menyimpan kehadiran. Periksa koneksi Anda.")
+      setRsvpError(language === "en" ? "Failed to save your RSVP. Please check your connection." : "Gagal menyimpan kehadiran. Periksa koneksi Anda.")
       setRsvpStatus("error")
     }
   }
@@ -182,19 +185,19 @@ export default function InvitationOverlay({
           <button
             type="button"
             onClick={() => setQrOpen(true)}
-            aria-label="Kartu QR Masuk"
-            title="Kartu QR Masuk"
+            aria-label={language === "en" ? "QR Entry Card" : "Kartu QR Masuk"}
+            title={language === "en" ? "QR Entry Card" : "Kartu QR Masuk"}
             className="flex items-center gap-2 h-12 pl-4 pr-3 rounded-full bg-[#B88A2D] text-white shadow-xl hover:bg-[#C9A227] transition-colors"
           >
-            <span className="font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">QR Masuk</span>
+            <span className="font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">{language === "en" ? "QR Entry" : "QR Masuk"}</span>
             <span className="material-symbols-outlined text-[20px]">qr_code_2</span>
           </button>
         )}
         <button
           type="button"
           onClick={() => setRsvpOpen(true)}
-          aria-label="Konfirmasi Kehadiran"
-          title="Konfirmasi Kehadiran"
+          aria-label={t("rsvpTitle", language)}
+          title={t("rsvpTitle", language)}
           className="flex items-center gap-2 h-12 pl-4 pr-3 rounded-full bg-[#B88A2D] text-white shadow-xl hover:bg-[#C9A227] transition-colors"
         >
           <span className="font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">RSVP</span>
@@ -209,13 +212,13 @@ export default function InvitationOverlay({
           <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl w-full max-w-md h-[85dvh] max-h-[820px] flex flex-col overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/40 shrink-0">
               <span className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">
-                Kartu QR Masuk
+                {language === "en" ? "QR Entry Card" : "Kartu QR Masuk"}
               </span>
-              <button type="button" onClick={() => setQrOpen(false)} className="text-on-surface-variant hover:text-primary p-1" aria-label="Tutup">
+              <button type="button" onClick={() => setQrOpen(false)} className="text-on-surface-variant hover:text-primary p-1" aria-label={language === "en" ? "Close" : "Tutup"}>
                 <span className="material-symbols-outlined text-2xl">close</span>
               </button>
             </div>
-            <iframe src={guestQrUrl} title="Kartu QR Masuk" className="w-full border-0 flex-1" />
+            <iframe src={guestQrUrl} title={language === "en" ? "QR Entry Card" : "Kartu QR Masuk"} className="w-full border-0 flex-1" />
             <div className="px-5 py-3 flex justify-center shrink-0">
               <a
                 href={guestQrUrl}
@@ -224,7 +227,7 @@ export default function InvitationOverlay({
                 className="inline-flex items-center gap-2 font-label-md text-[10px] uppercase tracking-widest text-secondary hover:text-primary"
               >
                 <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                Buka di tab baru
+                {language === "en" ? "Open in new tab" : "Buka di tab baru"}
               </a>
             </div>
           </div>
@@ -246,7 +249,7 @@ export default function InvitationOverlay({
               <button
                 type="button"
                 onClick={() => setRsvpOpen(false)}
-                aria-label="Tutup"
+                aria-label={language === "en" ? "Close" : "Tutup"}
                 className="absolute top-2.5 right-2.5 sm:top-5 sm:right-5 w-8 h-8 rounded-full flex items-center justify-center text-[#78716C] hover:text-[#23201E] hover:bg-black/5 transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
@@ -261,7 +264,7 @@ export default function InvitationOverlay({
                 className="text-[19px] sm:text-[27px] leading-tight font-semibold tracking-wide"
                 style={{ fontFamily: "'Playfair Display', serif", color: "#23201E" }}
               >
-                Konfirmasi Kehadiran
+                {t("rsvpTitle", language)}
               </h2>
 
               <div className="mt-1.5 sm:mt-2.5 flex items-center justify-center gap-2 text-[#C29B38]">
@@ -275,7 +278,7 @@ export default function InvitationOverlay({
               </div>
 
               <p className="text-[11px] sm:text-xs text-[#57534E] mt-1.5 sm:mt-2 max-w-xs mx-auto leading-relaxed">
-                Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran dan doa restu Anda.
+                {language === "en" ? "It would be our honor and joy to have you celebrate with us." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran dan doa restu Anda."}
               </p>
             </div>
 
@@ -286,16 +289,16 @@ export default function InvitationOverlay({
                     <span className="material-symbols-outlined text-[30px] sm:text-[36px]">check_circle</span>
                   </div>
                   <h3 className="text-[20px] sm:text-[26px] font-bold leading-tight" style={{ fontFamily: "'Playfair Display', serif", color: "#23201E" }}>
-                    Terima kasih, {rsvpName}!
+                    {language === "en" ? `Thank you, ${rsvpName}!` : `Terima kasih, ${rsvpName}!`}
                   </h3>
                   <p className="mt-2 sm:mt-3 text-sm text-[#57534E] flex items-center justify-center gap-2 flex-wrap">
-                    <span>Status konfirmasi Anda:</span>
+                    <span>{language === "en" ? "Your RSVP status:" : "Status konfirmasi Anda:"}</span>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide border ${
                         rsvpAttend === "TIDAK_HADIR" ? "bg-neutral-100 text-neutral-600 border-neutral-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"
                       }`}
                     >
-                      {rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}
+                      {rsvpAttend === "TIDAK_HADIR" ? t("notAttending", language) : t("attending", language)}
                     </span>
                   </p>
                   {rsvpMessage.trim() && (
@@ -308,14 +311,14 @@ export default function InvitationOverlay({
                     onClick={() => setRsvpOpen(false)}
                     className="mt-4 sm:mt-6 h-11 px-8 rounded-full bg-[#B34E3F] hover:bg-[#9A3F32] text-white text-xs font-semibold tracking-wider uppercase transition-colors"
                   >
-                    Tutup
+                    {language === "en" ? "Close" : "Tutup"}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleRsvpSubmit} className="px-4 sm:px-8 py-4 sm:py-6 space-y-4 sm:space-y-5 text-left">
                   <div className="space-y-1">
                     <label className="block text-[11px] sm:text-xs font-semibold text-[#23201E] tracking-wide uppercase">
-                      Nama Tamu Undangan
+                      {language === "en" ? "Guest Name" : "Nama Tamu Undangan"}
                     </label>
                     <div className="relative">
                       <input
@@ -325,7 +328,7 @@ export default function InvitationOverlay({
                         aria-readonly="true"
                         className="w-full h-11 sm:h-12 px-4 pr-11 rounded-xl bg-[#FAF7F2] border border-[#E2D9CF] text-sm outline-none cursor-default"
                         style={{ color: "#23201E" }}
-                        placeholder="Nama Anda"
+                        placeholder={language === "en" ? "Your name" : "Nama Anda"}
                       />
                       <span className="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-[#78716C]/70 text-[20px] pointer-events-none">
                         badge
@@ -334,7 +337,7 @@ export default function InvitationOverlay({
                   </div>
                   <div className="space-y-1.5 sm:space-y-2">
                     <label className="block text-[11px] sm:text-xs font-semibold text-[#23201E] tracking-wide uppercase">
-                      Konfirmasi Kehadiran <span className="text-[#B34E3F]">*</span>
+                      {t("rsvpTitle", language)} <span className="text-[#B34E3F]">*</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                       <button
@@ -349,8 +352,8 @@ export default function InvitationOverlay({
                         <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 sm:mb-1.5 ${rsvpAttend === "HADIR" ? "bg-[#FBF1EE]" : "bg-gray-100"}`}>
                           <span className="text-sm sm:text-base leading-none">🌸</span>
                         </div>
-                        <span className={`font-semibold text-sm ${rsvpAttend === "HADIR" ? "text-[#B34E3F]" : "text-[#23201E]"}`}>Hadir</span>
-                        <span className={`text-[10px] sm:text-[11px] mt-0.5 ${rsvpAttend === "HADIR" ? "text-[#B34E3F]/80" : "text-[#78716C]"}`}>Merayakan Bersama</span>
+                        <span className={`font-semibold text-sm ${rsvpAttend === "HADIR" ? "text-[#B34E3F]" : "text-[#23201E]"}`}>{t("attending", language)}</span>
+                        <span className={`text-[10px] sm:text-[11px] mt-0.5 ${rsvpAttend === "HADIR" ? "text-[#B34E3F]/80" : "text-[#78716C]"}`}>{language === "en" ? "Joyfully attending" : "Merayakan Bersama"}</span>
                         {rsvpAttend === "HADIR" && (
                           <div className="absolute top-2 right-2 w-4 h-4 bg-[#B34E3F] rounded-full flex items-center justify-center text-white">
                             <span className="material-symbols-outlined text-[12px] font-bold">check</span>
@@ -369,8 +372,8 @@ export default function InvitationOverlay({
                         <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 sm:mb-1.5 ${rsvpAttend === "TIDAK_HADIR" ? "bg-[#FBF1EE]" : "bg-gray-100"}`}>
                           <span className={`material-symbols-outlined text-[17px] sm:text-[18px] ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]" : "text-[#78716C]"}`}>event_busy</span>
                         </div>
-                        <span className={`font-semibold text-sm ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]" : "text-[#23201E]"}`}>Tidak Hadir</span>
-                        <span className={`text-[10px] sm:text-[11px] mt-0.5 ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]/80" : "text-[#78716C]"}`}>Turut mendoakan</span>
+                        <span className={`font-semibold text-sm ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]" : "text-[#23201E]"}`}>{t("notAttending", language)}</span>
+                        <span className={`text-[10px] sm:text-[11px] mt-0.5 ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]/80" : "text-[#78716C]"}`}>{language === "en" ? "Sending prayers" : "Turut mendoakan"}</span>
                         {rsvpAttend === "TIDAK_HADIR" && (
                           <div className="absolute top-2 right-2 w-4 h-4 bg-[#B34E3F] rounded-full flex items-center justify-center text-white">
                             <span className="material-symbols-outlined text-[12px] font-bold">check</span>
@@ -384,9 +387,9 @@ export default function InvitationOverlay({
                       <div className="flex items-center justify-between mb-1">
                         <label className="text-[11px] sm:text-xs font-semibold text-[#23201E] tracking-wide uppercase flex items-center gap-1.5">
                           <span className="material-symbols-outlined text-[16px] text-[#B34E3F]">groups</span>
-                          Jumlah Tamu (Pax)
+                          {language === "en" ? "Number of Guests" : "Jumlah Tamu (Pax)"}
                         </label>
-                        <span className="text-[11px] text-[#78716C]">Maks. {maxPax} Orang</span>
+                        <span className="text-[11px] text-[#78716C]">{tf("maxPeople", language, { n: maxPax })}</span>
                       </div>
                       <div className={`grid gap-2 sm:gap-2.5 ${maxPax <= 2 ? "grid-cols-2" : "grid-cols-3"}`}>
                         {Array.from({ length: maxPax }, (_, i) => i + 1).map((n) => {
@@ -402,7 +405,7 @@ export default function InvitationOverlay({
                                   : "border border-[#E2D9CF] bg-white text-[#23201E] font-medium hover:bg-[#FAF7F2]"
                               }`}
                             >
-                              <span>{n} Orang</span>
+                              <span>{language === "en" ? `${n} ${n === 1 ? "Person" : "People"}` : `${n} Orang`}</span>
                               {selected && <span className="material-symbols-outlined text-[16px]">check_circle</span>}
                             </button>
                           )
@@ -413,19 +416,19 @@ export default function InvitationOverlay({
                   <div className="space-y-1">
                     <label className="text-[11px] sm:text-xs font-semibold text-[#23201E] tracking-wide uppercase flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-[16px] text-[#C29B38]">history_edu</span>
-                      Doa &amp; Ucapan Hangat
+                      {language === "en" ? "Wishes & Prayers" : "Doa & Ucapan Hangat"}
                     </label>
                     <div className="p-3 sm:p-3.5 rounded-2xl border border-[#E2D9CF] relative focus-within:border-[#B34E3F] focus-within:ring-2 focus-within:ring-[#B34E3F]/20 transition-all bg-white">
                       <div className="flex items-center gap-2 mb-1.5 sm:mb-2 pb-1.5 sm:pb-2 border-b border-[#E2D9CF]/40 text-[11px] text-[#78716C]">
                         <span className="material-symbols-outlined text-[14px] text-[#C29B38]">edit_note</span>
-                        <span>Tuliskan doa restu untuk {coupleName}</span>
+                        <span>{language === "en" ? `Write your wishes for ${coupleName}` : `Tuliskan doa restu untuk ${coupleName}`}</span>
                       </div>
                       <textarea
                         value={rsvpMessage}
                         onChange={(e) => setRsvpMessage(e.target.value)}
                         rows={3}
                         className="w-full bg-transparent border-0 p-0 text-sm text-[#78716C] placeholder-[#A8A29E] focus:ring-0 resize-none outline-none leading-relaxed"
-                        placeholder="Tuliskan doa restu Anda di sini…"
+                        placeholder={language === "en" ? "Write your wishes here…" : "Tuliskan doa restu Anda di sini…"}
                       />
                     </div>
                   </div>
@@ -436,11 +439,11 @@ export default function InvitationOverlay({
                       disabled={rsvpStatus === "saving" || !rsvpName.trim()}
                       className="w-full h-12 sm:h-14 rounded-full bg-[#B34E3F] hover:bg-[#9A3F32] active:scale-[0.98] text-white font-semibold text-sm sm:text-base tracking-wide shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2.5 disabled:opacity-50"
                     >
-                      <span>{rsvpStatus === "saving" ? "Menyimpan..." : rsvpAttend === "TIDAK_HADIR" ? "Kirim Doa Restu" : "Kirim Konfirmasi Kehadiran"}</span>
+                      <span>{rsvpStatus === "saving" ? t("sending", language) : rsvpAttend === "TIDAK_HADIR" ? (language === "en" ? "Send Wishes" : "Kirim Doa Restu") : t("rsvpTitle", language)}</span>
                       <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
                     </button>
                     <p className="text-[11px] text-center text-[#78716C] mt-2 sm:mt-2.5">
-                      Data Anda terenkripsi dengan aman dalam sistem Aksaraa Wedding.
+                      {language === "en" ? "Your data is securely stored by Aksaraa Wedding." : "Data Anda terenkripsi dengan aman dalam sistem Aksaraa Wedding."}
                     </p>
                   </div>
                 </form>

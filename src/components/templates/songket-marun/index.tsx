@@ -12,6 +12,7 @@ import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, p
 import { useWishes } from "../shared/kids/useWishes"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./songket-marun.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/songket-marun/${name}.webp`
 
@@ -107,6 +108,7 @@ function accountName(raw?: string): string {
 }
 
 export default function SongketMarun(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -181,7 +183,7 @@ export default function SongketMarun(profile: TemplateProps) {
 
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
   const coverGuestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
-  const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
+  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const salam = (tc.opening_salam || "").trim() || DEFAULT_SALAM
   const basmalah = (tc.basmalah || "").trim() || DEFAULT_BASMALAH
   const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
@@ -193,10 +195,10 @@ export default function SongketMarun(profile: TemplateProps) {
   const saveKicker = (tc.save_date_kicker || "").trim() || "Save the Date"
   const saveTitle = (tc.save_date_title || "").trim() || "Hari Bahagia"
   const saveLabel = (tc.save_date_label || "").trim() || "Simpan Tanggal"
-  const eventsKicker = (tc.events_kicker || "").trim() || "Rangkaian Acara"
+  const eventsKicker = (tc.events_kicker || "").trim() || t("secEvent", lang)
   const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
   const eventsLead = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
-  const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
+  const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const galleryKicker = (tc.gallery_kicker || "").trim() || "Galeri"
   const galleryTitle = (tc.gallery_title || "").trim() || "Momen Bahagia"
   const galleryLead = (tc.gallery_intro || "").trim() || "Sepenggal cerita ananda menjelang hari istimewanya."
@@ -206,7 +208,7 @@ export default function SongketMarun(profile: TemplateProps) {
   const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
   const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
   const giftSendLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || "Turut Mengundang"
+  const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
   const wishesKicker = (tc.wishes_kicker || "").trim() || "Doa & Ucapan"
   const wishesTitle = (tc.wishes_title || "").trim() || "Titip Doa"
@@ -219,7 +221,7 @@ export default function SongketMarun(profile: TemplateProps) {
   const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
   const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
   const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
-  const closingThanks = (tc.closing_thanks || "").trim() || "Terima Kasih"
+  const closingThanks = (tc.closing_thanks || "").trim() || t("secClosing", lang)
   const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
   const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
   const closingKicker = (tc.closing_kicker || "").trim() || "Kami yang berbahagia"

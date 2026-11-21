@@ -29,6 +29,7 @@ type Props = {
   guestLinkStrict?: boolean
   nameFallback: string
   copy: Copy
+  language?: "id" | "en"
 }
 
 const MAX_CHARS = 500
@@ -64,6 +65,7 @@ export default function Wishes({
   guestLinkStrict,
   nameFallback,
   copy,
+  language = "id"
 }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)

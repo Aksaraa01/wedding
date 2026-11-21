@@ -18,6 +18,7 @@ import {
 import Wishes, { type WishesCopy } from "./Wishes"
 import { EH_ASSETS } from "./assets"
 import "./emerald-heirloom.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const GUEST_FALLBACK = "Tamu Undangan"
 
@@ -169,6 +170,7 @@ function Deco({ spec }: { spec: DecoSpec }) {
 }
 
 export default function EmeraldHeirloom(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const filmRef = useRef<HTMLDivElement | null>(null)
@@ -296,10 +298,10 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
   const videoKicker = (tc.video_kicker || "").trim() || "The Film"
   const videoTitle = (tc.video_title || "").trim()
   const videoIntro = (tc.video_intro || "").trim()
-  const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim()
   const giftWish = (tc.gift_wish || "").trim()
-  const giftButton = (tc.gift_button || "").trim() || "Wedding Gift"
+  const giftButton = (tc.gift_button || "").trim() || t("secGift", lang)
   const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
   const wishesTitle = (tc.wishes_title || "").trim() || "Wedding Wishes"
   const wishesIntro = (tc.wishes_intro || "").trim()
@@ -1273,7 +1275,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy}
+              copy={wishCopy} language={profile.language}
             />
           </div>
           {wishesDecos.map((spec, index) => (

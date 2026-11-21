@@ -19,6 +19,7 @@ import {
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./iris.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/iris/${name}.webp`
 
@@ -133,6 +134,7 @@ function Clock({ target }: { target: Date | null }) {
 }
 
 export default function Iris(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -216,8 +218,8 @@ export default function Iris(profile: TemplateProps) {
   const quoteText = (profile.quote_text || "").trim()
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
 
-  const coverKicker = (tc.cover_kicker || "").trim() || "The Wedding of"
-  const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
+  const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
+  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const apology = (tc.cover_apology || "").trim()
   const openingKicker = (tc.opening_kicker || "").trim() || "Ayat Suci"
   const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "With Love"
@@ -227,25 +229,25 @@ export default function Iris(profile: TemplateProps) {
   const storyIntro = (tc.story_intro || "").trim()
   const saveDateLabel = (tc.save_date_label || "").trim() || "SAVE the DATE"
   const eventsIntro = (tc.events_intro || "").trim()
-  const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || "Turut Mengundang"
+  const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
+  const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Sahabat"
   const invitingIntro = (tc.inviting_intro || "").trim()
   const rundownKicker = (tc.rundown_kicker || "").trim() || "Rundown"
-  const rundownTitle = (tc.rundown_title || "").trim() || "Rangkaian Acara"
+  const rundownTitle = (tc.rundown_title || "").trim() || t("secEvent", lang)
   const rundownIntro = (tc.rundown_intro || "").trim()
   const galleryTitle = (tc.gallery_title || "").trim() || "Gallery"
   const galleryIntro = (tc.gallery_intro || "").trim()
   const videoTitle = (tc.video_title || "").trim() || "Our Film"
   const videoIntro = (tc.video_intro || "").trim()
-  const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim()
   const giftButton = (tc.gift_button || "").trim() || "Kirim Hadiah"
   const dressKicker = (tc.dresscode_kicker || "").trim() || "Dresscode"
-  const wishesKicker = (tc.wishes_kicker || "").trim() || "Ucapan & Doa"
+  const wishesKicker = (tc.wishes_kicker || "").trim() || t("secWishes", lang)
   const wishesTitle = (tc.wishes_title || "").trim() || ""
   const wishesIntro = (tc.wishes_intro || "").trim()
-  const closingKicker = (tc.closing_kicker || "").trim() || "Terima Kasih"
+  const closingKicker = (tc.closing_kicker || "").trim() || t("secClosing", lang)
   const closingSee = (tc.closing_see || "").trim() || "See you on our wedding day!"
   const accountToast = (tc.copy_account_toast || "").trim() || "Nomor rekening disalin"
   const addressToast = (tc.copy_address_toast || "").trim() || "Alamat disalin"
@@ -253,7 +255,7 @@ export default function Iris(profile: TemplateProps) {
   const wishCopy = {
     nameLabel: (tc.wishes_name_label || "").trim() || "Nama",
     namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Nama lengkap",
-    messageLabel: (tc.wishes_message_label || "").trim() || "Ucapan & Doa",
+    messageLabel: (tc.wishes_message_label || "").trim() || t("secWishes", lang),
     messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Titipkan pesan dan doa terbaik",
     submit: (tc.wishes_submit || "").trim() || "Kirim Ucapan",
     empty: (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama.",
@@ -736,7 +738,7 @@ export default function Iris(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy}
+              copy={wishCopy} language={profile.language}
             />
           </div>
         </section>

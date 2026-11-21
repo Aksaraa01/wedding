@@ -15,6 +15,7 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./n-film.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
@@ -84,6 +85,7 @@ function Clock({ target }: { target: Date | null }) {
 }
 
 export default function NFilm(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -146,7 +148,7 @@ export default function NFilm(profile: TemplateProps) {
     openingTitle: (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE,
     openingDescription: (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION,
     galleryIntro: (tc.gallery_intro || "").trim() || "click to preview",
-    giftIntroTitle: (tc.gift_intro_title || "").trim() || "Wedding Gift",
+    giftIntroTitle: (tc.gift_intro_title || "").trim() || t("secGift", lang),
     giftIntro: (tc.gift_intro_description || "").trim(),
     wishesIntro: (tc.wishes_intro || "").trim(),
     closing: (tc.closing_message || "").trim() || DEFAULT_CLOSING,
@@ -715,7 +717,7 @@ export default function NFilm(profile: TemplateProps) {
             guestName={profile.guest_name}
             guestLinkStrict={profile.guest_link_strict}
             coupleName={coupleLabel}
-            intro={texts.wishesIntro}
+            intro={texts.wishesIntro} language={profile.language}
           />
         </section>
 

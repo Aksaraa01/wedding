@@ -26,6 +26,7 @@ type Props = {
   guestLinkStrict?: boolean
   coupleName?: string
   copy: Copy
+  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 4
@@ -65,7 +66,7 @@ function wishAgo(iso?: string): string {
   return days === 1 ? "Yesterday" : `${days} days ago`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy , language = "id"}: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)

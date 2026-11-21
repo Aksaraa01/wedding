@@ -15,8 +15,10 @@ import GiftModal from "./modals/GiftModal"
 import FamilyModal from "./modals/FamilyModal"
 import VideoModal, { type VideoModalData } from "./modals/VideoModal"
 import { normalizeVideoUrl } from "../shared/lib"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function PixelParadise(props: TemplateProps) {
+  const lang = normalizeLanguage(props.language)
   const [opened, setOpened] = useState(false)
   const [modal, setModal] = useState<ModalKind | null>(null)
   const [wishOpen, setWishOpen] = useState(false)

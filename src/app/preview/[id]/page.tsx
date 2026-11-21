@@ -8,6 +8,7 @@ import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
+import { normalizeLanguage } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
@@ -23,7 +24,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender, children")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender, children, language")
     .eq("id", id)
     .single()
 
@@ -119,7 +120,8 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       wedding_profile_id={profile.id}
       event_type={profile.event_type || "wedding"}
       subject_gender={profile.subject_gender || undefined}
-      event_labels={eventLabels(profile.event_type, profile.subject_gender)}
+      language={normalizeLanguage(profile.language)}
+      event_labels={eventLabels(profile.event_type, profile.subject_gender, profile.language)}
       rsvp_max_pax={profile.rsvp_max_pax ?? undefined}
       feature_gates={{
         story: rowGates.story.included,

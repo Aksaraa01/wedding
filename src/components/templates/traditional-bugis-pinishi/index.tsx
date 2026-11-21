@@ -20,6 +20,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./traditional-bugis-pinishi.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ASSET = (name: string) => `/templates/traditional-bugis-pinishi/${name}`
 
@@ -170,7 +171,9 @@ function EnvelopeIcon() {
   )
 }
 
+
 export default function TraditionalBugisPinishi(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -274,7 +277,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const copy = useCallback(
     async (text: string) => {
       const ok = await copyPlainText(text)
-      showToast(ok ? "Disalin ke clipboard" : "Gagal menyalin")
+      showToast(ok ? t("copiedToClipboard", lang) : t("failedToCopy", lang))
     },
     [showToast]
   )
@@ -504,7 +507,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <div className="pinishi-gate-photo">
               <img src={coverPhoto} alt={coupleLabel} />
             </div>
-            <p className="pinishi-gate-kicker">The Wedding Of</p>
+            <p className="pinishi-gate-kicker">{t("theWeddingOf", lang)}</p>
             <h1 className="pinishi-gate-names name-fit" style={fitStyle(coupleLabel)}>
               {groomShort} &amp; {brideShort}
             </h1>
@@ -535,7 +538,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 <div className="pinishi-gate-photo">
                   <img src={coverPhoto} alt={coupleLabel} />
                 </div>
-                <p className="pinishi-gate-kicker">The Wedding Of</p>
+                <p className="pinishi-gate-kicker">{t("theWeddingOf", lang)}</p>
                 <h1 className="pinishi-gate-names name-fit" style={fitStyle(coupleLabel)}>
                   {groomShort} &amp; {brideShort}
                 </h1>
@@ -870,7 +873,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
               <img className="pinishi-inviting-decor pinishi-inviting-decor--bngarsvp1" src={ASSET("decor-bngarsvp-1.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-inviting-decor pinishi-inviting-decor--bnggg" src={ASSET("decor-bnggg.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-inviting-inner" data-aos="fade-up">
-                <h2 className="pinishi-inviting-title">Turut Mengundang</h2>
+                <h2 className="pinishi-inviting-title">{t("secInviting", lang)}</h2>
                 <ul>
                   {honored.map((name, index) => (
                     <li key={`${name}-${index}`}>{name}</li>
@@ -961,7 +964,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                     )}
                     {giftAddress && (
                       <div className="pinishi-gift-address">
-                        <p className="pinishi-gift-address-label">Kirim Hadiah</p>
+                        <p className="pinishi-gift-address-label">{t("sendGift", lang)}</p>
                         <p className="pinishi-gift-address-text">{giftAddress}</p>
                         <button type="button" onClick={() => copy(giftAddress)}>
                           Salin Alamat
@@ -989,16 +992,16 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                   guestId={profile.guest_id}
                   guestName={profile.guest_name}
                   guestLinkStrict={profile.guest_link_strict}
-                  coupleName={coupleLabel}
+                  coupleName={coupleLabel} language={profile.language}
                 />
               </div>
             </div>
           </section>
 
           {hasContacts && (
-            <section className="pinishi-contacts" aria-label="Hubungi Kami">
+            <section className="pinishi-contacts" aria-label={tc.contacts_title || t("secContact", lang)}>
               <div className="pinishi-contacts-inner" data-aos="fade-up">
-                <h2 className="pinishi-title">Hubungi Kami</h2>
+                <h2 className="pinishi-title">{tc.contacts_title || t("secContact", lang)}</h2>
                 <div className="pinishi-contacts-list">
                   {contactItems.map((contact, index) => {
                     const href = whatsappHref(contact.whatsapp)

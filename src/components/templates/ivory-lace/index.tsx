@@ -19,6 +19,7 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./ivory-lace.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 // ── Static art (authored for this template) ────────────────────────────────
 // Everything decorative here is our own SVG: the reference's lace, seals,
@@ -150,6 +151,7 @@ function HeartRule({ className }: { className?: string }) {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function IvoryLace(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -366,7 +368,7 @@ export default function IvoryLace(profile: TemplateProps) {
           <span className="il-cover__veil" aria-hidden="true" />
           <div className="il-cover__body" data-il-reveal>
             <Monogram text={monogram} />
-            <p className="il-kicker">{tc.cover_kicker || "The Wedding Of"}</p>
+            <p className="il-kicker">{tc.cover_kicker || t("theWeddingOf", lang)}</p>
             <h1 className="il-cover__names">
               <span>{groom}</span>
               <em>&amp;</em>
@@ -448,7 +450,7 @@ export default function IvoryLace(profile: TemplateProps) {
             {storyImage && <span className="il-story__photo" style={bg(storyImage)} aria-hidden="true" />}
             <span className="il-story__veil" aria-hidden="true" />
             <div className="il-wrap il-story__body" data-il-reveal>
-              <h2 className="il-script il-story__title">{tc.love_story_title || "Our Love Story"}</h2>
+              <h2 className="il-script il-story__title">{tc.love_story_title || t("secStory", lang)}</h2>
               {tc.story_intro && <p className="il-story__intro">{tc.story_intro}</p>}
               {stories.map((story, index) => (
                 <div className="il-story__chapter" key={`${story.title || "chapter"}-${index}`}>
@@ -514,7 +516,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {eventDay && (
           <section className="il-section il-countdown" data-section="countdown">
             <div className="il-wrap il-countdown__head" data-il-reveal>
-              <h2 className="il-display il-heading">Save the Date</h2>
+              <h2 className="il-display il-heading">{t("saveTheDate", lang)}</h2>
             </div>
 
             <div className="il-calendar" data-il-reveal>
@@ -614,7 +616,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {galleryPhotos.length > 0 && (
           <section className="il-section il-gallery" data-section="gallery">
             <div className="il-wrap il-gallery__head" data-il-reveal>
-              <h2 className="il-display il-heading">{tc.gallery_title || "Our Moments"}</h2>
+              <h2 className="il-display il-heading">{tc.gallery_title || t("secGallery", lang)}</h2>
               {tc.gallery_intro && <p className="il-body il-gallery__intro">{tc.gallery_intro}</p>}
             </div>
             <div className="il-wrap il-gallery__grid">
@@ -667,7 +669,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {hasGift && (
           <section className="il-section il-gift" data-section="gift">
             <div className="il-wrap il-gift__body" data-il-reveal>
-              <h2 className="il-display il-heading il-gift__heading">{tc.gift_intro_title || "Wedding Gift"}</h2>
+              <h2 className="il-display il-heading il-gift__heading">{tc.gift_intro_title || t("secGift", lang)}</h2>
               <p className="il-body il-gift__intro">
                 {tc.gift_intro_description ||
                   "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
@@ -756,7 +758,7 @@ export default function IvoryLace(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel}
+              coupleName={coupleLabel} language={profile.language}
             />
           </div>
         </section>

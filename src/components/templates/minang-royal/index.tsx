@@ -15,6 +15,7 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./minang-royal.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const A = (name: string) => `/templates/minang-royal/${name}`
 const DEMO_TRACK = "/templates/minang-royal/bergema.mp3"
@@ -114,6 +115,7 @@ function SectionSeparator() {
 }
 
 export default function MinangRoyal(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [opened, setOpened] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -306,7 +308,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             <section className="couple-wrap">
               <div className="couple">
                 <div className="couple-head">
-                  <h1 className="couple-title">The Wedding Of</h1>
+                  <h1 className="couple-title">{t("theWeddingOf", lang)}</h1>
                   <p className="couple-description">
                     {(profile.opening_description || "Bismillahirrahmanirrahim\nAssalamu'alaikum Warahmatullahi Wabarakatuh\nMaha Suci Allah yang telah menciptakan mahkluk-Nya berpasang-pasangan.")
                       .split("\n")
@@ -365,7 +367,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             <SectionSeparator />
             <section className="save-date-wrap">
               <div className="save-date">
-                <div className="save-date-head"><h1 className="save-date-title">Save The Date</h1></div>
+                <div className="save-date-head"><h1 className="save-date-title">{t("saveTheDate", lang)}</h1></div>
                 <div className="save-date-body">
                   <div className="countdown">
                     <div className="count-item"><h2 className="count-num count-day">{countdown?.d ?? "0"}</h2><small className="count-text">Days</small></div>
@@ -694,7 +696,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                 {tc.wishes_intro && <p className="wedding-wish-description">{tc.wishes_intro}</p>}
               </div>
               <div className="wedding-wish-body">
-                <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} />
+                <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} language={profile.language} />
               </div>
             </div>
           </section>
@@ -703,7 +705,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             <section className="notes-container mr-inviting" data-section-order="inviting">
               <div className="note">
                 <div className="orn-kupu-kupu-2"><div className="image-wrap"><img src={A("kupu-kupu-2.png")} alt="" /></div></div>
-                <h4 className="note-title">Turut Mengundang</h4>
+                <h4 className="note-title">{t("secInviting", lang)}</h4>
                 <ul className="mr-inviting-list">
                   {honored.map((name, index) => (
                     <li key={`${name}-${index}`}>{name}</li>

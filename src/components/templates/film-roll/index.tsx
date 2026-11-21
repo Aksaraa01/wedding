@@ -19,6 +19,7 @@ import {
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./film-roll.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const WISH_ME = "Dear Guest"
 
@@ -414,6 +415,7 @@ function Clock({ target }: { target: Date | null }) {
 }
 
 export default function FilmRoll(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const homeRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -523,7 +525,7 @@ export default function FilmRoll(profile: TemplateProps) {
   const brideIg = igHandle(profile.bride_instagram)
 
   // ── copy: every visible string is reachable from the editor ──
-  const coverTitle = (tc.cover_title || "").trim() || "The Wedding Of"
+  const coverTitle = (tc.cover_title || "").trim() || t("theWeddingOf", lang)
   const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
   const openLabel = (tc.open_button || "").trim() || "Enter"
   const dearLabel = (tc.cover_apology || "").trim() || "Dear"
@@ -558,7 +560,7 @@ export default function FilmRoll(profile: TemplateProps) {
   const videoTitle = splitTitle((tc.video_title || "").trim() || "Trailer")
   const videoIntro = (tc.video_intro || "").trim() || "The day as it happened, kept in motion."
   const giftKicker = (tc.gift_kicker || "").trim() || "With Love"
-  const giftTitle = splitTitle((tc.gift_intro_title || "").trim() || "Wedding Gift")
+  const giftTitle = splitTitle((tc.gift_intro_title || "").trim() || t("secGift", lang))
   const giftLead =
     (tc.gift_intro_description || "").trim() ||
     "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here."
@@ -1891,7 +1893,7 @@ export default function FilmRoll(profile: TemplateProps) {
                     guestLinkStrict={profile.guest_link_strict}
                     nameFallback={guestName || WISH_ME}
                     listLabel={wishesTitle.join(" ")}
-                    copy={wishCopy}
+                    copy={wishCopy} language={profile.language}
                   />
                 </div>
               )}

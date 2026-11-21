@@ -198,6 +198,17 @@ try {
   console.warn("! could not check the Material Symbols subset")
 }
 
+// ---------- 3b2. i18n keys ----------
+// Every t()/tf() key must exist in src/lib/i18n.ts.
+try {
+  const out = execSync("node scripts/check-i18n.mjs 2>&1 || true", { encoding: "utf8" })
+  const line = out.trim().split("\n").pop() || ""
+  if (out.includes("✗")) fail(`i18n key check failed:\n${out}`)
+  ok(line)
+} catch {
+  console.warn("! could not check i18n keys")
+}
+
 // ---------- 3c. one copy path ----------
 // A copy action must never serialise markup out of the DOM: iOS/iPadOS Safari
 // rewrites phone-shaped text into <a href="tel:…">, which is how a bank account

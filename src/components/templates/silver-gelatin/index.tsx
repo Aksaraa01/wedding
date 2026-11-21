@@ -20,6 +20,7 @@ import {
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./silver-gelatin.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const WISH_ME = "Tamu Undangan"
 
@@ -138,6 +139,7 @@ function Clock({ target }: { target: Date | null }) {
 }
 
 export default function SilverGelatin(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const filmRef = useRef<HTMLElement | null>(null)
@@ -257,7 +259,7 @@ export default function SilverGelatin(profile: TemplateProps) {
   const galleryIntro = (tc.gallery_intro || "").trim() || "Little snippets of our journey"
   const videoTitle = (tc.video_title || "").trim() || "Our Film"
   const videoIntro = (tc.video_intro || "").trim()
-  const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim() ||
     "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:"
   const giftTransferLabel = (tc.gift_button || "").trim() || "Direct Transfer"
@@ -884,7 +886,7 @@ export default function SilverGelatin(profile: TemplateProps) {
                 guestName={profile.guest_name}
                 guestLinkStrict={profile.guest_link_strict}
                 coupleName={coupleLabel}
-                copy={wishCopy}
+                copy={wishCopy} language={profile.language}
               />
             </div>
           </section>

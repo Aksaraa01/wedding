@@ -8,6 +8,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import { countdownTarget, coverPhoto as coverSlotPhoto, flattenPhotos, gcalLink, initialsOf, monogramFontSize, videoSource } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./embroidered-garden.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 // Art shipped with the template. These are decorative surfaces only — never
 // couple data. Photo slots come from the profile.
@@ -288,6 +289,7 @@ function DoorCartouche({ initials }: { initials: string }) {
 }
 
 export default function EmbroideredGarden(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -981,7 +983,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         {gallery.length > 0 && (
           <section className="eg-section eg-gallery" data-section="gallery">
             <div className="eg-wrap eg-gallery__head" data-eg-reveal>
-              <h2 className="eg-display eg-heading">{tc.gallery_title || "Our Moments"}</h2>
+              <h2 className="eg-display eg-heading">{tc.gallery_title || t("secGallery", lang)}</h2>
               {tc.gallery_intro && <p className="eg-body eg-gallery__intro">{tc.gallery_intro}</p>}
             </div>
 
@@ -1075,7 +1077,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
                 style={{ ["--eg-card-art" as string]: `url(${ART_GIFT_FRAME})` } as CSSProperties}
               >
                 <div className="eg-card__frame eg-gift__inner">
-                  <p className="eg-kicker">{tc.gift_intro_title || "Wedding Gift"}</p>
+                  <p className="eg-kicker">{tc.gift_intro_title || t("secGift", lang)}</p>
                   <p className="eg-body eg-gift__intro">
                     {tc.gift_intro_description ||
                       "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
@@ -1169,7 +1171,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel}
+              coupleName={coupleLabel} language={profile.language}
             />
           </div>
         </section>

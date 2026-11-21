@@ -17,6 +17,7 @@ type Props = {
   messagePlaceholder: string
   submitLabel: string
   emptyLabel: string
+  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 10
@@ -32,6 +33,7 @@ export default function Wishes({
   messagePlaceholder,
   submitLabel,
   emptyLabel,
+  language = "id"
 }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)

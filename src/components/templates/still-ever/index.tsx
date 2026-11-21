@@ -19,6 +19,7 @@ import Wishes from "./Wishes"
 import BackgroundVideo from "../dark-split-rail/BackgroundVideo"
 import AutoplayYouTube from "../shared/AutoplayYouTube"
 import "./still-ever.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
@@ -98,6 +99,7 @@ function isDirectVideo(url: string): boolean {
 type Bloom = "idle" | "in" | "out"
 
 export default function StillEver(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -723,8 +725,8 @@ export default function StillEver(profile: TemplateProps) {
         {hasGift && (
           <section className="se-section se-gift" data-section="gift">
             <div className="se-wrap se-gift__inner" data-se-reveal>
-              <p className="se-eyebrow">With Gratitude</p>
-              <h2 className="se-display se-heading">{tc.gift_intro_title || "Wedding Gift"}</h2>
+              <p className="se-eyebrow">{t("secClosing", lang)}</p>
+              <h2 className="se-display se-heading">{tc.gift_intro_title || t("secGift", lang)}</h2>
               <p className="se-text se-gift__intro">
                 {tc.gift_intro_description ||
                   "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
@@ -794,7 +796,7 @@ export default function StillEver(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel}
+              coupleName={coupleLabel} language={profile.language}
             />
           </div>
         </section>
@@ -882,7 +884,7 @@ export default function StillEver(profile: TemplateProps) {
                   Dear,
                   <strong>{guestName}</strong>
                 </p>
-                <p className="se-gate__kicker">The Wedding Of</p>
+                <p className="se-gate__kicker">{t("theWeddingOf", lang)}</p>
                 <h2 className="se-display se-gate__names">{coupleLabel}</h2>
                 {dateBlock && <p className="se-gate__date">{dateBlock.full}</p>}
                 <p className="se-gate__apology">

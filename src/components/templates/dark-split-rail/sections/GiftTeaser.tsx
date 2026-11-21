@@ -2,12 +2,14 @@
 
 import { FONT_BODY, FONT_BTN } from "../fonts"
 import Section, { SectionHeading } from "../Section"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
-export default function GiftTeaser({ onOpen }: { onOpen: () => void }) {
+export default function GiftTeaser({ onOpen, language = "id" }: { onOpen: () => void; language?: "id" | "en" }) {
+  const lang = normalizeLanguage(language)
   return (
     <Section id="gift" className="bg-black/[0.06]">
       <div className="text-center text-white">
-        <SectionHeading>Wedding Gift</SectionHeading>
+        <SectionHeading>{t("secGift", lang)}</SectionHeading>
         <p className="mx-auto mt-5 max-w-[340px] text-[14px] leading-relaxed" style={{ ...FONT_BODY, color: "rgba(255,255,255,0.85)" }}>
           Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberi kado secara cashless, kami menyediakannya untuk Anda.
         </p>

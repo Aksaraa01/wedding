@@ -17,6 +17,7 @@ type Props = {
   guestLinkStrict?: boolean
   coupleName?: string
   lang: "EN" | "ID"
+  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 5
@@ -44,7 +45,7 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso?: string): string {
+function wishAgo(iso: string | undefined, language: "id" | "en" = "id"): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
@@ -56,7 +57,7 @@ function wishAgo(iso?: string): string {
   return `${days}d`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, lang }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, lang , language = "id"}: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -132,7 +133,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         setStatus("done")
         setFeedback(
           lang === "ID"
-            ? "Terima kasih! Ucapan Anda akan tampil setelah moderasi."
+            ? (language === "en" ? "Thank you! Your wish will appear after moderation." : "Terima kasih! Ucapan Anda akan tampil setelah moderasi.")
             : "Thank you! Your wishes will appear after moderation."
         )
         setMessage("")
@@ -212,7 +213,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
           <article key={wish.id} className="aj-wishes__item">
             <div className="aj-wishes__meta">
               <b>{wish.name || (lang === "ID" ? "Tamu" : "Guest")}</b>
-              <span>{wishAgo(wish.created_at)}</span>
+              <span>{wishAgo(wish.created_at, language)}</span>
             </div>
             <p>{wish.message}</p>
           </article>

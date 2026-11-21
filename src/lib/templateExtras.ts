@@ -688,6 +688,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
+    key: "contacts_title",
+    label: "Judul Kontak",
+    section: "kontak",
+    order: 1,
+    placeholder: "Hubungi Kami",
+    templates: ["adat-bali","adat-banjar","adat-batak","adat-betawi","adat-bugis","adat-dayak","adat-jawa","adat-jawa-2","adat-melayu","adat-minang","adat-palembang","minang-royal","traditional-bugis-pinishi","love-line","film-roll","teatro","cinnabar-seal","ivory-lace","embroidered-garden","lace","silver-gelatin","iris","n-film","boarding-pass","evermore","imagine","still-ever","manjari","sandhya","piano-garden","altar-garden","fresco","olan","majestic","lunar-blossom","lentera-zamrud","songket-marun","ubin-ottoman","nihara-mist","emerald-heirloom","swan-garden","skyline-penthouse","pastel-coastal-cut","pastel-dream-cathedral","impasto-mosque","dark-split-rail"],
+  },
+  {
     key: "closing_message",
     label: "Pesan Penutup",
     multiline: true,
@@ -1811,7 +1819,6 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["fresco"],
     placeholders: { fresco: "No wishes yet. Be the first." },
   },
-
   {
     key: "closing_message",
     label: "Pesan Penutup",
@@ -1852,18 +1859,59 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   },
 ]
 
-export function getTemplateExtraFields(templateCode: string | null | undefined): TemplateExtraField[] {
+const EXTRA_SECTION_LABEL_EN: Record<string, string> = {
+  sampul: "COVER",
+  pembuka: "OPENING",
+  mempelai: "COUPLE",
+  cerita: "LOVE STORY",
+  acara: "EVENT / SAVE THE DATE",
+  inviting: "WITH THE BLESSING OF",
+  rundown: "ORDER OF EVENTS",
+  galeri: "GALLERY",
+  kutipan: "QUOTE / VERSE",
+  video: "VIDEO",
+  dresscode: "DRESS CODE",
+  gift: "GIFT",
+  wishes: "WISHES & PRAYERS",
+  closing: "CLOSING",
+  kontak: "CONTACT",
+}
+
+const EXTRA_LABEL_EN: Record<string, string> = {
+  contacts_title: "Contact Title",
+  closing_message: "Closing Message",
+  wishes_intro: "Wishes Introduction",
+  gallery_intro: "Gallery Introduction",
+  gallery_quote: "Gallery Quote",
+  gift_intro_title: "Gift Section Title",
+  gift_intro_description: "Gift Section Description",
+  opening_kicker: "Opening Kicker",
+  cover_kicker: "Cover Kicker",
+  open_button: "Open Button Text",
+  viewLocation: "View Location Button",
+}
+
+function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
+  const base = {
+    ...field,
+    section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
+    order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
+    placeholder: field.placeholders?.[code] ?? field.placeholder,
+  }
+  if (lang !== "en") return base
+  return {
+    ...base,
+    label: EXTRA_LABEL_EN[field.key] ?? base.label,
+  }
+}
+
+export function getTemplateExtraFields(templateCode: string | null | undefined, lang: "id" | "en" = "id"): TemplateExtraField[] {
   if (!templateCode) return []
   const code = templateCode.toLowerCase()
   const sectionOrder = new Map(TEMPLATE_EXTRA_SECTIONS.map((s, i) => [s.key, i]))
   return TEMPLATE_EXTRA_FIELDS
     .filter((field) => field.templates.includes(code))
-    .map((field) => ({
-      ...field,
-      section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
-      order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
-      placeholder: field.placeholders?.[code] ?? field.placeholder,
-    }))
+    .map((field) => localizeExtraField(field, code, lang))
     .sort((a, b) => {
       const ai = sectionOrder.get(a.section ?? "") ?? Number.MAX_SAFE_INTEGER
       const bi = sectionOrder.get(b.section ?? "") ?? Number.MAX_SAFE_INTEGER
@@ -1881,7 +1929,7 @@ export interface TemplateExtraGroup {
   fields: TemplateExtraField[]
 }
 
-export function groupExtraFields(fields: TemplateExtraField[]): TemplateExtraGroup[] {
+export function groupExtraFields(fields: TemplateExtraField[], lang: "id" | "en" = "id"): TemplateExtraGroup[] {
   const bySection = new Map<string, TemplateExtraField[]>()
   for (const f of fields) {
     const key = f.section ?? "lainnya"
@@ -1898,14 +1946,17 @@ export function groupExtraFields(fields: TemplateExtraField[]): TemplateExtraGro
       if (ao !== bo) return ao - bo
       return a.key.localeCompare(b.key)
     })
-    groups.push({ section: key, label: sec?.label ?? key.toUpperCase(), fields: sorted })
+    const defaultLabel = sec?.label ?? key.toUpperCase()
+    const label = lang === "en" ? (EXTRA_SECTION_LABEL_EN[key] ?? defaultLabel) : defaultLabel
+    groups.push({ section: key, label, fields: sorted })
   }
   groups.sort((a, b) => (order.get(a.section) ?? 999) - (order.get(b.section) ?? 999))
   return groups
 }
 
-export function templateExtrasLabel(templateName: string | null | undefined): string {
+export function templateExtrasLabel(templateName: string | null | undefined, lang: "id" | "en" = "id"): string {
   const name = templateName?.trim()
+  if (lang === "en") return name ? `${name.toUpperCase()} EXTRAS` : "TEMPLATE EXTRAS"
   return name ? `EKSTRA ${name.toUpperCase()}` : "EKSTRA TEMPLATE"
 }
 

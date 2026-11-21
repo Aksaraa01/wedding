@@ -9,6 +9,7 @@ import { countdownTarget, formatDotDate, gcalLink } from "../shared/lib"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./love-line.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/love-line/${name}.webp`
 
@@ -91,6 +92,7 @@ function InstagramIcon() {
 }
 
 export default function LoveLine(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -171,14 +173,14 @@ export default function LoveLine(profile: TemplateProps) {
   const calendarLabel = (tc.events_note || "").trim() || "Add to Calendar"
   const countdownIntro = (tc.countdown_intro || "").trim() || "counting down"
   const invitingKicker = (tc.inviting_kicker || "").trim() || "with honour"
-  const invitingTitle = (tc.inviting_title || "").trim() || "Turut Mengundang"
+  const invitingTitle = (tc.inviting_title || "").trim() || t("secInviting", lang)
   const invitingIntro = (tc.inviting_intro || "").trim() || "With gratitude, we also invite our families and friends."
   const rundownKicker = (tc.rundown_kicker || "").trim() || "programme"
   const rundownTitle = (tc.rundown_title || "").trim() || "Schedule"
   const rundownIntro = (tc.rundown_intro || "").trim() || "How the day will unfold."
   const galleryKicker = (tc.gallery_kicker || "").trim() || "our moments"
   const galleryTitle = (tc.gallery_title || "").trim() || "Gallery"
-  const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT_INTRO
   const giftTransferLabel = (tc.gift_button || "").trim() || "Direct Transfer"
   const giftAddressLabel = (tc.gift_send_label || "").trim() || "Send Gift"
@@ -659,7 +661,7 @@ export default function LoveLine(profile: TemplateProps) {
                 guestLinkStrict={profile.guest_link_strict}
                 coupleName={coupleLabel}
                 copy={wishCopy}
-              />
+               language={profile.language} />
             </div>
           </section>
 

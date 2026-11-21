@@ -18,6 +18,7 @@ import Wishes from "./Wishes"
 import { TEATRO_ASSETS } from "./assets"
 import { copyPlainText } from "@/lib/clipboard"
 import "./teatro.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const WISH_ME = "Tamu Undangan"
 
@@ -490,6 +491,7 @@ function ReelPlay({ onClick }: { onClick: () => void }) {
 }
 
 export default function Teatro(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -579,7 +581,7 @@ export default function Teatro(profile: TemplateProps) {
   const groomIg = igHandle(profile.groom_instagram)
   const brideIg = igHandle(profile.bride_instagram)
 
-  const coverKicker = (tc.cover_kicker || "").trim() || "The Wedding of"
+  const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
   const openLabel = (tc.open_button || "").trim() || "Tap to continue"
   const apology = (tc.cover_apology || "").trim() || "We apologize for any misspelling of your name or title."
   const welcomeInvite = (tc.welcome_invite || "").trim() || "Together with our families, we invite you to this important moment."
@@ -1394,7 +1396,7 @@ export default function Teatro(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy}
+              copy={wishCopy} language={profile.language}
             />
           </div>
         </section>

@@ -16,6 +16,7 @@ import Wishes from "./Wishes"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { resolveBankLogo } from "@/lib/bankList"
 import "./manjari.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const A = (name: string) => `/templates/manjari/${name}`
 const DEMO_TRACK = "/templates/manjari/lee-hi-only.mp3"
@@ -54,6 +55,7 @@ function youtubeBackground(url: string): string {
 }
 
 export default function Manjari(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [opened, setOpened] = useState(false)
@@ -317,14 +319,14 @@ export default function Manjari(profile: TemplateProps) {
               <p>{tc.wishes_intro || "Please let us know whether you will join our wedding celebration by completing the form below."}</p>
             </div>
             <div className="manjari-rsvp">
-              <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} />
+              <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} language={profile.language} />
             </div>
           </section>
 
           {hasGift && (
             <section className="digital-envelope burgundy" data-section="digital-envelope">
               <div className="digital-envelope__heading reveal">
-                <h2>{tc.gift_intro_title || "Wedding Gift"}</h2>
+                <h2>{tc.gift_intro_title || t("secGift", lang)}</h2>
                 <p>{tc.gift_intro_description || "Your presence is the greatest gift to us."}</p>
               </div>
               <div className="digital-envelope__list reveal">
@@ -352,7 +354,7 @@ export default function Manjari(profile: TemplateProps) {
           {honored.length > 0 && (
             <section className="honored ivory" data-section="honored-guests">
               <img className="manjari-section-ornament" src={A("wish-title.webp")} alt="" aria-hidden="true" />
-              <h2 className="reveal">Turut Mengundang</h2>
+              <h2 className="reveal">{t("secInviting", lang)}</h2>
               <div className="honored__grid">
                 <div className="honored__col reveal">
                   <ul className="honored__names">

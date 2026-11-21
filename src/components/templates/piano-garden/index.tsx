@@ -18,6 +18,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import PianoWishes from "./PianoWishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./piano-garden.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ASSET = (name: string) => `/templates/piano-garden/${name}`
 
@@ -103,6 +104,7 @@ function InstagramIcon() {
 }
 
 export default function PianoGarden(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -426,7 +428,7 @@ export default function PianoGarden(profile: TemplateProps) {
               <div className="gate-shade" />
               <div className="gate-copy">
                 <div className="gate-heading garden-text-reveal" data-aos="fade-down">
-                  <p className="script">The Wedding of</p>
+                  <p className="script">{t("theWeddingOf", lang)}</p>
                   <h2 className="name-fit couple-name cover-couple-name" style={fitStyle(coupleLabel)}>
                     {groomShort} &amp; {brideShort}
                   </h2>
@@ -482,7 +484,7 @@ export default function PianoGarden(profile: TemplateProps) {
               )}
               <div className="gate-shade" />
               <div className={`video-copy${opened ? " is-visible" : ""}`} aria-hidden="true">
-                <p className="script">The Wedding of</p>
+                <p className="script">{t("theWeddingOf", lang)}</p>
                 <h2 className="name-fit" style={fitStyle(groomShort)}>
                   {groomShort}
                 </h2>
@@ -496,7 +498,7 @@ export default function PianoGarden(profile: TemplateProps) {
             <div className="gate-stage gate-fallback">
               <img src={ASSET("fallback.webp")} alt="Garden illustration for the invitation" />
               <div className="fallback-copy">
-                <p className="script">The Wedding of</p>
+                <p className="script">{t("theWeddingOf", lang)}</p>
                 <h2 className="name-fit" style={fitStyle(groomShort)}>
                   {groomShort}
                 </h2>

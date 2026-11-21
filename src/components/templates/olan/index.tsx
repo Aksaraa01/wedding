@@ -21,6 +21,7 @@ import Wishes from "./Wishes"
 import { OLAN } from "./assets"
 import "./olan.css"
 import "./olan-extra.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const GUEST_FALLBACK = "Tamu Undangan"
 const DRESSCODE_DEFAULT_INTRO = "Elegant attire in warm earth tones — please reserve white for the couple."
@@ -88,6 +89,7 @@ function youtubeId(url?: string | null): string {
 type SessionEntry = NonNullable<TemplateProps["sessions"]>[number]
 
 export default function Olan(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const gates = profile.feature_gates || {}
   const content = profile.template_content || {}
 
@@ -430,7 +432,7 @@ export default function Olan(profile: TemplateProps) {
             <div className="couple">
               <div className="couple-head">
                 <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">
-                  {profile.opening_title || "The Wedding Of"}
+                  {profile.opening_title || t("theWeddingOf", lang)}
                 </h1>
                 {profile.opening_description ? (
                   <p className="couple-description" data-aos="fade-up" data-aos-duration="1000">
@@ -902,7 +904,7 @@ export default function Olan(profile: TemplateProps) {
           {honored.length > 0 ? (
             <section className="olan-inviting">
               <h2 className="olan-inviting__title" data-aos="zoom-in" data-aos-duration="1200">
-                {content.inviting_title || "Turut Mengundang"}
+                {content.inviting_title || t("secInviting", lang)}
               </h2>
               {content.inviting_intro ? (
                 <p className="olan-inviting__intro" data-aos="fade-up" data-aos-duration="1000">
@@ -1098,7 +1100,7 @@ export default function Olan(profile: TemplateProps) {
                 <div className="wedding-gift-inner">
                   <div className="wedding-gift-head">
                     <h1 className="wedding-gift-title" data-aos="zoom-in" data-aos-duration="1500">
-                      {content.gift_intro_title || "Wedding Gift"}
+                      {content.gift_intro_title || t("secGift", lang)}
                     </h1>
                     {content.gift_intro_description ? (
                       <p className="wedding-gift-description" data-aos="fade-up" data-aos-duration="1000">
@@ -1252,7 +1254,7 @@ export default function Olan(profile: TemplateProps) {
                       empty: content.wishes_empty || "Be the first to leave a wish.",
                       more: content.wishes_more || "Show more comments",
                       loading: content.wishes_loading || "Loading",
-                    }}
+                    }} language={profile.language}
                   />
                 </div>
               </div>

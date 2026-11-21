@@ -16,6 +16,7 @@ import {
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import "./evermore.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -95,6 +96,7 @@ function galleryPosition(index: number, total: number) {
 }
 
 export default function Evermore(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const gates = profile.feature_gates || {}
   const tc = profile.template_content || {}
   const [loading, setLoading] = useState(true)
@@ -343,7 +345,7 @@ export default function Evermore(profile: TemplateProps) {
       <div className="desktop-layout">
         <aside className="desktop-cover" aria-hidden="true" style={{ backgroundImage: `linear-gradient(180deg, rgb(245 242 240 / 76%), rgb(245 242 240 / 84%)), ${cssUrl(desktopPhoto)}`, backgroundSize: "cover", backgroundPosition: "center" }}>
           <div className="desktop-cover__content">
-            <p className="desktop-cover__label">The Wedding Of</p>
+            <p className="desktop-cover__label">{t("theWeddingOf", lang)}</p>
             <h1>{groomShort} &amp;<br />{brideShort}</h1>
             {dateLong && <p className="desktop-cover__date">{dateLong}</p>}
           </div>
@@ -629,7 +631,7 @@ export default function Evermore(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel}
+              coupleName={coupleLabel} language={profile.language}
             />
           </section>
 

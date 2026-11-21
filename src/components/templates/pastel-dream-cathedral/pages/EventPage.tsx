@@ -3,8 +3,9 @@
 import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
-function EventBlock({ session, align }: { session: SessionData; align: "left" | "right" }) {
+function EventBlock({ session, align, lang = "id" }: { session: SessionData; align: "left" | "right"; lang?: "id" | "en" }) {
   const right = align === "right"
   return (
     <section className={`relative flex flex-col max-w-[290px] drop-shadow-sm px-5 py-5 ${right ? "items-end text-right self-end mt-4" : "items-start text-left"}`}>
@@ -46,7 +47,7 @@ function EventBlock({ session, align }: { session: SessionData; align: "left" | 
           <span className="material-symbols-outlined text-[14px]" style={{ color: "#3b2a1e" }}>
             location_on
           </span>
-          <span>Lihat Lokasi</span>
+          <span>{t("viewLocation", lang)}</span>
         </a>
       )}
     </section>
@@ -55,7 +56,7 @@ function EventBlock({ session, align }: { session: SessionData; align: "left" | 
 
 // Renders all invited sessions on one page. With two sessions, keeps the
 // top-left / bottom-right composition; with one or more, alternates sides.
-export default function EventPage({ sessions }: { sessions: SessionData[] }) {
+export default function EventPage({ sessions, lang = "id" }: { sessions: SessionData[]; lang?: "id" | "en" }) {
   const list = (sessions || []).filter((s) => s && (s.date || s.venue || s.time || s.name || s.address))
   return (
     <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col px-6 pt-10 pb-16 pointer-events-auto select-none">
@@ -63,7 +64,7 @@ export default function EventPage({ sessions }: { sessions: SessionData[] }) {
       <div className="relative flex-1 w-full h-full flex flex-col justify-between px-5 pt-14 pb-4 gap-4">
         {list.length > 0 ? (
           list.map((session, i) => (
-            <EventBlock key={i} session={session} align={i % 2 === 0 ? "left" : "right"} />
+            <EventBlock key={i} session={session} align={i % 2 === 0 ? "left" : "right"} lang={lang} />
           ))
         ) : (
           <span />

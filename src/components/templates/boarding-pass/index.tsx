@@ -17,6 +17,7 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./boarding-pass.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_OPENING_TITLE = "Salam Hangat"
 const DEFAULT_OPENING_DESCRIPTION =
@@ -116,6 +117,7 @@ function Clock({ target, reveal }: { target: Date | null; reveal?: Record<string
 }
 
 export default function BoardingPass(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -469,7 +471,7 @@ export default function BoardingPass(profile: TemplateProps) {
             <div className="bp-manifest" style={{ aspectRatio: passengers.length > 1 ? "390 / 840" : "390 / 480" }}>
               <div className="bp-manifest__head">
                 <p className="bp-mono bp-mono--teal" {...IN("fade")}>Daftar Penumpang</p>
-                <h2 className="bp-title" {...IN("up", 0.08)}>Kedua Mempelai</h2>
+                <h2 className="bp-title" {...IN("up", 0.08)}>{t("secCouple", lang)}</h2>
               </div>
 
               {passengers.map((person, index) => (
@@ -630,7 +632,7 @@ export default function BoardingPass(profile: TemplateProps) {
           <div className="bp-countdown">
             <div className="bp-board" {...IN("up")}>
               <p className="bp-board__label" {...IN("fade", 0.08)}>Papan Keberangkatan</p>
-              <h2 className="bp-board__title" {...IN("up", 0.12)}>Menuju Hari Bahagia</h2>
+              <h2 className="bp-board__title" {...IN("up", 0.12)}>{t("secCountdown", lang)}</h2>
               <Clock target={countdown} reveal={IN("up", 0.18)} />
               <div className="bp-board__meta">
                 <div>
@@ -670,7 +672,7 @@ export default function BoardingPass(profile: TemplateProps) {
         {honored.length > 0 && (
           <section className="bp-section bp-inviting" data-section="inviting" aria-label="Turut mengundang">
             <div className="bp-card" {...IN("up")}>
-              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Turut Mengundang</p>
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>{t("secInviting", lang)}</p>
               {invitingIntro && <p className="bp-body" style={{ marginTop: 10 }} {...IN("fade", 0.08)}>{invitingIntro}</p>}
               <ul className="bp-inviting__list">
                 {honored.map((family, index) => (
@@ -875,7 +877,7 @@ export default function BoardingPass(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              intro={wishesIntro}
+              intro={wishesIntro} language={profile.language}
             />
           </div>
         </section>

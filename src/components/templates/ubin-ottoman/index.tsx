@@ -12,6 +12,7 @@ import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, p
 import { useWishes } from "../shared/kids/useWishes"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./ubin-ottoman.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/ubin-ottoman/${name}.webp`
 
@@ -81,6 +82,7 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
 }
 
 export default function UbinOttoman(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -184,7 +186,7 @@ export default function UbinOttoman(profile: TemplateProps) {
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
   const coverThanks = (tc.cover_syukur || "").trim() || "dengan penuh rasa syukur"
   const coverGuestLabel = (tc.cover_guest_label || "").trim() || "kepada yang terhormat"
-  const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
+  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const salam = (tc.opening_salam || "").trim() || "Assalamu'alaikum wr. wb."
   const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
   const mempelaiTitle = (tc.mempelai_title || "").trim() || "Sang Buah Hati"
@@ -193,9 +195,9 @@ export default function UbinOttoman(profile: TemplateProps) {
   const quoteSource = (profile.quote_source || "").trim()
   const dateKicker = (tc.events_kicker || "").trim() || "Insya Allah dilaksanakan pada"
   const dateTitle = (tc.events_title || "").trim() || "Hari Bahagia"
-  const agendaKicker = (tc.agenda_kicker || "").trim() || "Susunan Acara"
-  const agendaTitle = (tc.agenda_title || "").trim() || "Rangkaian Acara"
-  const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
+  const agendaKicker = (tc.agenda_kicker || "").trim() || t("secRundown", lang)
+  const agendaTitle = (tc.agenda_title || "").trim() || t("secEvent", lang)
+  const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
   const galleryKicker = (tc.gallery_kicker || "").trim() || "Galeri"
   const galleryTitle = (tc.gallery_title || "").trim() || "Momen Bahagia"
@@ -215,7 +217,7 @@ export default function UbinOttoman(profile: TemplateProps) {
   const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
   const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
   const sendGiftLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || "Turut Mengundang"
+  const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
   const closingKicker = (tc.closing_kicker || "").trim() || "Terima kasih atas doa & kehadiran Anda"
   const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING

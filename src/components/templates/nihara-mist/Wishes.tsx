@@ -16,11 +16,12 @@ type Props = {
   guestId?: string
   guestName?: string
   guestLinkStrict?: boolean
+  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 10
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, language = "id" }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -55,7 +56,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === "demo-wedding-profile-id") {
       setStatus("done")
-      setFeedback("Mode pratinjau, ucapan tidak tersimpan.")
+      setFeedback(language === "en" ? "Preview mode — wishes are not saved." : "Mode pratinjau, ucapan tidak tersimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -71,14 +72,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Tamu Undangan",
+          name: name.trim() || guestName || (language === "en" ? "Honored Guest" : "Tamu Undangan"),
           message: text,
           source: "invitation",
         }),
       })
       if (res.status === 409 || res.ok) {
         setStatus("done")
-        setFeedback(res.ok ? "Tersimpan, menunggu moderasi" : "Terima kasih! Ucapan Anda telah tersampaikan.")
+        setFeedback(res.ok ? (language === "en" ? "Saved, awaiting moderation." : "Tersimpan, menunggu moderasi") : (language === "en" ? "Thank you! Your wish has been received." : "Terima kasih! Ucapan Anda telah tersampaikan."))
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -86,11 +87,11 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         }, 4000)
       } else {
         setStatus("error")
-        setFeedback("Terlalu banyak kiriman. Coba lagi nanti.")
+        setFeedback(language === "en" ? "Too many submissions. Please try again later." : "Terlalu banyak kiriman. Coba lagi nanti.")
       }
     } catch {
       setStatus("error")
-      setFeedback("Gagal terkirim. Periksa koneksi Anda.")
+      setFeedback(language === "en" ? "Failed to send. Please check your connection." : "Gagal terkirim. Periksa koneksi Anda.")
     }
   }, [weddingProfileId, guestId, guestName, name, message, status])
 
@@ -128,14 +129,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
             className="wishes__textarea"
             value={message}
             onChange={(e) => setMessage(e.target.value.slice(0, 500))}
-            placeholder="Tulis Ucapan"
+            placeholder={language === "en" ? "Write a wish" : "Tulis Ucapan"}
             rows={4}
           />
         </label>
         <p className="wishes__count">{message.length} / 500</p>
 
         <button type="submit" className="wishes__submit" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? "Mengirim..." : "Kirim Ucapan"}
+          {status === "sending" ? (language === "en" ? "Sending..." : "Mengirim...") : (language === "en" ? "Send Wish" : "Kirim Ucapan")}
         </button>
 
         {feedback && <p className={`wishes__feedback${status === "error" ? " is-error" : ""}`}>{feedback}</p>}

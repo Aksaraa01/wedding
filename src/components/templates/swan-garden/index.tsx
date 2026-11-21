@@ -24,6 +24,7 @@ import Footnote from "./sections/Footnote"
 import Wishes from "./Wishes"
 import "./swan-garden.css"
 import "./overrides.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const GUEST_FALLBACK = "Tamu Undangan"
 
@@ -87,6 +88,7 @@ function instagramValue(value?: string): string {
 }
 
 export default function SwanGardenTemplate(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const extras = (profile.template_content || {}) as Record<string, string>
   // A blank EKSTRA field must fall back to the design's own copy: a real
   // invitation should never show a bare heading where a sentence belongs.
@@ -353,7 +355,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             namePlaceholder={copy("wishes_name_placeholder")}
             messagePlaceholder={copy("wishes_message_placeholder")}
             submitLabel={copy("wishes_submit")}
-            emptyLabel={copy("wishes_empty")}
+            emptyLabel={copy("wishes_empty")} language={profile.language}
           />
           <Closing title={copy("closing_title")} message={copy("closing_message")} />
           <Footnote coupleLabel={coupleLabel} kicker={copy("cover_kicker")} hashtag={hashtag} />

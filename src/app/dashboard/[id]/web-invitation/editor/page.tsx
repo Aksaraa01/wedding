@@ -70,6 +70,7 @@ type Profile = {
   rundown_visible?: boolean
   contacts_visible?: boolean
   template_content?: Record<string, string> | null
+  language?: "id" | "en" | null
 }
 
 type RundownItem = {
@@ -264,6 +265,7 @@ function EditorInner({ id }: { id: string }) {
     cover_photos: [],
     inviting_families: [],
     template_content: {},
+    language: "id",
   })
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
@@ -391,6 +393,7 @@ function EditorInner({ id }: { id: string }) {
         setData(prev => ({
           ...prev,
           ...p,
+          language: p.language === "en" ? "en" : "id",
           display_name: p.display_name || "",
           link_thumbnail_url: p.link_thumbnail_url || "",
           link_thumbnail_disabled: p.link_thumbnail_disabled === true,
@@ -507,8 +510,8 @@ function EditorInner({ id }: { id: string }) {
   const isInhouse = template?.source_type === "inhouse" ||
     (!!template?.code && !!getTemplateComponent(template.code) && !template?.wp_master_slug)
   const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
-  const extraFields = getTemplateExtraFields(template?.code)
-  const extrasLabel = templateExtrasLabel(template?.name)
+  const extraFields = getTemplateExtraFields(template?.code, data.language === "en" ? "en" : "id")
+  const extrasLabel = templateExtrasLabel(template?.name, data.language === "en" ? "en" : "id")
   // Tanpa-photo template: photo fields (cover slots, person photos, gallery,
   // story images) are hidden in editor + ops and excluded from completeness.
   // Stored photos are kept so switching back to a with-photo template restores
@@ -1678,6 +1681,10 @@ function EditorInner({ id }: { id: string }) {
         track_url={selectedTrack?.audio_url || (isInhouse ? ASSETS.defaultMusic : undefined)}
         auto_play={autoPlay || undefined}
         rsvp_max_pax={data.rsvp_max_pax ?? 2}
+        event_type={data.event_type || profile?.event_type || "wedding"}
+        subject_gender={data.subject_gender || profile?.subject_gender || undefined}
+        language={data.language === "en" ? "en" : "id"}
+        event_labels={profileView({ ...data, event_type: data.event_type || profile?.event_type, subject_gender: data.subject_gender || profile?.subject_gender, language: data.language }).labels}
         feature_gates={{
           story: gates.story.included,
           gift_address: gates.gift_address.included,
@@ -1906,6 +1913,26 @@ function EditorInner({ id }: { id: string }) {
                 <SidebarShimmer />
               ) : (
                 <>
+              {renderSection("bahasa", "language", "BAHASA UNDANGAN",
+                <div className="mt-6 space-y-4">
+                  <div>
+                    <label className="block font-label-md text-[10px] tracking-widest text-on-surface-variant mb-2">BAHASA UNDANGAN</label>
+                    <select
+                      className="input-editorial w-full font-body-md text-[14px]"
+                      value={data.language === "en" ? "en" : "id"}
+                      onChange={(e) => updateField("language", e.target.value === "en" ? "en" : "id")}
+                      disabled={isPublished || reviewMode}
+                    >
+                      <option value="id">Bahasa Indonesia</option>
+                      <option value="en">English</option>
+                    </select>
+                  </div>
+                  <p className="font-body-md text-[12px] text-on-surface-variant leading-relaxed">
+                    Seluruh undangan akan tampil dalam bahasa ini untuk semua tamu.
+                  </p>
+                </div>
+              )}
+
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
                   {/* Tanpa-photo: cover slots hidden, initials/date stay */}
@@ -3060,7 +3087,7 @@ function EditorInner({ id }: { id: string }) {
                   <p className="text-[11px] text-on-surface-variant italic">
                     Copy khusus template {template?.name}. Kosongkan untuk memakai teks bawaan.
                   </p>
-                  {groupExtraFields(extraFields).map((group) => {
+                  {groupExtraFields(extraFields, data.language === "en" ? "en" : "id").map((group) => {
                     const isOpen = openExtraGroup === group.section
                     return (
                       <div key={group.section} className="border border-outline-variant/40 rounded-lg overflow-hidden">

@@ -28,6 +28,7 @@ import Gift from "./Gift"
 import layoutJson from "./layout.json"
 import gateJson from "./gate.json"
 import "./adat-jawa.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 type LayoutElement = {
   id: string
@@ -333,7 +334,7 @@ export default function AdatJawa(profile: TemplateProps) {
         await navigator.clipboard.writeText(text)
         showToast(c.copied)
       } catch {
-        showToast(lang === "ID" ? "Gagal menyalin" : "Could not copy")
+        showToast(lang === "ID" ? t("failedToCopy", lang) : "Could not copy")
       }
     },
     [c.copied, lang, showToast]
@@ -511,7 +512,7 @@ export default function AdatJawa(profile: TemplateProps) {
             guestName={profile.guest_name}
             guestLinkStrict={profile.guest_link_strict}
             coupleName={coupleLabel}
-            lang={lang}
+            lang={lang} language={profile.language}
           />
         </div>
       )

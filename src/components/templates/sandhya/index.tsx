@@ -12,6 +12,7 @@ import Wishes from "./Wishes"
 import VideoModalPlayer from "./VideoModalPlayer"
 import BackgroundVideo from "../dark-split-rail/BackgroundVideo"
 import "./sandhya.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 type SceneName = "cover" | "verse" | "couple" | "events" | "dresscode" | "finale"
 
@@ -116,6 +117,7 @@ function youtubeId(url?: string) {
 }
 
 export default function Sandhya(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const gates = profile.feature_gates || {}
   const dresscode = profile.dresscode
   const hasDresscode = profile.dresscode_visible !== false && !!dresscode && (dresscode.colors?.length ?? 0) > 0
@@ -500,7 +502,7 @@ export default function Sandhya(profile: TemplateProps) {
         >
           <div className="tpl-preload-vignette" aria-hidden="true" />
           <div className="tpl-preload-stage">
-            <p className="tpl-preload-eyebrow">The Wedding Of</p>
+            <p className="tpl-preload-eyebrow">{t("theWeddingOf", lang)}</p>
             <p className="tpl-preload-names" style={{ "--names-len": Math.max(8, groomShort.length + brideShort.length + 3) } as React.CSSProperties}>
               <em>{groomShort}</em>
               <span className="tpl-preload-names__amp" aria-hidden="true">&</span>
@@ -524,7 +526,7 @@ export default function Sandhya(profile: TemplateProps) {
         <div className="deskcover__bg">{bgDesk && <img src={bgDesk} alt="" decoding="async" />}</div>
         <div className="deskcover__veil" />
         <div className="deskcover__names">
-          <p className="label">The Wedding Of</p>
+          <p className="label">{t("theWeddingOf", lang)}</p>
           <h2 className="deskcover-sig">{coupleLabel}</h2>
         </div>
       </aside>
@@ -536,7 +538,7 @@ export default function Sandhya(profile: TemplateProps) {
           <div className="scene__veil" />
           <div className="scene__content cover">
             <header className="cover__top">
-              <p className="label reveal" style={{ "--d": ".2s" } as React.CSSProperties}>The Wedding Of</p>
+              <p className="label reveal" style={{ "--d": ".2s" } as React.CSSProperties}>{t("theWeddingOf", lang)}</p>
               <h1 className="cover__names display reveal" style={{ "--d": ".45s" } as React.CSSProperties}>
                 {groomShort} <em aria-hidden="true">&</em><br />{brideShort}
               </h1>
@@ -762,7 +764,7 @@ export default function Sandhya(profile: TemplateProps) {
 
               {hasGallery && (
                 <section className="sheet__section sheet__section--gallery" data-io>
-                  <h3 className="display gallery__title">Our Moments</h3>
+                  <h3 className="display gallery__title">{t("secGallery", lang)}</h3>
                   {gallery.length > 0 && (
                     <div className="car-row">
                       <div className="car-track" style={{ "--dur": `${Math.max(36, gallery.length * 8)}s` } as React.CSSProperties}>
@@ -875,7 +877,7 @@ export default function Sandhya(profile: TemplateProps) {
                 coupleName={coupleLabel}
                 weddingProfileId={profile.wedding_profile_id!}
                 guestName={guestName}
-                guestLinkStrict={profile.guest_link_strict}
+                guestLinkStrict={profile.guest_link_strict} language={profile.language}
               />
 
               <section className="sheet__section sheet__closing" data-io>

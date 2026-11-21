@@ -12,8 +12,10 @@ import GiftPopup from "./GiftPopup"
 import LeftPanel, { type PanelMedia } from "./LeftPanel"
 import Rail from "./Rail"
 import Splash from "./Splash"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function DarkSplitRail(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const [phase, setPhase] = useState<"splash" | "cover" | "open">("splash")
   const [progress, setProgress] = useState(0)
   const [leaving, setLeaving] = useState(false)

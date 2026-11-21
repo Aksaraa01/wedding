@@ -27,6 +27,7 @@ type Props = {
   nameFallback: string
   listLabel: string
   copy: Copy
+  language?: "id" | "en"
 }
 
 const MAX_CHARS = 500
@@ -61,6 +62,7 @@ export default function Wishes({
   nameFallback,
   listLabel,
   copy,
+  language = "id"
 }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)

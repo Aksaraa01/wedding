@@ -18,6 +18,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./adat-betawi.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ASSET = (name: string) => `/templates/adat-betawi/${name}`
 
@@ -128,7 +129,9 @@ function InstagramIcon() {
   )
 }
 
+
 export default function AdatBetawi(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -223,7 +226,7 @@ export default function AdatBetawi(profile: TemplateProps) {
   const copy = useCallback(
     async (text: string) => {
       const ok = await copyPlainText(text)
-      showToast(ok ? "Disalin ke clipboard" : "Gagal menyalin")
+      showToast(ok ? t("copiedToClipboard", lang) : t("failedToCopy", lang))
     },
     [showToast]
   )
@@ -487,7 +490,7 @@ export default function AdatBetawi(profile: TemplateProps) {
               <div className="gate-shade" />
               <div className="gate-copy">
                 <div className="gate-heading garden-text-reveal" data-aos="fade-down">
-                  <p className="script">The Wedding of</p>
+                  <p className="script">{t("theWeddingOf", lang)}</p>
                   <h2 className="name-fit couple-name cover-couple-name" style={fitStyle(coupleLabel)}>
                     {groomShort} &amp; {brideShort}
                   </h2>
@@ -543,7 +546,7 @@ export default function AdatBetawi(profile: TemplateProps) {
               )}
               <div className="gate-shade" />
               <div className={`video-copy${opened ? " is-visible" : ""}`} aria-hidden="true">
-                <p className="script">The Wedding of</p>
+                <p className="script">{t("theWeddingOf", lang)}</p>
                 <h2 className="name-fit" style={fitStyle(groomShort)}>
                   {groomShort}
                 </h2>
@@ -557,7 +560,7 @@ export default function AdatBetawi(profile: TemplateProps) {
             <div className="gate-stage gate-fallback">
               <img src={ASSET("fallback.webp")} alt="Garden illustration for the invitation" />
               <div className="fallback-copy">
-                <p className="script">The Wedding of</p>
+                <p className="script">{t("theWeddingOf", lang)}</p>
                 <h2 className="name-fit" style={fitStyle(groomShort)}>
                   {groomShort}
                 </h2>
@@ -1028,7 +1031,7 @@ export default function AdatBetawi(profile: TemplateProps) {
                             <path d="M3 10h18v10H3zM2 7h20v3H2zM12 7v13" />
                             <path d="M12 7s-1.5-5-4.5-5A2.5 2.5 0 0 0 5 4.5C5 7 12 7 12 7Zm0 0s1.5-5 4.5-5A2.5 2.5 0 0 1 19 4.5C19 7 12 7 12 7Z" />
                           </svg>
-                          <p className="tpl-gift__address-label">Kirim Hadiah</p>
+                          <p className="tpl-gift__address-label">{t("sendGift", lang)}</p>
                           <p className="tpl-gift__address-text">{giftAddress}</p>
                           <button type="button" className="tpl-gift__copy-btn" onClick={() => copy(giftAddress)}>
                             Salin Alamat
@@ -1058,14 +1061,14 @@ export default function AdatBetawi(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel}
+              coupleName={coupleLabel} language={profile.language}
             />
           </section>
 
           {hasContacts && (
-            <section className="tpl-contact" aria-label="Hubungi Kami">
+            <section className="tpl-contact" aria-label={tc.contacts_title || t("secContact", lang)}>
               <div className="tpl-contact__card" data-aos="fade-up">
-                <h2 className="tpl-contact__title">Hubungi Kami</h2>
+                <h2 className="tpl-contact__title">{tc.contacts_title || t("secContact", lang)}</h2>
                 <div className="tpl-contact__list">
                   {contactItems.map((contact, index) => {
                     const href = whatsappHref(contact.whatsapp)

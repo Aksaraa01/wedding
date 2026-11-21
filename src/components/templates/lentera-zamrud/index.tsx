@@ -12,6 +12,7 @@ import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, p
 import { useWishes } from "../shared/kids/useWishes"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./lentera-zamrud.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/lentera-zamrud/${name}.webp`
 
@@ -96,6 +97,7 @@ function accountName(raw?: string): string {
 }
 
 export default function LenteraZamrud(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -167,7 +169,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const hasGift = accounts.length > 0 || !!giftAddress
 
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
-  const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
+  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const guestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
   const basmalah = (tc.basmalah || "").trim() || DEFAULT_BASMALAH
   const salam = (tc.opening_salam || "").trim() || DEFAULT_SALAM
@@ -176,7 +178,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const saveDateLabel = (tc.save_date_label || "").trim() || "Simpan Tanggal"
   const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
   const eventsIntro = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
-  const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
+  const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const galleryTitle = (tc.gallery_title || "").trim() || "Galeri"
   const galleryIntro = (tc.gallery_intro || "").trim() || "Momen kecil yang ingin kami bagikan."
   const wishesTitle = (tc.wishes_title || "").trim() || labels.wishesTitle
@@ -194,7 +196,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
   const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
   const sendGiftLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || "Turut Mengundang"
+  const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
   const closingKicker = (tc.closing_kicker || "").trim() || labels.closingHeadline
   const closingFamily = (tc.closing_family || "").trim() || "Keluarga Besar"

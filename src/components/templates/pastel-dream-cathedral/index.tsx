@@ -10,6 +10,7 @@ import Skin, { FONT_BODY, FONT_SCRIPT } from "../shared/Skin"
 import LiveWishes from "../shared/LiveWishes"
 import ImpastoCover from "./Cover"
 import ImpastoPages from "./Pages"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 // Preload the template-critical imagery (painted backdrop, brush, photos)
 // behind a splash so guests never see lazy pop-in. Fails safe after 9s.
@@ -53,6 +54,7 @@ function usePastelDreamReady(profile: TemplateProps) {
 }
 
 export default function PastelDreamCathedral(props: TemplateProps) {
+  const lang = normalizeLanguage(props.language)
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
   const [playing, setPlaying] = useState(false)

@@ -17,6 +17,7 @@ import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromPara
 import { filterSessionsByScope } from "@/lib/invitedSessions"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { profileView } from "@/lib/profileView"
+import { normalizeLanguage } from "@/lib/i18n"
 import InvitationExpired from "@/components/InvitationExpired"
 import { coupleUrl } from "@/lib/coupleUrl"
 
@@ -260,7 +261,7 @@ export default async function WeddingInvitation({
   // case-insensitively (the stored slug is camel: "RafiNamu-NoviKamu").
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, guest_link_strict, invitation_disabled_at, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender, children")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, guest_link_strict, invitation_disabled_at, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender, children, language")
     .ilike("slug", slug)
     .single()
 
@@ -430,6 +431,7 @@ export default async function WeddingInvitation({
             guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
+            language={normalizeLanguage(profile.language)}
           />
         )}
       </>
@@ -463,6 +465,7 @@ export default async function WeddingInvitation({
             guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
+            language={normalizeLanguage(profile.language)}
           />
         )}
       </>
@@ -523,6 +526,7 @@ export default async function WeddingInvitation({
         wedding_profile_id={profile.id}
         event_type={profile.event_type || "wedding"}
         subject_gender={profile.subject_gender || undefined}
+        language={normalizeLanguage(profile.language)}
         event_labels={profileView(profile).labels}
         guest_id={guestContext?.id}
         guest_link_strict={linkStrict}

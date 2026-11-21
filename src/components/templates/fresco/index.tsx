@@ -18,6 +18,7 @@ import {
 import Wishes, { type WishesCopy } from "./Wishes"
 import { FRESCO_ASSETS } from "./assets"
 import "./fresco.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const GUEST_FALLBACK = "Tamu Undangan"
 
@@ -226,6 +227,7 @@ const PETALS = [12, 26, 38, 50, 62, 74, 86].map((left, index) => ({
 }))
 
 export default function Fresco(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const gateVideoRef = useRef<HTMLVideoElement | null>(null)
@@ -356,7 +358,7 @@ export default function Fresco(profile: TemplateProps) {
   const videoKicker = (tc.video_kicker || "").trim() || "The Film"
   const videoTitle = (tc.video_title || "").trim()
   const videoIntro = (tc.video_intro || "").trim() || "The day as it happened, kept in motion."
-  const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim() || "Your presence is our greatest gift."
   const giftWish = (tc.gift_wish || "").trim() || "If you wish to honour us with a gift, we kindly prefer monetary contributions."
   const giftButton = (tc.gift_button || "").trim() || "View bank details"
@@ -1200,7 +1202,7 @@ export default function Fresco(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy}
+              copy={wishCopy} language={profile.language}
             />
           </div>
         </section>

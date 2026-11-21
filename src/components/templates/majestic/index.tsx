@@ -18,6 +18,7 @@ import {
 } from "../shared/lib"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./majestic.css"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 // Art shipped with the template. Decorative surfaces only — couple data always
 // comes from TemplateProps.
@@ -138,6 +139,7 @@ function ago(iso?: string): string {
 }
 
 export default function Majestic(profile: TemplateProps) {
+  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const gateVideoRef = useRef<HTMLVideoElement | null>(null)
@@ -238,7 +240,7 @@ export default function Majestic(profile: TemplateProps) {
   // Copy — every visible string is reachable from the editor (EKSTRA) or ops.
   const coverKicker = (tc.cover_kicker || "").trim() || "Kami Akan Menikah"
   const guestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
-  const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
+  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const gateHint = (tc.gate_hint || "").trim() || "Ketuk untuk Membuka"
   const mempelaiTitle = (tc.mempelai_title || "").trim() || "Mempelai"
   const parentsLabel = (tc.parents_label || "").trim() || "Putra/Putri dari"
@@ -248,7 +250,7 @@ export default function Majestic(profile: TemplateProps) {
   const storyIntro = (tc.story_intro || "").trim() || DEFAULT_STORY_INTRO
   const eventsTitle = (tc.events_title || "").trim() || "The Wedding Day"
   const eventsNote = (tc.events_note || "").trim()
-  const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
+  const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
   const countdownTitle = (tc.countdown_title || "").trim() || "Save the Date"
   const countdownIntro = (tc.countdown_intro || "").trim()
@@ -286,7 +288,7 @@ export default function Majestic(profile: TemplateProps) {
   const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
   const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
   const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
-  const closingTitle = (tc.closing_title || "").trim() || "Terima Kasih"
+  const closingTitle = (tc.closing_title || "").trim() || t("secClosing", lang)
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
   const apology = (tc.cover_apology || "").trim()
 

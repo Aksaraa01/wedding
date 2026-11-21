@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import "./imagine.css"
 import type { TemplateProps } from "@/types/template"
+import { siteOrigin } from "@/lib/site"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { initialsOf, photoList } from "@/components/templates/shared/lib"
 import ImagineWishes from "./ImagineWishes"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 type Session = NonNullable<TemplateProps["sessions"]>[number]
 
@@ -163,6 +165,7 @@ function youTubeThumb(url?: string, quality: "maxres" | "hq" = "maxres"): string
 }
 
 export default function Imagine(props: TemplateProps) {
+  const lang = normalizeLanguage(props.language)
   const {
     groom_name, bride_name, estimated_wedding_date, cover_photos,
     couple_initials,
@@ -559,7 +562,7 @@ export default function Imagine(props: TemplateProps) {
             </div>
             <div className="couple">
               <div className="couple-head">
-                <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">The Wedding Of</h1>
+                <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">{t("theWeddingOf", lang)}</h1>
                 <p className="couple-description" data-aos="fade-up" data-aos-duration="1000">
                   {tc.couple_description || "With the blessing of our families, we cordially invite you to the wedding of"}
                 </p>
@@ -677,7 +680,7 @@ export default function Imagine(props: TemplateProps) {
           {families.length > 0 && (
             <section className="invite-wrap" data-section-order="inviting">
               <div className="invite-inner">
-                <div className="invite-title" data-aos="zoom-in" data-aos-duration="1000">Turut Mengundang</div>
+                <div className="invite-title" data-aos="zoom-in" data-aos-duration="1000">{t("secInviting", lang)}</div>
                 <ul className="invite-list" data-aos="fade-up" data-aos-duration="1000">
                   {families.map((f, i) => (
                     <li key={i}>{f}</li>
@@ -691,7 +694,7 @@ export default function Imagine(props: TemplateProps) {
           <section className="savedate-agenda-wrapper" data-section-order="save_the_date">
             <section className="save-date-wrap">
               <div className="save-date-head">
-                <h1 className="save-date-title" data-aos="zoom-in" data-aos-duration="1000">Save The Date</h1>
+                <h1 className="save-date-title" data-aos="zoom-in" data-aos-duration="1000">{t("saveTheDate", lang)}</h1>
               </div>
               <div className="save-date-frame">
                 <div className="image-wrap" data-aos="zoom-in" data-aos-duration="1000">
@@ -1018,7 +1021,7 @@ export default function Imagine(props: TemplateProps) {
               <div className="story-inner">
                 <div className="story-head">
                   <h1 className="story-title" data-aos="zoom-in" data-aos-duration="1000">
-                    {tc.love_story_title || "Our Love Story"}
+                    {tc.love_story_title || t("secStory", lang)}
                   </h1>
                 </div>
                 <div className="story-body">
@@ -1066,7 +1069,7 @@ export default function Imagine(props: TemplateProps) {
                 <div className="wedding-gift-inner">
                   <div className="wedding-gift-head">
                     <h1 className="wedding-gift-title" data-aos="zoom-in" data-aos-duration="1500">
-                      {tc.gift_intro_title || "Wedding Gift"}
+                      {tc.gift_intro_title || t("secGift", lang)}
                     </h1>
                     <p className="wedding-gift-description" data-aos="fade-up" data-aos-duration="1000">
                       {tc.gift_intro_description ||
@@ -1212,7 +1215,7 @@ export default function Imagine(props: TemplateProps) {
         <div className="footer-inner">
           <a
             className="tpl-footer__link"
-            href="https://wedding.aksaraa.com"
+            href={siteOrigin()}
             target="_blank"
             rel="noreferrer"
           >
