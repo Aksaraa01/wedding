@@ -485,9 +485,9 @@ function DashboardInner({ id }: { id: string }) {
               <div className="p-4 md:px-9 md:py-5 flex flex-row gap-2.5 md:gap-3.5 md:justify-start relative z-10">
                 {isGt ? (
                   <>
-                    <button onClick={() => router.push(`/dashboard/${id}/galeri-kenangan`)} data-tour="galeri-tamu" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                    <button onClick={() => router.push(`/dashboard/${id}/galeri-kenangan`)} data-tour="galeri-tamu" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-3 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden shrink">
                       <span className="material-symbols-outlined text-[16px] shrink-0">photo_library</span>
-                      <span className="whitespace-nowrap">Galeri Tamu</span>
+                      <span className="whitespace-nowrap text-[clamp(11px,3.4vw,13px)] md:text-[13px]">Galeri Tamu</span>
                     </button>
                     <button onClick={() => setUpsell("undangan")} data-tour="lihat-undangan" title="Lihat Undangan" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">mail</span>
@@ -504,15 +504,15 @@ function DashboardInner({ id }: { id: string }) {
                   </>
                 ) : (
                   <>
-                    <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)} data-tour="lihat-undangan" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                    <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)} data-tour="lihat-undangan" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-3 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden shrink">
                       <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
-                      <span className="whitespace-nowrap">Lihat Undangan</span>
+                      <span className="whitespace-nowrap text-[clamp(11px,3.4vw,13px)] md:text-[13px]">Lihat Undangan</span>
                     </button>
                     <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title="Undangan Tamu" className={showGaleriBtn || !view.chrome.guestGallery
                       ? "flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink"
-                      : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink"}>
+                      : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-3 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink"}>
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
-                      <span className={showGaleriBtn || !view.chrome.guestGallery ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
+                      <span className={showGaleriBtn || !view.chrome.guestGallery ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap text-[clamp(11px,3.4vw,13px)] md:text-[13px]"}>Undangan Tamu</span>
                     </button>
                     <button onClick={() => (wishEligible ? router.push(`/dashboard/${id}/wish-wall`) : isGt ? setUpsell("undangan") : setUpsell("wishwall"))} data-tour="wish-wall" title="Wish Wall" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">favorite</span>

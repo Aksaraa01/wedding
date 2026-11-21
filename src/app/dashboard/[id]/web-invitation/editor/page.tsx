@@ -2469,7 +2469,7 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     </div>
                   ))}
-                  {(kids || sessions.length < 2) && (
+                  {(kids || isInhouse || sessions.length < 2) && (
                     <button onClick={addSession} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-[16px]">add</span>
                       TAMBAH SESI ACARA LAIN
