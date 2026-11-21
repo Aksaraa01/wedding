@@ -16,7 +16,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs"
 
 const args = process.argv.slice(2)
 const baseIdx = args.indexOf("--base")
-const base = baseIdx >= 0 ? args[baseIdx + 1] : "https://wedding.aksaraa.com"
+const base = (baseIdx >= 0 ? args[baseIdx + 1] : "https://wedding.aksaraa.com").replace(/\/+$/, "")
+const isProd = base === "https://wedding.aksaraa.com"
 
 const registry = readFileSync("src/components/templates/index.ts", "utf8")
 const mapBlock = registry.slice(registry.indexOf("TEMPLATE_MAP"), registry.indexOf("}", registry.indexOf("TEMPLATE_MAP")))
@@ -105,54 +106,54 @@ for (const c of copyChecks) {
 }
 
 // ---------------------------------------------------------------------------
-// Guest asset host. Couple hosts are DNS-only and 302 /fonts /templates /images
-// to cdn.aksaraa.com, which is a Caddy file_server over .next/standalone/public.
-// If that hostname is repointed (it was bound to an R2 bucket on 2026-11-03,
-// serving R2's 404 page with no CORS header), every in-house template loses its
-// fonts — and nobody notices for days because browsers (7d) and the edge cache
-// (1y) keep serving the previous copies. Probe the ORIGIN path with a unique
-// query so a warm edge cache cannot hide a broken origin.
-console.log("\nGuest asset host (cdn.aksaraa.com)")
-const cdnBase = "https://cdn.aksaraa.com"
-const cdnProbe = (path) => {
-  const url = `${cdnBase}${path}${path.includes("?") ? "&" : "?"}smoke=${Date.now()}`
-  try {
-    const out = execSync(`curl -sS -D - -o /dev/null -w "STATUS:%{http_code}" --max-time 30 "${url}"`, { encoding: "utf8" })
-    const status = out.match(/STATUS:(\d+|000)/)?.[1] ?? "?"
-    const header = (name) => (out.match(new RegExp(`^${name}:\\s*(.+)$`, "im"))?.[1] ?? "").trim()
-    return { status, type: header("content-type"), acao: header("access-control-allow-origin") }
-  } catch (e) {
-    return { status: `ERR:${e?.status ?? "?"}`, type: "", acao: "" }
+// Guest asset host. Prod couples are DNS-only and 302 /fonts /templates /images
+// to cdn.aksaraa.com. Staging serves its own assets and must not use the prod
+// CDN origin, so this probe is prod-only.
+if (isProd) {
+  console.log("\nGuest asset host (cdn.aksaraa.com)")
+  const cdnBase = "https://cdn.aksaraa.com"
+  const cdnProbe = (path) => {
+    const url = `${cdnBase}${path}${path.includes("?") ? "&" : "?"}smoke=${Date.now()}`
+    try {
+      const out = execSync(`curl -sS -D - -o /dev/null -w "STATUS:%{http_code}" --max-time 30 "${url}"`, { encoding: "utf8" })
+      const status = out.match(/STATUS:(\d+|000)/)?.[1] ?? "?"
+      const header = (name) => (out.match(new RegExp(`^${name}:\\s*(.+)$`, "im"))?.[1] ?? "").trim()
+      return { status, type: header("content-type"), acao: header("access-control-allow-origin") }
+    } catch (e) {
+      return { status: `ERR:${e?.status ?? "?"}`, type: "", acao: "" }
+    }
   }
-}
-// Use a template asset that exists in THIS build rather than a hard-coded name,
-// so renaming a template does not fail the deploy for the wrong reason.
-const firstTemplateAsset = (() => {
-  const root = "public/templates"
-  if (!existsSync(root)) return null
-  for (const dir of readdirSync(root).sort()) {
-    const abs = `${root}/${dir}`
-    if (!statSync(abs).isDirectory()) continue
-    const file = readdirSync(abs).find((f) => /\.(webp|jpe?g|png)$/i.test(f))
-    if (file) return `/templates/${dir}/${file}`
+  // Use a template asset that exists in THIS build rather than a hard-coded name,
+  // so renaming a template does not fail the deploy for the wrong reason.
+  const firstTemplateAsset = (() => {
+    const root = "public/templates"
+    if (!existsSync(root)) return null
+    for (const dir of readdirSync(root).sort()) {
+      const abs = `${root}/${dir}`
+      if (!statSync(abs).isDirectory()) continue
+      const file = readdirSync(abs).find((f) => /\.(webp|jpe?g|png)$/i.test(f))
+      if (file) return `/templates/${dir}/${file}`
+    }
+    return null
+  })()
+  const cdnChecks = [
+    { label: "font", path: "/fonts/poppins-400.woff2", type: "font/" },
+    ...(firstTemplateAsset ? [{ label: "template art", path: firstTemplateAsset, type: "image/" }] : []),
+  ]
+  for (const check of cdnChecks) {
+    const r = cdnProbe(check.path)
+    // The R2 404 page is text/html and carries no ACAO — report that shape
+    // explicitly instead of a bare "expected 200".
+    const looksLikeR2 = r.type.startsWith("text/html")
+    const ok = r.status === "200" && r.type.startsWith(check.type) && r.acao === "*"
+    if (!ok) failed++
+    console.log(
+      `  ${ok ? "·" : "✗"} ${check.label.padEnd(12)} ${check.path} -> ${r.status} ${r.type || "(no type)"} ACAO=${r.acao || "(none)"}` +
+        (looksLikeR2 ? "  = cdn host is NOT the wedding origin (R2/other bucket bound to cdn.aksaraa.com?)" : ""),
+    )
   }
-  return null
-})()
-const cdnChecks = [
-  { label: "font", path: "/fonts/poppins-400.woff2", type: "font/" },
-  ...(firstTemplateAsset ? [{ label: "template art", path: firstTemplateAsset, type: "image/" }] : []),
-]
-for (const check of cdnChecks) {
-  const r = cdnProbe(check.path)
-  // The R2 404 page is text/html and carries no ACAO — report that shape
-  // explicitly instead of a bare "expected 200".
-  const looksLikeR2 = r.type.startsWith("text/html")
-  const ok = r.status === "200" && r.type.startsWith(check.type) && r.acao === "*"
-  if (!ok) failed++
-  console.log(
-    `  ${ok ? "·" : "✗"} ${check.label.padEnd(12)} ${check.path} -> ${r.status} ${r.type || "(no type)"} ACAO=${r.acao || "(none)"}` +
-      (looksLikeR2 ? "  = cdn host is NOT the wedding origin (R2/other bucket bound to cdn.aksaraa.com?)" : ""),
-  )
+} else {
+  console.log("\nGuest asset host: skipped (non-prod target serves its own assets)")
 }
 
 if (failed) {

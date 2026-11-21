@@ -31,13 +31,46 @@ SSH_KEY="${SSH_KEY:-$HOME/.ssh/aksaraa_deploy}"
 # Keepalive matters: this link drops idle/lossy connections mid-transfer.
 SSH_OPTS=(-i "$SSH_KEY" -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o TCPKeepAlive=yes -o ConnectTimeout=30)
 SERVER="${SERVER:-askaraa@103.93.135.176}"
-REMOTE="/var/www/aksara-wedding"
-SNAP="$REMOTE/.next/.deploy-snapshot"
+
+TARGET="prod"
 SKIP_GUARD=0; NO_ROLLBACK=0
-for a in "$@"; do
-  [ "$a" = "--skip-build-check" ] && SKIP_GUARD=1
-  [ "$a" = "--no-rollback" ] && NO_ROLLBACK=1
+GUARD_REF=""
+GUARD_SITE_URL=""
+SMOKE_BASE=""
+
+args=("$@")
+i=0
+while [ $i -lt ${#args[@]} ]; do
+  a="${args[$i]}"
+  case "$a" in
+    --skip-build-check) SKIP_GUARD=1 ;;
+    --no-rollback) NO_ROLLBACK=1 ;;
+    --target)
+      i=$((i + 1)); TARGET="${args[$i]:-prod}" ;;
+    --ref)
+      i=$((i + 1)); GUARD_REF="${args[$i]:-}" ;;
+    --site-url)
+      i=$((i + 1)); GUARD_SITE_URL="${args[$i]:-}" ;;
+    --base)
+      i=$((i + 1)); SMOKE_BASE="${args[$i]:-}" ;;
+  esac
+  i=$((i + 1))
 done
+
+if [ "$TARGET" = "staging" ]; then
+  REMOTE="${REMOTE:-/var/www/aksara-wedding-staging}"
+  PM2_APP="aksara-wedding-staging"
+  : "${GUARD_REF:=jclolnjkjhyjilvymagr}"
+  : "${GUARD_SITE_URL:=https://wedding-stg.aksaraa.com}"
+  : "${SMOKE_BASE:=https://wedding-stg.aksaraa.com}"
+else
+  REMOTE="${REMOTE:-/var/www/aksara-wedding}"
+  PM2_APP="aksara-wedding"
+  : "${GUARD_REF:=ylmfgorryxzpdckkebnr}"
+  : "${SMOKE_BASE:=https://wedding.aksaraa.com}"
+fi
+
+SNAP="$REMOTE/.next/.deploy-snapshot"
 
 step() { printf "\n\033[1m▸ %s\033[0m\n" "$1"; }
 
@@ -57,7 +90,9 @@ trap cleanup_lock EXIT
 
 if [ "$SKIP_GUARD" = "0" ]; then
   step "Pre-deploy guard"
-  node scripts/predeploy-guard.mjs
+  guard_args=(--ref "$GUARD_REF")
+  [ -n "$GUARD_SITE_URL" ] && guard_args+=(--site-url "$GUARD_SITE_URL")
+  node scripts/predeploy-guard.mjs "${guard_args[@]}"
 fi
 
 step "Snapshot current server build (for rollback)"
@@ -80,7 +115,7 @@ rollback() {
     cp -a '$SNAP/standalone' .next/standalone
     cp -a '$SNAP/static' .next/static
     cp -a '$SNAP/static' .next/standalone/.next/static
-    pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env >/dev/null
+    pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null
     echo \"rolled back to \$(cat .next/standalone/.next/BUILD_ID)\"
   "
 }
@@ -190,10 +225,10 @@ step "Invalidate the persistent route cache"
 ssh "${SSH_OPTS[@]}" "$SERVER" "rm -rf '$REMOTE/.next/standalone/.next/server/route-cache'" || true
 
 step "Reload PM2 (ecosystem, --update-env)"
-ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env >/dev/null && sleep 4 && pm2 list | grep aksara-wedding"
+ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
 
 step "Post-deploy smoke test"
-if node scripts/postdeploy-smoke.mjs; then
+if node scripts/postdeploy-smoke.mjs --base "$SMOKE_BASE"; then
   LOCAL_BUILD="$(cat .next/standalone/.next/BUILD_ID)"
   sleep 2
   REMOTE_BUILD="$(ssh "${SSH_OPTS[@]}" "$SERVER" "cat '$REMOTE/.next/standalone/.next/BUILD_ID' 2>/dev/null || true")"

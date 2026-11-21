@@ -146,9 +146,24 @@ stg.education.aksaraa.com {
 	}
 }
 
-# Old staging hostname: permanent redirect to the canonical one.
-staging.aksaraa.com {
-	redir https://stg.education.aksaraa.com{uri} permanent
+# Wedding staging (B1, main-only, path-based). Separate app/port/build from prod.
+# Staging must serve its own static assets (no redirect to prod cdn.aksaraa.com).
+wedding-stg.aksaraa.com {
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+
+	reverse_proxy 127.0.0.1:3003 {
+		header_up X-Real-IP {client_ip}
+	}
+
+	header / {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	encode gzip
 }
 
 # Static asset host for guest invitations. The invitation page stays on the

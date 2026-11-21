@@ -29,6 +29,8 @@ const allowDirty = args.includes("--allow-dirty")
 const syncOnly = args.includes("--sync-only")
 const refIdx = args.indexOf("--ref")
 const expectRef = refIdx >= 0 ? args[refIdx + 1] : "ylmfgorryxzpdckkebnr"
+const siteIdx = args.indexOf("--site-url")
+const expectSiteUrl = siteIdx >= 0 ? args[siteIdx + 1] : null
 
 // Build noise + docs never affect the bundle or the served files.
 const DIRTY_ALLOWLIST = [
@@ -125,23 +127,45 @@ if (!existsSync(chunkDir)) fail("no .next/standalone build found — run `npm ru
 
 let baked = ""
 try {
-  baked = execSync(`grep -rho "127\\.0\\.0\\.1:54321\\|${expectRef}\\.supabase\\.co\\|supabase-demo" ${chunkDir} || true`, {
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-  })
+  baked = execSync(
+    `grep -rho "127\\.0\\.0\\.1:54321\\|ylmfgorryxzpdckkebnr\\.supabase\\.co\\|jclolnjkjhyjilvymagr\\.supabase\\.co\\|supabase-demo" ${chunkDir} || true`,
+    {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    },
+  )
 } catch {
   /* grep exits 1 when nothing matched */
 }
 if (baked.includes("127.0.0.1:54321") || baked.includes("supabase-demo")) {
   fail(
     "bundle contains LOCAL Supabase credentials (127.0.0.1:54321 / supabase-demo).\n" +
-      "  Rebuild with the right env sourced:  set -a; source .env.local.prod; set +a; npm run build",
+      "  Rebuild with the right env sourced for the target environment.",
   )
 }
 if (!baked.includes(`${expectRef}.supabase.co`)) {
   fail(`bundle does not reference ${expectRef}.supabase.co — wrong env was baked.`)
 }
+const otherRef =
+  expectRef === "ylmfgorryxzpdckkebnr" ? "jclolnjkjhyjilvymagr" : "ylmfgorryxzpdckkebnr"
+if (baked.includes(`${otherRef}.supabase.co`)) {
+  console.warn(`! bundle also references ${otherRef}.supabase.co (mixed refs) — verify this is intentional`)
+}
 ok(`baked env points at ${expectRef}.supabase.co`)
+
+if (expectSiteUrl) {
+  let siteBaked = ""
+  try {
+    siteBaked = execSync(`grep -rho "${expectSiteUrl.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}" ${chunkDir} || true`, {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    })
+  } catch {}
+  if (!siteBaked.includes(expectSiteUrl)) {
+    fail(`bundle does not reference expected site URL ${expectSiteUrl} — wrong NEXT_PUBLIC_SITE_URL was baked.`)
+  }
+  ok(`baked site URL includes ${expectSiteUrl}`)
+}
 
 // ---------- 3. every registered template must exist in the bundle ----------
 const registry = readFileSync("src/components/templates/index.ts", "utf8")
