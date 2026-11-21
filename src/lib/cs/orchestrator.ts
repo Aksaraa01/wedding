@@ -40,7 +40,8 @@ import {
   type CsMedia,
 } from "@/lib/cs/productKnowledge"
 import { formatTemplateReply } from "./templateListReply"
-import { detectTemplateCategory } from "./templateFilter"
+import { detectTemplateCategory, wantsAllTemplates } from "./templateFilter"
+import { templateGalleryReply } from "./contact"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -449,9 +450,12 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
 
   const attachMedia = shouldAttachPackageMedia(channel, intent)
   const templateData = prefetched.find((p) => p.name === "list_templates")?.data
+  const wantsAll = intent === "template" && wantsAllTemplates(input.text)
   const deterministicTemplate =
     intent === "template" && decision.action === "tool" && decision.tool === "list_templates"
-      ? formatTemplateReply(templateData)
+      ? wantsAll
+        ? templateGalleryReply(false, siteBaseUrl())
+        : formatTemplateReply(templateData)
       : null
   const outboundText = attachMedia
     ? shortPackageIntro()

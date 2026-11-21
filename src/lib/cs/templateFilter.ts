@@ -149,3 +149,21 @@ export function templateAnswerKind(text: string): TemplateAnswerKind {
   if (shelf === "popular") return "popular"
   return null
 }
+
+// Permintaan umum untuk melihat semua/daftar template (galeri), bukan 3 contoh.
+// Kategori/spesifik (adat, terbaru, populer, premium filter, ganti template)
+// bukan "lihat semua template".
+export function wantsAllTemplates(text: string): boolean {
+  const value = (text || "").toLowerCase()
+  if (asksToSwitchTemplate(value)) return false
+  if (detectTemplatePackageAsk(value)) return false
+  if (detectKidsTemplateAsk(value)) return false
+  if (detectTemplateCategory(value)) return false
+  if (detectTemplateShelf(value)) return false
+  if (/semua\s+(template|desain|tema)/.test(value)) return true
+  if (/lihat\s+semua/.test(value)) return true
+  if (/\bdaftar\b|\bminta\s+list\b|\blist\b/.test(value)) return true
+  if (/dilihat\s+di\s*mana|lihat\s+di\s*mana|bisa\s+dilihat|bisa\s+lihat/.test(value)) return true
+  if (/template.{0,25}apa\s+(saja|aja)|desain.{0,25}apa\s+(saja|aja)|apa\s+(saja|aja).{0,25}(template|desain)/.test(value)) return true
+  return false
+}
