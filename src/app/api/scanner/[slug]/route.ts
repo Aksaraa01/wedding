@@ -39,6 +39,7 @@ export async function GET(
         const first = covers.find((c: unknown) => typeof c === "string" && (c as string).trim()) as string | undefined
         return (first as string) || (profile as any).couple_illustration_url || null
       })(),
+      sessions: Array.isArray((profile as any).sessions) ? (profile as any).sessions : [],
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

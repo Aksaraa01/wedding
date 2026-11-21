@@ -8,11 +8,23 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await req.json()
-    const { name, phone_number, category, table_number, is_vip } = body
+    const { name, phone_number, category, table_number, is_vip, invited_session_indexes } = body
+
+    const update: Record<string, unknown> = { name, phone_number, category, table_number, is_vip: !!is_vip }
+    if (invited_session_indexes !== undefined) {
+      if (Array.isArray(invited_session_indexes)) {
+        const arr = invited_session_indexes
+          .map((n: unknown) => Number(n))
+          .filter((n: number) => Number.isInteger(n) && n >= 0)
+        update.invited_session_indexes = arr.length > 0 ? Array.from(new Set(arr)).sort((a, b) => a - b) : null
+      } else {
+        update.invited_session_indexes = null
+      }
+    }
 
     const { data, error } = await supabaseAdmin
       .from("guests")
-      .update({ name, phone_number, category, table_number, is_vip: !!is_vip })
+      .update(update)
       .eq("id", id)
       .select()
       .single()

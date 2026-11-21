@@ -14,6 +14,7 @@ import { thumbUrl, thumbStoryImages } from "@/lib/storageUrl"
 import { childFullNamesLine, resolveChildren, thumbChildren } from "@/lib/children"
 import { toOgImageUrl } from "@/lib/storage"
 import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromParams } from "@/lib/guest-link"
+import { filterSessionsByScope } from "@/lib/invitedSessions"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { profileView } from "@/lib/profileView"
 import InvitationExpired from "@/components/InvitationExpired"
@@ -32,6 +33,7 @@ type GuestContext = {
   rsvp_pax_count: number | null
   rsvp_message: string | null
   invitation_opened_at: string | null
+  invited_session_indexes: number[] | null
 }
 
 // Extract the first public image URL from a field that may be: a URL string, a
@@ -282,7 +284,7 @@ export default async function WeddingInvitation({
   ])
 
   const guestContext = await (async () => {
-    const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, invitation_opened_at"
+    const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, invitation_opened_at, invited_session_indexes"
     if (to) {
       const hit = await findGuestForTo<GuestContext>(profile.id, to, fields)
       if (hit.guest) {
@@ -329,6 +331,10 @@ export default async function WeddingInvitation({
   }
 
   const guestName = guestContext?.name || prettifyGuestSlug(to) || (linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
+  const visibleSessions = filterSessionsByScope(
+    (profile.sessions as any[] | null) || [],
+    guestContext?.invited_session_indexes ?? null,
+  )
 
   const [giftAcctsRes, giftAddrRes, trackRes] = await Promise.all([
     supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id),
@@ -500,7 +506,7 @@ export default async function WeddingInvitation({
         contacts={(profile as any).contacts || undefined}
         rundown_visible={(profile as any).rundown_visible !== false}
         contacts_visible={(profile as any).contacts_visible !== false}
-        sessions={profile.sessions || undefined}
+        sessions={visibleSessions.length > 0 ? visibleSessions : (profile.sessions || undefined)}
         quote_text={profile.quote_text || undefined}
         quote_source={profile.quote_source || undefined}
         stories={rowGates.story.included ? (thumbStoryImages(profile.stories) as typeof profile.stories) || undefined : undefined}

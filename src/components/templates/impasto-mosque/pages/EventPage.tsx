@@ -48,17 +48,21 @@ function EventBlock({ session, align }: { session: SessionData; align: "left" | 
   )
 }
 
-// Combined Akad (top-left) + Resepsi (bottom-right) on one page, text
-// straight on the painting with the shared dove animation. No brush card,
-// no camel caravan — per design.
+// Renders all invited sessions on one page. With two sessions, keeps the
+// top-left / bottom-right composition; with one or more, alternates sides.
 export default function EventPage({ sessions }: { sessions: SessionData[] }) {
-  const [akad, resepsi] = sessions
+  const list = (sessions || []).filter((s) => s && (s.date || s.venue || s.time || s.name || s.address))
   return (
     <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col px-6 pt-10 pb-16 pointer-events-auto select-none">
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/15 via-transparent to-transparent" />
-      <div className="relative flex-1 w-full h-full flex flex-col justify-between px-5 pt-14 pb-4">
-        {akad && (akad.date || akad.venue) ? <EventBlock session={akad} align="left" /> : <span />}
-        {resepsi && (resepsi.date || resepsi.venue) ? <EventBlock session={resepsi} align="right" /> : <span />}
+      <div className="relative flex-1 w-full h-full flex flex-col justify-between px-5 pt-14 pb-4 gap-4">
+        {list.length > 0 ? (
+          list.map((session, i) => (
+            <EventBlock key={i} session={session} align={i % 2 === 0 ? "left" : "right"} />
+          ))
+        ) : (
+          <span />
+        )}
         <footer className="w-full flex items-center justify-center relative pt-2">
           <span className="text-[11px] font-semibold uppercase" style={{ ...FONT_BODY, letterSpacing: "0.2em", color: "rgba(61,48,37,0.9)" }}>
             Geser ke atas

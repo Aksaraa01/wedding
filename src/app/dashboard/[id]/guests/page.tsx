@@ -8,6 +8,7 @@ import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import * as XLSX from "xlsx"
 import { sanitizeGuestName } from "@/lib/nameClean"
 import { displayCategory } from "@/lib/gallery-client"
+import { isInvitedToAll, sessionDisplayLabel } from "@/lib/invitedSessions"
 
 type Guest = {
   id: string
@@ -17,6 +18,7 @@ type Guest = {
   table_number: string
   is_vip: boolean
   added_manually?: boolean
+  invited_session_indexes?: number[] | null
 }
 
 type FormData = {
@@ -36,6 +38,8 @@ type VerifyRow = {
   table_number: string
   is_vip: boolean
   duplicate: boolean
+  invited_session_indexes?: number[] | null
+  acara_label?: string
 }
 
 type VerifySummary = {
@@ -52,6 +56,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
+  const [formSessionSel, setFormSessionSel] = useState<number[]>([])
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [view, setView] = useState<"list" | "verify">("list")
@@ -65,6 +70,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [uploadError, setUploadError] = useState("")
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const [waBlastEnabled, setWaBlastEnabled] = useState(false)
+  const [isPublished, setIsPublished] = useState<boolean | null>(null)
+  const [sessions, setSessions] = useState<any[]>([])
+  const [showConfirmGuard, setShowConfirmGuard] = useState(false)
   const [chartExpanded, setChartExpanded] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
 
@@ -79,6 +87,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   useEffect(() => {
     fetch(`/api/dashboard/${weddingProfileId}`).then(r => r.json()).then(data => {
       setWaBlastEnabled(!!data?.selections?.wa_blast)
+      const profile = data?.profile || data
+      setIsPublished(profile?.is_published === true)
+      setSessions(Array.isArray(profile?.sessions) ? profile.sessions : [])
     }).catch(() => {})
   }, [weddingProfileId])
 
@@ -101,10 +112,18 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     return () => clearTimeout(timer)
   }, [search])
 
+  const allSessionIndexes = useMemo(() => sessions.map((_, i) => i), [sessions])
+
   const openAdd = () => {
+    if (isPublished === false) {
+      setShowConfirmGuard(true)
+      return
+    }
     setEditingId(null)
     setForm(EMPTY_FORM)
     setWaDigits("")
+    setFormSessionSel(allSessionIndexes)
+    setDuplicateError("")
     setModalOpen(true)
   }
 
@@ -112,6 +131,14 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     setEditingId(g.id)
     setForm({ name: sanitizeGuestName(g.name), phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "", is_vip: !!g.is_vip })
     setWaDigits((g.phone_number || "").replace(/\D/g, ""))
+    const scope = Array.isArray(g.invited_session_indexes) ? g.invited_session_indexes : null
+    if (scope == null || isInvitedToAll(scope, sessions.length)) {
+      setFormSessionSel(allSessionIndexes)
+    } else {
+      const valid = scope.filter((i) => Number.isInteger(i) && i >= 0 && i < sessions.length)
+      setFormSessionSel(valid.length > 0 ? [...valid].sort((a, b) => a - b) : allSessionIndexes)
+    }
+    setDuplicateError("")
     setModalOpen(true)
   }
 
@@ -119,12 +146,18 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     if (!form.name.trim()) return
     setDuplicateError("")
 
+    const invited_session_indexes =
+      sessions.length > 0 && formSessionSel.length > 0 && formSessionSel.length < sessions.length
+        ? [...formSessionSel].sort((a, b) => a - b)
+        : null
+
     const data = {
       name: sanitizeGuestName(form.name.trim()),
       phone_number: waDigits ? `+62${waDigits}` : "",
       category: form.category.trim(),
       table_number: form.table_number.trim(),
       is_vip: waBlastEnabled && form.is_vip,
+      invited_session_indexes,
     }
 
     if (editingId) {
@@ -225,7 +258,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   }
 
   const handleDownloadTemplate = async () => {
-    const res = await fetch("/api/guests/template")
+    const res = await fetch(`/api/guests/template?wedding_profile_id=${encodeURIComponent(weddingProfileId)}`)
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -365,6 +398,13 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                             {row.duplicate && (
                               <span className="inline-flex items-center px-2 py-0.5 bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] font-label-md text-[10px] font-bold uppercase tracking-wider rounded-full">Duplikat</span>
                             )}
+                            {sessions.length > 0 && (
+                              <span className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
+                                {row.acara_label || (isInvitedToAll(row.invited_session_indexes ?? null, sessions.length)
+                                  ? "Semua acara"
+                                  : (Array.isArray(row.invited_session_indexes) ? row.invited_session_indexes : []).map((idx) => sessionDisplayLabel(sessions[idx], idx)).join(", ") || "Semua acara")}
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="py-3.5 px-4 font-body-md font-medium text-[#2C2A29] text-[13px] md:text-[14px] break-all">{row.phone_number}</td>
@@ -429,11 +469,11 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </section>
 
         <div className="flex items-center gap-2 md:gap-3 mb-5 md:mb-6 shrink-0">
-          <button onClick={() => setImportModalOpen(true)} data-tour="import-excel" className="hidden md:inline-flex items-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+          <button onClick={() => { if (isPublished === false) { setShowConfirmGuard(true); return } setImportModalOpen(true) }} data-tour="import-excel" className="hidden md:inline-flex items-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import Excel
           </button>
-          <button onClick={() => setImportModalOpen(true)} data-tour="import-excel" className="md:hidden flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+          <button onClick={() => { if (isPublished === false) { setShowConfirmGuard(true); return } setImportModalOpen(true) }} data-tour="import-excel" className="md:hidden flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import Excel
           </button>
@@ -599,12 +639,42 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                           Meja —
                         </span>
                       )}
+                      {sessions.length > 0 && (
+                        isInvitedToAll(guest.invited_session_indexes ?? null, sessions.length) ? (
+                          <span className="inline-flex items-center px-2.5 py-1 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[11px] rounded-full">
+                            Semua acara
+                          </span>
+                        ) : (
+                          (Array.isArray(guest.invited_session_indexes) ? guest.invited_session_indexes : []).map((idx) => (
+                            <span key={idx} className="inline-flex items-center px-2.5 py-1 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[11px] rounded-full">
+                              {sessionDisplayLabel(sessions[idx], idx)}
+                            </span>
+                          ))
+                        )
+                      )}
                     </div>
                   </div>
 
                   {/* Desktop grid layout */}
                   <div className="hidden md:grid md:grid-cols-12 md:items-center">
-                    <div className="col-span-5 pr-3">{nameBlock}</div>
+                    <div className="col-span-5 pr-3">
+                      {nameBlock}
+                      {sessions.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          {isInvitedToAll(guest.invited_session_indexes ?? null, sessions.length) ? (
+                            <span className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
+                              Semua acara
+                            </span>
+                          ) : (
+                            (Array.isArray(guest.invited_session_indexes) ? guest.invited_session_indexes : []).map((idx) => (
+                              <span key={idx} className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
+                                {sessionDisplayLabel(sessions[idx], idx)}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <div className="col-span-4">
                       <span className="inline-flex items-center px-2.5 py-1 bg-[#F3F4F6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[11px] rounded-full">
                         {guest.category || "—"}
@@ -754,6 +824,42 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
                   />
                 </div>
+                {sessions.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Diundang ke Acara</label>
+                    <div className="border border-[#E2D9CF] bg-white rounded-xl py-3 px-4 flex flex-col gap-2.5">
+                      {sessions.map((s, i) => {
+                        const checked = formSessionSel.includes(i)
+                        const label = sessionDisplayLabel(s, i)
+                        return (
+                          <label key={i} className="flex items-center gap-3 cursor-pointer select-none">
+                            <span
+                              className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                                checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
+                              }`}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                setFormSessionSel((prev) => {
+                                  const has = prev.includes(i)
+                                  if (has) return prev.filter((x) => x !== i)
+                                  return [...prev, i].sort((a, b) => a - b)
+                                })
+                              }}
+                            >
+                              {checked && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
+                            </span>
+                            <span className="font-body-md text-sm text-[#2C2A29]">{label}</span>
+                          </label>
+                        )
+                      })}
+                      <p className="text-[11px] text-on-surface-variant/70 leading-relaxed pt-1">
+                        {formSessionSel.length === 0
+                          ? "Jika tidak ada yang dipilih, tamu dianggap diundang ke semua acara."
+                          : "Pilih acara yang dihadiri tamu ini."}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</label>
                   {waBlastEnabled ? (
@@ -803,6 +909,34 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       </div>
       </div>
       </div>
+      )}
+
+      {showConfirmGuard && (
+        <div className="fixed inset-0 z-[60]">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowConfirmGuard(false)} />
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="bg-[#FAF7F2] w-full max-w-md p-8 shadow-2xl border border-[#E2D9CF] rounded-2xl">
+              <h2 className="font-headline-md text-headline-md text-[#2C2A29] mb-3">Konfirmasi undangan dulu, yuk</h2>
+              <p className="font-body-md text-sm md:text-body-md text-on-surface-variant leading-relaxed mb-8">
+                Sebelum menambah tamu, pastikan detail dan daftar acara di undangan sudah final lalu dikonfirmasi. Dengan begitu, tautan, pesan, dan QR setiap tamu langsung sesuai, jadi tidak perlu diulang nanti.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => { setShowConfirmGuard(false); router.push(`/dashboard/${weddingProfileId}/web-invitation/editor`) }}
+                  className="w-full bg-[#B34E3F] text-white py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#9E3B2D] active:scale-95 transition-all"
+                >
+                  Buka Editor
+                </button>
+                <button
+                  onClick={() => setShowConfirmGuard(false)}
+                  className="w-full bg-transparent border border-[#E2D9CF] text-[#2C2A29] py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#F5EFE6] transition-colors"
+                >
+                  Nanti dulu
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {resetConfirmOpen && (

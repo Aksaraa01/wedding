@@ -18,6 +18,7 @@ import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openi
 import { compressImage } from "@/lib/imageCompress"
 import { waLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
+import { coupleUrl } from "@/lib/coupleUrl"
 import { MAX_CHILDREN, parseChildren, readChildren, resolveChildren, type InvitationChild } from "@/lib/children"
 
 type Profile = {
@@ -826,9 +827,9 @@ function EditorInner({ id }: { id: string }) {
 
   const addSession = () => {
     if (data.is_published === true || reviewMode) return
-    // Weddings keep the classic two-session shape (akad + resepsi). A Ceriavite
-    // ceremony often adds a third row (misal: syukuran + walimah + doa bersama).
-    if (!kids && sessions.length >= 2) return
+    // Weddings on WP templates keep the classic two-session shape (akad + resepsi).
+    // In-house templates and Ceriavite ceremonies can add more sessions.
+    if (!kids && !isInhouse && sessions.length >= 2) return
     updateField("sessions", [...sessions, {
       name: "", // required (Nama Acara): must be filled before the invitation can be confirmed
       date: "",
@@ -3248,7 +3249,7 @@ function EditorInner({ id }: { id: string }) {
                     </div>
                     <div className="flex-1 flex justify-center">
                       <span className="text-[11px] font-label-md px-4 py-1 rounded-full bg-surface-container-low border border-outline-variant truncate max-w-[60%] text-on-surface-variant">
-                        https://{data.slug || "wedding"}.wedding.aksaraa.com
+                        {coupleUrl(data.slug || "wedding", "")}
                       </span>
                     </div>
                     <button

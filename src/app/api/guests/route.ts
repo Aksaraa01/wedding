@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { wedding_profile_id, name, phone_number, category, table_number, guest_count, is_vip, added_manually, checked_in_by } = body
+    const { wedding_profile_id, name, phone_number, category, table_number, guest_count, is_vip, added_manually, checked_in_by, invited_session_indexes } = body
 
     if (!wedding_profile_id || !name) {
       return NextResponse.json({ error: "Nama tamu wajib diisi" }, { status: 400 })
@@ -92,6 +92,11 @@ export async function POST(req: Request) {
 
     const pax = Math.max(1, Number(guest_count) || 1)
     const isManual = !!added_manually
+    const invitedIndexes = Array.isArray(invited_session_indexes)
+      ? invited_session_indexes
+          .map((n: unknown) => Number(n))
+          .filter((n: number) => Number.isInteger(n) && n >= 0)
+      : null
     const { data, error } = await supabaseAdmin
       .from("guests")
       .insert({
@@ -107,6 +112,7 @@ export async function POST(req: Request) {
         is_checked_in: isManual,
         checkin_timestamp: isManual ? new Date().toISOString() : null,
         checked_in_by: isManual ? (checked_in_by || "Manual") : null,
+        invited_session_indexes: invitedIndexes && invitedIndexes.length > 0 ? Array.from(new Set(invitedIndexes)).sort((a, b) => a - b) : null,
       })
       .select()
       .single()

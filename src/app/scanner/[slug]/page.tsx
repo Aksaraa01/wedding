@@ -26,6 +26,7 @@ type EventInfo = {
   has_pin: boolean
   end_date?: string
   cover_photo?: string | null
+  sessions?: { name?: string }[]
 }
 
 type ScanResult = {
@@ -89,9 +90,17 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const [showAddGuest, setShowAddGuest] = useState(false)
   const [addGuestForm, setAddGuestForm] = useState({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
+  const [addGuestSessionSel, setAddGuestSessionSel] = useState<number[]>([])
   const [addGuestSubmitting, setAddGuestSubmitting] = useState(false)
   const [addGuestError, setAddGuestError] = useState("")
   const [addGuestSuccess, setAddGuestSuccess] = useState(false)
+
+  const resetAddGuestForm = useCallback(() => {
+    setAddGuestForm({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
+    const count = Array.isArray(eventInfo?.sessions) ? eventInfo.sessions.length : 0
+    setAddGuestSessionSel(count > 0 ? Array.from({ length: count }, (_, i) => i) : [])
+    setAddGuestError("")
+  }, [eventInfo?.sessions])
   const [selectedGuest, setSelectedGuest] = useState<GuestRecord | null>(null)
 
   const [selfieGuest, setSelfieGuest] = useState<GuestRecord | null>(null)
@@ -571,6 +580,12 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       const digits = addGuestForm.phone.replace(/\D/g, "")
       const phonePayload = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
 
+      const sessionsCount = Array.isArray(eventInfo.sessions) ? eventInfo.sessions.length : 0
+      const invited_session_indexes =
+        sessionsCount > 0 && addGuestSessionSel.length > 0 && addGuestSessionSel.length < sessionsCount
+          ? [...addGuestSessionSel].sort((a, b) => a - b)
+          : null
+
       const res = await fetch("/api/guests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -584,6 +599,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           is_vip: addGuestForm.is_vip,
           added_manually: true,
           checked_in_by: operatorName,
+          invited_session_indexes,
         }),
       })
 
@@ -623,7 +639,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       }
 
       setAddGuestSuccess(true)
-      setAddGuestForm({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
+      resetAddGuestForm()
       if (manualQuery.trim()) handleManualSearch(manualQuery)
       if (g) {
         setTimeout(() => {
@@ -878,7 +894,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           <div className="px-4 pb-4 space-y-2">
           <div className="flex items-center justify-end">
             <button
-              onClick={() => setShowAddGuest(true)}
+              onClick={() => { resetAddGuestForm(); setShowAddGuest(true) }}
               className="text-[10px] font-bold uppercase tracking-widest bg-[#B34E3F] text-white px-3 py-1.5 rounded-lg hover:bg-[#9E3B2D] transition-colors"
             >
               + Tambah Tamu Manual
@@ -1371,6 +1387,46 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                   />
                 </div>
               </div>
+
+              {/* Sesi yang diundang */}
+              {Array.isArray(eventInfo?.sessions) && eventInfo.sessions.length > 0 && (
+                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 shadow-sm">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-3 transition-colors font-semibold">
+                    Diundang ke Acara
+                  </label>
+                  <div className="flex flex-col gap-2.5">
+                    {eventInfo.sessions.map((s, i) => {
+                      const checked = addGuestSessionSel.includes(i)
+                      const label = (s?.name || "").trim() || `Acara ${i + 1}`
+                      return (
+                        <label key={i} className="flex items-center gap-3 cursor-pointer select-none">
+                          <span
+                            className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                              checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
+                            }`}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setAddGuestSessionSel((prev) => {
+                                const has = prev.includes(i)
+                                if (has) return prev.filter((x) => x !== i)
+                                return [...prev, i].sort((a, b) => a - b)
+                              })
+                            }}
+                          >
+                            {checked && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
+                          </span>
+                          <span className="text-sm text-[#2C2A29]">{label}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                  <p className="mt-3 text-[11px] text-[#2C2A29]/50 leading-relaxed">
+                    {addGuestSessionSel.length === 0
+                      ? "Jika tidak ada yang dipilih, tamu dianggap diundang ke semua acara."
+                      : "Pilih satu atau beberapa acara sesuai undangan tamu."}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Bottom action */}
