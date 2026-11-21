@@ -1259,71 +1259,64 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
       {/* Tambah Tamu Manual Modal */}
       {showAddGuest && (
-        <div className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-center justify-center p-0">
-          <div className="bg-white w-full h-full md:max-w-md md:h-auto md:max-h-[90vh] md:rounded-2xl border border-[#E2D9CF] shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0">
+          <div className="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-md sm:rounded-2xl border border-[#E2D9CF] shadow-2xl flex flex-col overflow-hidden">
             {/* Header */}
-            <header className="flex items-center justify-between px-6 py-5 border-b border-[#E2D9CF]/60 shrink-0">
+            <header className="flex items-center justify-between px-4 py-3 border-b border-[#E2D9CF]/60 shrink-0 bg-white">
               <button
                 onClick={() => { setShowAddGuest(false); setAddGuestError("") }}
-                className="inline-flex items-center gap-2 text-[#2C2A29]/70 hover:text-[#B34E3F] transition-colors text-[11px] uppercase tracking-wider font-semibold"
+                className="inline-flex items-center gap-1.5 text-[#2C2A29]/70 hover:text-[#B34E3F] transition-colors text-[11px] uppercase tracking-wider font-semibold min-h-[44px]"
               >
                 <span className="material-symbols-outlined text-base">arrow_back</span>
                 Kembali
               </button>
-              <div className="w-2 h-2 rounded-full bg-[#B34E3F]/40 animate-pulse" />
+              <h2 className="text-sm font-semibold text-[#2C2A29]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tambah Tamu</h2>
+              <div className="w-14" />
             </header>
 
             {/* Scrollable form */}
-            <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
-              <div className="border-l-2 border-[#B34E3F]/30 pl-6 py-1">
-                <span className="text-[11px] text-[#B34E3F] uppercase tracking-[0.25em] block mb-2 font-semibold">Manajemen Undangan</span>
-                <h2 className="text-3xl text-[#2C2A29] font-medium tracking-tight" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Detail Kehadiran Tamu</h2>
-                <p className="text-sm text-[#2C2A29]/70 mt-3 max-w-md leading-relaxed">
-                  Silakan masukkan informasi tamu secara manual untuk dicatat ke dalam daftar undangan resmi Aksaraa.
-                </p>
-              </div>
-
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-white">
               {/* Nama Lengkap */}
-              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
-                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
-                  Nama Lengkap Tamu
+              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
+                  Nama Lengkap
                 </label>
                 <input
                   type="text"
                   value={addGuestForm.name}
                   onChange={(e) => setAddGuestForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="Contoh: Bpk. Heru Wijaya"
-                  className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                  className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                 />
               </div>
 
               {/* Nomor WhatsApp */}
-              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
-                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
-                  Nomor WhatsApp
+              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
+                  No. WhatsApp
                 </label>
-                <div className="relative flex items-center">
-                  <span className="text-base text-[#2C2A29]/70 pr-2 select-none font-medium border-r border-[#E2D9CF] mr-2">+62</span>
+                <div className="flex items-center">
+                  <span className="text-sm text-[#2C2A29]/70 pr-2 select-none font-medium border-r border-[#E2D9CF] mr-2">+62</span>
                   <input
                     type="tel"
                     value={addGuestForm.phone}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "") }))}
-                    placeholder="812 3456 7890"
-                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                    placeholder="81234567890"
+                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
               </div>
 
               {/* Kategori */}
-              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
-                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
-                  Kategori Undangan
+              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
+                  Kategori
                 </label>
                 <div className="relative flex items-center">
                   <select
                     value={addGuestForm.category}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, category: e.target.value }))}
-                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] appearance-none cursor-pointer focus:ring-0 pr-8"
+                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] appearance-none cursor-pointer focus:ring-0 pr-6"
                   >
                     <option value="">Pilih Kategori</option>
                     <option value="Keluarga">Keluarga</option>
@@ -1336,30 +1329,10 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                 </div>
               </div>
 
-              {/* Is VIP */}
-              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 shadow-sm">
-                <button
-                  type="button"
-                  onClick={() => setAddGuestForm((p) => ({ ...p, is_vip: !p.is_vip }))}
-                  className="w-full flex items-center justify-between gap-3"
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px] text-[#8B6F2A]">star</span>
-                    <span className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider font-semibold text-left">
-                      Tamu VIP
-                      <span className="block normal-case tracking-normal font-normal text-[#2C2A29]/50 mt-0.5">Kartu QR desain khusus VIP</span>
-                    </span>
-                  </span>
-                  <span className={`w-10 h-5 rounded-full relative transition-colors shrink-0 ${addGuestForm.is_vip ? "bg-secondary" : "bg-outline-variant"}`}>
-                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${addGuestForm.is_vip ? "right-0.5" : "left-0.5"}`} />
-                  </span>
-                </button>
-              </div>
-
               {/* Jumlah Pax + Nomor Meja */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
-                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
                     Jumlah Pax
                   </label>
                   <input
@@ -1371,35 +1344,55 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       setAddGuestForm((p) => ({ ...p, guest_count: val ? Math.max(1, Number(val)) : 1 }))
                     }}
                     placeholder="1"
-                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
-                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
-                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
                     Nomor Meja
                   </label>
                   <input
                     type="text"
                     value={addGuestForm.table_number}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, table_number: e.target.value }))}
-                    placeholder="Contoh: Meja 12 atau VIP 1"
-                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                    placeholder="Meja 1"
+                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
               </div>
 
+              {/* Is VIP */}
+              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3">
+                <button
+                  type="button"
+                  onClick={() => setAddGuestForm((p) => ({ ...p, is_vip: !p.is_vip }))}
+                  className="w-full flex items-center justify-between gap-3 min-h-[44px]"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-[18px] text-[#8B6F2A]">star</span>
+                    <span className="text-left">
+                      <span className="block text-sm font-medium text-[#2C2A29]">Tamu VIP</span>
+                      <span className="block text-[11px] text-[#2C2A29]/50">Kartu QR desain khusus VIP</span>
+                    </span>
+                  </span>
+                  <span className={`w-10 h-5 rounded-full relative transition-colors shrink-0 ${addGuestForm.is_vip ? "bg-secondary" : "bg-outline-variant"}`}>
+                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${addGuestForm.is_vip ? "right-0.5" : "left-0.5"}`} />
+                  </span>
+                </button>
+              </div>
+
               {/* Sesi yang diundang */}
               {Array.isArray(eventInfo?.sessions) && eventInfo.sessions.length > 0 && (
-                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 shadow-sm">
-                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-3 transition-colors font-semibold">
+                <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-2 font-semibold">
                     Diundang ke Acara
                   </label>
-                  <div className="flex flex-col gap-2.5">
+                  <div className="flex flex-col gap-1.5">
                     {eventInfo.sessions.map((s, i) => {
                       const checked = addGuestSessionSel.includes(i)
                       const label = (s?.name || "").trim() || `Acara ${i + 1}`
                       return (
-                        <label key={i} className="flex items-center gap-3 cursor-pointer select-none">
+                        <label key={i} className="flex items-center gap-3 cursor-pointer select-none min-h-[40px]">
                           <span
                             className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                               checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
@@ -1420,29 +1413,29 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       )
                     })}
                   </div>
-                  <p className="mt-3 text-[11px] text-[#2C2A29]/50 leading-relaxed">
+                  <p className="mt-2 text-[11px] text-[#2C2A29]/50 leading-relaxed">
                     {addGuestSessionSel.length === 0
                       ? "Jika tidak ada yang dipilih, tamu dianggap diundang ke semua acara."
-                      : "Pilih satu atau beberapa acara sesuai undangan tamu."}
+                      : "Pilih acara sesuai undangan tamu."}
                   </p>
                 </div>
               )}
             </div>
 
             {/* Bottom action */}
-            <div className="shrink-0 bg-white/80 backdrop-blur-md px-6 py-6 border-t border-[#E2D9CF]/40">
+            <div className="shrink-0 bg-white px-4 py-3 border-t border-[#E2D9CF]/40 safe-area-pb">
               {addGuestError && (
-                <p className="text-red-500 text-xs text-center mb-3 font-medium">{addGuestError}</p>
+                <p className="text-red-500 text-xs text-center mb-2 font-medium">{addGuestError}</p>
               )}
               <button
                 onClick={handleAddGuest}
                 disabled={addGuestSubmitting}
-                className="w-full bg-[#B34E3F] hover:bg-[#9E3B2D] text-white py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.99] shadow-md disabled:opacity-50"
+                className="w-full bg-[#B34E3F] hover:bg-[#9E3B2D] text-white min-h-[48px] py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99] shadow-sm disabled:opacity-50"
               >
                 <span className="text-[11px] uppercase tracking-widest font-bold">
-                  {addGuestSubmitting ? "Menyimpan..." : "Simpan & Konfirmasi Kehadiran"}
+                  {addGuestSubmitting ? "Menyimpan..." : "Simpan & Konfirmasi"}
                 </span>
-                <span className="material-symbols-outlined text-lg transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
               </button>
             </div>
           </div>
