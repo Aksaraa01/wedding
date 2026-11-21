@@ -296,14 +296,18 @@ export default function WishWallBookPage({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <div className="min-h-screen bg-[#f2efe9] py-8 overflow-x-auto" style={SANS}>
+    <div className="kb-outer min-h-screen bg-[#f2efe9] py-8 overflow-x-auto" style={SANS}>
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          body { background: #fff !important; }
-          .kb-page { box-shadow: none !important; margin: 0 auto !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .kb-outer { overflow: visible !important; padding: 0 !important; background: #fff !important; min-height: 0 !important; }
+          .kb-book { width: 100% !important; min-width: 0 !important; max-width: 100% !important; padding: 0 !important; gap: 0 !important; }
+          .kb-book > div { break-after: auto !important; break-inside: avoid !important; }
+          .kb-page { box-shadow: none !important; margin: 0 auto !important; width: 820px !important; max-width: 820px !important; min-width: 820px !important; overflow: visible !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; break-inside: avoid; page-break-after: always; zoom: 0.875; }
+          .kb-book > div:last-child .kb-page { page-break-after: auto !important; break-after: auto !important; }
         }
-        @page { size: A4 portrait; margin: 10mm; }
+        @page { size: A4 portrait; margin: 6mm; }
       `}</style>
 
       <div className="no-print w-[820px] min-w-[820px] max-w-[820px] mx-auto px-6 mb-6 flex items-center justify-between gap-3">
@@ -329,7 +333,7 @@ export default function WishWallBookPage({ params }: { params: Promise<{ id: str
         <p className="text-center text-sm text-[#444841] px-6">{error || "Belum ada doa & harapan untuk dibukukan"}</p>
       ) : (
         couple && (
-          <div className="mx-auto flex flex-col gap-10 items-center px-6 pb-10" style={{ width: 820, minWidth: 820, maxWidth: 820 }}>
+          <div className="kb-book mx-auto flex flex-col gap-10 items-center px-6 pb-10" style={{ width: 820, minWidth: 820, maxWidth: 820 }}>
             <div className="w-full" style={{ breakInside: "avoid", breakAfter: "page" }}>
               <CoverPage couple={couple} total={wishes.length} />
             </div>
