@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { parseVip } from "@/lib/packages"
 import { sanitizeGuestName } from "@/lib/nameClean"
 import { formatInvitedSessionsCell, parseInvitedSessionsCell } from "@/lib/invitedSessions"
+import { templateSupportsInvitedSessions } from "@/lib/invitedSessionsServer"
 
 function pickAcaraCell(r: Record<string, unknown>): unknown {
   for (const key of ["acara", "Acara", "ACARA", "sesi", "Sesi", "SESI", "acara_sesi", "Acara (Sesi)"]) {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })
     }
 
-    const [{ data: existing }, { data: profile }] = await Promise.all([
+    const [{ data: existing }, { data: profile }, acaraSupported] = await Promise.all([
       supabaseAdmin
         .from("guests")
         .select("name, phone_number")
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
         .select("sessions")
         .eq("id", wedding_profile_id)
         .maybeSingle(),
+      templateSupportsInvitedSessions(wedding_profile_id),
     ])
 
     const sessions = Array.isArray(profile?.sessions) ? profile.sessions : []
@@ -59,19 +61,21 @@ export async function POST(req: NextRequest) {
 
       let invited_session_indexes: number[] | null = null
       let acaraLabel = "Semua"
-      if (Array.isArray(r.invited_session_indexes)) {
-        const idxs = (r.invited_session_indexes as unknown[])
-          .map((n) => Number(n))
-          .filter((n) => Number.isInteger(n) && n >= 0 && n < (sessions.length || 999))
-        const uniq = Array.from(new Set(idxs)).sort((a, b) => a - b)
-        invited_session_indexes = uniq.length > 0 && uniq.length < sessions.length ? uniq : null
-        acaraLabel = formatInvitedSessionsCell(invited_session_indexes, sessions.length)
-      } else {
-        const cell = pickAcaraCell(r)
-        const parsed = parseInvitedSessionsCell(cell, sessions)
-        invited_session_indexes = parsed.indexes
-        // If nothing valid was resolved from a non-empty cell, fall back to all (safe).
-        acaraLabel = formatInvitedSessionsCell(invited_session_indexes, sessions.length)
+      if (acaraSupported) {
+        if (Array.isArray(r.invited_session_indexes)) {
+          const idxs = (r.invited_session_indexes as unknown[])
+            .map((n) => Number(n))
+            .filter((n) => Number.isInteger(n) && n >= 0 && n < (sessions.length || 999))
+          const uniq = Array.from(new Set(idxs)).sort((a, b) => a - b)
+          invited_session_indexes = uniq.length > 0 && uniq.length < sessions.length ? uniq : null
+          acaraLabel = formatInvitedSessionsCell(invited_session_indexes, sessions.length)
+        } else {
+          const cell = pickAcaraCell(r)
+          const parsed = parseInvitedSessionsCell(cell, sessions)
+          invited_session_indexes = parsed.indexes
+          // If nothing valid was resolved from a non-empty cell, fall back to all (safe).
+          acaraLabel = formatInvitedSessionsCell(invited_session_indexes, sessions.length)
+        }
       }
 
       return {
@@ -97,6 +101,7 @@ export async function POST(req: NextRequest) {
         duplicate: duplicates.length,
       },
       sessions: sessions.map((s: any, i: number) => ({ index: i, name: (s?.name || "").toString().trim() || `Acara ${i + 1}` })),
+      acara_supported: acaraSupported,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

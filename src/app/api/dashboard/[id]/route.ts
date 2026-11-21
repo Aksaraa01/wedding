@@ -51,6 +51,18 @@ export async function GET(
       !!profile.galeri_addon
     )
 
+    let templateSourceType: string | null = null
+    let templateCode: string | null = null
+    if (profile.selected_template_id) {
+      const { data: tpl } = await supabaseAdmin
+        .from("web_templates")
+        .select("code, source_type")
+        .eq("id", profile.selected_template_id)
+        .maybeSingle()
+      templateSourceType = (tpl?.source_type as string | null) ?? null
+      templateCode = (tpl?.code as string | null) ?? null
+    }
+
     let guestCount = 0, tableCount = 0, checkedInCount = 0, checkedInPax = 0, rsvpHadirCount = 0, rsvpHadirPax = 0, rsvpTotalPax = 0, pendingWishes = 0, totalWishes = 0
     try {
       const { data: rpc } = await supabaseAdmin.rpc("get_dashboard_counts", { p_profile_id: id })
@@ -87,6 +99,8 @@ export async function GET(
       voucher_frozen: !!activeRedemption?.frozen_at,
       package_gates: packageGates,
       feature_set: featureSet,
+      template_source_type: templateSourceType,
+      template_code: templateCode,
       guest_count: guestCount || 0,
       table_count: tableCount,
       pending_wishes: pendingWishes || 0,

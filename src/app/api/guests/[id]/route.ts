@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { templateSupportsInvitedSessions } from "@/lib/invitedSessionsServer"
 
 export async function PUT(
   req: Request,
@@ -12,7 +13,16 @@ export async function PUT(
 
     const update: Record<string, unknown> = { name, phone_number, category, table_number, is_vip: !!is_vip }
     if (invited_session_indexes !== undefined) {
-      if (Array.isArray(invited_session_indexes)) {
+      const { data: guestRow } = await supabaseAdmin
+        .from("guests")
+        .select("wedding_profile_id")
+        .eq("id", id)
+        .maybeSingle()
+      const acaraSupported = guestRow?.wedding_profile_id
+        ? await templateSupportsInvitedSessions(guestRow.wedding_profile_id)
+        : false
+
+      if (acaraSupported && Array.isArray(invited_session_indexes)) {
         const arr = invited_session_indexes
           .map((n: unknown) => Number(n))
           .filter((n: number) => Number.isInteger(n) && n >= 0)

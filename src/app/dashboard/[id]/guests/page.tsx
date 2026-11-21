@@ -72,6 +72,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [waBlastEnabled, setWaBlastEnabled] = useState(false)
   const [isPublished, setIsPublished] = useState<boolean | null>(null)
   const [sessions, setSessions] = useState<any[]>([])
+  const [acaraSupported, setAcaraSupported] = useState(true)
   const [showConfirmGuard, setShowConfirmGuard] = useState(false)
   const [chartExpanded, setChartExpanded] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
@@ -90,6 +91,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       const profile = data?.profile || data
       setIsPublished(profile?.is_published === true)
       setSessions(Array.isArray(profile?.sessions) ? profile.sessions : [])
+      setAcaraSupported(data?.template_source_type === "inhouse")
     }).catch(() => {})
   }, [weddingProfileId])
 
@@ -132,7 +134,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     setForm({ name: sanitizeGuestName(g.name), phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "", is_vip: !!g.is_vip })
     setWaDigits((g.phone_number || "").replace(/\D/g, ""))
     const scope = Array.isArray(g.invited_session_indexes) ? g.invited_session_indexes : null
-    if (scope == null || isInvitedToAll(scope, sessions.length)) {
+    if (!acaraSupported || scope == null || isInvitedToAll(scope, sessions.length)) {
       setFormSessionSel(allSessionIndexes)
     } else {
       const valid = scope.filter((i) => Number.isInteger(i) && i >= 0 && i < sessions.length)
@@ -147,7 +149,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     setDuplicateError("")
 
     const invited_session_indexes =
-      sessions.length > 0 && formSessionSel.length > 0 && formSessionSel.length < sessions.length
+      acaraSupported && sessions.length > 0 && formSessionSel.length > 0 && formSessionSel.length < sessions.length
         ? [...formSessionSel].sort((a, b) => a - b)
         : null
 
@@ -398,7 +400,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                             {row.duplicate && (
                               <span className="inline-flex items-center px-2 py-0.5 bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] font-label-md text-[10px] font-bold uppercase tracking-wider rounded-full">Duplikat</span>
                             )}
-                            {sessions.length > 0 && (
+                            {acaraSupported && sessions.length > 0 && (
                               <span className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
                                 {row.acara_label || (isInvitedToAll(row.invited_session_indexes ?? null, sessions.length)
                                   ? "Semua acara"
@@ -835,17 +837,21 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   {sessions.length > 0 && (
                     <div className="space-y-1.5">
                       <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Diundang ke Acara</label>
-                      <div className="border border-[#E2D9CF] bg-white rounded-xl px-3.5 py-3 flex flex-col gap-2">
+                      <div className={`border border-[#E2D9CF] rounded-xl px-3.5 py-3 flex flex-col gap-2 ${acaraSupported ? "bg-white" : "bg-[#F7F4F0]"}`}>
                         {sessions.map((s, i) => {
-                          const checked = formSessionSel.includes(i)
+                          const checked = acaraSupported ? formSessionSel.includes(i) : true
                           const label = sessionDisplayLabel(s, i)
                           return (
-                            <label key={i} className="flex items-center gap-3 cursor-pointer select-none min-h-[36px]">
+                            <label
+                              key={i}
+                              className={`flex items-center gap-3 select-none min-h-[36px] ${acaraSupported ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}
+                            >
                               <span
                                 className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                                   checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
                                 }`}
                                 onClick={(e) => {
+                                  if (!acaraSupported) return
                                   e.preventDefault()
                                   setFormSessionSel((prev) => {
                                     const has = prev.includes(i)
@@ -861,9 +867,11 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                           )
                         })}
                         <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">
-                          {formSessionSel.length === 0
-                            ? "Jika tidak dipilih, tamu diundang ke semua acara."
-                            : "Pilih acara yang dihadiri tamu ini."}
+                          {!acaraSupported
+                            ? "Template yang kamu pakai belum mendukung undangan per acara. Untuk sekarang, tamu ini otomatis diundang ke semua acara."
+                            : formSessionSel.length === 0
+                              ? "Jika tidak dipilih, tamu diundang ke semua acara."
+                              : "Pilih acara yang dihadiri tamu ini."}
                         </p>
                       </div>
                     </div>

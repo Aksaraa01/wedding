@@ -4,6 +4,7 @@ import { normalizePhone, parseVip } from "@/lib/packages"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
 import { sanitizeGuestName } from "@/lib/nameClean"
 import { parseInvitedSessionsCell } from "@/lib/invitedSessions"
+import { templateSupportsInvitedSessions } from "@/lib/invitedSessionsServer"
 
 function pickAcaraCell(r: Record<string, unknown>): unknown {
   for (const key of ["acara", "Acara", "ACARA", "sesi", "Sesi", "SESI", "acara_sesi", "Acara (Sesi)"]) {
@@ -24,24 +25,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })
     }
 
-    const { data: profile } = await supabaseAdmin
-      .from("wedding_profiles")
-      .select("sessions")
-      .eq("id", wedding_profile_id)
-      .maybeSingle()
+    const [{ data: profile }, acaraSupported] = await Promise.all([
+      supabaseAdmin
+        .from("wedding_profiles")
+        .select("sessions")
+        .eq("id", wedding_profile_id)
+        .maybeSingle(),
+      templateSupportsInvitedSessions(wedding_profile_id),
+    ])
     const sessions = Array.isArray(profile?.sessions) ? profile.sessions : []
 
     const guests = rows.map((r: Record<string, unknown>) => {
       let invited_session_indexes: number[] | null = null
-      if (Array.isArray(r.invited_session_indexes)) {
-        const idxs = (r.invited_session_indexes as unknown[])
-          .map((n) => Number(n))
-          .filter((n) => Number.isInteger(n) && n >= 0 && n < (sessions.length || 999))
-        const uniq = Array.from(new Set(idxs)).sort((a, b) => a - b)
-        invited_session_indexes = uniq.length > 0 && uniq.length < sessions.length ? uniq : null
-      } else {
-        const cell = pickAcaraCell(r)
-        invited_session_indexes = parseInvitedSessionsCell(cell, sessions).indexes
+      if (acaraSupported) {
+        if (Array.isArray(r.invited_session_indexes)) {
+          const idxs = (r.invited_session_indexes as unknown[])
+            .map((n) => Number(n))
+            .filter((n) => Number.isInteger(n) && n >= 0 && n < (sessions.length || 999))
+          const uniq = Array.from(new Set(idxs)).sort((a, b) => a - b)
+          invited_session_indexes = uniq.length > 0 && uniq.length < sessions.length ? uniq : null
+        } else {
+          const cell = pickAcaraCell(r)
+          invited_session_indexes = parseInvitedSessionsCell(cell, sessions).indexes
+        }
       }
 
       return {

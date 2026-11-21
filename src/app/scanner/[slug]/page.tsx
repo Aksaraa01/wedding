@@ -27,6 +27,7 @@ type EventInfo = {
   end_date?: string
   cover_photo?: string | null
   sessions?: { name?: string }[]
+  acara_supported?: boolean
 }
 
 type ScanResult = {
@@ -581,8 +582,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       const phonePayload = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
 
       const sessionsCount = Array.isArray(eventInfo.sessions) ? eventInfo.sessions.length : 0
+      const acaraSupported = !!eventInfo.acara_supported
       const invited_session_indexes =
-        sessionsCount > 0 && addGuestSessionSel.length > 0 && addGuestSessionSel.length < sessionsCount
+        acaraSupported && sessionsCount > 0 && addGuestSessionSel.length > 0 && addGuestSessionSel.length < sessionsCount
           ? [...addGuestSessionSel].sort((a, b) => a - b)
           : null
 
@@ -1383,21 +1385,23 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
               {/* Sesi yang diundang */}
               {Array.isArray(eventInfo?.sessions) && eventInfo.sessions.length > 0 && (
-                <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3">
+                <div className={`border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 ${eventInfo?.acara_supported ? "bg-[#FAF7F2]" : "bg-[#F3EFE8]"}`}>
                   <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-2 font-semibold">
                     Diundang ke Acara
                   </label>
                   <div className="flex flex-col gap-1.5">
                     {eventInfo.sessions.map((s, i) => {
-                      const checked = addGuestSessionSel.includes(i)
+                      const acaraSupported = !!eventInfo?.acara_supported
+                      const checked = acaraSupported ? addGuestSessionSel.includes(i) : true
                       const label = (s?.name || "").trim() || `Acara ${i + 1}`
                       return (
-                        <label key={i} className="flex items-center gap-3 cursor-pointer select-none min-h-[40px]">
+                        <label key={i} className={`flex items-center gap-3 select-none min-h-[40px] ${acaraSupported ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}>
                           <span
                             className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                               checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
                             }`}
                             onClick={(e) => {
+                              if (!eventInfo?.acara_supported) return
                               e.preventDefault()
                               setAddGuestSessionSel((prev) => {
                                 const has = prev.includes(i)
@@ -1414,9 +1418,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                     })}
                   </div>
                   <p className="mt-2 text-[11px] text-[#2C2A29]/50 leading-relaxed">
-                    {addGuestSessionSel.length === 0
-                      ? "Jika tidak ada yang dipilih, tamu dianggap diundang ke semua acara."
-                      : "Pilih acara sesuai undangan tamu."}
+                    {!eventInfo?.acara_supported
+                      ? "Template yang kamu pakai belum mendukung undangan per acara. Untuk sekarang, tamu ini otomatis diundang ke semua acara."
+                      : addGuestSessionSel.length === 0
+                        ? "Jika tidak ada yang dipilih, tamu dianggap diundang ke semua acara."
+                        : "Pilih acara sesuai undangan tamu."}
                   </p>
                 </div>
               )}

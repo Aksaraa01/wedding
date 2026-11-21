@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { autoGenerateGuestLinks, sanitizeGuestName } from "@/lib/guest-link"
+import { templateSupportsInvitedSessions } from "@/lib/invitedSessionsServer"
 
 export async function GET(req: NextRequest) {
   try {
@@ -92,7 +93,8 @@ export async function POST(req: Request) {
 
     const pax = Math.max(1, Number(guest_count) || 1)
     const isManual = !!added_manually
-    const invitedIndexes = Array.isArray(invited_session_indexes)
+    const acaraSupported = await templateSupportsInvitedSessions(wedding_profile_id)
+    const invitedIndexes = acaraSupported && Array.isArray(invited_session_indexes)
       ? invited_session_indexes
           .map((n: unknown) => Number(n))
           .filter((n: number) => Number.isInteger(n) && n >= 0)
