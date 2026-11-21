@@ -100,9 +100,9 @@ ssh "${SSH_OPTS[@]}" "$SERVER" "
   set -e
   rm -rf '$SNAP'
   mkdir -p '$SNAP'
-  cp -a '$REMOTE/.next/standalone' '$SNAP/standalone'
-  cp -a '$REMOTE/.next/static' '$SNAP/static'
-  echo \"snapshot: \$(cat '$SNAP/standalone/.next/BUILD_ID' 2>/dev/null || echo unknown)\"
+  if [ -d '$REMOTE/.next/standalone' ]; then cp -a '$REMOTE/.next/standalone' '$SNAP/standalone'; fi
+  if [ -d '$REMOTE/.next/static' ]; then cp -a '$REMOTE/.next/static' '$SNAP/static'; fi
+  echo \"snapshot: \$(cat '$SNAP/standalone/.next/BUILD_ID' 2>/dev/null || echo none)\"
 "
 
 rollback() {
@@ -111,12 +111,19 @@ rollback() {
   ssh "${SSH_OPTS[@]}" "$SERVER" "
     set -e
     cd '$REMOTE'
+    if [ ! -d '$SNAP/standalone' ]; then echo 'no snapshot to roll back to'; exit 1; fi
     rm -rf .next/standalone .next/static
     cp -a '$SNAP/standalone' .next/standalone
-    cp -a '$SNAP/static' .next/static
-    cp -a '$SNAP/static' .next/standalone/.next/static
+    if [ -d '$SNAP/static' ]; then
+      cp -a '$SNAP/static' .next/static
+      rm -rf .next/standalone/.next/static
+      cp -a '$SNAP/static' .next/standalone/.next/static
+    elif [ -d .next/standalone/.next/static ]; then
+      mkdir -p .next
+      cp -a .next/standalone/.next/static .next/static
+    fi
     pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null
-    echo \"rolled back to \$(cat .next/standalone/.next/BUILD_ID)\"
+    echo \"rolled back to \$(cat .next/standalone/.next/BUILD_ID 2>/dev/null || echo unknown)\"
   "
 }
 
