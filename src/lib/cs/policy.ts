@@ -349,6 +349,7 @@ export function classify(text: string): Intent {
       "worth it",
     ])
   ) {
+    if (hasAny(t, ["template", "desain", "tema", "model undangan", "contoh undangan"])) return "template"
     return "recommendation"
   }
 

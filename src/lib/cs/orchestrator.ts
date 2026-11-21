@@ -39,6 +39,7 @@ import {
   type CsMedia,
 } from "@/lib/cs/productKnowledge"
 import { formatTemplateReply } from "./templateListReply"
+import { detectTemplateCategory } from "./templateFilter"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -361,7 +362,10 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
                     ? "get_draft_state"
                     : null
         if (prefetchTool) {
-          const args = prefetchTool === "list_templates" ? { limit: 8 } : {}
+          const args =
+            prefetchTool === "list_templates"
+              ? { limit: 8, ...(detectTemplateCategory(input.text) ? { category: detectTemplateCategory(input.text) } : {}) }
+              : {}
           const data = await deps.runTool(prefetchTool, args, ctx)
           prefetched.push({ name: prefetchTool, data: data.data })
         }
