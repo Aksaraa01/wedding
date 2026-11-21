@@ -1891,6 +1891,24 @@ const EXTRA_SECTION_LABEL_EN: Record<string, string> = {
   kontak: "CONTACT",
 }
 
+const EXTRA_SECTION_LABEL_ID: Record<string, string> = {
+  sampul: "SAMPUL",
+  pembuka: "PEMBUKA",
+  mempelai: "MEMPELAI",
+  cerita: "CERITA CINTA",
+  acara: "ACARA",
+  inviting: "TURUT MENGUNDANG",
+  rundown: "SUSUNAN ACARA",
+  galeri: "GALERI",
+  kutipan: "KUTIPAN",
+  video: "VIDEO",
+  dresscode: "DRESS CODE",
+  gift: "HADIAH",
+  wishes: "UCAPAN & DOA",
+  closing: "PENUTUP",
+  kontak: "KONTAK",
+}
+
 const EXTRA_LABEL_EN: Record<string, string> = {
   contacts_title: "Contact Title",
   closing_message: "Closing Message",
@@ -1914,6 +1932,9 @@ const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
   "Seconds": "Detik",
   "Open Invitation": "Buka Undangan",
   "View Location": "Lihat Lokasi",
+  "View Maps": "Lihat Lokasi",
+  "View Map": "Lihat Lokasi",
+  "Add to Calendar": "Simpan ke Kalender",
   "Save to Calendar": "Simpan ke Kalender",
   "Send Gift": "Kirim Hadiah",
   "Our Story": "Kisah Kami",
@@ -1932,6 +1953,19 @@ const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
   "Watch Live": "Tonton Langsung",
   "Send Wishes": "Kirim Ucapan",
   "Write a Wish": "Tulis Ucapan",
+  "Dear": "Kepada Yth.",
+  "With Honor": "Dengan Hormat",
+  "Wedding Day": "Hari Pernikahan",
+  "Wedding Invitation": "Undangan Pernikahan",
+  "Portraits of Us": "Potret Kami",
+  "Our Footage": "Cuplikan Kami",
+  "Rundown": "Susunan Acara",
+  "Send a Gift": "Kirim Hadiah",
+  "Copy Address": "Salin Alamat",
+  "Account Number": "Nomor Rekening",
+  "Account Name": "Nama Pemilik Rekening",
+  "Account number copied": "Nomor rekening disalin",
+  "Address copied": "Alamat disalin",
 }
 
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
@@ -1997,7 +2031,9 @@ export function groupExtraFields(fields: TemplateExtraField[], lang: "id" | "en"
       return a.key.localeCompare(b.key)
     })
     const defaultLabel = sec?.label ?? key.toUpperCase()
-    const label = lang === "en" ? (EXTRA_SECTION_LABEL_EN[key] ?? defaultLabel) : defaultLabel
+    const label = lang === "en"
+      ? (EXTRA_SECTION_LABEL_EN[key] ?? defaultLabel)
+      : (EXTRA_SECTION_LABEL_ID[key] ?? defaultLabel)
     groups.push({ section: key, label, fields: sorted })
   }
   groups.sort((a, b) => (order.get(a.section) ?? 999) - (order.get(b.section) ?? 999))
