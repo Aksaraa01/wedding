@@ -736,7 +736,7 @@ function DashboardInner({ id }: { id: string }) {
             </p>
             <button
               onClick={() => setShowFisikInfo(false)}
-              className="w-full mt-8 bg-primary text-on-primary py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors"
+              className="w-full mt-8 bg-[#B34E3F] text-white py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
             >
               Mengerti
             </button>

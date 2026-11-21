@@ -1061,7 +1061,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               </div>
               <button
                 onClick={() => setShowLinkInfo(false)}
-                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+                className="w-full bg-[#B34E3F] text-white py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
               >
                 Mengerti
               </button>
@@ -1094,17 +1094,17 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-2xl">edit_calendar</span>
+              <div className="w-12 h-12 rounded-full bg-[#B34E3F]/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-[#B34E3F] text-2xl">edit_calendar</span>
               </div>
-              <h3 className="font-headline-md text-lg font-medium text-primary">Lengkapi &amp; Konfirmasi Undangan Dulu</h3>
+              <h3 className="font-headline-md text-lg font-medium text-[#2C2A29]">Lengkapi &amp; Konfirmasi Undangan Dulu</h3>
               <p className="text-sm text-on-surface-variant">
                 QR dan tautan undangan untuk tamu lainnya belum dapat diaktifkan sebelum undangan Anda
                 diisi lengkap dan dikonfirmasi. Selesaikan konten undangan di editor, lalu konfirmasi.
               </p>
               <button
                 onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
-                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+                className="w-full bg-[#B34E3F] text-white py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
               >
                 Lengkapi di Editor
               </button>

@@ -912,28 +912,28 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       )}
 
       {showConfirmGuard && (
-        <div className="fixed inset-0 z-[60]">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowConfirmGuard(false)} />
-          <div className="absolute inset-0 flex items-center justify-center p-4 md:p-6">
-            <div className="bg-[#FAF7F2] w-full max-w-sm md:max-w-md p-6 md:p-8 shadow-2xl border border-[#E2D9CF] rounded-2xl max-h-[90dvh] overflow-y-auto">
-              <h2 className="font-headline-md text-lg md:text-xl text-[#2C2A29] mb-2 md:mb-3">Konfirmasi undangan dulu, yuk</h2>
-              <p className="font-body-md text-sm text-on-surface-variant leading-relaxed mb-6 md:mb-8">
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowConfirmGuard(false)}>
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#B34E3F]/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-[#B34E3F] text-2xl">edit_calendar</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-[#2C2A29]">Konfirmasi undangan dulu, yuk</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed">
                 Sebelum menambah tamu, pastikan detail dan daftar acara di undangan sudah final lalu dikonfirmasi. Dengan begitu, tautan, pesan, dan QR setiap tamu langsung sesuai, jadi tidak perlu diulang nanti.
               </p>
-              <div className="flex flex-col gap-2.5 md:gap-3">
-                <button
-                  onClick={() => { setShowConfirmGuard(false); router.push(`/dashboard/${weddingProfileId}/web-invitation/editor`) }}
-                  className="w-full bg-[#B34E3F] text-white py-3 min-h-[44px] font-label-md text-[11px] uppercase tracking-widest rounded-xl hover:bg-[#9E3B2D] active:scale-95 transition-all"
-                >
-                  Buka Editor
-                </button>
-                <button
-                  onClick={() => setShowConfirmGuard(false)}
-                  className="w-full bg-transparent border border-[#E2D9CF] text-[#2C2A29] py-3 min-h-[44px] font-label-md text-[11px] uppercase tracking-widest rounded-xl hover:bg-[#F5EFE6] transition-colors"
-                >
-                  Nanti dulu
-                </button>
-              </div>
+              <button
+                onClick={() => { setShowConfirmGuard(false); router.push(`/dashboard/${weddingProfileId}/web-invitation/editor`) }}
+                className="w-full bg-[#B34E3F] text-white py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
+              >
+                Buka Editor
+              </button>
+              <button
+                onClick={() => setShowConfirmGuard(false)}
+                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Nanti dulu
+              </button>
             </div>
           </div>
         </div>

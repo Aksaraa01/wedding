@@ -353,7 +353,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="w-full min-h-[44px] py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full min-h-[44px] py-3.5 bg-[#B34E3F] text-white rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:bg-[#9A3F32] transition-colors disabled:opacity-50"
                 >
                   {saving ? "Menyimpan..." : "Ya, Simpan"}
                 </button>
@@ -380,7 +380,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => router.push(`/dashboard/${id}/guests`)}
-                  className="w-full min-h-[44px] py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                  className="w-full min-h-[44px] py-3.5 bg-[#B34E3F] text-white rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:bg-[#9A3F32] transition-colors"
                 >
                   Kelola Daftar Tamu
                 </button>
@@ -406,7 +406,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
-                  className="w-full min-h-[44px] py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                  className="w-full min-h-[44px] py-3.5 bg-[#B34E3F] text-white rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:bg-[#9A3F32] transition-colors"
                 >
                   Konfirmasi Sekarang
                 </button>
