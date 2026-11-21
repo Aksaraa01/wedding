@@ -233,8 +233,8 @@ export default function InvitationOverlay({
 
       {/* RSVP modal */}
       {rsvpOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-2 sm:p-6">
-          <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden border border-[#E2D9CF]/60 flex flex-col max-h-[96dvh] sm:max-h-[92dvh]">
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+          <div className="relative w-full max-w-[480px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-[#E2D9CF]/60 flex flex-col max-h-[92dvh]">
             {/* Top decorative gradient line */}
             <div className="h-1 sm:h-1.5 w-full bg-gradient-to-r from-[#C29B38]/60 via-[#B34E3F] to-[#C29B38]/60 shrink-0" />
 
