@@ -112,8 +112,8 @@ export default function SelfieModal({
         // and fall back to the raw capture if compression cannot improve it.
         const raw = new File([b], `selfie-${Date.now()}.jpg`, { type: "image/jpeg" })
         const compressed = await compressImage(raw, {
-          maxDimension: 1800,
-          maxBytes: 1.5 * 1024 * 1024,
+          maxDimension: 2100,
+          maxBytes: 1.75 * 1024 * 1024,
           initialQuality: 0.88,
         })
         setCapturedBlob(compressed)

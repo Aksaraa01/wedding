@@ -319,8 +319,8 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     const sh = g.h / cover
     const sx = Math.max(0, Math.min(vw - sw, (g.x - offX) / cover))
     const sy = Math.max(0, Math.min(vh - sh, (g.y - offY) / cover))
-    // Cap the long edge at 1800px — the same budget the upload cap expects.
-    const out = Math.min(1, 1800 / Math.max(sw, sh))
+    // Cap the long edge at 2100px — the same budget the upload cap expects.
+    const out = Math.min(1, 2100 / Math.max(sw, sh))
     canvas.width = Math.round(sw * out)
     canvas.height = Math.round(sh * out)
     const ctx = canvas.getContext("2d")
@@ -385,10 +385,10 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
         cameraFilter: cameraFilter || "",
       })
       // Baking the frame can re-encode at source size; normalize once more so
-      // the server's 1.5MB guest cap is met without a rejected upload.
+      // the server's 1.75MB guest cap is met without a rejected upload.
       const upload = await compressImage(framed, {
-        maxDimension: 1800,
-        maxBytes: 1.5 * 1024 * 1024,
+        maxDimension: 2100,
+        maxBytes: 1.75 * 1024 * 1024,
         initialQuality: 0.88,
       })
       const result = await uploadShot({ file: upload, caption: caption.trim(), captureId: shot.captureId })
