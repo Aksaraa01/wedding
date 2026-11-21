@@ -13,7 +13,7 @@ import { isValidGuestCategory } from "@/lib/guest-slug"
 import { sanitizeGuestName } from "@/lib/nameClean"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
-const MAX_SIZE = 2 * 1024 * 1024
+const MAX_SIZE = 10 * 1024 * 1024
 const MAX_NAME = 32
 const MAX_CAPTION = 140
 
@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: "Ukuran file maksimal 2MB" }, { status: 400 })
+      return NextResponse.json({ error: "Ukuran file maksimal 10MB" }, { status: 400 })
     }
 
     // Event-QR (Galeri standalone) path — device identity, no guest row.

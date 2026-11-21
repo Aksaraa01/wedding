@@ -36,10 +36,10 @@ const BUCKET_ALLOWED_MIME_TYPES = [
 ]
 
 // Guest photos: sharp normalizes server-side so the stored original stays
-// sharp enough for the keepsake book / downloadable originals while keeping
-// storage + egress sane. 1800px is ~250dpi at A5.
-export const GUEST_PHOTO_MAX_DIMENSION = 1800
-export const GUEST_PHOTO_MAX_BYTES = 1.5 * 1024 * 1024
+// sharp enough for download/share/keepsake book while keeping storage + egress
+// sane. 2100px is ~290dpi at A5; 1.75MB keeps compression artifacts modest.
+export const GUEST_PHOTO_MAX_DIMENSION = 2100
+export const GUEST_PHOTO_MAX_BYTES = 1.75 * 1024 * 1024
 const THUMB_QUALITY = 72
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif|bmp|tiff?|heic|heif)$/i
@@ -84,8 +84,8 @@ async function normalizeGuestPhoto(
       if (out.length <= GUEST_PHOTO_MAX_BYTES) {
         return { buffer: out, ext: "jpg", contentType: "image/jpeg" }
       }
-      if (quality > 72) quality -= 8
-      else width = Math.max(640, Math.round(width * 0.85))
+      if (quality > 78) quality = Math.max(78, quality - 8)
+      else width = Math.max(1280, Math.round(width * 0.85))
     }
     return null
   } catch (err) {
