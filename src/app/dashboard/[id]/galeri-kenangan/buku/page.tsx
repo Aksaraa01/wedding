@@ -381,7 +381,7 @@ if (dead) return
   }
 
   return (
-    <div className="min-h-screen bg-[#f2efe9] py-8" style={SANS}>
+    <div className="min-h-screen bg-[#f2efe9] py-8 overflow-x-auto" style={SANS}>
       <style>{`
         @media print {
           .no-print { display: none !important; }
@@ -391,7 +391,7 @@ if (dead) return
         @page { size: A4 portrait; margin: 10mm; }
       `}</style>
 
-      <div className="no-print max-w-[820px] mx-auto px-6 mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="no-print w-[820px] min-w-[820px] max-w-[820px] mx-auto px-6 mb-6 flex items-center justify-between gap-3">
         <button
           onClick={() => window.history.back()}
           className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-widest text-[#6b2b2d]"
@@ -421,7 +421,7 @@ if (dead) return
         <p className="text-center text-sm text-[#444841] px-6">{error || "Belum ada foto untuk dibukukan"}</p>
       ) : (
         couple && (
-          <div className="mx-auto flex flex-col gap-10 items-center px-6 pb-10" style={{ maxWidth: 820 }}>
+          <div className="mx-auto flex flex-col gap-10 items-center px-6 pb-10" style={{ width: 820, minWidth: 820, maxWidth: 820 }}>
             <div className="w-full" style={{ breakInside: "avoid", breakAfter: "page" }}>
               <CoverPage couple={couple} />
             </div>
