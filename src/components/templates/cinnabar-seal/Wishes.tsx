@@ -34,26 +34,49 @@ const PAGE_SIZE = 4
 const MAX_CHARS = 500
 const DEMO_ID = "demo-wedding-profile-id"
 
-const DEMO_WISHES: Wish[] = [
+function demoWishes(lang: "id" | "en"): Wish[] {
+  return lang === "en"
+    ? [
+  {
+    id: "demo-1",
+    name: "The Tanoto Family",
+    message: "Congratulations on your new life together. May your home always be warm and full of laughter.",
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: "demo-2",
+    name: "Livia's Friend",
+    message: "Finally! We've been waiting for this day since your first story. Wishing you endless happiness.",
+    created_at: new Date(Date.now() - 172800000).toISOString(),
+  },
+  {
+    id: "demo-3",
+    name: "Kevin's Colleague",
+    message: "May your journey always be blessed with clear skies and people who love you.",
+    created_at: new Date(Date.now() - 259200000).toISOString(),
+  },
+    ]
+    : [
   {
     id: "demo-1",
     name: "Keluarga Tanoto",
     message: "Selamat menempuh hidup baru. Semoga rumah kalian selalu hangat dan penuh tawa.",
-    created_at: new Date(Date.now() - 86_400_000).toISOString(),
+    created_at: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: "demo-2",
     name: "Sahabat Livia",
     message: "Akhirnya! Kami menunggu hari ini sejak cerita pertama kalian. Bahagia selalu.",
-    created_at: new Date(Date.now() - 172_800_000).toISOString(),
+    created_at: new Date(Date.now() - 172800000).toISOString(),
   },
   {
     id: "demo-3",
     name: "Rekan Kevin",
     message: "Semoga perjalanan kalian selalu ditemani cuaca baik dan orang-orang yang menyayangi.",
-    created_at: new Date(Date.now() - 259_200_000).toISOString(),
+    created_at: new Date(Date.now() - 259200000).toISOString(),
   },
-]
+    ]
+}
 
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy, language = "id" }: Props) {
   const lang = normalizeLanguage(language)
@@ -76,7 +99,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       return
     }
     if (weddingProfileId === DEMO_ID) {
-      setWishes(DEMO_WISHES)
+      setWishes(demoWishes(lang))
       setLoaded(true)
       return
     }

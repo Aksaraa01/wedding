@@ -9,7 +9,7 @@ function EventBlock({ session, align, lang = "id" }: { session: SessionData; ali
   return (
     <section className={`flex flex-col max-w-[290px] drop-shadow-sm ${right ? "items-end text-right self-end mt-4" : "items-start text-left"}`}>
       <h1 className="text-[38px] leading-tight font-normal mb-2" style={{ ...FONT_SCRIPT, color: "#1c1815" }}>
-        {session.name || "Acara"}
+        {session.name || (lang === "en" ? "Event" : "Acara")}
       </h1>
       {session.date && (
         <p className="text-[13px] font-medium tracking-wide mb-1" style={{ ...FONT_BODY, color: "#2d241e" }}>
@@ -66,7 +66,7 @@ export default function EventPage({ sessions, lang = "id" }: { sessions: Session
         )}
         <footer className="w-full flex items-center justify-center relative pt-2">
           <span className="text-[11px] font-semibold uppercase" style={{ ...FONT_BODY, letterSpacing: "0.2em", color: "rgba(61,48,37,0.9)" }}>
-            Geser ke atas
+            {lang === "en" ? "Swipe up" : "Geser ke atas"}
           </span>
         </footer>
       </div>

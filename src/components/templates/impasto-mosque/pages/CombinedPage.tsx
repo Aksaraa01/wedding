@@ -15,6 +15,7 @@ export default function CombinedPage({
   videoOn,
   giftOn,
   invitingOn,
+  language = "id",
 }: {
   profile: TemplateProps
   accounts: GiftAccountData[]
@@ -22,9 +23,10 @@ export default function CombinedPage({
   videoOn: boolean
   giftOn: boolean
   invitingOn: boolean
+  language?: string
 }) {
+  const lang = (language === "en" ? "en" : "id") as "id" | "en"
   const videoEmbed = normalizeVideoUrl(profile.video_url)
-  const lang = normalizeLanguage(profile.language)
 
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto px-4 pt-3 pb-16 space-y-4">
@@ -38,7 +40,7 @@ export default function CombinedPage({
             </span>
           </div>
           <h2 className="text-[20px] font-bold tracking-tight mb-2" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-            {lang === "en" ? "Our Sacred Moments" : "Momen Suci Kami"}
+            {lang === "en" ? "Our Sacred Moments" : "Momen Sakral Kami"}
           </h2>
           <div className="relative rounded-2xl overflow-hidden border border-[#d4af37]/35 bg-black/90 aspect-video">
             <iframe
@@ -59,7 +61,7 @@ export default function CombinedPage({
             <div className="inline-flex items-center gap-1.5 mb-2 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
               <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">group</span>
               <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ ...FONT_BODY, color: "#8E6B3D" }}>
-                {lang === "en" ? "Our Family" : "Keluarga Besar"}
+                {lang === "en" ? "Extended Family" : "Keluarga Besar"}
               </span>
             </div>
             <h2 className="text-[20px] font-bold tracking-tight" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
@@ -97,7 +99,7 @@ export default function CombinedPage({
               return (
                 <div key={i} className="bg-white/95 rounded-2xl p-4 border border-[#d4af37]/35 shadow-sm">
                   <p className="text-[11px] uppercase font-semibold tracking-wider mb-1" style={{ ...FONT_BODY, color: "#574E45" }}>
-                    {a.provider_name || "Bank"}
+                    {a.provider_name || (lang === "en" ? "Bank" : "Bank")}
                   </p>
                   <p className="text-[20px] font-bold tracking-wider" style={{ ...FONT_DISPLAY, color: "#8E6B3D" }}>
                     {num || ", "}

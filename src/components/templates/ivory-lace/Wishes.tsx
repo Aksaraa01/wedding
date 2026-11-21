@@ -24,52 +24,97 @@ const PAGE_SIZE = 5
 const MAX_CHARS = 500
 const DEMO_ID = "demo-wedding-profile-id"
 
-const DEMO_WISHES: Wish[] = [
+function demoWishes(lang: "id" | "en"): Wish[] {
+  return lang === "en"
+    ? [
   {
     id: "demo-1",
     name: "The Rossi Family",
-    message:
-      "Wishing you a lifetime of gentleness, laughter, and the kind of love that only grows quieter and deeper with time.",
-    created_at: new Date(Date.now() - 86_400_000).toISOString(),
+    message: "Wishing you a lifetime of gentleness, laughter, and the kind of love that only grows quieter and deeper with time.",
+    created_at: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: "demo-2",
     name: "A Friend of the Albarns",
     message: "Finally! We have watched this story unfold from the very first chapter. Congratulations, you two.",
-    created_at: new Date(Date.now() - 172_800_000).toISOString(),
+    created_at: new Date(Date.now() - 172800000).toISOString(),
   },
   {
     id: "demo-3",
     name: "Faye's Old Colleague",
-    message:
-      "May your home always be warm, your table always full, and your patience always longer than the queue at the airport.",
-    created_at: new Date(Date.now() - 259_200_000).toISOString(),
+    message: "May your home always be warm, your table always full, and your patience always longer than the queue at the airport.",
+    created_at: new Date(Date.now() - 259200000).toISOString(),
   },
   {
     id: "demo-4",
     name: "The Bellini Family",
     message: "With all our love and blessings for the road ahead. We are so happy for you both.",
-    created_at: new Date(Date.now() - 345_600_000).toISOString(),
+    created_at: new Date(Date.now() - 345600000).toISOString(),
   },
   {
     id: "demo-5",
     name: "An Old Friend",
     message: "From the people who watched you become who you are, congratulations, and all of our love.",
-    created_at: new Date(Date.now() - 432_000_000).toISOString(),
+    created_at: new Date(Date.now() - 432000000).toISOString(),
   },
   {
     id: "demo-6",
     name: "The Choir",
     message: "May your marriage grow like a garden, slowly, patiently, and in every season.",
-    created_at: new Date(Date.now() - 518_400_000).toISOString(),
+    created_at: new Date(Date.now() - 518400000).toISOString(),
   },
   {
     id: "demo-7",
     name: "Faye's Godmother",
     message: "I have prayed for this day since you were small. Be kind to one another, and laugh often.",
-    created_at: new Date(Date.now() - 604_800_000).toISOString(),
+    created_at: new Date(Date.now() - 604800000).toISOString(),
   },
-]
+    ]
+    : [
+  {
+    id: "demo-1",
+    name: "Keluarga Rossi",
+    message: "Semoga kalian selalu diberkahi kelembutan, tawa, dan cinta yang semakin dalam seiring waktu.",
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: "demo-2",
+    name: "Sahabat Keluarga Albarn",
+    message: "Akhirnya! Kami menyaksikan kisah ini sejak bab pertama. Selamat untuk kalian berdua.",
+    created_at: new Date(Date.now() - 172800000).toISOString(),
+  },
+  {
+    id: "demo-3",
+    name: "Rekan Lama Faye",
+    message: "Semoga rumah kalian selalu hangat, meja selalu penuh, dan kesabaran selalu lebih panjang dari antrean.",
+    created_at: new Date(Date.now() - 259200000).toISOString(),
+  },
+  {
+    id: "demo-4",
+    name: "Keluarga Bellini",
+    message: "Dengan segenap cinta dan doa untuk perjalanan kalian ke depan. Kami sangat bahagia untuk kalian.",
+    created_at: new Date(Date.now() - 345600000).toISOString(),
+  },
+  {
+    id: "demo-5",
+    name: "Teman Lama",
+    message: "Dari kami yang menyaksikan kalian tumbuh, selamat, dan semua cinta kami untuk kalian.",
+    created_at: new Date(Date.now() - 432000000).toISOString(),
+  },
+  {
+    id: "demo-6",
+    name: "Paduan Suara",
+    message: "Semoga pernikahan kalian tumbuh seperti taman, perlahan, sabar, dan di setiap musim.",
+    created_at: new Date(Date.now() - 518400000).toISOString(),
+  },
+  {
+    id: "demo-7",
+    name: "Ibu Baptis Faye",
+    message: "Aku telah mendoakan hari ini sejak kamu kecil. Berbaik hatilah satu sama lain, dan seringlah tertawa.",
+    created_at: new Date(Date.now() - 604800000).toISOString(),
+  },
+    ]
+}
 
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, language = "id" }: Props) {
   const lang = normalizeLanguage(language)
@@ -89,7 +134,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       return
     }
     if (weddingProfileId === DEMO_ID) {
-      setWishes(DEMO_WISHES)
+      setWishes(demoWishes(lang))
       setLoaded(true)
       return
     }

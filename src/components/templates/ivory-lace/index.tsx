@@ -169,8 +169,8 @@ export default function IvoryLace(profile: TemplateProps) {
   const main = sessions[0]
   const events = sessions.filter((s) => !!(s.name || s.venue || s.date || s.address))
 
-  const groom = profile.groom_name || "The Groom"
-  const bride = profile.bride_name || "The Bride"
+  const groom = profile.groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")
+  const bride = profile.bride_name || (lang === "en" ? "The Bride" : "Mempelai Wanita")
   const groomFull = profile.groom_full_name || groom
   const brideFull = profile.bride_full_name || bride
   const coupleLabel = [groom, bride].join(" & ")
@@ -219,7 +219,7 @@ export default function IvoryLace(profile: TemplateProps) {
 
   const eventDay = useMemo(() => eventDate(profile), [profile])
   const dateDot = formatDotDate(profile.estimated_wedding_date || main?.date)
-  const guestName = profile.guest_name || "Tamu Undangan"
+  const guestName = profile.guest_name || t("honoredGuest", lang)
   const calendarUrl = gcalLink(main, profile.groom_name || "", profile.bride_name || "")
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -232,7 +232,7 @@ export default function IvoryLace(profile: TemplateProps) {
     ? rawHashtag
     : `#${`${groom}${bride}`.replace(/[^A-Za-z0-9]/g, "")}`
 
-  const welcomeTitle = (profile.opening_title || "").trim() || tc.welcome_invite || "Dear Family & Friends"
+  const welcomeTitle = (profile.opening_title || "").trim() || tc.welcome_invite || (lang === "en" ? "Dear Family & Friends" : "Keluarga & Sahabat Tercinta")
   const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
 
   const showGuestDock =
@@ -489,7 +489,7 @@ export default function IvoryLace(profile: TemplateProps) {
                     </figure>
                   )}
                   <div className="il-event__body">
-                    <h3 className="il-display il-event__name">{event.name || "Wedding Event"}</h3>
+                    <h3 className="il-display il-event__name">{event.name || t("weddingEventFallback", lang)}</h3>
                     <p className="il-script il-event__venue">{event.venue || ""}</p>
                     {(event.address || event.time) && (
                       <p className="il-body il-event__meta">
@@ -590,7 +590,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {rundown.length > 0 && (
           <section className="il-section il-rundown" data-section="rundown">
             <div className="il-wrap il-rundown__head" data-il-reveal>
-              <h2 className="il-display il-heading">{tc.rundown_title || "Wedding Time Line"}</h2>
+              <h2 className="il-display il-heading">{tc.rundown_title || t("rundownTitle", lang)}</h2>
               {tc.rundown_intro && <p className="il-body il-rundown__intro">{tc.rundown_intro}</p>}
             </div>
             <ol className="il-wrap il-rundown__list">
@@ -641,7 +641,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {hasVideo && (
           <section className="il-section il-film" data-section="video">
             <div className="il-wrap il-film__body" data-il-reveal>
-              <h2 className="il-display il-heading">{tc.video_title || "Our Film"}</h2>
+              <h2 className="il-display il-heading">{tc.video_title || t("secVideo", lang)}</h2>
               {tc.video_intro && <p className="il-body il-film__intro">{tc.video_intro}</p>}
 
               <div className="il-film__player">
@@ -652,7 +652,7 @@ export default function IvoryLace(profile: TemplateProps) {
                   ) : (
                     <iframe
                       src={film!.src}
-                      title={tc.video_title || "Our Film"}
+                      title={tc.video_title || t("secVideo", lang)}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                       allowFullScreen
                     />
@@ -687,7 +687,7 @@ export default function IvoryLace(profile: TemplateProps) {
                           aria-expanded={open}
                           onClick={() => setOpenAccount(open ? -1 : index)}
                         >
-                          <span>{account.provider_name || "Bank"}</span>
+                          <span>{account.provider_name || (lang === "en" ? "Bank Account" : "Rekening Bank")}</span>
                           <svg className="il-account__chev" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M6 9.5 12 15l6-5.5" />
                           </svg>
@@ -776,7 +776,7 @@ export default function IvoryLace(profile: TemplateProps) {
             )}
             <p className="il-hashtag">{hashtag}</p>
             <p className="il-body il-closing__message">
-              {tc.closing_message || "We cannot wait to celebrate with you."}
+              {tc.closing_message || (lang === "en" ? "We cannot wait to celebrate with you." : "Kami tidak sabar merayakan hari bahagia ini bersama Anda.")}
             </p>
             {tc.cover_apology && <p className="il-closing__apology">{tc.cover_apology}</p>}
 
@@ -869,7 +869,7 @@ export default function IvoryLace(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || "Guest"}
+          guestName={profile.guest_name || t("honoredGuest", lang)}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}

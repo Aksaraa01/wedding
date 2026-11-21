@@ -111,7 +111,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
               onClose={closeModal}
             />
           )}
-          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} />}
+          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} language={props.language} />}
         </div>
 
         {showGuestDock && (

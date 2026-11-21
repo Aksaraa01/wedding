@@ -5,7 +5,8 @@ import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { bridePhoto, groomPhoto } from "../../shared/lib"
 
-export default function PersonPage({ profile, side }: { profile: TemplateProps; side: "groom" | "bride" }) {
+export default function PersonPage({ profile, side, language = "id" }: { profile: TemplateProps; side: "groom" | "bride"; language?: string }) {
+  const lang = (language === "en" ? "en" : "id") as "id" | "en"
   const isGroom = side === "groom"
   const photo = isGroom ? groomPhoto(profile.groom_photo_url) : bridePhoto(profile.bride_photo_url)
   const fullName = (isGroom ? profile.groom_full_name : profile.bride_full_name) || undefined
@@ -40,7 +41,7 @@ export default function PersonPage({ profile, side }: { profile: TemplateProps; 
   const textBlock = (
     <div className={`flex-1 max-w-[210px] pb-4 z-20 flex flex-col ${isGroom ? "items-end text-right" : "items-start text-left"}`}>
       <h1 className="italic text-[30px] sm:text-[34px] leading-[1.1] tracking-tight mb-2" style={{ ...FONT_DISPLAY, color: "#241a00", textShadow: "0 1px 2px rgba(255,255,255,0.6)" }}>
-        {`${fullName || shortName || "Mempelai"},`}
+        {`${fullName || shortName || (lang === "en" ? "The Bride/Groom" : "Mempelai")},`}
       </h1>
       {parents && (
         <p className="text-[11.5px] leading-[17px] font-normal mb-3.5" style={{ ...FONT_BODY, color: "#2c3136", textShadow: "0 1px 1px rgba(255,255,255,0.5)" }}>

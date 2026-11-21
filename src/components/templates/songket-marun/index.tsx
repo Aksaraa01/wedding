@@ -183,14 +183,14 @@ export default function SongketMarun(profile: TemplateProps) {
   const hasGift = accounts.length > 0 || !!giftAddress
 
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
-  const coverGuestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
+  const coverGuestLabel = (tc.cover_guest_label || "").trim() || (lang === "en" ? "To Mr./Mrs./Ms." : "Kepada Yth. Bapak/Ibu/Saudara/i")
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const salam = (tc.opening_salam || "").trim() || d.salam
   const basmalah = (tc.basmalah || "").trim() || d.basmalah
   const openingText = (profile.opening_description || "").trim() || d.opening
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
-  const doaTitle = (tc.doa_title || "").trim() || "Doa untuk Ananda"
+  const doaTitle = (tc.doa_title || "").trim() || (lang === "en" ? "Prayer for the Child" : "Doa untuk Ananda")
   const doaArabic = (tc.doa_arabic || "").trim() || d.doa
   const doaBlessing = (tc.doa_blessing || "").trim() || d.blessing
   const saveKicker = (tc.save_date_kicker || "").trim() || t("saveTheDate", lang)

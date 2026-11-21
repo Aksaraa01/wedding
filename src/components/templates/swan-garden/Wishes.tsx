@@ -88,9 +88,10 @@ export default function Wishes({
   const send = useCallback(async () => {
     const text = message.trim()
     if (!text || status === "sending") return
+    const en = language === "en"
     if (!weddingProfileId || weddingProfileId === "demo-wedding-profile-id") {
       setStatus("done")
-      setFeedback("Mode pratinjau, ucapan tidak tersimpan.")
+      setFeedback(en ? "Preview mode, wishes are not saved." : "Mode pratinjau, ucapan tidak tersimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -106,14 +107,14 @@ export default function Wishes({
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Tamu Undangan",
+          name: name.trim() || guestName || (en ? "Guest" : "Tamu Undangan"),
           message: text,
           source: "invitation",
         }),
       })
       if (res.status === 409 || res.ok) {
         setStatus("done")
-        setFeedback(res.ok ? "Tersimpan, menunggu moderasi" : "Terima kasih! Ucapan Anda telah tersampaikan.")
+        setFeedback(res.ok ? (en ? "Saved, awaiting moderation" : "Tersimpan, menunggu moderasi") : (en ? "Thank you! Your wish has been received." : "Terima kasih! Ucapan Anda telah tersampaikan."))
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -121,13 +122,13 @@ export default function Wishes({
         }, 4000)
       } else {
         setStatus("error")
-        setFeedback("Terlalu banyak kiriman. Coba lagi nanti.")
+        setFeedback(en ? "Too many submissions. Please try again later." : "Terlalu banyak kiriman. Coba lagi nanti.")
       }
     } catch {
       setStatus("error")
-      setFeedback("Gagal terkirim. Periksa koneksi Anda.")
+      setFeedback(en ? "Failed to send. Please check your connection." : "Gagal terkirim. Periksa koneksi Anda.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status])
+  }, [weddingProfileId, guestId, guestName, name, message, status, language])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const paged = useMemo(() => wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [wishes, page])
@@ -187,8 +188,8 @@ export default function Wishes({
               {paged.map((wish) => (
                 <div className="comment-item" key={wish.id}>
                   <div className="comment-head">
-                    <p className="comment-name">{wish.name || "Tamu Undangan"}</p>
-                    <span className="comment-date">{timeAgo(wish.created_at)}</span>
+                    <p className="comment-name">{wish.name || (language === "en" ? "Guest" : "Tamu Undangan")}</p>
+                    <span className="comment-date">{timeAgo(wish.created_at, language)}</span>
                   </div>
                   <div className="comment-body">
                     <p className="comment-caption">{wish.message}</p>
@@ -204,7 +205,7 @@ export default function Wishes({
                   className="sw-pager__arrow"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  aria-label="Previous"
+                  aria-label={language === "en" ? "Previous" : "Sebelumnya"}
                 >
                   ‹
                 </button>
@@ -224,7 +225,7 @@ export default function Wishes({
                   className="sw-pager__arrow"
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page === totalPages - 1}
-                  aria-label="Next"
+                  aria-label={language === "en" ? "Next" : "Berikutnya"}
                 >
                   ›
                 </button>

@@ -16,7 +16,7 @@ type Props = {
 export default function Closing({ photos, coupleLabel, language }: Props) {
   const lang = normalizeLanguage(language)
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent(
-    "Halo Aksaraa Wedding, saya tertarik membuat undangan digital"
+    lang === "en" ? "Hello Aksaraa Wedding, I'm interested in creating a digital invitation" : "Halo Aksaraa Wedding, saya tertarik membuat undangan digital"
   )}`
 
   return (
@@ -43,7 +43,7 @@ export default function Closing({ photos, coupleLabel, language }: Props) {
           href={waHref}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Hubungi Aksaraa Wedding via WhatsApp"
+          aria-label={lang === "en" ? "Contact Aksaraa Wedding via WhatsApp" : "Hubungi Aksaraa Wedding via WhatsApp"}
           className="group mt-10 inline-flex flex-col items-center gap-3"
         >
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 p-2 shadow-lg transition-transform duration-300 group-hover:scale-105">

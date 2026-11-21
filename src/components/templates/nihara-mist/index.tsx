@@ -172,7 +172,7 @@ export default function NiharaMist(profile: TemplateProps) {
 
   useEffect(() => { sceneRef.current = scene }, [scene])
 
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || t("theWeddingOf", lang)
   const groomShort = profile.groom_name || ""
   const brideShort = profile.bride_name || ""
   const groomFull = profile.groom_full_name || ""
@@ -193,7 +193,7 @@ export default function NiharaMist(profile: TemplateProps) {
   const honored = gates.inviting_families !== false && profile.inviting_families_visible !== false
     ? (profile.inviting_families || []).filter(Boolean)
     : []
-  const guestName = profile.guest_name || "Our Beloved Guest"
+  const guestName = profile.guest_name || t("honoredGuest", lang)
   const dateLong = longDate(profile.estimated_wedding_date)
   const dateShort = shortDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date)
@@ -803,7 +803,7 @@ export default function NiharaMist(profile: TemplateProps) {
                       <div className="tpl-gift__accounts">
                         {accounts.map((a, i) => (
                           <div key={i} className="tpl-gift__account">
-                            <p className="tpl-gift__heading">{a.provider_name || "Bank"}</p>
+                            <p className="tpl-gift__heading">{a.provider_name || (lang === "en" ? "Bank" : "Bank")}</p>
                             <p className="tpl-gift__account-number">{a.account_number}</p>
                             <p className="tpl-gift__account-name">{a.account_name}</p>
                             <button type="button" className="tpl-gift__copy-btn" onClick={() => copy(String(a.account_number || ""))}>

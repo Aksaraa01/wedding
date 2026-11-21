@@ -205,7 +205,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
   const groomFull = (profile.groom_full_name || "").trim() || groomName
   const brideFull = (profile.bride_full_name || "").trim() || brideName
   const groomIg = igHandle(profile.groom_instagram)
@@ -213,7 +213,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
   const guestName = (profile.guest_name || "").trim() || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)
 
   const rawHashtag = (profile.display_name || "").trim()
-  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || "OurWedding"}`
+  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || (lang === "en" ? "OurWedding" : "PernikahanKami")}`
   const hashtag = rawHashtag.startsWith("#") ? rawHashtag : derivedHashtag
 
   const dateObject = parseDate(profile.estimated_wedding_date)
@@ -324,7 +324,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     messageLabel: (tc.wishes_message_label || "").trim() || (lang === "en" ? "Message" : "Pesan"),
     messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave a wish for the couple" : "Tulis ucapan untuk pasangan"),
     submit: (tc.wishes_submit || "").trim() || t("sendWishes", lang),
-    empty: (tc.wishes_empty || "").trim() || "No wishes yet. Be the first.",
+    empty: (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama."),
   }
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -1352,7 +1352,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="eh-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightbox(null)}>
-          <button type="button" className="eh-lightbox__close" aria-label="Close" onClick={() => setLightbox(null)}>
+          <button type="button" className="eh-lightbox__close" aria-label={lang === "en" ? "Close" : "Tutup"} onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (

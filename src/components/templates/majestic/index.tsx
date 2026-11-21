@@ -168,9 +168,9 @@ export default function Majestic(profile: TemplateProps) {
 
   const groom = (profile.groom_name || "").trim()
   const bride = (profile.bride_name || "").trim()
-  const groomFull = (profile.groom_full_name || groom || "Mempelai").trim()
-  const brideFull = (profile.bride_full_name || bride || "Mempelai").trim()
-  const coupleLabel = [groom || "Mempelai", bride || "Mempelai"].join(" & ")
+  const groomFull = (profile.groom_full_name || groom || (lang === "en" ? "The Couple" : "Mempelai")).trim()
+  const brideFull = (profile.bride_full_name || bride || (lang === "en" ? "The Couple" : "Mempelai")).trim()
+  const coupleLabel = [groom || (lang === "en" ? "The Couple" : "Mempelai"), bride || (lang === "en" ? "The Couple" : "Mempelai")].join(" & ")
 
   const covers = useMemo(() => photoList(profile.cover_photos), [profile.cover_photos])
   const venuePhoto = covers[0] || ""
@@ -238,56 +238,56 @@ export default function Majestic(profile: TemplateProps) {
   const hasVideo = !!film && gates.video !== false && profile.video_section_visible !== false
 
   // Copy — every visible string is reachable from the editor (EKSTRA) or ops.
-  const coverKicker = (tc.cover_kicker || "").trim() || "Kami Akan Menikah"
-  const guestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
+  const coverKicker = (tc.cover_kicker || "").trim() || (lang === "en" ? "We Are Getting Married" : "Kami Akan Menikah")
+  const guestLabel = (tc.cover_guest_label || "").trim() || (lang === "en" ? "Dear Mr./Mrs./Ms." : "Kepada Yth. Bapak/Ibu/Saudara/i")
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
-  const gateHint = (tc.gate_hint || "").trim() || "Ketuk untuk Membuka"
-  const mempelaiTitle = (tc.mempelai_title || "").trim() || "Mempelai"
-  const parentsLabel = (tc.parents_label || "").trim() || "Putra/Putri dari"
+  const gateHint = (tc.gate_hint || "").trim() || (lang === "en" ? "Tap to Open" : "Ketuk untuk Membuka")
+  const mempelaiTitle = (tc.mempelai_title || "").trim() || (lang === "en" ? "The Couple" : "Mempelai")
+  const parentsLabel = (tc.parents_label || "").trim() || (lang === "en" ? "Son/Daughter of" : "Putra/Putri dari")
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
-  const storyTitle = (tc.love_story_title || "").trim() || "Kisah Cinta"
+  const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Love Story" : "Kisah Cinta")
   const storyIntro = (tc.story_intro || "").trim() || DEFAULT_STORY_INTRO
-  const eventsTitle = (tc.events_title || "").trim() || "The Wedding Day"
+  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "The Wedding Day" : "Hari Pernikahan")
   const eventsNote = (tc.events_note || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
-  const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
+  const calendarLabel = (tc.calendar_button || "").trim() || (lang === "en" ? "Save the Date" : "Simpan Tanggal")
   const countdownTitle = (tc.countdown_title || "").trim() || t("saveTheDate", lang)
   const countdownIntro = (tc.countdown_intro || "").trim()
   const countdownLabels = [
-    (tc.countdown_days || "").trim() || "Hari",
-    (tc.countdown_hours || "").trim() || "Jam",
-    (tc.countdown_minutes || "").trim() || "Menit",
-    (tc.countdown_seconds || "").trim() || "Detik",
+    (tc.countdown_days || "").trim() || (lang === "en" ? "Days" : "Hari"),
+    (tc.countdown_hours || "").trim() || (lang === "en" ? "Hours" : "Jam"),
+    (tc.countdown_minutes || "").trim() || (lang === "en" ? "Minutes" : "Menit"),
+    (tc.countdown_seconds || "").trim() || (lang === "en" ? "Seconds" : "Detik"),
   ]
-  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
+  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
   const invitingIntro = (tc.inviting_intro || "").trim()
-  const rundownTitle = (tc.rundown_title || "").trim() || "Rangkaian Hari"
+  const rundownTitle = (tc.rundown_title || "").trim() || (lang === "en" ? "Day's Programme" : "Rangkaian Hari")
   const rundownIntro = (tc.rundown_intro || "").trim()
-  const galleryTitle = (tc.gallery_title || "").trim() || "Gallery of Us"
+  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Gallery of Us" : "Galeri Kami")
   const galleryIntro = (tc.gallery_intro || "").trim()
   const galleryQuote = (tc.gallery_quote || "").trim()
-  const videoTitle = (tc.video_title || "").trim() || "The Film"
+  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "The Film" : "Film")
   const videoIntro = (tc.video_intro || "").trim()
-  const giftTitle = (tc.gift_intro_title || "").trim() || "The Wedding Gift"
+  const giftTitle = (tc.gift_intro_title || "").trim() || (lang === "en" ? "The Wedding Gift" : "Hadiah Pernikahan")
   const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
   const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const copyAccount = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
   const copyAddress = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
-  const copyAccountToast = (tc.copy_account_toast || "").trim() || "Nomor rekening disalin"
-  const copyAddressToast = (tc.copy_address_toast || "").trim() || "Alamat disalin"
-  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
-  const dressTitle = (profile.dresscode?.title || "").trim() || "Formal"
-  const dressNote = (tc.dresscode_note || "").trim() || "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai."
+  const copyAccountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening disalin")
+  const copyAddressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat disalin")
+  const dressKicker = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dress Code" : "Busana")
+  const dressTitle = (profile.dresscode?.title || "").trim() || (lang === "en" ? "Formal" : "Formal")
+  const dressNote = (tc.dresscode_note || "").trim() || (lang === "en" ? "Please avoid white — that color is reserved for the couple." : "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai.")
   const wishesTitle = (tc.wishes_title || "").trim() || t("secWishes", lang)
-  const wishesIntro = (tc.wishes_intro || "").trim() || "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini."
-  const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
-  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Nama lengkap"
-  const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Ucapan & doa"
-  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tuliskan pesan Anda"
+  const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Share your prayers and best wishes for us on this special day." : "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini.")
+  const wishNameLabel = (tc.wishes_name_label || "").trim() || (lang === "en" ? "Your Name" : "Nama Anda")
+  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Full name" : "Nama lengkap")
+  const wishMessageLabel = (tc.wishes_message_label || "").trim() || (lang === "en" ? "Wishes & prayers" : "Ucapan & doa")
+  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Write your message" : "Tuliskan pesan Anda")
   const wishSubmit = (tc.wishes_submit || "").trim() || t("sendWishes", lang)
-  const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
-  const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
+  const wishEmpty = (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama.")
+  const wishLoading = (tc.wishes_loading || "").trim() || (lang === "en" ? "Loading wishes" : "Memuat ucapan")
   const closingTitle = (tc.closing_title || "").trim() || t("secClosing", lang)
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
   const apology = (tc.cover_apology || "").trim()

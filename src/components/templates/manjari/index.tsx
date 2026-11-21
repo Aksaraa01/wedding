@@ -91,7 +91,7 @@ export default function Manjari(profile: TemplateProps) {
   const trackUrl = profile.track_url || (profile.template_demo ? DEMO_TRACK : "")
   const hasTrack = !!trackUrl
   const guestName = profile.guest_name || t("honoredGuest", lang)
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
   const dateLong = formatDate(profile.estimated_wedding_date || "", lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
@@ -251,7 +251,7 @@ export default function Manjari(profile: TemplateProps) {
               const mapsUrl = event.maps_url || (event.venue || event.address ? `https://maps.google.com/?q=${encodeURIComponent([event.venue, event.address].filter(Boolean).join(", "))}` : "")
               return (
                 <article className="event reveal" key={`${event.name || "event"}-${index}`}>
-                  <h2>{event.name || "Wedding Event"}</h2>
+                  <h2>{event.name || t("weddingEventFallback", lang)}</h2>
                   <h3>{formatDate(event.date || profile.estimated_wedding_date || "", lang)}</h3>
                   {event.time && <p>{event.time}</p>}
                   <i />
@@ -316,7 +316,7 @@ export default function Manjari(profile: TemplateProps) {
             <div className="section-script reveal">
               <img className="reveal" src={A("wish-title.webp")} alt="" aria-hidden="true" />
               <h2>{tc.wishes_title || t("secWishes", lang)}</h2>
-              <p>{tc.wishes_intro || "Please let us know whether you will join our wedding celebration by completing the form below."}</p>
+              <p>{tc.wishes_intro || (lang === "en" ? "Please let us know whether you will join our wedding celebration by completing the form below." : "Mohon konfirmasi kehadiran Anda dengan mengisi form di bawah ini.")}</p>
             </div>
             <div className="manjari-rsvp">
               <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} language={profile.language} />
@@ -327,7 +327,7 @@ export default function Manjari(profile: TemplateProps) {
             <section className="digital-envelope burgundy" data-section="digital-envelope">
               <div className="digital-envelope__heading reveal">
                 <h2>{tc.gift_intro_title || t("secGift", lang)}</h2>
-                <p>{tc.gift_intro_description || "Your presence is the greatest gift to us."}</p>
+                <p>{tc.gift_intro_description || (lang === "en" ? "Your presence is the greatest gift to us." : "Kehadiran Anda adalah hadiah terindah bagi kami.")}</p>
               </div>
               <div className="digital-envelope__list reveal">
                 {accounts.map((account, index) => {
@@ -418,7 +418,7 @@ export default function Manjari(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || "Tamu Undangan"}
+          guestName={profile.guest_name || t("honoredGuest", lang)}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -456,7 +456,7 @@ export default function Manjari(profile: TemplateProps) {
             <div className="opening__bottom">
               <span>{lang === "en" ? "Dear," : "Kepada Yth,"}</span>
               <strong>{guestName}</strong>
-              <small>{tc.cover_apology || "We apologize for any misspelling of your name."}</small>
+              <small>{tc.cover_apology || (lang === "en" ? "We apologize for any misspelling of your name." : "Kami mohon maaf apabila terdapat kesalahan penulisan nama.")}</small>
               <button className="pill pill-burgundy" type="button" onClick={openInvitation}>{t("openInvitation", lang)}</button>
             </div>
           </div>

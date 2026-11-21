@@ -338,8 +338,8 @@ export default function LunarBlossom(profile: TemplateProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
 
-  const groomShort = (profile.groom_name || "").trim() || "Groom"
-  const brideShort = (profile.bride_name || "").trim() || "Bride"
+  const groomShort = (profile.groom_name || "").trim() || (lang === "en" ? "Groom" : "Mempelai Pria")
+  const brideShort = (profile.bride_name || "").trim() || (lang === "en" ? "Bride" : "Mempelai Wanita")
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
   const groomIg = instagramHandle(profile.groom_instagram)

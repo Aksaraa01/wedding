@@ -66,7 +66,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[16px] font-semibold uppercase" style={{ letterSpacing: "1px" }}>
-                      {a.provider_name || (a.type || "").toUpperCase() || "Bank"}
+                      {a.provider_name || (a.type || "").toUpperCase() || (lang === "en" ? "Bank" : "Bank")}
                     </span>
                     <span className="material-symbols-outlined text-[22px] text-[#F2F1EE]/70">credit_card</span>
                   </div>

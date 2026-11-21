@@ -140,8 +140,8 @@ export default function NFilm(profile: TemplateProps) {
 
   const texts = {
     kicker: (tc.cover_kicker || "").trim(),
-    coverTitle: (tc.cover_title || "").trim() || "Now Showing",
-    openLabel: (tc.open_button || "").trim() || "Start the Film",
+    coverTitle: (tc.cover_title || "").trim() || (lang === "en" ? "Now Showing" : "Sedang Tayang"),
+    openLabel: (tc.open_button || "").trim() || (lang === "en" ? "Start the Film" : "Mulai Film"),
     apology: (tc.cover_apology || "").trim(),
     badge: (tc.hero_badge || "").trim() || "#1",
     meta: (tc.hero_meta || "").trim(),
@@ -155,10 +155,10 @@ export default function NFilm(profile: TemplateProps) {
     invitingIntro: (tc.inviting_intro || "").trim(),
   }
 
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const guestName = (profile.guest_name || "").trim() || "Beloved Guest"
+  const guestName = (profile.guest_name || "").trim() || t("honoredGuest", lang)
   const dateLock = dotDate(profile.estimated_wedding_date)
   const year = yearOf(profile.estimated_wedding_date)
   // The editor/ops field "Hashtag Instagram Post" is `display_name`. It is the
@@ -349,15 +349,15 @@ export default function NFilm(profile: TemplateProps) {
             <div className="nf-profiles">
               <button type="button" className="nf-profile" onClick={openInvitation}>
                 <span className="nf-profile__shot">
-                  {groomShot && <img src={groomShot} alt={groomName || "Groom"} draggable={false} />}
+                  {groomShot && <img src={groomShot} alt={groomName || (lang === "en" ? "Groom" : "Mempelai Pria")} draggable={false} />}
                 </span>
-                <span className="nf-profile__name">{(groomName || "The Couple").toUpperCase()}</span>
+                <span className="nf-profile__name">{(groomName || (lang === "en" ? "The Couple" : "Mempelai")).toUpperCase()}</span>
               </button>
               <button type="button" className="nf-profile" onClick={openInvitation}>
                 <span className="nf-profile__shot">
-                  {brideShot && <img src={brideShot} alt={brideName || "Bride"} draggable={false} />}
+                  {brideShot && <img src={brideShot} alt={brideName || (lang === "en" ? "Bride" : "Mempelai Wanita")} draggable={false} />}
                 </span>
-                <span className="nf-profile__name">{(brideName || "The Couple").toUpperCase()}</span>
+                <span className="nf-profile__name">{(brideName || (lang === "en" ? "The Couple" : "Mempelai")).toUpperCase()}</span>
               </button>
             </div>
 
@@ -489,7 +489,7 @@ export default function NFilm(profile: TemplateProps) {
                   <article className="nf-ep" key={`${story.title || "story"}-${index}`} data-nf-reveal>
                     <div className="nf-ep__head">
                       <span className="nf-ep__thumb">{thumb && <img src={thumb} alt="" loading="lazy" />}</span>
-                      <p className="nf-ep__title">{story.title || "Our Story"}</p>
+                      <p className="nf-ep__title">{story.title || (lang === "en" ? "Our Story" : "Kisah Kami")}</p>
                     </div>
                     {story.description && <p className="nf-ep__text">{story.description}</p>}
                   </article>
@@ -690,7 +690,7 @@ export default function NFilm(profile: TemplateProps) {
           <section className="nf-section" data-section="dresscode" aria-label="Dress code">
             <div className="nf-head nf-head--center" data-nf-reveal>
               <p className="nf-eyebrow">Costume</p>
-              <h2 className="nf-title">{[profile.dresscode?.title].filter(Boolean).join("") || "Dress Code"}</h2>
+              <h2 className="nf-title">{[profile.dresscode?.title].filter(Boolean).join("") || t("secDresscode", lang)}</h2>
               {profile.dresscode?.description && <p className="nf-body">{profile.dresscode.description}</p>}
             </div>
             <div className="nf-swatches">
@@ -837,7 +837,7 @@ export default function NFilm(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || "Tamu Undangan"}
+          guestName={profile.guest_name || t("honoredGuest", lang)}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}

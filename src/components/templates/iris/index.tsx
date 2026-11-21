@@ -199,7 +199,7 @@ export default function Iris(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateLong = formatLongDate(profile.estimated_wedding_date)
   const dateDotted = dottedDate(profile.estimated_wedding_date)
@@ -221,44 +221,44 @@ export default function Iris(profile: TemplateProps) {
   const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const apology = (tc.cover_apology || "").trim()
-  const openingKicker = (tc.opening_kicker || "").trim() || "Ayat Suci"
-  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "With Love"
+  const openingKicker = (tc.opening_kicker || "").trim() || t("secQuoteReligious", lang)
+  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || t("secCouple", lang)
   const mempelaiIntro = (tc.profiles_intro || "").trim()
-  const parentsLabel = (tc.parents_label || "").trim() || "Anak dari"
-  const storyTitle = (tc.love_story_title || "").trim() || "Kisah Cinta"
+  const parentsLabel = (tc.parents_label || "").trim() || (lang === "en" ? "Child of" : "Anak dari")
+  const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Love Story" : "Kisah Cinta")
   const storyIntro = (tc.story_intro || "").trim()
-  const saveDateLabel = (tc.save_date_label || "").trim() || "SAVE the DATE"
+  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
   const eventsIntro = (tc.events_intro || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
-  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Sahabat"
+  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Friends" : "Keluarga & Sahabat")
   const invitingIntro = (tc.inviting_intro || "").trim()
-  const rundownKicker = (tc.rundown_kicker || "").trim() || "Rundown"
-  const rundownTitle = (tc.rundown_title || "").trim() || t("secEvent", lang)
+  const rundownKicker = (tc.rundown_kicker || "").trim() || t("rundownTitle", lang)
+  const rundownTitle = (tc.rundown_title || "").trim() || t("rundownTitle", lang)
   const rundownIntro = (tc.rundown_intro || "").trim()
-  const galleryTitle = (tc.gallery_title || "").trim() || "Gallery"
+  const galleryTitle = (tc.gallery_title || "").trim() || t("secGallery", lang)
   const galleryIntro = (tc.gallery_intro || "").trim()
-  const videoTitle = (tc.video_title || "").trim() || "Our Film"
+  const videoTitle = (tc.video_title || "").trim() || t("secVideo", lang)
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim()
-  const giftButton = (tc.gift_button || "").trim() || "Kirim Hadiah"
-  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dresscode"
+  const giftButton = (tc.gift_button || "").trim() || t("sendGift", lang)
+  const dressKicker = (tc.dresscode_kicker || "").trim() || t("secDresscode", lang)
   const wishesKicker = (tc.wishes_kicker || "").trim() || t("secWishes", lang)
   const wishesTitle = (tc.wishes_title || "").trim() || ""
   const wishesIntro = (tc.wishes_intro || "").trim()
   const closingKicker = (tc.closing_kicker || "").trim() || t("secClosing", lang)
-  const closingSee = (tc.closing_see || "").trim() || "See you on our wedding day!"
-  const accountToast = (tc.copy_account_toast || "").trim() || "Nomor rekening disalin"
-  const addressToast = (tc.copy_address_toast || "").trim() || "Alamat disalin"
+  const closingSee = (tc.closing_see || "").trim() || (lang === "en" ? "See you on our wedding day!" : "Sampai jumpa di hari bahagia kami!")
+  const accountToast = (tc.copy_account_toast || "").trim() || t("copiedToClipboard", lang)
+  const addressToast = (tc.copy_address_toast || "").trim() || t("copiedToClipboard", lang)
 
   const wishCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || "Nama",
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Nama lengkap",
+    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Name" : "Nama"),
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Full name" : "Nama lengkap"),
     messageLabel: (tc.wishes_message_label || "").trim() || t("secWishes", lang),
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Titipkan pesan dan doa terbaik",
-    submit: (tc.wishes_submit || "").trim() || "Kirim Ucapan",
-    empty: (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama.",
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave your best wishes and prayers" : "Titipkan pesan dan doa terbaik"),
+    submit: (tc.wishes_submit || "").trim() || t("sendWishes", lang),
+    empty: (tc.wishes_empty || "").trim() || t("noWishesYet", lang),
   }
 
   const target = useMemo(
@@ -385,7 +385,7 @@ export default function Iris(profile: TemplateProps) {
           <div className="ir-cover__frame">
             <p className="ir-cover__kicker" {...ON_LOAD("fade")}>{coverKicker}</p>
             <h1 className="ir-cover__names" {...ON_LOAD("up", 0.08)}>
-              {groomName || "Mempelai"}
+              {groomName || (lang === "en" ? "Groom" : "Mempelai Pria")}
               {brideName && (
                 <>
                   <span className="ir-cover__and">and</span>

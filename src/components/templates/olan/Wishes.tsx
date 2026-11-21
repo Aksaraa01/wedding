@@ -111,8 +111,9 @@ export default function Wishes({
   const send = useCallback(async () => {
     const text = message.trim()
     if (!text || sending) return
+    const en = language === "en"
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
-      setFeedback("Preview mode — your wish was not saved.")
+      setFeedback(en ? "Preview mode — your wish was not saved." : "Mode pratinjau — ucapan tidak tersimpan.")
       setIsError(false)
       setMessage("")
       return
@@ -134,23 +135,23 @@ export default function Wishes({
       })
       if (response.status === 409) {
         setIsError(true)
-        setFeedback("You have already sent a wish. Thank you for your kindness.")
+        setFeedback(en ? "You have already sent a wish. Thank you for your kindness." : "Anda sudah mengirim ucapan. Terima kasih atas doa Anda.")
         return
       }
       if (response.ok) {
-        setFeedback("Thank you. Your wish appears once it has been reviewed.")
+        setFeedback(en ? "Thank you. Your wish appears once it has been reviewed." : "Terima kasih. Ucapan Anda akan tampil setelah ditinjau.")
         setMessage("")
         return
       }
       setIsError(true)
-      setFeedback("Too many messages right now. Please try again in a moment.")
+      setFeedback(en ? "Too many messages right now. Please try again in a moment." : "Terlalu banyak pesan saat ini. Coba lagi sebentar lagi.")
     } catch {
       setIsError(true)
-      setFeedback("Your wish could not be sent. Please check your connection.")
+      setFeedback(en ? "Your wish could not be sent. Please check your connection." : "Ucapan Anda gagal dikirim. Periksa koneksi Anda.")
     } finally {
       setSending(false)
     }
-  }, [weddingProfileId, guestId, guestName, nameFallback, name, message, sending])
+  }, [weddingProfileId, guestId, guestName, nameFallback, name, message, sending, language])
 
   const shown = useMemo(() => wishes.slice(0, visible), [wishes, visible])
 
@@ -212,7 +213,7 @@ export default function Wishes({
                 <path d="M20 6 9 17l-5-5" />
               </svg>
             </p>
-            <p className="olan-wish__time">{timeAgo(wish.created_at)}</p>
+            <p className="olan-wish__time">{timeAgo(wish.created_at, language)}</p>
             <p className="olan-wish__text">{wish.message}</p>
           </div>
         ))}

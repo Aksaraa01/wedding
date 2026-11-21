@@ -164,7 +164,7 @@ export default function AdatBali(profile: TemplateProps) {
   const brideShort = (profile.bride_name || "").trim()
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
-  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "Pernikahan"
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
   const guestName = profile.guest_name || t("honoredGuest", lang)
   const dateLong = formatDate(profile.estimated_wedding_date || "", lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
@@ -210,7 +210,7 @@ export default function AdatBali(profile: TemplateProps) {
   const coverApology = tc.cover_apology || d.coverApology
   const galleryIntro = tc.gallery_intro || ""
   const galleryQuote = tc.gallery_quote || d.galleryQuote
-  const giftIntroTitle = tc.gift_intro_title || "Love Gift"
+  const giftIntroTitle = tc.gift_intro_title || t("secGift", lang)
   const giftIntroDescription = tc.gift_intro_description || d.giftDescription
   const wishesSubtitle = tc.wishes_intro || d.wishesSubtitle
   const closingMessage = tc.closing_message || d.closing
@@ -695,7 +695,7 @@ export default function AdatBali(profile: TemplateProps) {
           </section>
 
           {honored.length > 0 && (
-            <section className="inviting-section parallax-section" data-aos="fade-up" aria-label="Turut Mengundang">
+            <section className="inviting-section parallax-section" data-aos="fade-up" aria-label={t("secInviting", lang)}>
               <div className="inviting-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
                 <h2 className="script inviting-title garden-text-reveal" data-aos="fade-down">
                   {tc.inviting_title || t("secInviting", lang)}

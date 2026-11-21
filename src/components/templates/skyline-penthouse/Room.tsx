@@ -3,6 +3,7 @@
 import { useState } from "react"
 import type { CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { ASSETS } from "@/lib/assets"
 import { formatDotDate, initialsOf, type GiftAccountData } from "./lib"
 import LiveWishes from "../shared/LiveWishes"
@@ -60,6 +61,7 @@ ${SKYLINE_ATMOSPHERE_CSS}
 
 
 export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal, modalActive, wishOpen, onWishOpenChange }: RoomProps) {
+  const lang = normalizeLanguage(profile.language)
   const [hint, setHint] = useState(true)
   // Art box is measured (never overflows): full image always visible, hotspots aligned.
   const { boxRef, boxStyle, onArtLoad } = useSceneFit(124, "390 / 513.2")
@@ -177,7 +179,7 @@ export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal
         <button
           type="button"
           onClick={onToggleMusic}
-          aria-label="Putar/jeda musik"
+          aria-label={t("playPauseMusic", lang)}
           className="pointer-events-auto flex items-center gap-2 bg-slate-900/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-cyan-500/40 text-xs text-cyan-200 shadow-[0_0_12px_rgba(56,239,255,0.2)]"
           style={BODY}
         >
@@ -188,12 +190,12 @@ export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal
         <div className="flex flex-col items-center gap-2 pointer-events-auto">
           <PillButton active={hint} onClick={() => setHint((h) => !h)}>
             <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#38efff]" />
-            <span className="text-[10px] font-bold tracking-wider uppercase font-mono">{hint ? "Hint ON" : "Hint OFF"}</span>
+            <span className="text-[10px] font-bold tracking-wider uppercase font-mono">{hint ? (lang === "en" ? "Hint ON" : "Petunjuk NYALA") : (lang === "en" ? "Hint OFF" : "Petunjuk MATI")}</span>
           </PillButton>
           {invitingEnabled && (
             <PillButton active={false} onClick={() => onOpenModal("family")}>
               <span className="material-symbols-outlined text-[15px]">groups</span>
-              <span className="text-[10px] font-bold tracking-wider uppercase font-mono">Family Honors</span>
+              <span className="text-[10px] font-bold tracking-wider uppercase font-mono">{lang === "en" ? "Family Honors" : "Turut Mengundang"}</span>
             </PillButton>
           )}
           {videoEnabled && (

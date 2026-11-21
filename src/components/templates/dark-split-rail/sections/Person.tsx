@@ -1,5 +1,6 @@
 "use client"
 
+import { normalizeLanguage } from "@/lib/i18n"
 import { FONT_BODY, FONT_BTN, FONT_DISPLAY } from "../fonts"
 import Section from "../Section"
 import Slideshow from "../Slideshow"
@@ -12,6 +13,7 @@ type Props = {
   parents?: string
   instagram?: string
   photos: string[]
+  language?: string
 }
 
 function igHref(v?: string): string {
@@ -21,7 +23,8 @@ function igHref(v?: string): string {
   return `https://instagram.com/${t.replace(/^@/, "")}`
 }
 
-export default function Person({ id, heading, shortName, fullName, parents, instagram, photos }: Props) {
+export default function Person({ id, heading, shortName, fullName, parents, instagram, photos, language = "id" }: Props) {
+  const lang = normalizeLanguage(language)
   const href = igHref(instagram)
   return (
     <Section id={id} className="bg-black/[0.06]" reveal={false}>

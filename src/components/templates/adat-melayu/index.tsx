@@ -51,16 +51,20 @@ const DEFAULT_EVENTS_INTRO_ID =
 const DEFAULT_EVENTS_INTRO_EN =
   "By the grace of Allah SWT, we invite you to join us in our Malay wedding celebration:"
 
-function describePalette(colors?: { hex?: string; name?: string }[]): string {
+function describePalette(colors: { hex?: string; name?: string }[] | undefined, lang: "id" | "en"): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
   if (!names.length) return ""
   const list =
     names.length === 1
       ? names[0]
       : names.length === 2
-        ? `${names[0]} dan ${names[1]}`
-        : `${names.slice(0, -1).join(", ")}, dan ${names[names.length - 1]}`
-  return `Kami akan sangat berbahagia bila para tamu berkenan hadir dengan busana bernuansa ${list}. Motif floral vintage juga sangat kami sambut.`
+        ? lang === "en" ? `${names[0]} and ${names[1]}` : `${names[0]} dan ${names[1]}`
+        : lang === "en"
+          ? `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`
+          : `${names.slice(0, -1).join(", ")}, dan ${names[names.length - 1]}`
+  return lang === "en"
+    ? `We would be delighted if guests could join us in attire inspired by ${list}.`
+    : `Kami akan sangat berbahagia bila para tamu berkenan hadir dengan busana bernuansa ${list}. Motif floral vintage juga sangat kami sambut.`
 }
 
 function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
@@ -167,8 +171,8 @@ export default function AdatMelayu(profile: TemplateProps) {
   const brideShort = (profile.bride_name || "").trim()
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
-  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "Pernikahan"
-  const guestName = profile.guest_name || "Tamu Undangan"
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || (lang === "en" ? "Wedding" : "Pernikahan")
+  const guestName = profile.guest_name || t("honoredGuest", lang)
   const dateLong = formatDate(profile.estimated_wedding_date, lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const events = (profile.sessions || []).filter(Boolean)
@@ -219,7 +223,7 @@ export default function AdatMelayu(profile: TemplateProps) {
   const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING_EN : DEFAULT_CLOSING_ID)
   const profilesIntro = tc.profiles_intro || (lang === "en" ? DEFAULT_PROFILES_INTRO_EN : DEFAULT_PROFILES_INTRO_ID)
   const eventsIntro = tc.events_intro || (lang === "en" ? DEFAULT_EVENTS_INTRO_EN : DEFAULT_EVENTS_INTRO_ID)
-  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
+  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors, lang)
   const livestream = profile.livestream
 
   const splitAt = photos.length > 8 ? Math.ceil(photos.length / 2) : photos.length
@@ -436,9 +440,7 @@ export default function AdatMelayu(profile: TemplateProps) {
       className={`adat-melayu-root aos-ready${opened ? " is-open" : " is-locked"}`}
       style={rootStyle}
     >
-      <a className="skip-link" href="#adat-melayu-invitation">
-        Lewati ke undangan
-      </a>
+      <a className="skip-link" href="#adat-melayu-invitation">{t("skipToInvitation", lang)}</a>
 
       {hasTrack && (
         <audio
@@ -454,7 +456,7 @@ export default function AdatMelayu(profile: TemplateProps) {
         <button
           className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`}
           type="button"
-          aria-label="Putar atau jeda musik"
+          aria-label={t("playPauseMusic", lang)}
           onClick={toggleMusic}
         >
           <span className="tpl-vinyl">
@@ -474,7 +476,7 @@ export default function AdatMelayu(profile: TemplateProps) {
       <div className="page-shell">
         <div className="desktop-blank" aria-hidden="true" />
 
-        <section className="cover" aria-label="Sampul undangan">
+        <section className="cover" aria-label={lang === "en" ? "Invitation cover" : "Sampul undangan"}>
           <div className="cover-left">
             <img src={coverPhoto} alt={coupleLabel} />
             <div className="cover-left-shade" />
@@ -497,7 +499,7 @@ export default function AdatMelayu(profile: TemplateProps) {
         <main className="right-column" id="adat-melayu-invitation">
           <img className="right-parallax-background" src={ASSET("parallax-overlay.webp")} alt="" aria-hidden="true" />
 
-          <section className="cover-gate" aria-label="Sampul undangan" aria-hidden={opened}>
+          <section className="cover-gate" aria-label={lang === "en" ? "Invitation cover" : "Sampul undangan"} aria-hidden={opened}>
             <div className="gate-stage gate-initial">
               <img src={coverPhoto} alt={coupleLabel} />
               <div className="gate-shade" />
@@ -588,7 +590,7 @@ export default function AdatMelayu(profile: TemplateProps) {
 
           {opened && (
           <>
-          <section className="verse-section" data-aos="fade-up" aria-label="Ayat">
+          <section className="verse-section" data-aos="fade-up" aria-label={t("secQuote", lang)}>
             <div className="quote-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
               <div className="quote-photo-wrap garden-text-reveal" data-aos="zoom-in" data-aos-delay="140" style={delay(140)}>
                 <img src={quotePhoto} alt={`${coupleLabel} bersama`} />
@@ -782,7 +784,7 @@ export default function AdatMelayu(profile: TemplateProps) {
                   style={delay(120 + index * 60)}
                 >
                   <div className="event-card-inner" data-aos="fade-up">
-                    <h3 className="script name-fit garden-text-reveal" style={fitStyle(event.name || "Acara Pernikahan")} data-aos="fade-up">
+                    <h3 className="script name-fit garden-text-reveal" style={fitStyle(event.name || (lang === "en" ? "Wedding Event" : "Acara Pernikahan"))} data-aos="fade-up">
                       {event.name || (lang === "en" ? "Wedding Event" : "Acara Pernikahan")}
                     </h3>
                     <strong className="event-date garden-text-reveal" data-aos="fade-up" data-aos-delay="55" style={delay(55)}>
@@ -831,13 +833,13 @@ export default function AdatMelayu(profile: TemplateProps) {
           </section>
 
           {hasLivestream && (
-            <section className="live-streams-section parallax-section" data-aos="fade-up" aria-label="Live Streaming">
+            <section className="live-streams-section parallax-section" data-aos="fade-up" aria-label={t("secLivestream", lang)}>
               <div className="stream-card" data-aos="fade-up">
                 <h2 className="script garden-text-reveal" data-aos="fade-down">
-                  {livestream?.title || "Live Streaming"}
+                  {livestream?.title || t("secLivestream", lang)}
                 </h2>
                 <p className="garden-text-reveal" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
-                  {livestream?.description || "Temui kami secara virtual untuk menyaksikan acara pernikahan kami melalui tautan di bawah ini:"}
+                  {livestream?.description || (lang === "en" ? "Join us virtually to witness our wedding celebration through the link below:" : "Temui kami secara virtual untuk menyaksikan acara pernikahan kami melalui tautan di bawah ini:")}
                 </p>
                 <a
                   className="stream-link garden-text-reveal"
@@ -983,7 +985,7 @@ export default function AdatMelayu(profile: TemplateProps) {
           )}
 
           {hasGift && (
-            <section className="gift-section gift-section--covered" data-aos="fade-up" aria-label="Hadiah">
+            <section className="gift-section gift-section--covered" data-aos="fade-up" aria-label={t("secGift", lang)}>
               <svg className="gift-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
                 <path d="M3 10h18v10H3zM2 7h20v3H2zM12 7v13" />
                 <path d="M12 7s-1.5-5-4.5-5A2.5 2.5 0 0 0 5 4.5C5 7 12 7 12 7Zm0 0s1.5-5 4.5-5A2.5 2.5 0 0 1 19 4.5C19 7 12 7 12 7Z" />
@@ -1156,13 +1158,13 @@ export default function AdatMelayu(profile: TemplateProps) {
 
       {lightbox !== null && photos[lightbox] && (
         <div className="adat-melayu-lightbox" role="dialog" aria-modal="true" aria-label={lang === "en" ? "Photo gallery" : "Galeri foto"}>
-          <button type="button" className="adat-melayu-lightbox__close" aria-label={lang === "en" ? "Close gallery" : "Tutup galeri"} onClick={() => setLightbox(null)}>
+          <button type="button" className="adat-melayu-lightbox__close" aria-label={t("closeGallery", lang)} onClick={() => setLightbox(null)}>
             ×
           </button>
           <button
             type="button"
             className="adat-melayu-lightbox__nav adat-melayu-lightbox__nav--prev"
-            aria-label="Foto sebelumnya"
+            aria-label={t("prevPhoto", lang)}
             onClick={() => setLightbox((value) => (value === null ? value : (value - 1 + photos.length) % photos.length))}
           >
             ‹
@@ -1171,7 +1173,7 @@ export default function AdatMelayu(profile: TemplateProps) {
           <button
             type="button"
             className="adat-melayu-lightbox__nav adat-melayu-lightbox__nav--next"
-            aria-label="Foto berikutnya"
+            aria-label={t("nextPhoto", lang)}
             onClick={() => setLightbox((value) => (value === null ? value : (value + 1) % photos.length))}
           >
             ›

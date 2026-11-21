@@ -3,12 +3,13 @@
 import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
 import { countdownTarget, coverPhoto, formatDotDate, formatLongDate, gcalLink, type SessionData } from "../lib"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { useCountdown } from "../useCountdown"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
 
-function SessionCard({ session }: { session: SessionData }) {
+function SessionCard({ session, lang = "id" }: { session: SessionData; lang?: "id" | "en" }) {
   const badge = (session.name || "").trim().toUpperCase() || "MOMENT"
   const mapsUrl = session.maps_url || ""
   const location = [session.venue, session.address].filter(Boolean).join(" • ")
@@ -48,7 +49,7 @@ function SessionCard({ session }: { session: SessionData }) {
           style={BODY}
         >
           <span className="material-symbols-outlined text-[16px]">map</span>
-          Open in Google Maps
+          {t("viewLocation", lang)}
         </a>
       )}
     </article>
@@ -56,6 +57,7 @@ function SessionCard({ session }: { session: SessionData }) {
 }
 
 export default function EventsModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+  const lang = normalizeLanguage(profile.language)
   const sessions: SessionData[] = (Array.isArray(profile.sessions) ? profile.sessions : []).filter(
     (s) => s && (s.date || s.venue)
   )
@@ -68,14 +70,14 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
   const pad2 = (n: number) => String(n).padStart(2, "0")
 
   return (
-    <ModalShell icon="event" eyebrow="SAVE THE DATE" title="DATE & VENUE" onClose={onClose}>
+    <ModalShell icon="event" eyebrow={t("saveTheDate", lang).toUpperCase()} title={lang === "en" ? "DATE & VENUE" : "TANGGAL & LOKASI"} onClose={onClose}>
       <div className="relative rounded-2xl overflow-hidden border border-[#38bdf8]/35 group shadow-lg bg-[#090e1c]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={cover} alt="Venue" className="w-full h-44 object-contain" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#090f1d]/70 via-transparent to-black/20 pointer-events-none" />
           <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#08101c]/80 border border-[#38bdf8]/50 text-[#38bdf8] text-[11px] font-semibold tracking-wide">
             <span className="material-symbols-outlined text-[15px]">location_on</span>
-            {sessions[0]?.venue || "Lokasi Acara"}
+            {sessions[0]?.venue || (lang === "en" ? "Event Location" : "Lokasi Acara")}
           </div>
           <div className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-[#0284c7]/30 border border-[#38bdf8]/40 text-[9px] font-bold text-[#38bdf8] uppercase tracking-wider">
             Skyline View
@@ -87,16 +89,16 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
           <div className="flex items-center justify-between mb-2.5 px-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5" style={BODY}>
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
-              The Wedding Countdown
+              {t("secCountdown", lang)}
             </span>
             <span className="text-[10px] text-[#38bdf8] font-medium tracking-wide">{formatDotDate(profile.estimated_wedding_date || sessions[0]?.date)}</span>
           </div>
           <div className="grid grid-cols-4 gap-2 text-center">
             {[
-              { v: pad2(days), l: "Days" },
-              { v: pad2(hours), l: "Hours" },
-              { v: pad2(minutes), l: "Mins" },
-              { v: pad2(seconds), l: "Secs" },
+              { v: pad2(days), l: t("days", lang) },
+              { v: pad2(hours), l: t("hours", lang) },
+              { v: pad2(minutes), l: (lang === "en" ? "Mins" : "Menit") },
+              { v: pad2(seconds), l: (lang === "en" ? "Secs" : "Detik") },
             ].map((c) => (
               <div key={c.l} className="py-2 px-1 rounded-xl bg-[#060c18] border border-[#38bdf8]/20">
                 <span className="block text-xl font-extrabold text-[#38bdf8] leading-tight" style={BODY}>
@@ -111,7 +113,7 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
 
       {sessions.length === 0 && (
         <p className="text-center text-sm text-slate-400">
-          {labelDate || "Detail acara akan segera diumumkan."}
+          {labelDate || (lang === "en" ? "Event details will be announced soon." : "Detail acara akan segera diumumkan.")}
         </p>
       )}
 
@@ -128,7 +130,7 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
           style={BODY}
         >
           <span className="material-symbols-outlined text-[18px]">event_available</span>
-          Add to Calendar
+          {t("saveToCalendar", lang)}
         </a>
       )}
     </ModalShell>

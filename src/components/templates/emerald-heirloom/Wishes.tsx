@@ -112,9 +112,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
   const send = useCallback(async () => {
     const text = message.trim()
     if (!text || status === "sending") return
+    const en = language === "en"
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Preview mode — your wish was not saved.")
+      setFeedback(en ? "Preview mode — your wish was not saved." : "Mode pratinjau — ucapan tidak tersimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -131,19 +132,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Tamu Undangan",
+          name: name.trim() || guestName || (en ? "Guest" : "Tamu Undangan"),
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback("You have already sent a wish. Thank you for your kindness.")
+        setFeedback(en ? "You have already sent a wish. Thank you for your kindness." : "Anda sudah mengirim ucapan. Terima kasih atas doa Anda.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback("Thank you. Your wish appears once it has been reviewed.")
+        setFeedback(en ? "Thank you. Your wish appears once it has been reviewed." : "Terima kasih. Ucapan Anda akan tampil setelah ditinjau.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -152,12 +153,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback("Too many messages right now. Please try again in a moment.")
+      setFeedback(en ? "Too many messages right now. Please try again in a moment." : "Terlalu banyak pesan saat ini. Coba lagi sebentar lagi.")
     } catch {
       setStatus("error")
-      setFeedback("Your wish could not be sent. Please check your connection.")
+      setFeedback(en ? "Your wish could not be sent. Please check your connection." : "Ucapan Anda gagal dikirim. Periksa koneksi Anda.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status])
+  }, [weddingProfileId, guestId, guestName, name, message, status, language])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -238,7 +239,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
           <article className="eh-wish" key={wish.id}>
             <p className="eh-wish__text">{wish.message}</p>
             <p className="eh-wish__meta">
-              <span className="eh-wish__name">{wish.name || "Tamu Undangan"}</span>
+              <span className="eh-wish__name">{wish.name || (language === "en" ? "Guest" : "Tamu Undangan")}</span>
               <span>{wishAgo(wish.created_at, lang)}</span>
             </p>
           </article>

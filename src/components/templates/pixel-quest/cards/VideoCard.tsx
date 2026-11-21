@@ -1,19 +1,21 @@
 "use client"
 
+import { normalizeLanguage } from "@/lib/i18n"
 import { FONT_PIXEL } from "../../shared/Skin"
 import CardShell from "./CardShell"
 
 export type VideoCardData = { state: "ready"; videoUrl: string } | { state: "none" } | { state: "loading" }
 
 // Autoplay teaser (pixel lesson: no poster step — the video starts immediately).
-export default function VideoCard({ data, title, onHide }: { data: VideoCardData | null; title: string; onHide: () => void }) {
+export default function VideoCard({ data, title, onHide, language = "id" }: { data: VideoCardData | null; title: string; onHide: () => void; language?: string }) {
+  const lang = normalizeLanguage(language)
   if (!data) return null
   return (
     <CardShell icon="movie" eyebrow="CINEMA TEASER" title="Our Story Video" badge="4K HD" badgeClassName="bg-pink-950/80 border-pink-500/40 text-pink-400" onHide={onHide}>
       {data.state === "loading" ? (
-        <p className="text-center text-sm text-slate-400">Memuat video…</p>
+        <p className="text-center text-sm text-slate-400">{lang === "en" ? "Loading video…" : "Memuat video…"}</p>
       ) : data.state === "none" ? (
-        <p className="text-center text-sm text-slate-400">Video belum tersedia.</p>
+        <p className="text-center text-sm text-slate-400">{lang === "en" ? "Video not available yet." : "Video belum tersedia."}</p>
       ) : (
         <>
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-cyan-400/50 bg-black shadow-[0_4px_24px_rgba(0,0,0,0.7),0_0_20px_rgba(56,189,248,0.2)]">

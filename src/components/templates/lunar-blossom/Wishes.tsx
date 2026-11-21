@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -49,16 +50,16 @@ function wishAgo(iso: string | undefined, language: "id" | "en" = "id"): string 
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "now"
-  if (minutes < 60) return `${minutes}m`
+  if (minutes < 1) return language === "en" ? "now" : "baru saja"
+  if (minutes < 60) return language === "en" ? `${minutes}m` : `${minutes} mnt`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h`
+  if (hours < 24) return language === "en" ? `${hours}h` : `${hours} jam`
   const days = Math.floor(hours / 24)
-  return `${days}d`
+  return language === "en" ? `${days}d` : `${days} hr`
 }
 
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, lang: langProp , language = "id"}: Props) {
-  const lang = ((): "id"|"en" => { const v = (language || langProp || "id").toString().toLowerCase(); return v === "en" ? "en" : "id" })()
+  const lang = normalizeLanguage(language || langProp || "id")
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -99,7 +100,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(lang === "id" ? "Mode pratinjau, ucapan tidak disimpan." : "Preview mode, your wishes are not saved.")
+      setFeedback(t("previewWishNotSaved", lang))
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -116,27 +117,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Our Beloved Guest",
+          name: name.trim() || guestName || t("honoredGuest", lang),
           message: text,
           source: "invitation",
         }),
       })
       if (res.status === 409) {
         setStatus("error")
-        setFeedback(
-          lang === "id"
-            ? "Anda sudah mengirim ucapan. Terima kasih atas doanya."
-            : "You have already sent your wishes. Thank you for your love and prayers."
-        )
+        setFeedback(t("wishAlreadySent", lang))
         return
       }
       if (res.ok) {
         setStatus("done")
-        setFeedback(
-          lang === "id"
-            ? (language === "en" ? "Thank you! Your wish will appear after moderation." : "Terima kasih! Ucapan Anda akan tampil setelah moderasi.")
-            : "Thank you! Your wishes will appear after moderation."
-        )
+        setFeedback(t("thanksForWish", lang))
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -145,10 +138,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback(lang === "id" ? "Terlalu banyak pesan. Coba lagi nanti." : "Too many messages right now. Please try again.")
+      setFeedback(t("tooManyMessages", lang))
     } catch {
       setStatus("error")
-      setFeedback(lang === "id" ? "Gagal mengirim. Periksa koneksi Anda." : "Could not send your wishes. Please check your connection.")
+      setFeedback(t("wishFailed", lang))
     }
   }, [weddingProfileId, guestId, guestName, name, message, status, lang])
 
@@ -204,10 +197,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       </form>
 
       <div className="lb-wishes__list">
-        {!loaded && <p className="lb-wishes__empty">{lang === "id" ? "Memuat ucapan..." : "Loading wishes..."}</p>}
+        {!loaded && <p className="lb-wishes__empty">{t("loadingWishes", lang)}</p>}
         {loaded && wishes.length === 0 && (
           <p className="lb-wishes__empty">
-            {lang === "id" ? "Belum ada ucapan. Jadilah yang pertama." : "No wishes yet. Be the first to leave one."}
+            {t("noWishesYet", lang)}
           </p>
         )}
         {paged.map((wish) => (
@@ -221,11 +214,11 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         ))}
         {totalPages > 1 && (
           <div className="lb-wishes__pager">
-            <button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={currentPage === 0} aria-label="Previous">
+            <button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={currentPage === 0} aria-label={t("previousPage", lang)}>
               ‹
             </button>
             <span>{currentPage + 1} / {totalPages}</span>
-            <button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1} aria-label="Next">
+            <button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1} aria-label={t("nextPage", lang)}>
               ›
             </button>
           </div>

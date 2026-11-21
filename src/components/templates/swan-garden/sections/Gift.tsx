@@ -18,6 +18,7 @@ type Props = {
   copyLabel: string
   copiedLabel: string
   showAddress: boolean
+  lang?: "id" | "en"
 }
 
 export default function Gift({
@@ -30,6 +31,7 @@ export default function Gift({
   copyLabel,
   copiedLabel,
   showAddress,
+  lang = "id",
 }: Props) {
   const list = accounts.filter((a) => a.account_number || a.provider_name)
   const showAddressBlock = showAddress && Boolean(address || addressName)
@@ -96,11 +98,11 @@ export default function Gift({
                             <h3 className="bank-name">{account.provider_name || ""}</h3>
                             <div className="bank-detail">
                               <p className="bank-account-number-label">
-                                Account Number: <span className="bank-account-number">{number}</span>
+                                {lang === "en" ? "Account Number" : "Nomor Rekening"}: <span className="bank-account-number">{number}</span>
                               </p>
                               {account.account_name ? (
                                 <p className="bank-account-name-label">
-                                  Account Name: <span className="bank-account-name">{account.account_name}</span>
+                                  {lang === "en" ? "Account Name" : "Nama Rekening"}: <span className="bank-account-name">{account.account_name}</span>
                                 </p>
                               ) : null}
                               <div className="bank-button-wrap">

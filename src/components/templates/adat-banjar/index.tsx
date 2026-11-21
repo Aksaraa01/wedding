@@ -53,16 +53,20 @@ const DEFAULT_EVENTS_INTRO: Record<string,string> = {
   en: "By the grace and blessings of Allah SWT, we invite you to join us in celebrating our wedding:",
 }
 
-function describePalette(colors?: { hex?: string; name?: string }[]): string {
+function describePalette(colors: { hex?: string; name?: string }[] | undefined, lang: "id" | "en"): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
   if (!names.length) return ""
   const list =
     names.length === 1
       ? names[0]
       : names.length === 2
-        ? `${names[0]} dan ${names[1]}`
-        : `${names.slice(0, -1).join(", ")}, dan ${names[names.length - 1]}`
-  return `Kami akan sangat berbahagia bila para tamu berkenan hadir dengan busana bernuansa ${list}. Motif floral vintage juga sangat kami sambut.`
+        ? lang === "en" ? `${names[0]} and ${names[1]}` : `${names[0]} dan ${names[1]}`
+        : lang === "en"
+          ? `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`
+          : `${names.slice(0, -1).join(", ")}, dan ${names[names.length - 1]}`
+  return lang === "en"
+    ? `We would be delighted if guests could join us in attire inspired by ${list}.`
+    : `Kami akan sangat berbahagia bila para tamu berkenan hadir dengan busana bernuansa ${list}. Motif floral vintage juga sangat kami sambut.`
 }
 
 function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
@@ -215,13 +219,13 @@ export default function AdatBanjar(profile: TemplateProps) {
     tc.cover_apology || (lang === "en" ? "We apologize if there are any errors in the spelling of names and titles." : "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.")
   const galleryIntro = tc.gallery_intro || ""
   const galleryQuote = tc.gallery_quote || DEFAULT_GALLERY_QUOTE[lang]
-  const giftIntroTitle = tc.gift_intro_title || "Love Gift"
+  const giftIntroTitle = tc.gift_intro_title || (lang === "en" ? "Love Gift" : "Tanda Kasih")
   const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION[lang]
   const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE[lang]
   const closingMessage = tc.closing_message || DEFAULT_CLOSING[lang]
   const profilesIntro = tc.profiles_intro || DEFAULT_PROFILES_INTRO[lang]
   const eventsIntro = tc.events_intro || DEFAULT_EVENTS_INTRO[lang]
-  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
+  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors, lang)
   const livestream = profile.livestream
 
   const splitAt = photos.length > 8 ? Math.ceil(photos.length / 2) : photos.length

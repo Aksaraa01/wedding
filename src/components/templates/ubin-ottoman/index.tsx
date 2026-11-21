@@ -197,7 +197,7 @@ export default function UbinOttoman(profile: TemplateProps) {
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const salam = (tc.opening_salam || "").trim() || (lang === "en" ? "Peace be upon you" : "Assalamu'alaikum wr. wb.")
   const openingText = (profile.opening_description || "").trim() || d.opening
-  const mempelaiTitle = (tc.mempelai_title || "").trim() || "Sang Buah Hati"
+  const mempelaiTitle = (tc.mempelai_title || "").trim() || (lang === "en" ? "Our Beloved Child" : "Sang Buah Hati")
   const parentsLabel = (tc.parents_label || "").trim() || labels.subjectOf
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()

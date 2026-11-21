@@ -145,8 +145,8 @@ export default function Agenda({ profile, title, mapsLabel, dressTitle, dressNot
                   </div>
                   <div className="dress-body">
                     <div className="dress-list">
-                      {dressItem("Men", SG.dressMan, "man-preview")}
-                      {dressItem("Women", SG.dressWoman, "woman-preview")}
+                      {dressItem(lang === "en" ? "Men" : "Pria", SG.dressMan, "man-preview")}
+                      {dressItem(lang === "en" ? "Women" : "Wanita", SG.dressWoman, "woman-preview")}
                     </div>
                   </div>
                   {dressNote ? (

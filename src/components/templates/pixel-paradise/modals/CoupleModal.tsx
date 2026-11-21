@@ -1,5 +1,7 @@
 "use client"
 
+import { normalizeLanguage } from "@/lib/i18n";
+
 import type { TemplateProps } from "@/types/template"
 import { FONT_DISPLAY, FONT_PIXEL } from "../../shared/Skin"
 import { bridePhoto, groomPhoto } from "../../shared/lib"
@@ -13,6 +15,7 @@ function PersonCard({
   shortName,
   parents,
   instagram,
+  lang = "id",
 }: {
   side: "groom" | "bride"
   photo?: string
@@ -20,6 +23,7 @@ function PersonCard({
   shortName?: string
   parents?: string
   instagram?: string
+  lang?: "id" | "en"
 }) {
   const cyan = side === "groom"
   const accentText = cyan ? "text-[#38bdf8]" : "text-[#f472b6]"
@@ -53,7 +57,7 @@ function PersonCard({
             <span className="text-[9px] text-slate-400" style={FONT_PIXEL}>LV. 100</span>
           </div>
           <h2 className="text-lg font-bold text-white truncate" style={FONT_DISPLAY}>
-            {name || shortName || "Mempelai"}
+            {name || shortName || (lang === "en" ? "Bride/Groom" : "Mempelai")}
           </h2>
           {parents && (
             <p className="text-[11px] text-slate-400 leading-snug mt-0.5 line-clamp-2">
@@ -85,6 +89,7 @@ function PersonCard({
 }
 
 export default function CoupleModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+  const lang = normalizeLanguage(profile.language);
   const groomPhotoUrl = groomPhoto(profile.groom_photo_url)
   const bridePhotoUrl = bridePhoto(profile.bride_photo_url)
 

@@ -20,6 +20,9 @@ export default function SaveDate({ target, calendarUrl, title, addLabel, lang = 
   const hours = target ? pad(t.hours) : "00"
   const minutes = target ? pad(t.minutes) : "00"
   const seconds = target ? pad(t.seconds) : "00"
+  const labels = lang === "en"
+    ? { days: "Days", hours: "Hours", minutes: "Minutes", seconds: "Seconds" }
+    : { days: "Hari", hours: "Jam", minutes: "Menit", seconds: "Detik" }
 
   return (
     <section className="save-date-wrap" data-section-order="save_the_date">
@@ -32,11 +35,11 @@ export default function SaveDate({ target, calendarUrl, title, addLabel, lang = 
           <div className="countdown">
             <div className="count-item">
               <h2 className="count-num count-day">{days}</h2>
-              <small className="count-text">Days</small>
+              <small className="count-text">{labels.days}</small>
             </div>
             <div className="count-item">
               <h2 className="count-num count-hour">{hours}</h2>
-              <small className="count-text">Hours</small>
+              <small className="count-text">{labels.hours}</small>
             </div>
           </div>
         </div>
@@ -44,11 +47,11 @@ export default function SaveDate({ target, calendarUrl, title, addLabel, lang = 
           <div className="countdown">
             <div className="count-item">
               <h2 className="count-num count-minute">{minutes}</h2>
-              <small className="count-text">Minutes</small>
+              <small className="count-text">{labels.minutes}</small>
             </div>
             <div className="count-item">
               <h2 className="count-num count-second">{seconds}</h2>
-              <small className="count-text">Seconds</small>
+              <small className="count-text">{labels.seconds}</small>
             </div>
           </div>
         </div>

@@ -140,9 +140,9 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
 
   const groom = profile.groom_name || profile.groom_full_name || ""
   const bride = profile.bride_name || profile.bride_full_name || ""
-  const coupleLabel = [groom, bride].filter(Boolean).join(" & ") || "The Couple"
+  const coupleLabel = [groom, bride].filter(Boolean).join(" & ") || (lang === "en" ? "The Couple" : "Mempelai")
   const guestName = (profile.guest_name || "").trim()
-  const guestLabel = lang === "en" ? `Dear, ${guestName || "Guest"}` : `Kepada Yth. ${guestName || "Tamu Undangan"}`
+  const guestLabel = lang === "en" ? `Dear, ${guestName || (lang === "en" ? "Guest" : "Tamu")}` : `Kepada Yth. ${guestName || "Tamu Undangan"}`
   const hashtag = prettyHashtag(profile.display_name)
   const coverSlots = Array.isArray(profile.cover_photos) ? profile.cover_photos : []
   const coverPhoto = firstImage(coverSlots[0])
@@ -384,6 +384,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             copyLabel={copy("copy_label")}
             copiedLabel={copy("copied_label")}
             showAddress={gates.gift_address !== false}
+            lang={lang}
           />
           <Wishes
             weddingProfileId={profile.wedding_profile_id}
@@ -412,7 +413,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             type="button"
             className={`music-box${playing ? " playing" : ""}`}
             onClick={toggleMusic}
-            aria-label={playing ? "Pause music" : "Play music"}
+            aria-label={playing ? (lang === "en" ? "Pause music" : "Jeda musik") : (lang === "en" ? "Play music" : "Putar musik")}
           >
             <span className="sw-vinyl" aria-hidden="true" />
           </button>
@@ -421,7 +422,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
 
       {lightbox ? (
         <div className="sw-lightbox" role="dialog" aria-modal="true" onClick={() => setLightbox(null)}>
-          <button type="button" className="sw-lightbox__close" aria-label="Close" onClick={() => setLightbox(null)}>
+          <button type="button" className="sw-lightbox__close" aria-label={lang === "en" ? "Close" : "Tutup"} onClick={() => setLightbox(null)}>
             ×
           </button>
           <img src={activePhoto} alt="" onClick={(e) => e.stopPropagation()} />
@@ -430,7 +431,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
               <button
                 type="button"
                 className="sw-lightbox__nav prev"
-                aria-label="Previous"
+                aria-label={lang === "en" ? "Previous" : "Sebelumnya"}
                 onClick={(e) => {
                   e.stopPropagation()
                   setLightbox((s) => (s ? { ...s, index: (s.index - 1 + s.photos.length) % s.photos.length } : s))
@@ -441,7 +442,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
               <button
                 type="button"
                 className="sw-lightbox__nav next"
-                aria-label="Next"
+                aria-label={lang === "en" ? "Next" : "Berikutnya"}
                 onClick={(e) => {
                   e.stopPropagation()
                   setLightbox((s) => (s ? { ...s, index: (s.index + 1) % s.photos.length } : s))

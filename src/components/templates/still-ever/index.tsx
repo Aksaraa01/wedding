@@ -168,10 +168,10 @@ export default function StillEver(profile: TemplateProps) {
   const musicStart = Math.max(0, Number(tc.music_start_seconds ?? 0) || 0)
   const musicEnd = tc.music_end_seconds == null || tc.music_end_seconds === "" ? null : Number(tc.music_end_seconds)
 
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
   const monogram = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "S&E"
   const monogramCount = initialsGlyphs(monogram).length
-  const guestName = profile.guest_name || "Beloved Guest"
+  const guestName = profile.guest_name || t("honoredGuest", lang)
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
 
@@ -388,12 +388,12 @@ export default function StillEver(profile: TemplateProps) {
           </div>
 
           <div className="se-hero__body">
-            <p className="se-eyebrow">The Wedding</p>
+            <p className="se-eyebrow">{t("theWeddingOf", lang)}</p>
             <span className="se-rule-short" aria-hidden="true" />
             <h1 className="se-hero__names">
-              <span>{profile.groom_name || "Groom"}</span>
+              <span>{profile.groom_name || (lang === "en" ? "Groom" : "Mempelai Pria")}</span>
               <em>&amp;</em>
-              <span>{profile.bride_name || "Bride"}</span>
+              <span>{profile.bride_name || (lang === "en" ? "Bride" : "Mempelai Wanita")}</span>
             </h1>
             {dateBlock && (
               <p className="se-hero__date">
@@ -424,7 +424,7 @@ export default function StillEver(profile: TemplateProps) {
           <div className="se-wrap se-couple__grid">
             <article className="se-person" data-se-reveal>
               <figure className="se-person__photo">
-                <img src={groomPhoto} alt={profile.groom_full_name || profile.groom_name || "The groom"} loading="lazy" />
+                <img src={groomPhoto} alt={profile.groom_full_name || profile.groom_name || (lang === "en" ? "The groom" : "Mempelai pria")} loading="lazy" />
               </figure>
               <h2 className="se-display se-person__name">{profile.groom_name}</h2>
               {profile.groom_full_name && <p className="se-person__full">{profile.groom_full_name}</p>}
@@ -443,7 +443,7 @@ export default function StillEver(profile: TemplateProps) {
 
             <article className="se-person se-person--bride" data-se-reveal>
               <figure className="se-person__photo">
-                <img src={bridePhoto} alt={profile.bride_full_name || profile.bride_name || "The bride"} loading="lazy" />
+                <img src={bridePhoto} alt={profile.bride_full_name || profile.bride_name || (lang === "en" ? "The bride" : "Mempelai wanita")} loading="lazy" />
               </figure>
               <h2 className="se-display se-person__name">{profile.bride_name}</h2>
               {profile.bride_full_name && <p className="se-person__full">{profile.bride_full_name}</p>}
@@ -486,8 +486,8 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-story__head" data-se-reveal>
                 <div>
-                  <p className="se-eyebrow">Our Story</p>
-                  <h2 className="se-display se-heading">{tc.love_story_title || "How Our Story Began"}</h2>
+                  <p className="se-eyebrow">{lang === "en" ? "Our Story" : "Kisah Kami"}</p>
+                  <h2 className="se-display se-heading">{tc.love_story_title || (lang === "en" ? "How Our Story Began" : "Awal Kisah Kami")}</h2>
                 </div>
               </header>
 
@@ -554,7 +554,7 @@ export default function StillEver(profile: TemplateProps) {
                       : "")
                   return (
                     <article className="se-event" key={`${event.name || "event"}-${index}`} data-se-reveal>
-                      <p className="se-eyebrow">{event.name || "Wedding Event"}</p>
+                      <p className="se-eyebrow">{event.name || t("weddingEventFallback", lang)}</p>
                       {block && (
                         <div className="se-dateblock se-dateblock--sm">
                           <span className="se-dateblock__day">{block.day}</span>
@@ -608,9 +608,9 @@ export default function StillEver(profile: TemplateProps) {
           <section className="se-section se-dresscode" data-section="dresscode">
             <div className="se-wrap se-dresscode__inner" data-se-reveal>
               <p className="se-eyebrow">Attire</p>
-              <h2 className="se-display se-heading">{profile.dresscode?.title || "What to Wear"}</h2>
+              <h2 className="se-display se-heading">{profile.dresscode?.title || t("secDresscode", lang)}</h2>
               {profile.dresscode?.description && <p className="se-text se-dresscode__desc">{profile.dresscode.description}</p>}
-              <div className="se-swatches" aria-label="Dress code palette">
+              <div className="se-swatches" aria-label={t("secDresscode", lang)}>
                 {dressColors.map((color, index) => (
                   <div className="se-swatch" key={`${color.hex || color.name}-${index}`}>
                     <i style={{ "--se-swatch": color.hex || "#ccc" } as CSSProperties} aria-hidden="true" />
@@ -628,7 +628,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
                 <p className="se-eyebrow">Moments Together</p>
-                <h2 className="se-display se-heading">{tc.gallery_title || "The Days We Kept"}</h2>
+                <h2 className="se-display se-heading">{tc.gallery_title || (lang === "en" ? "The Days We Kept" : "Hari-Hari yang Kami Simpan")}</h2>
               </header>
 
               <div className="se-gallery">
@@ -671,12 +671,12 @@ export default function StillEver(profile: TemplateProps) {
                   <span className="se-frame__badge">◉ Live</span>
                 </div>
                 <div className="se-frame__body">
-                  <h3 className="se-display se-frame__title">{profile.livestream?.title || "Our Wedding Live Stream"}</h3>
+                  <h3 className="se-display se-frame__title">{profile.livestream?.title || t("secLivestream", lang)}</h3>
                   <p className="se-text">
-                    {profile.livestream?.description || "If you cannot be with us in person, watch the celebration as it happens."}
+                    {profile.livestream?.description || (lang === "en" ? "If you cannot be with us in person, watch the celebration as it happens." : "Jika Anda tidak dapat hadir, saksikan perayaan kami secara langsung.")}
                   </p>
                   <a className="se-pill" href={profile.livestream!.url} target="_blank" rel="noreferrer">
-                    {profile.livestream?.buttonLabel || "Watch live"}
+                    {profile.livestream?.buttonLabel || t("watchLivestream", lang)}
                   </a>
                 </div>
               </div>
@@ -736,7 +736,7 @@ export default function StillEver(profile: TemplateProps) {
               </p>
 
               {giftTabs && (
-                <div className="se-tabs" role="tablist" aria-label="Gift details">
+                <div className="se-tabs" role="tablist" aria-label={t("secGift", lang)}>
                   <button
                     type="button"
                     role="tab"
@@ -762,7 +762,7 @@ export default function StillEver(profile: TemplateProps) {
                 <div className="se-gift__cards">
                   {accounts.map((account, index) => (
                     <div className="se-gift-card" key={`${account.account_number || "account"}-${index}`}>
-                      <p className="se-gift-card__provider">{account.provider_name || "Bank Account"}</p>
+                      <p className="se-gift-card__provider">{account.provider_name || (lang === "en" ? "Bank Account" : "Rekening Bank")}</p>
                       <p className="se-gift-card__number">{account.account_number}</p>
                       {account.account_name && <p className="se-gift-card__holder">{account.account_name}</p>}
                       <button type="button" className="se-pill se-gift-card__copy" onClick={() => copyAccount(account.account_number)}>
@@ -791,7 +791,7 @@ export default function StillEver(profile: TemplateProps) {
               <p className="se-eyebrow">With Love</p>
               <h2 className="se-display se-heading">A Word For Us</h2>
               <p className="se-text se-wishes__intro">
-                {tc.wishes_intro || "Leave a wish, a prayer, or a memory for us to keep."}
+                {tc.wishes_intro || (lang === "en" ? "Leave a wish, a prayer, or a memory for us to keep." : "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.")}
               </p>
             </header>
             <Wishes
@@ -847,7 +847,7 @@ export default function StillEver(profile: TemplateProps) {
         className={`se-gate${opening ? " is-opening" : ""}`}
         role="dialog"
         aria-modal="true"
-        aria-label="Open the invitation"
+        aria-label={t("openInvitation", lang)}
       >
         <div className="se-gate__body">
           <div className="se-gate__shell">
@@ -891,13 +891,13 @@ export default function StillEver(profile: TemplateProps) {
                 <h2 className="se-display se-gate__names">{coupleLabel}</h2>
                 {dateBlock && <p className="se-gate__date">{dateBlock.full}</p>}
                 <p className="se-gate__apology">
-                  {tc.cover_apology || "We apologize for any misspelling of your name or title."}
+                  {tc.cover_apology || (lang === "en" ? "We apologize for any misspelling of your name or title." : "Kami mohon maaf apabila terdapat kesalahan penulisan nama dan gelar.")}
                 </p>
               </div>
             </div>
           </div>
 
-          <button type="button" className="se-gate__seal" onClick={openEnvelope} aria-label="Open the invitation">
+          <button type="button" className="se-gate__seal" onClick={openEnvelope} aria-label={t("openInvitation", lang)}>
             <span style={monogramCount > 2 ? { fontSize: `${monogramFontSize(monogram, 19)}px` } : undefined}>{monogram}</span>
           </button>
 
@@ -916,15 +916,15 @@ export default function StillEver(profile: TemplateProps) {
 
       {/* ── Photo lightbox ─────────────────────────────────────── */}
       {lightbox !== null && gallery[lightbox] && (
-        <div className="se-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
-          <button type="button" className="se-lightbox__close" onClick={() => setLightbox(null)} aria-label="Close photo">
+        <div className="se-lightbox" role="dialog" aria-modal="true" aria-label={t("photoViewer", lang)}>
+          <button type="button" className="se-lightbox__close" onClick={() => setLightbox(null)} aria-label={t("closeViewer", lang)}>
             ✕
           </button>
           <button
             type="button"
             className="se-lightbox__nav se-lightbox__nav--prev"
             onClick={() => setLightbox((value) => (value === null ? value : (value - 1 + gallery.length) % gallery.length))}
-            aria-label="Previous photo"
+            aria-label={t("previousPhoto", lang)}
           >
             ‹
           </button>
@@ -933,7 +933,7 @@ export default function StillEver(profile: TemplateProps) {
             type="button"
             className="se-lightbox__nav se-lightbox__nav--next"
             onClick={() => setLightbox((value) => (value === null ? value : (value + 1) % gallery.length))}
-            aria-label="Next photo"
+            aria-label={t("nextPhoto", lang)}
           >
             ›
           </button>
@@ -945,7 +945,7 @@ export default function StillEver(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || "Tamu Undangan"}
+          guestName={profile.guest_name || t("honoredGuest", lang)}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}

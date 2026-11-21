@@ -1,8 +1,9 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
-import { wishNameState } from "../shared/wishName"
 import { normalizeLanguage, t, type Language } from "@/lib/i18n"
+import { timeAgo } from "../shared/lib"
+import { wishNameState } from "../shared/wishName"
 
 type Wish = {
   id: string

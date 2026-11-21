@@ -207,8 +207,8 @@ export default function AdatJawa(profile: TemplateProps) {
   const heroVideoRef = useRef<HTMLVideoElement | null>(null)
   const toastTimer = useRef<number | null>(null)
 
-  const groomShort = (profile.groom_name || "").trim() || "Groom"
-  const brideShort = (profile.bride_name || "").trim() || "Bride"
+  const groomShort = (profile.groom_name || "").trim() || (lang === "en" ? "Groom" : "Mempelai Pria")
+  const brideShort = (profile.bride_name || "").trim() || (lang === "en" ? "Bride" : "Mempelai Wanita")
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
   const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")

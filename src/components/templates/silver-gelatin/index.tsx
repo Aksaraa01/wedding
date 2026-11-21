@@ -208,7 +208,7 @@ export default function SilverGelatin(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
   // The monogram is the editor's "Singkatan Pasangan" (`couple_initials`),
   // letter by letter; only when that field is empty do we derive it from the
   // names, in editor order ("Mempelai Pertama" = groom_*).
@@ -231,59 +231,59 @@ export default function SilverGelatin(profile: TemplateProps) {
   const brideIg = igHandle(profile.bride_instagram)
 
   // ── copy (every string reachable from the editor; defaults are fallbacks) ──
-  const openLabel = (tc.open_button || "").trim() || "Open Invitation"
-  const apology = (tc.cover_apology || "").trim() || "We apologize for any misspelling of your name or title."
-  const dearLabel = (tc.cover_kicker || "").trim() || "Dear"
+  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
+  const apology = (tc.cover_apology || "").trim() || (lang === "en" ? "We apologize for any misspelling of your name or title." : "Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.")
+  const dearLabel = (tc.cover_kicker || "").trim() || (lang === "en" ? "Dear" : "Kepada Yth.")
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
   const hashtag = (profile.display_name || "").trim()
-  const welcomeDateLead = (tc.events_kicker || "").trim() || "The celebration will take place on"
-  const photoOneLabel = (tc.story_kicker || "").trim() || "Love story"
-  const photoTwoLabel = (tc.gallery_kicker || "").trim() || "Wedding"
-  const coupleHeading = (tc.mempelai_kicker || "").trim() || "The Couple"
+  const welcomeDateLead = (tc.events_kicker || "").trim() || (lang === "en" ? "The celebration will take place on" : "Perayaan akan berlangsung pada")
+  const photoOneLabel = (tc.story_kicker || "").trim() || (lang === "en" ? "Love story" : "Kisah cinta")
+  const photoTwoLabel = (tc.gallery_kicker || "").trim() || (lang === "en" ? "Wedding" : "Pernikahan")
+  const coupleHeading = (tc.mempelai_kicker || "").trim() || (lang === "en" ? "The Couple" : "Mempelai")
   const parentsLabel = (tc.parents_label || "").trim()
-  const storyTitle = (tc.love_story_title || "").trim() || "Our Story"
+  const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Our Story" : "Kisah Kami")
   const storyIntro = (tc.story_intro || "").trim()
-  const eventsTitle = (tc.events_title || "").trim() || "Venue"
-  const eventsIntro = (tc.events_intro || "").trim() || "We look forward to welcoming you at:"
+  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Venue" : "Tempat")
+  const eventsIntro = (tc.events_intro || "").trim() || (lang === "en" ? "We look forward to welcoming you at:" : "Kami menantikan kehadiran Anda di:")
   const eventsNote = (tc.events_note || "").trim()
-  const mapsLabel = (tc.maps_label || "").trim() || "View Location"
-  const countdownIntro = (tc.countdown_intro || "").trim() || "Counting down to our big day, only a little time left"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || "With the blessing of"
-  const invitingTitle = (tc.inviting_title || "").trim() || "Our Families"
+  const mapsLabel = (tc.maps_label || "").trim() || (lang === "en" ? "View Location" : "Lihat Lokasi")
+  const countdownIntro = (tc.countdown_intro || "").trim() || (lang === "en" ? "Counting down to our big day, only a little time left" : "Menghitung hari menuju hari bahagia kami, tinggal sebentar lagi")
+  const invitingKicker = (tc.inviting_kicker || "").trim() || (lang === "en" ? "With the blessing of" : "Dengan restu")
+  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Our Families" : "Keluarga Kami")
   const invitingIntro = (tc.inviting_intro || "").trim()
-  const rundownKicker = (tc.rundown_kicker || "").trim() || "The Programme"
-  const rundownTitle = (tc.rundown_title || "").trim() || "Order of the Day"
+  const rundownKicker = (tc.rundown_kicker || "").trim() || (lang === "en" ? "The Programme" : "Susunan Acara")
+  const rundownTitle = (tc.rundown_title || "").trim() || (lang === "en" ? "Order of the Day" : "Rangkaian Acara")
   const rundownIntro = (tc.rundown_intro || "").trim()
-  const galleryTitle = (tc.gallery_title || "").trim() || "Moments"
-  const galleryIntro = (tc.gallery_intro || "").trim() || "Little snippets of our journey"
-  const videoTitle = (tc.video_title || "").trim() || "Our Film"
+  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Momen")
+  const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "Little snippets of our journey" : "Cuplikan kecil perjalanan kami")
+  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "Our Film" : "Film Kami")
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim() ||
     "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:"
-  const giftTransferLabel = (tc.gift_button || "").trim() || "Direct Transfer"
-  const giftSendLabel = (tc.gift_send_label || "").trim() || "Send Gift"
-  const giftTransferNote = (tc.gift_transfer_note || "").trim() || "Transfer directly to the account below:"
-  const giftAddressNote = (tc.gift_address_note || "").trim() || "Send your gift to the address below:"
+  const giftTransferLabel = (tc.gift_button || "").trim() || (lang === "en" ? "Direct Transfer" : "Transfer Langsung")
+  const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
+  const giftTransferNote = (tc.gift_transfer_note || "").trim() || (lang === "en" ? "Transfer directly to the account below:" : "Transfer langsung ke rekening di bawah ini:")
+  const giftAddressNote = (tc.gift_address_note || "").trim() || (lang === "en" ? "Send your gift to the address below:" : "Kirim hadiah Anda ke alamat di bawah ini:")
   const giftSignature = (tc.gift_signature || "").trim()
-  const dressHeading = (tc.dresscode_kicker || "").trim() || "Dresscode"
-  const wishesTitle = (tc.wishes_title || "").trim() || "Wishes"
-  const wishesIntro = (tc.wishes_intro || "").trim() || "Write your best prayers and wishes for us."
+  const dressHeading = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dresscode" : "Busana")
+  const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Wishes" : "Ucapan")
+  const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Write your best prayers and wishes for us." : "Tulis doa dan ucapan terbaik Anda untuk kami.")
   const closingMessage = (tc.closing_message || "").trim() ||
     "Thank you for your prayers and presence. It is an honour for us to celebrate this day with you."
-  const closingSee = (tc.closing_see || "").trim() || "See you!"
-  const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
-  const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
-  const addressButton = (tc.copy_address_button || "").trim() || "Copy address"
+  const closingSee = (tc.closing_see || "").trim() || (lang === "en" ? "See you!" : "Sampai jumpa!")
+  const accountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening tersalin")
+  const addressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat tersalin")
+  const addressButton = (tc.copy_address_button || "").trim() || (lang === "en" ? "Copy address" : "Salin alamat")
 
   const wishCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || "Name",
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Your full name",
-    messageLabel: (tc.wishes_message_label || "").trim() || "Message",
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Leave a wish for the couple",
-    submit: (tc.wishes_submit || "").trim() || "Submit now",
-    empty: (tc.wishes_empty || "").trim() || "No wishes yet. Be the first.",
+    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Name" : "Nama"),
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Your full name" : "Nama lengkap Anda"),
+    messageLabel: (tc.wishes_message_label || "").trim() || (lang === "en" ? "Message" : "Pesan"),
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave a wish for the couple" : "Tulis ucapan untuk pasangan"),
+    submit: (tc.wishes_submit || "").trim() || (lang === "en" ? "Submit now" : "Kirim sekarang"),
+    empty: (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama."),
   }
 
   const target = useMemo(
@@ -953,7 +953,7 @@ export default function SilverGelatin(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="sg-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightbox(null)}>
-          <button type="button" className="sg-lightbox__close" aria-label="Close" onClick={() => setLightbox(null)}>×</button>
+          <button type="button" className="sg-lightbox__close" aria-label={lang === "en" ? "Close" : "Tutup"} onClick={() => setLightbox(null)}>×</button>
           {gallery.length > 1 && (
             <button
               type="button"

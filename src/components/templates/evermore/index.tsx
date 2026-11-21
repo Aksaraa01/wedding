@@ -16,10 +16,12 @@ import {
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import "./evermore.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage, t, tf } from "@/lib/i18n"
 
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const MONTHS_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+const DAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const DAYS_ID = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 const ASSET = (name: string) => `/templates/evermore/assets/${name}`
 
 function parseIso(iso?: string) {
@@ -28,11 +30,13 @@ function parseIso(iso?: string) {
   return { y: Number(m[1]), m: Number(m[2]) - 1, d: Number(m[3]) }
 }
 
-function longDate(iso?: string) {
+function longDate(iso: string | undefined, lang: "id" | "en") {
   const p = parseIso(iso)
   if (!p) return ""
   const date = new Date(Date.UTC(p.y, p.m, p.d))
-  return `${DAYS[date.getUTCDay()]}, ${p.d} ${MONTHS[p.m]} ${p.y}`
+  const days = lang === "en" ? DAYS_EN : DAYS_ID
+  const months = lang === "en" ? MONTHS_EN : MONTHS_ID
+  return `${days[date.getUTCDay()]}, ${p.d} ${months[p.m]} ${p.y}`
 }
 
 function useCountdown(iso?: string) {
@@ -69,7 +73,7 @@ function calendarDays(iso?: string) {
   })
 }
 
-function describePalette(colors?: { hex?: string; name?: string }[]) {
+function describePalette(colors: { hex?: string; name?: string }[] | undefined, lang: "id" | "en") {
   const names = (colors || []).map((c) => (c.name || c.hex || "").trim()).filter(Boolean)
   if (!names.length) return ""
   const list = names.length === 1
@@ -77,7 +81,7 @@ function describePalette(colors?: { hex?: string; name?: string }[]) {
     : names.length === 2
       ? `${names[0]} & ${names[1]}`
       : `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`
-  return `We would be delighted if you could dress in ${list}.`
+  return lang === "en" ? `We would be delighted if you could dress in ${list}.` : `Kami akan senang jika Anda hadir mengenakan nuansa ${list}.`
 }
 
 function cssUrl(url?: string) {
@@ -116,12 +120,12 @@ export default function Evermore(profile: TemplateProps) {
 
   const groomShort = profile.groom_name || ""
   const brideShort = profile.bride_name || ""
-  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || t("theWeddingOf", lang)
   const coupleInitials = (profile.couple_initials || "").trim()
   const groomFull = profile.groom_full_name || groomShort
   const brideFull = profile.bride_full_name || brideShort
-  const guestName = profile.guest_name || "Our Beloved Guest"
-  const dateLong = longDate(profile.estimated_wedding_date)
+  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const dateLong = longDate(profile.estimated_wedding_date, lang)
   const countdown = useCountdown(profile.estimated_wedding_date)
   const days = calendarDays(profile.estimated_wedding_date)
   const events = (profile.sessions || []).filter(Boolean)
@@ -170,8 +174,8 @@ export default function Evermore(profile: TemplateProps) {
   const giftIntroDescription = tc.gift_intro_description || (lang === "en" ? "Your presence is the greatest gift. If you wish to send a gift, details can be found below." : "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya dapat ditemukan di bawah ini.")
   const wishesIntro = tc.wishes_intro || (lang === "en" ? "Leave your wishes and prayers for the couple." : "Tinggalkan beberapa harapan dan doa untuk kedua mempelai.")
   const closingMessage = tc.closing_message || (lang === "en" ? "It is an honor to share this day with you, and to keep writing our story surrounded by the people we love." : "Merupakan suatu kehormatan dapat berbagi hari ini dengan Anda, dan terus menulis kisah kami dikelilingi orang-orang yang kami cintai.")
-  const displayName = profile.display_name || `#${`${groomShort}${brideShort}`.replace(/\s+/g, "") || "OurWedding"}`
-  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
+  const displayName = profile.display_name || `#${`${groomShort}${brideShort}`.replace(/\s+/g, "") || (lang === "en" ? "OurWedding" : "PernikahanKami")}`
+  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors, lang)
   const storyFallbacks = [
     ASSET("love-story-1.webp"),
     ASSET("love-story-2.webp"),
@@ -300,7 +304,7 @@ export default function Evermore(profile: TemplateProps) {
     <div ref={rootRef} className={`evermore-root${loading ? " is-loading" : ""}${opened ? "" : " invitation-locked"}`} style={rootStyle}>
       {!loading && null}
       {loading && (
-        <div className={`evermore-preload${preloaderLeaving ? " is-leaving" : ""}`} role="status" aria-live="polite" aria-label="Loading invitation" style={{ "--fill": "100%" } as CSSProperties}>
+        <div className={`evermore-preload${preloaderLeaving ? " is-leaving" : ""}`} role="status" aria-live="polite" aria-label={lang === "en" ? "Loading invitation" : "Memuat undangan"} style={{ "--fill": "100%" } as CSSProperties}>
           <div className="evermore-preload__assets" aria-hidden="true">
             <img src={ASSET("bride-kid.png")} alt="" />
             <img src={ASSET("groom-kid.png")} alt="" />
@@ -327,7 +331,7 @@ export default function Evermore(profile: TemplateProps) {
       )}
 
       {hasTrack && (
-        <button className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`} type="button" aria-label="Toggle music" onClick={toggleMusic}>
+        <button className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`} type="button" aria-label={t("playPauseMusic", lang)} onClick={toggleMusic}>
           <span className="tpl-vinyl">
             <span className="tpl-vinyl-groove tpl-vinyl-groove-1" />
             <span className="tpl-vinyl-groove tpl-vinyl-groove-2" />
@@ -351,8 +355,8 @@ export default function Evermore(profile: TemplateProps) {
           </div>
         </aside>
 
-        <main className="invitation" aria-label="Wedding invitation">
-          <section className={`cover${opened ? " is-open" : ""}`} aria-label="Wedding invitation cover">
+        <main className="invitation" aria-label={t("weddingInvitation", lang)}>
+          <section className={`cover${opened ? " is-open" : ""}`} aria-label={lang === "en" ? "Wedding invitation cover" : "Sampul undangan pernikahan"}>
             <div className="artboard">
               <span className="evermore-ornament ring" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("diamond-ring.svg")) } as CSSProperties} />
               <span className="evermore-ornament disco-ball" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("disco-ball.svg")) } as CSSProperties} />
@@ -369,7 +373,7 @@ export default function Evermore(profile: TemplateProps) {
               <span className="evermore-ornament rays" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("celebration-rays.svg")) } as CSSProperties} />
               <div className={`photo photo-girl${hasBrideChild ? " has-photo" : ""}`} aria-hidden="true" style={{ backgroundImage: cssUrl(brideChild) }} />
               <div className={`photo photo-boy${hasGroomChild ? " has-photo" : ""}`} aria-hidden="true" style={{ backgroundImage: cssUrl(groomChild) }} />
-              <span className="evermore-ornament couple" role="img" aria-label="Illustration of the couple" style={{ "--ornament-mask": cssUrl(ASSET("couple-holding-signs.svg")) } as CSSProperties} />
+              <span className="evermore-ornament couple" role="img" aria-label={lang === "en" ? "Illustration of the couple" : "Ilustrasi pasangan"} style={{ "--ornament-mask": cssUrl(ASSET("couple-holding-signs.svg")) } as CSSProperties} />
               <section className="invitation-copy">
                 <p className="dear">Dear,</p>
                 <h2>{guestName}</h2>
@@ -400,7 +404,7 @@ export default function Evermore(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="profiles" aria-label="Bride and groom">
+          <section className="profiles" aria-label={t("secCouple", lang)}>
             <header className="profiles-intro">
               <h2>{tc.mempelai_kicker || t("secCouple", lang)}</h2>
               <p>{profilesIntro}</p>
@@ -457,7 +461,7 @@ export default function Evermore(profile: TemplateProps) {
                     </article>
                   ))}
                 </div>
-                <div className="love-story-gallery" aria-label="Love story photos">
+                <div className="love-story-gallery" aria-label={lang === "en" ? "Love story photos" : "Foto kisah cinta"}>
                   {storyPhotos.map((src, index) => (
                     <figure key={`${src}-${index}`} className={`story-photo story-photo-${["one", "two", "three"][index]}`}>
                       <img src={src} alt={`${coupleLabel} story photo ${index + 1}`} loading="lazy" decoding="async" />
@@ -470,7 +474,7 @@ export default function Evermore(profile: TemplateProps) {
           )}
 
           <section className="countdown" aria-labelledby="countdown-title">
-            <div className="countdown-calendar" aria-label={dateLong || "Wedding date"}>
+            <div className="countdown-calendar" aria-label={dateLong || (lang === "en" ? "Wedding date" : "Tanggal pernikahan")}>
               <ol className="countdown-dates">
                 {days.map((day, index) => (
                   <li key={`${day}-${index}`} className={`countdown-date countdown-date-${18 + index}`}>
@@ -501,23 +505,23 @@ export default function Evermore(profile: TemplateProps) {
             {calendarUrl && (
               <a className="save-date" href={calendarUrl} target="_blank" rel="noopener noreferrer">
                 <span className="save-date-icon" aria-hidden="true" />
-                <span>SAVE THE DATE</span>
+                <span>{(tc.save_date_label || t("saveTheDate", lang)).toUpperCase()}</span>
               </a>
             )}
           </section>
 
           {hasEvents && (
-            <section className="events" aria-label="Wedding events">
+            <section className="events" aria-label={t("secEvent", lang)}>
               <div className="events-intro" aria-hidden="true">
                 <span className="evermore-ornament event-candles" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("vintage-candles.svg")) } as CSSProperties} />
               </div>
               {events.map((event, index) => (
                 <article key={`${event.name || "event"}-${index}`} className={`event-block ${index === 0 ? "event-akad" : "event-extra"}`}>
-                  <h2>{event.name || "Wedding Event"}</h2>
+                  <h2>{event.name || t("weddingEventFallback", lang)}</h2>
                   <div className="event-details">
                     <p className="event-detail-row">
                       <span className="event-detail-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2" /><path d="M7 3.5v3M17 3.5v3M3.5 9h17" /></svg></span>
-                      <span>{longDate(event.date || profile.estimated_wedding_date)}</span>
+                      <span>{longDate(event.date || profile.estimated_wedding_date, lang)}</span>
                     </p>
                     {event.time && (
                       <p className="event-detail-row">
@@ -540,7 +544,7 @@ export default function Evermore(profile: TemplateProps) {
                   {event.maps_url && (
                     <a className="event-button" href={event.maps_url} target="_blank" rel="noopener noreferrer">
                       <span className="event-button-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg></span>
-                      <span>OPEN MAPS</span>
+                      <span>{t("viewLocation", lang).toUpperCase()}</span>
                     </a>
                   )}
                 </article>
@@ -548,10 +552,10 @@ export default function Evermore(profile: TemplateProps) {
               {hasLivestream && (
                 <article className="event-block event-streaming">
                   <h2>{tc.livestream_title || profile.livestream?.title || t("secLivestream", lang)}</h2>
-                  <p className="event-streaming-copy">{profile.livestream?.description || "Can't make it in person? Join the live stream and celebrate this lovely day with us from wherever you are."}</p>
+                  <p className="event-streaming-copy">{profile.livestream?.description || (lang === "en" ? "Can't make it in person? Join the live stream and celebrate this lovely day with us from wherever you are." : "Tidak bisa hadir secara langsung? Bergabunglah melalui siaran langsung dan rayakan hari bahagia ini bersama kami dari mana pun Anda berada.")}</p>
                   <a className="event-button" href={profile.livestream!.url} target="_blank" rel="noopener noreferrer">
                     <span className="event-button-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m10 9 5 3-5 3V9Z" /></svg></span>
-                    <span>{profile.livestream?.buttonLabel || "Watch Live Stream"}</span>
+                    <span>{profile.livestream?.buttonLabel || t("watchLivestream", lang)}</span>
                   </a>
                 </article>
               )}
@@ -566,7 +570,7 @@ export default function Evermore(profile: TemplateProps) {
                 <h2 id="dress-code-title">{tc.dresscode_title || profile.dresscode?.title || t("secDresscode", lang)}</h2>
                 {dressDescription && <p>{dressDescription}</p>}
               </header>
-              <div className="dress-code-swatches" role="list" aria-label="Dress code colors">
+              <div className="dress-code-swatches" role="list" aria-label={lang === "en" ? "Dress code colors" : "Warna dress code"}>
                 {profile.dresscode!.colors!.map((color, index) => (
                   <span key={`${color.hex || color.name}-${index}`} className="dress-swatch" role="listitem" aria-label={color.name || color.hex || `Color ${index + 1}`} style={{ background: color.hex || "#ccc", borderColor: color.hex || "#ccc" }} />
                 ))}
@@ -593,7 +597,7 @@ export default function Evermore(profile: TemplateProps) {
                           key={`${src}-${index}`}
                           className="gallery-polaroid"
                           type="button"
-                          aria-label={spread ? `View gallery photo ${index + 1}` : "Spread gallery"}
+                          aria-label={spread ? tf("viewPhoto", lang, { n: index + 1 }) : (lang === "en" ? "Spread gallery" : "Buka galeri") }
                           onClick={() => openGallery(index)}
                           style={spread ? { "--gallery-x": `${pos.x}px`, "--gallery-y": `${pos.y}px`, "--gallery-rotation": `${pos.rotation}deg`, "--gallery-scale": "0.58" } as CSSProperties : undefined}
                         >
@@ -604,7 +608,7 @@ export default function Evermore(profile: TemplateProps) {
                       )
                     })}
                   </div>
-                  <p className="gallery-hint" id="gallery-hint">{spread ? "Tap a photo to view it larger" : "Tap the stack to spread our memories"}</p>
+                  <p className="gallery-hint" id="gallery-hint">{spread ? (lang === "en" ? "Tap a photo to view it larger" : "Ketuk foto untuk memperbesarnya") : (lang === "en" ? "Tap the stack to spread our memories" : "Ketuk tumpukan foto untuk melihat kenangan kami")}</p>
                 </>
               )}
               <blockquote className="gallery-quote">
@@ -631,7 +635,7 @@ export default function Evermore(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel} language={profile.language}
+              coupleName={coupleLabel} language={profile.language} title={tc.wishes_title || t("secWishes", lang)} intro={wishesIntro}
             />
           </section>
 
@@ -645,12 +649,12 @@ export default function Evermore(profile: TemplateProps) {
                 {accounts.map((account, index) => (
                   <article className="gift-bank-card" key={`${account.account_number || "account"}-${index}`}>
                     <div className="gift-bank-content">
-                      <p className="gift-bank-provider">{account.provider_name || "Bank Transfer"}</p>
+                      <p className="gift-bank-provider">{account.provider_name || (lang === "en" ? "Bank Transfer" : "Transfer Bank")}</p>
                       <p className="gift-bank-number">{account.account_number}</p>
                       <p className="gift-bank-holder">{account.account_name}</p>
                       <button className="gift-copy-button" type="button" onClick={() => copy(account.account_number || "")}>
                         <svg className="gift-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" /></svg>
-                        <span>Copy</span>
+                        <span>{t("copy", lang)}</span>
                       </button>
                     </div>
                   </article>
@@ -658,7 +662,7 @@ export default function Evermore(profile: TemplateProps) {
                 {giftAddress && (
                   <article className="gift-bank-card gift-address-card">
                     <div className="gift-bank-content">
-                      <p className="gift-address-label">Send a Gift</p>
+                      <p className="gift-address-label">{t("sendGift", lang)}</p>
                       <p className="gift-address-text">{giftAddress}</p>
                       {profile.gift_address_name && <p className="gift-bank-holder">{profile.gift_address_name}</p>}
                       <button className="gift-copy-button" type="button" onClick={() => copy(giftAddress)}>
@@ -673,7 +677,7 @@ export default function Evermore(profile: TemplateProps) {
           )}
 
           {honored.length > 0 && (
-            <section className="honored-guests" aria-label="Turut Mengundang">
+            <section className="honored-guests" aria-label={t("secInviting", lang)}>
               {/* No heading: the ornament and the list carry the block on their
                   own, as the reference does. The label survives for a11y. */}
               <div className="honored-guests-intro">
@@ -681,7 +685,7 @@ export default function Evermore(profile: TemplateProps) {
               </div>
               <div className="honored-guests-grid">
                 <div className="honored-guests-column">
-                  <p className="honored-guests-label">Keluarga &amp; Sahabat</p>
+                  <p className="honored-guests-label">{lang === "en" ? "Family & Friends" : "Keluarga & Sahabat"}</p>
                   <ul className="honored-guests-names">
                     {honored.map((name, index) => <li key={`${name}-${index}`}>{name}</li>)}
                   </ul>
@@ -692,7 +696,7 @@ export default function Evermore(profile: TemplateProps) {
 
           <section className="thank-you" aria-labelledby="thank-you-title">
             <header className="thank-you-copy">
-              <p className="thank-you-label">Thank You,</p>
+              <p className="thank-you-label">{lang === "en" ? "Thank You," : "Terima Kasih,"}</p>
               <h2 id="thank-you-title">{groomShort} &amp;<br />{brideShort}</h2>
               <p className="thank-you-message">{closingMessage}</p>
             </header>
@@ -703,11 +707,11 @@ export default function Evermore(profile: TemplateProps) {
               </span>
             </figure>
             <footer className="thank-you-footer">
-              <a href={waHref} target="_blank" rel="noopener noreferrer" aria-label="Hubungi Aksaraa Wedding via WhatsApp">
+              <a href={waHref} target="_blank" rel="noopener noreferrer" aria-label={lang === "en" ? "Contact Aksaraa Wedding via WhatsApp" : "Hubungi Aksaraa Wedding via WhatsApp"}>
                 <img className="thank-you-footer-logo" src={A} alt="Aksaraa Wedding" />
               </a>
               <p>© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
-              <nav className="thank-you-footer-socials" aria-label="Aksaraa links">
+              <nav className="thank-you-footer-socials" aria-label={lang === "en" ? "Aksaraa links" : "Tautan Aksaraa"}>
                 <a href={waHref} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.2-5.4A8.5 8.5 0 1 1 21 11.5Z" /><path d="M8.5 9.5c.4 2 2 3.7 4 4.1l1.2-1.2 1.8.8c-.2 1.2-1.2 2-2.6 2-2.8 0-5.3-2.5-5.3-5.3 0-1.4.8-2.4 2-2.6l.8 1.8-1.9.4Z" /></svg>
                 </a>
@@ -724,24 +728,24 @@ export default function Evermore(profile: TemplateProps) {
           <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium tabular-nums text-white" onClick={(event) => event.stopPropagation()}>
             {lightbox + 1} / {photos.length}
           </div>
-          <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(event) => { event.stopPropagation(); setLightbox(null) }} aria-label="Close">✕</button>
+          <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(event) => { event.stopPropagation(); setLightbox(null) }} aria-label={t("close", lang)}>✕</button>
           {photos.length > 1 && (
-            <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(event) => { event.stopPropagation(); setLightbox((lightbox - 1 + photos.length) % photos.length) }} aria-label="Previous">‹</button>
+            <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(event) => { event.stopPropagation(); setLightbox((lightbox - 1 + photos.length) % photos.length) }} aria-label={t("prevPhoto", lang)}>‹</button>
           )}
           <img src={photos[lightbox]} alt="" draggable="false" className="max-h-[90vh] max-w-[95vw] select-none rounded-md object-contain" onClick={(event) => event.stopPropagation()} />
           {photos.length > 1 && (
-            <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(event) => { event.stopPropagation(); setLightbox((lightbox + 1) % photos.length) }} aria-label="Next">›</button>
+            <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(event) => { event.stopPropagation(); setLightbox((lightbox + 1) % photos.length) }} aria-label={t("nextPhoto", lang)}>›</button>
           )}
         </div>
       )}
 
       {videoOpen && videoEmbed && createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", padding: "clamp(12px, 4vw, 48px)" }} onClick={() => setVideoOpen(false)} role="dialog" aria-modal="true" aria-label="Wedding film">
-          <button type="button" className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-[26px] leading-none text-white" onClick={() => setVideoOpen(false)} aria-label="Close">×</button>
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", padding: "clamp(12px, 4vw, 48px)" }} onClick={() => setVideoOpen(false)} role="dialog" aria-modal="true" aria-label={lang === "en" ? "Wedding film" : "Film pernikahan"}>
+          <button type="button" className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-[26px] leading-none text-white" onClick={() => setVideoOpen(false)} aria-label={t("close", lang)}>×</button>
           <div className="relative aspect-video w-full max-w-[1100px] overflow-hidden rounded-lg" style={{ maxHeight: "85vh" }} onClick={(event) => event.stopPropagation()}>
             <iframe
               src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1`}
-              title="Wedding film"
+              title={lang === "en" ? "Wedding film" : "Film pernikahan"}
               allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
               allowFullScreen
               className="absolute inset-0 h-full w-full border-0"

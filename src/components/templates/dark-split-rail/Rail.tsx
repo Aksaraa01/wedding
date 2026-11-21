@@ -113,7 +113,6 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   return (
     <div className="w-full bg-black/5 lg:w-[450px] lg:shrink-0">
       <Opening
-        eyebrow="The Wedding Of"
         coupleLabel={coupleLabel}
         hashtag={hashtag}
         dateShort={dotShort(profile.estimated_wedding_date)}
@@ -124,7 +123,8 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Person
         id="groom"
-        heading="Mempelai"
+        heading={lang === "en" ? "The Groom" : "Mempelai Pria"}
+        language={lang}
         shortName={profile.groom_name}
         fullName={profile.groom_full_name}
         parents={profile.groom_parents}
@@ -134,11 +134,13 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Person
         id="bride"
+        heading={lang === "en" ? "The Bride" : "Mempelai Wanita"}
         shortName={profile.bride_name}
         fullName={profile.bride_full_name}
         parents={profile.bride_parents}
         instagram={profile.bride_instagram}
         photos={bridePhotos}
+        language={lang}
       />
 
       <Events sessions={sessions} language={lang} />
