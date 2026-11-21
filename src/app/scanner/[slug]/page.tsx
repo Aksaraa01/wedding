@@ -838,7 +838,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         <section className="bg-white/85 backdrop-blur-md border border-[#E2D9CF] rounded-3xl p-3 shadow-md space-y-3">
           <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border border-[#2C2A29]/10">
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,#444_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen || !!scanSuccess} />
+            <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen || !!scanSuccess} releaseCamera={selfieOpen} />
             <div className="absolute top-6 left-6 w-10 h-10 border-t-[3px] border-l-[3px] border-[#B34E3F] rounded-tl-lg"></div>
             <div className="absolute top-6 right-6 w-10 h-10 border-t-[3px] border-r-[3px] border-[#B34E3F] rounded-tr-lg"></div>
             <div className="absolute bottom-6 left-6 w-10 h-10 border-b-[3px] border-l-[3px] border-[#B34E3F] rounded-bl-lg"></div>

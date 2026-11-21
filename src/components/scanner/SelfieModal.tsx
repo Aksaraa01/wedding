@@ -105,6 +105,19 @@ export default function SelfieModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, facing])
 
+  // Reopen race: if getUserMedia resolved before the re-render that mounts the
+  // <video> (common when permission is already granted), attach the stream once
+  // the video element is available.
+  useEffect(() => {
+    if (!open || capturedSrc || camError) return
+    const video = videoRef.current
+    const stream = streamRef.current
+    if (video && stream && video.srcObject !== stream) {
+      video.srcObject = stream
+      void video.play().catch(() => {})
+    }
+  }, [open, capturedSrc, camError, camLoading])
+
   const capture = () => {
     const video = videoRef.current
     const canvas = canvasRef.current
