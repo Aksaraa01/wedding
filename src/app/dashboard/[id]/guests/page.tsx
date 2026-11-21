@@ -754,161 +754,172 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       {modalOpen && (
         <div className="fixed inset-0 z-[60]">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="absolute inset-0 flex items-center justify-center p-6">
-            <div className="bg-[#FAF7F2] w-full max-w-md p-8 shadow-2xl border border-[#E2D9CF] rounded-2xl max-h-[92dvh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="font-headline-md text-headline-md text-[#2C2A29]">
-                  {editingId ? "Edit Tamu" : "Tambah Tamu Baru"}
-                </h2>
+          <div className="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="bg-[#FAF7F2] w-full sm:max-w-md h-[100dvh] sm:h-auto sm:max-h-[90dvh] sm:rounded-2xl border border-[#E2D9CF] shadow-2xl flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[#E2D9CF]/70 bg-[#FAF7F2] shrink-0">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full text-[#78716C] hover:bg-[#E2D9CF]/40 active:scale-95 transition-all shrink-0 -mr-2 -mt-2"
+                  className="w-10 h-10 -ml-2 flex items-center justify-center rounded-full text-[#78716C] hover:bg-[#E2D9CF]/40 active:scale-95 transition-all"
                   aria-label="Tutup"
                 >
                   <span className="material-symbols-outlined text-[22px]">close</span>
                 </button>
+                <h2 className="font-headline-md text-[17px] sm:text-lg text-[#2C2A29] font-semibold">
+                  {editingId ? "Edit Tamu" : "Tambah Tamu"}
+                </h2>
+                <div className="w-10" />
               </div>
-              <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); handleSave() }}>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</label>
-                  <input
-                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
-                    placeholder="Contoh: Anindya Pramesti"
-                    maxLength={30}
-                    value={form.name}
-                    onChange={(e) => setForm((p) => ({ ...p, name: sanitizeGuestName(e.target.value) }))}
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">No. WhatsApp</label>
-                  <div className="flex border border-[#E2D9CF] rounded-xl overflow-hidden focus-within:border-[#B34E3F] focus-within:ring-1 focus-within:ring-[#B34E3F] transition-colors bg-white">
-                    <span className="px-4 py-3 bg-[#F5EFE6] font-body-md text-[#2C2A29] border-r border-[#E2D9CF]">+62</span>
+
+              <form className="flex flex-col min-h-0 flex-1" onSubmit={(e) => { e.preventDefault(); handleSave() }}>
+                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</label>
                     <input
-                      className="w-full px-4 py-3 bg-white font-body-md focus:outline-none placeholder:text-on-surface-variant/50"
-                      placeholder="8123456789"
-                      type="tel"
-                      value={waDigits}
-                      onChange={(e) => setWaDigits(e.target.value.replace(/\D/g, ""))}
+                      className="w-full bg-white border border-[#E2D9CF] rounded-xl h-11 px-3.5 text-sm focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
+                      placeholder="Contoh: Anindya Pramesti"
+                      maxLength={30}
+                      value={form.name}
+                      onChange={(e) => setForm((p) => ({ ...p, name: sanitizeGuestName(e.target.value) }))}
                     />
                   </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</label>
-                  <select
-                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
-                    value={["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) ? form.category : form.category ? "__legacy__" : ""}
-                    onChange={(e) => {
-                      const v = e.target.value
-                      if (v === "__legacy__") return
-                      setForm((p) => ({ ...p, category: v }))
-                    }}
-                  >
-                    <option value="">Pilih kategori</option>
-                    {form.category && !["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) && (
-                      <option value="__legacy__">{form.category}</option>
-                    )}
-                    <option value="Keluarga">Keluarga</option>
-                    <option value="Kerabat">Kerabat</option>
-                    <option value="Teman">Teman</option>
-                    <option value="Kolega">Kolega</option>
-                    <option value="Lainnya">Lainnya</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</label>
-                  <input
-                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
-                    placeholder="Contoh: MEJA 01"
-                    value={form.table_number}
-                    onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
-                  />
-                </div>
-                {sessions.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Diundang ke Acara</label>
-                    <div className="border border-[#E2D9CF] bg-white rounded-xl py-3 px-4 flex flex-col gap-2.5">
-                      {sessions.map((s, i) => {
-                        const checked = formSessionSel.includes(i)
-                        const label = sessionDisplayLabel(s, i)
-                        return (
-                          <label key={i} className="flex items-center gap-3 cursor-pointer select-none">
-                            <span
-                              className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                                checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
-                              }`}
-                              onClick={(e) => {
-                                e.preventDefault()
-                                setFormSessionSel((prev) => {
-                                  const has = prev.includes(i)
-                                  if (has) return prev.filter((x) => x !== i)
-                                  return [...prev, i].sort((a, b) => a - b)
-                                })
-                              }}
-                            >
-                              {checked && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
-                            </span>
-                            <span className="font-body-md text-sm text-[#2C2A29]">{label}</span>
-                          </label>
-                        )
-                      })}
-                      <p className="text-[11px] text-on-surface-variant/70 leading-relaxed pt-1">
-                        {formSessionSel.length === 0
-                          ? "Jika tidak ada yang dipilih, tamu dianggap diundang ke semua acara."
-                          : "Pilih acara yang dihadiri tamu ini."}
-                      </p>
+
+                  <div className="space-y-1.5">
+                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">No. WhatsApp</label>
+                    <div className="flex border border-[#E2D9CF] rounded-xl overflow-hidden focus-within:border-[#B34E3F] focus-within:ring-1 focus-within:ring-[#B34E3F] transition-colors bg-white h-11">
+                      <span className="px-3 flex items-center bg-[#F5EFE6] text-sm text-[#2C2A29] border-r border-[#E2D9CF] shrink-0">+62</span>
+                      <input
+                        className="w-full px-3.5 bg-white text-sm focus:outline-none placeholder:text-on-surface-variant/50"
+                        placeholder="8123456789"
+                        type="tel"
+                        value={waDigits}
+                        onChange={(e) => setWaDigits(e.target.value.replace(/\D/g, ""))}
+                      />
                     </div>
                   </div>
-                )}
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</label>
-                  {waBlastEnabled ? (
-                    <button
-                      type="button"
-                      onClick={() => setForm((p) => ({ ...p, is_vip: !p.is_vip }))}
-                      className={`flex items-center gap-3 border rounded-xl py-3 px-4 min-h-[44px] transition-colors ${
-                        form.is_vip ? "border-[#FCD34D] bg-[#FEF3C7]" : "border-[#E2D9CF] bg-white"
-                      }`}
-                    >
-                      <span
-                        className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                          form.is_vip ? "bg-[#FCD34D] border-[#FCD34D]" : "border-[#E2D9CF] bg-white"
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</label>
+                      <select
+                        className="w-full bg-white border border-[#E2D9CF] rounded-xl h-11 px-3 text-sm focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+                        value={["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) ? form.category : form.category ? "__legacy__" : ""}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          if (v === "__legacy__") return
+                          setForm((p) => ({ ...p, category: v }))
+                        }}
+                      >
+                        <option value="">Pilih</option>
+                        {form.category && !["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) && (
+                          <option value="__legacy__">{form.category}</option>
+                        )}
+                        <option value="Keluarga">Keluarga</option>
+                        <option value="Kerabat">Kerabat</option>
+                        <option value="Teman">Teman</option>
+                        <option value="Kolega">Kolega</option>
+                        <option value="Lainnya">Lainnya</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</label>
+                      <input
+                        className="w-full bg-white border border-[#E2D9CF] rounded-xl h-11 px-3.5 text-sm focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
+                        placeholder="MEJA 01"
+                        value={form.table_number}
+                        onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  {sessions.length > 0 && (
+                    <div className="space-y-1.5">
+                      <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Diundang ke Acara</label>
+                      <div className="border border-[#E2D9CF] bg-white rounded-xl px-3.5 py-3 flex flex-col gap-2">
+                        {sessions.map((s, i) => {
+                          const checked = formSessionSel.includes(i)
+                          const label = sessionDisplayLabel(s, i)
+                          return (
+                            <label key={i} className="flex items-center gap-3 cursor-pointer select-none min-h-[36px]">
+                              <span
+                                className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                                  checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
+                                }`}
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  setFormSessionSel((prev) => {
+                                    const has = prev.includes(i)
+                                    if (has) return prev.filter((x) => x !== i)
+                                    return [...prev, i].sort((a, b) => a - b)
+                                  })
+                                }}
+                              >
+                                {checked && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
+                              </span>
+                              <span className="text-sm text-[#2C2A29] leading-snug">{label}</span>
+                            </label>
+                          )
+                        })}
+                        <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">
+                          {formSessionSel.length === 0
+                            ? "Jika tidak dipilih, tamu diundang ke semua acara."
+                            : "Pilih acara yang dihadiri tamu ini."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</label>
+                    {waBlastEnabled ? (
+                      <button
+                        type="button"
+                        onClick={() => setForm((p) => ({ ...p, is_vip: !p.is_vip }))}
+                        className={`flex items-center gap-3 border rounded-xl py-2.5 px-3.5 min-h-[44px] transition-colors w-full ${
+                          form.is_vip ? "border-[#FCD34D] bg-[#FEF3C7]" : "border-[#E2D9CF] bg-white"
                         }`}
                       >
-                        {form.is_vip && <span className="material-symbols-outlined text-[14px] text-[#92400E]">check</span>}
-                      </span>
-                      <span className="font-body-md text-sm text-[#2C2A29] text-left">
-                        Tandai sebagai tamu VIP (dapat reminder WhatsApp otomatis)
-                      </span>
-                    </button>
-                  ) : (
-                    <p className="font-body-md text-[12px] italic text-on-surface-variant/70 leading-relaxed border border-[#E2D9CF] bg-white rounded-xl py-3 px-4">
-                      Ubah paket, pengingat tamu VIP
-                    </p>
-                  )}
+                        <span
+                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                            form.is_vip ? "bg-[#FCD34D] border-[#FCD34D]" : "border-[#E2D9CF] bg-white"
+                          }`}
+                        >
+                          {form.is_vip && <span className="material-symbols-outlined text-[14px] text-[#92400E]">check</span>}
+                        </span>
+                        <span className="text-sm text-[#2C2A29] text-left leading-snug">
+                          Tandai VIP (reminder WhatsApp otomatis)
+                        </span>
+                      </button>
+                    ) : (
+                      <p className="text-[12px] italic text-on-surface-variant/70 leading-relaxed border border-[#E2D9CF] bg-white rounded-xl py-2.5 px-3.5">
+                        Ubah paket, pengingat tamu VIP
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-col gap-3 mt-4">
+
+                <div className="shrink-0 px-4 py-3 border-t border-[#E2D9CF]/70 bg-[#FAF7F2] space-y-2">
                   {duplicateError && (
-                    <p className="font-body-md text-sm text-error text-center">{duplicateError}</p>
+                    <p className="text-sm text-error text-center">{duplicateError}</p>
                   )}
                   <button
                     type="submit"
-                    className="w-full bg-[#B34E3F] text-white font-bold py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#9E3B2D] active:scale-95 transition-all"
+                    className="w-full bg-[#B34E3F] text-white font-semibold h-12 font-label-md text-[12px] uppercase tracking-widest rounded-xl hover:bg-[#9E3B2D] active:scale-[0.98] transition-all"
                   >
                     Simpan
                   </button>
                   <button
                     type="button"
                     onClick={() => setModalOpen(false)}
-                    className="w-full bg-transparent border border-[#E2D9CF] text-[#2C2A29] py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#F5EFE6] transition-colors"
+                    className="w-full bg-transparent border border-[#E2D9CF] text-[#2C2A29] h-11 font-label-md text-[12px] uppercase tracking-widest rounded-xl hover:bg-[#F5EFE6] transition-colors"
                   >
                     Batal
                   </button>
                 </div>
               </form>
-      </div>
-      </div>
-      </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {showConfirmGuard && (
