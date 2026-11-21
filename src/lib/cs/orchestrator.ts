@@ -16,6 +16,7 @@ import {
   optOutReply,
   refuseReply,
   safeFallbackReply,
+  unknownWebReply,
   verifyRequiredReply,
 } from "@/lib/cs/replies"
 import { ensureLead, leadMissing, leadPromptLine, recordObjection, saveLeadFact, updateLead } from "@/lib/cs/leads"
@@ -264,6 +265,13 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     return { replies: [{ text }], guarded: true, toolNames: [] }
   }
 
+  const channel = input.channel || "wa"
+  if (channel === "web" && intent === "unknown" && decision.action === "answer") {
+    const text = unknownWebReply()
+    await persistOutbound(input.conversationId, text, { intent, model: null })
+    return { replies: [{ text }], guarded: true, toolNames: [] }
+  }
+
   let directive = directiveFor(decision)
 
   if (decision.action === "playbook") {
@@ -439,7 +447,6 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     await updateLead(refreshed.id, { stage })
   }
 
-  const channel = input.channel || "wa"
   const attachMedia = shouldAttachPackageMedia(channel, intent)
   const templateData = prefetched.find((p) => p.name === "list_templates")?.data
   const deterministicTemplate =

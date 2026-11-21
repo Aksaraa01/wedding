@@ -1,5 +1,6 @@
 import type { EscalationReason, Intent } from "./policy"
 import { OUT_OF_SCOPE_REPLY } from "./policy"
+import { csWhatsAppUrl } from "./contact"
 
 const BY_REASON: Record<EscalationReason, string> = {
   human_requested: "Siap Kak, aku sambungkan ke tim ya. Sebentar.",
@@ -60,6 +61,10 @@ export function optOutReply(): string {
 
 export function offlineReply(): string {
   return "CS Aksaraa lagi nggak aktif. Pesan Kakak sudah masuk, nanti dibalas tim ya."
+}
+
+export function unknownWebReply(): string {
+  return `Maaf Kak, aku belum bisa bantu untuk pertanyaan itu. Boleh langsung chat tim kami di WhatsApp ya Kak: ${csWhatsAppUrl("Halo tim Aksaraa, saya mau tanya.")}`
 }
 
 // Verifikasi dibedakan: PIN hanya masuk akal kalau nomor pengirim sudah
