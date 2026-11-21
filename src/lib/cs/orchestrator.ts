@@ -38,6 +38,7 @@ import {
   siteBaseUrl,
   type CsMedia,
 } from "@/lib/cs/productKnowledge"
+import { formatTemplateReply } from "./templateListReply"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -45,6 +46,7 @@ export interface AgentDeps {
 }
 
 const DEFAULT_DEPS: AgentDeps = { chat: chatCompletion, runTool }
+
 
 export interface InboundInput {
   contactId: string
@@ -156,7 +158,7 @@ function directiveFor(decision: Decision): string {
           : decision.tool === "product_details"
             ? " Jelaskan fitur/isi produk dan perbedaan paket dari DATA SISTEM dengan bahasa sederhana dan mudah dimengerti (hindari istilah teknis). Kalau membahas Galeri Tamu, tegaskan bahwa Galeri Tamu khusus foto dan belum termasuk video sinematik."
           : decision.tool === "list_templates"
-            ? ' Sebutkan 2-3 nama template dan sertakan link demo lengkap (awali dengan https://wedding.aksaraa.com). Jangan mengarang nama template. Kalau templates kosong tetapi ada inactive_matches, sebut nama yang belum aktif, bilang belum tersedia, dan tawarkan cek tim tanpa memberi link.'
+            ? ' Sebutkan maksimal 3 template dari DATA SISTEM sesuai urutan yang diberikan. Setiap template WAJIB disertai link demo dari field demo_url (URL lengkap). Tulis satu template per baris dengan format: • Nama Template (Kategori) — demo_url. Jangan memilih acak, jangan mengarang nama atau link. Kalau templates kosong tetapi ada inactive_matches, sebut nama yang belum aktif, bilang belum tersedia, dan tawarkan cek tim tanpa memberi link.'
             : decision.tool === "list_vouchers"
               ? " Jangan sebut kode voucher sama sekali. Tulis narasi singkat yang mengalir (2-4 kalimat): potongan apa, untuk paket apa, dan bahwa voucher bisa dipilih saat registrasi. Jangan meminta kode ke klien. Kalau tidak ada voucher aktif, bilang belum ada dan tawarkan sambungkan ke tim."
               : decision.tool === "check_voucher"
@@ -435,7 +437,14 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
 
   const channel = input.channel || "wa"
   const attachMedia = shouldAttachPackageMedia(channel, intent)
-  const outboundText = attachMedia ? shortPackageIntro() : result.text
+  const templateData = prefetched.find((p) => p.name === "list_templates")?.data
+  const deterministicTemplate =
+    intent === "template" && decision.action === "tool" && decision.tool === "list_templates"
+      ? formatTemplateReply(templateData)
+      : null
+  const outboundText = attachMedia
+    ? shortPackageIntro()
+    : deterministicTemplate || result.text
   const media = attachMedia ? packageMedia(siteBaseUrl()) : undefined
 
   await persistOutbound(input.conversationId, outboundText, {
