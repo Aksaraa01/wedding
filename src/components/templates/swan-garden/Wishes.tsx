@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { timeAgo } from "../shared/lib"
 import { wishNameState } from "../shared/wishName"
+import { normalizeLanguage } from "@/lib/i18n"
 
 type Wish = { id: string; name: string | null; message: string; created_at: string }
 
@@ -35,6 +36,7 @@ export default function Wishes({
   emptyLabel,
   language = "id"
 }: Props) {
+  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { CopyButton } from "../shared/CopyButton"
 import type { GiftAccountData } from "../shared/lib"
 import { FONT_BODY, FONT_CLOSE, FONT_GIFT } from "./fonts"
@@ -10,9 +11,11 @@ type Props = {
   giftAddress?: string
   giftAddressName?: string
   onClose: () => void
+  language?: string
 }
 
-export default function GiftPopup({ accounts, giftAddress, giftAddressName, onClose }: Props) {
+export default function GiftPopup({ accounts, giftAddress, giftAddressName, onClose, language }: Props) {
+  const lang = normalizeLanguage(language)
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = "hidden"
@@ -27,7 +30,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
     <div className="fixed inset-0 z-[1003]">
       <button
         type="button"
-        aria-label="Tutup"
+        aria-label={t("close", lang)}
         onClick={onClose}
         className="absolute inset-0 bg-black/60"
       />
@@ -35,7 +38,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
       <div className="absolute right-0 top-0 h-full w-full max-w-[450px] overflow-y-auto bg-[#F2F1EE] text-[#1B1B18] shadow-2xl">
         <button
           type="button"
-          aria-label="Tutup"
+          aria-label={t("close", lang)}
           onClick={onClose}
           className="absolute right-4 top-4 z-10 text-[#1B1B18]"
           style={FONT_CLOSE}
@@ -45,10 +48,10 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
 
         <div className="px-6 py-12" style={FONT_GIFT}>
           <h2 className="text-center text-[26px] font-medium uppercase" style={{ letterSpacing: "2px" }}>
-            Wedding Gift
+            {t("secGift", lang)}
           </h2>
           <p className="mt-3 text-center text-[13px] leading-relaxed text-[#1B1B18]/70" style={FONT_BODY}>
-            Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih untuk kami, dapat melalui:
+            {lang === "en" ? "If you wish to send a gift, you may do so through:" : "Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih untuk kami, dapat melalui:"}
           </p>
 
           <div className="mt-8 space-y-5">
@@ -73,7 +76,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
                     <CopyButton
                       copyKey={`acct-${i}`}
                       value={plain}
-                      display="Salin No. Rekening"
+                      display={t("copyAccount", lang)}
                       className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#F2F1EE]/40 px-4 py-1.5 text-[12px] text-[#F2F1EE] transition-colors hover:bg-[#F2F1EE]/10"
                     />
                   )}
@@ -84,7 +87,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
             {giftAddress && (
               <div className="rounded-[10px] border border-[#1B1B18]/15 bg-white/70 px-5 py-5">
                 <span className="text-[13px] font-semibold uppercase" style={{ letterSpacing: "1px" }}>
-                  Kirim Kado
+                  {t("sendGift", lang)}
                 </span>
                 {giftAddressName && <p className="mt-2 text-[14px] font-medium">a.n. {giftAddressName}</p>}
                 <p className="mt-1 text-[13px] leading-relaxed text-[#1B1B18]/80 select-text" style={FONT_BODY}>
@@ -93,7 +96,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
                 <CopyButton
                   copyKey="gift-addr"
                   value={giftAddress}
-                  display="Salin Alamat"
+                  display={t("copyAddress", lang)}
                   className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#1B1B18]/30 px-4 py-1.5 text-[12px] transition-colors hover:bg-[#1B1B18]/5"
                 />
               </div>
@@ -101,7 +104,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
           </div>
 
           <p className="mt-8 text-center text-[13px] italic text-[#1B1B18]/70" style={FONT_BODY}>
-            Terima kasih atas doa restu &amp; tanda kasih Anda.
+            {lang === "en" ? "Thank you for your prayers and gifts." : "Terima kasih atas doa restu & tanda kasih Anda."}
           </p>
         </div>
       </div>

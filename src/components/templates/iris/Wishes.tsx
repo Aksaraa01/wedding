@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
+import { formatWishAgo, normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -54,19 +55,8 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso?: string): string {
-  if (!iso) return ""
-  const diff = Date.now() - new Date(iso).getTime()
-  const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "Baru saja"
-  if (minutes < 60) return `${minutes} menit lalu`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} jam lalu`
-  const days = Math.floor(hours / 24)
-  return days === 1 ? "1 hari lalu" : `${days} hari lalu`
-}
-
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy , language = "id"}: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy, language = "id" }: Props) {
+  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -111,7 +101,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Mode pratinjau, ucapan Anda tidak disimpan.")
+      setFeedback(t("previewWishNotSaved", lang))
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -128,19 +118,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Tamu Undangan",
+          name: name.trim() || guestName || t("guestHonored", lang),
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback("Anda sudah mengirim ucapan. Terima kasih atas doa dan kasihnya.")
+        setFeedback(t("wishAlreadySent", lang))
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback("Terima kasih. Ucapan Anda akan tampil setelah ditinjau.")
+        setFeedback(t("thanksForWish", lang))
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -149,12 +139,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback("Terlalu banyak pesan saat ini. Silakan coba lagi sebentar.")
+      setFeedback(t("tooManyMessages", lang))
     } catch {
       setStatus("error")
-      setFeedback("Ucapan gagal dikirim. Periksa koneksi Anda.")
+      setFeedback(t("wishFailed", lang))
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status])
+  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -209,7 +199,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <button type="submit" className="ir-btn ir-btn--gold" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? "Mengirim…" : copy.submit}
+          {status === "sending" ? t("sending", lang) : copy.submit}
         </button>
 
         {feedback && (
@@ -220,18 +210,16 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       </form>
 
       <div className="ir-wishlist">
-        {!loaded && <p className="ir-field__feedback">Memuat ucapan…</p>}
+        {!loaded && <p className="ir-field__feedback">{t("loadingWishes", lang)}</p>}
         {loaded && wishes.length === 0 && (
-          <p className="ir-field__feedback">
-            {copy.empty}{coupleName ? ` (${coupleName})` : ""}
-          </p>
+          <p className="ir-field__feedback">{copy.empty}</p>
         )}
 
         {pagedWishes.map((wish) => (
           <article className="ir-wish" key={wish.id}>
             <header className="ir-wish__head">
-              <span className="ir-wish__name">{wish.name || "Tamu Undangan"}</span>
-              <span className="ir-wish__date">{wishAgo(wish.created_at)}</span>
+              <span className="ir-wish__name">{wish.name || t("guestHonored", lang)}</span>
+              <span className="ir-wish__date">{formatWishAgo(wish.created_at, lang)}</span>
             </header>
             <p className="ir-wish__text">{wish.message}</p>
           </article>
@@ -242,7 +230,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
             <button
               type="button"
               className="ir-pager__btn"
-              aria-label="Halaman sebelumnya"
+              aria-label={t("previousPage", lang)}
               disabled={currentPage === 0}
               onClick={() => setPage((value) => Math.max(0, value - 1))}
             >
@@ -254,7 +242,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
             <button
               type="button"
               className="ir-pager__btn"
-              aria-label="Halaman berikutnya"
+              aria-label={t("nextPage", lang)}
               disabled={currentPage >= totalPages - 1}
               onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
             >

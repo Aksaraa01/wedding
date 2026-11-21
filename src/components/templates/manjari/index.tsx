@@ -8,7 +8,6 @@ import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
   flattenPhotos,
-  formatLongDate,
   gcalLink,
   normalizeVideoUrl,
 } from "../shared/lib"
@@ -17,6 +16,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import { resolveBankLogo } from "@/lib/bankList"
 import "./manjari.css"
 import { normalizeLanguage, t } from "@/lib/i18n"
+import { formatDate } from "@/lib/formatDate"
 
 const A = (name: string) => `/templates/manjari/${name}`
 const DEMO_TRACK = "/templates/manjari/lee-hi-only.mp3"
@@ -90,9 +90,9 @@ export default function Manjari(profile: TemplateProps) {
   const hasGallery = photos.length > 0 || hasVideo
   const trackUrl = profile.track_url || (profile.template_demo ? DEMO_TRACK : "")
   const hasTrack = !!trackUrl
-  const guestName = profile.guest_name || "Our Beloved Guest"
+  const guestName = profile.guest_name || t("honoredGuest", lang)
   const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
-  const dateLong = formatLongDate(profile.estimated_wedding_date)
+  const dateLong = formatDate(profile.estimated_wedding_date || "", lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
@@ -150,7 +150,7 @@ export default function Manjari(profile: TemplateProps) {
       <div className="page-shell">
         <aside className="desktop-cover" aria-hidden="true" style={{ backgroundImage: `url(${cover})` }}>
           <div className="desktop-cover__content">
-            <p>THE WEDDING OF</p>
+            <p>{t("theWeddingOf", lang).toUpperCase()}</p>
             <h1>{coupleLabel}</h1>
           </div>
         </aside>
@@ -229,15 +229,15 @@ export default function Manjari(profile: TemplateProps) {
 
           <div className="events__countdown section-photo">
             <div className="countdown-wrap reveal">
-              <h2>Countdown</h2>
-              <div className="countdown" aria-label="Wedding countdown">
-                <div><strong>{countdown?.d ?? "00"}</strong><span>Days</span></div>
-                <div><strong>{countdown?.h ?? "00"}</strong><span>Hours</span></div>
-                <div><strong>{countdown?.m ?? "00"}</strong><span>Minutes</span></div>
-                <div><strong>{countdown?.s ?? "00"}</strong><span>Seconds</span></div>
+              <h2>{tc.countdown_title || t("countdown", lang)}</h2>
+              <div className="countdown" aria-label={t("countdown", lang)}>
+                <div><strong>{countdown?.d ?? "00"}</strong><span>{t("days", lang)}</span></div>
+                <div><strong>{countdown?.h ?? "00"}</strong><span>{t("hours", lang)}</span></div>
+                <div><strong>{countdown?.m ?? "00"}</strong><span>{t("minutes", lang)}</span></div>
+                <div><strong>{countdown?.s ?? "00"}</strong><span>{t("seconds", lang)}</span></div>
               </div>
               {calendarUrl && (
-                <a className="pill pill-ivory calendar-button" href={calendarUrl} target="_blank" rel="noreferrer">SAVE THE DATE</a>
+                <a className="pill pill-ivory calendar-button" href={calendarUrl} target="_blank" rel="noreferrer">{t("saveToCalendar", lang).toUpperCase()}</a>
               )}
             </div>
           </div>
@@ -245,19 +245,19 @@ export default function Manjari(profile: TemplateProps) {
           <section className="events ivory" data-section="events">
             <div className="events__title">
               <img className="reveal" src={A("wedding-title.webp")} alt="" aria-hidden="true" />
-              <h2 className="reveal">Wedding Day</h2>
+              <h2 className="reveal">{tc.events_title || t("secEvent", lang)}</h2>
             </div>
             {events.map((event, index) => {
               const mapsUrl = event.maps_url || (event.venue || event.address ? `https://maps.google.com/?q=${encodeURIComponent([event.venue, event.address].filter(Boolean).join(", "))}` : "")
               return (
                 <article className="event reveal" key={`${event.name || "event"}-${index}`}>
                   <h2>{event.name || "Wedding Event"}</h2>
-                  <h3>{formatLongDate(event.date || profile.estimated_wedding_date)}</h3>
+                  <h3>{formatDate(event.date || profile.estimated_wedding_date || "", lang)}</h3>
                   {event.time && <p>{event.time}</p>}
                   <i />
                   {event.venue && <h4>{event.venue}</h4>}
                   {event.address && <p>{event.address}</p>}
-                  {mapsUrl && <a className="pill pill-burgundy maps-button" href={mapsUrl} target="_blank" rel="noreferrer">OPEN MAPS</a>}
+                  {mapsUrl && <a className="pill pill-burgundy maps-button" href={mapsUrl} target="_blank" rel="noreferrer">{t("viewLocation", lang).toUpperCase()}</a>}
                 </article>
               )
             })}
@@ -267,9 +267,9 @@ export default function Manjari(profile: TemplateProps) {
             <section className="streaming burgundy" data-section="live-stream">
               <img className="reveal" src={A("confirmation-title.webp")} alt="" aria-hidden="true" />
               <div className="reveal">
-                <h2>{profile.livestream?.title || "Live Streaming"}</h2>
-                <p>{profile.livestream?.description || "Join us virtually as we share our wedding celebration live."}</p>
-                <a className="pill pill-ivory" href={profile.livestream!.url} target="_blank" rel="noreferrer">{profile.livestream?.buttonLabel || "JOIN LIVE"}</a>
+                <h2>{profile.livestream?.title || t("secLivestream", lang)}</h2>
+                <p>{profile.livestream?.description || (lang === "en" ? "Join us virtually as we share our wedding celebration live." : "Bergabunglah bersama kami secara virtual saat kami menyiarkan perayaan pernikahan secara langsung.")}</p>
+                <a className="pill pill-ivory" href={profile.livestream!.url} target="_blank" rel="noreferrer">{profile.livestream?.buttonLabel || (lang === "en" ? "JOIN LIVE" : "TONTON LIVE")}</a>
               </div>
             </section>
           )}
@@ -277,9 +277,9 @@ export default function Manjari(profile: TemplateProps) {
           {hasDresscode && (
             <section className="dresscode-section ivory" data-section="dress-code">
               <div className="dresscode reveal">
-                <h2>{profile.dresscode?.title || "Dress Code"}</h2>
+                <h2>{profile.dresscode?.title || tc.dresscode_title || t("secDresscode", lang)}</h2>
                 {profile.dresscode?.description && <p>{profile.dresscode.description}</p>}
-                <div className="palette" aria-label="Dress code color palette">
+                <div className="palette" aria-label={lang === "en" ? "Dress code color palette" : "Palet warna dress code"}>
                   {dressColors.map((color, index) => <span key={`${color.hex || color.name}-${index}`} style={{ "--color": color.hex || "#ccc" } as CSSProperties} title={color.name || ""} />)}
                 </div>
               </div>
@@ -288,7 +288,7 @@ export default function Manjari(profile: TemplateProps) {
 
           {hasGallery && (
             <section className="gallery ivory" data-section="gallery">
-              <h2 className="reveal">{tc.gallery_title || "Where Our Memories Live"}</h2>
+              <h2 className="reveal">{tc.gallery_title || t("secGallery", lang)}</h2>
               {photos.length > 0 && (
                 <div className="gallery__grid">
                   {photos.slice(0, 6).map((src, index) => <img key={`${src}-${index}`} className="reveal" src={src} alt="" loading="lazy" />)}
@@ -315,7 +315,7 @@ export default function Manjari(profile: TemplateProps) {
           <section className="rsvp burgundy" data-section="rsvp">
             <div className="section-script reveal">
               <img className="reveal" src={A("wish-title.webp")} alt="" aria-hidden="true" />
-              <h2>Wishes</h2>
+              <h2>{tc.wishes_title || t("secWishes", lang)}</h2>
               <p>{tc.wishes_intro || "Please let us know whether you will join our wedding celebration by completing the form below."}</p>
             </div>
             <div className="manjari-rsvp">
@@ -342,7 +342,7 @@ export default function Manjari(profile: TemplateProps) {
                 })}
                 {giftAddress && (
                   <div className="manjari-gift-card">
-                    <p className="manjari-gift-provider">Send a Gift</p>
+                    <p className="manjari-gift-provider">{t("sendGift", lang)}</p>
                     {profile.gift_address_name && <p className="manjari-gift-name">{profile.gift_address_name}</p>}
                     <p className="manjari-gift-address">{giftAddress}</p>
                   </div>
@@ -368,7 +368,7 @@ export default function Manjari(profile: TemplateProps) {
           {rundown.length > 0 && (
             <section className="manjari-rundown ivory" data-section="rundown">
               <img className="manjari-section-ornament" src={A("wish-title.webp")} alt="" aria-hidden="true" />
-              <h2>Rundown Acara</h2>
+              <h2>{tc.rundown_title || t("secRundown", lang)}</h2>
               <ul>
                 {rundown.map((item, index) => (
                   <li key={`${item.time || "rundown"}-${index}`}>
@@ -382,7 +382,7 @@ export default function Manjari(profile: TemplateProps) {
 
           <section className="thanks section-photo" data-section="thank-you">
             <div className="thanks__content reveal">
-              <h2>With Grateful Hearts</h2>
+              <h2>{lang === "en" ? "With Grateful Hearts" : "Dengan Penuh Syukur"}</h2>
               <p>{closingMessage}</p>
               <div className="envelope-art envelope-art--closing">
                 <img className="envelope-art__back" src={A("envelope-back.webp")} alt="" loading="lazy" />
@@ -399,12 +399,12 @@ export default function Manjari(profile: TemplateProps) {
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Hubungi Aksaraa Wedding via WhatsApp"
+                  aria-label={lang === "en" ? "Contact Aksaraa Wedding via WhatsApp" : "Hubungi Aksaraa Wedding via WhatsApp"}
                 >
                   <span className="tpl-footer__badge">
                     <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="tpl-footer__logo" draggable={false} />
                   </span>
-                  <span className="tpl-footer__cta">Wedding by Aksaraa</span>
+                  <span className="tpl-footer__cta">{lang === "en" ? "Wedding by Aksaraa" : "Undangan Pernikahan oleh Aksaraa"}</span>
                 </a>
                 <p className="tpl-footer__text">© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
               </footer>
@@ -429,6 +429,7 @@ export default function Manjari(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
+                  language={profile.language}
         />
       )}
 
@@ -437,7 +438,7 @@ export default function Manjari(profile: TemplateProps) {
           <div className="opening__slides" aria-hidden="true" />
           <div className="opening__content">
             <div className="opening__top">
-              <p>THE WEDDING OF</p>
+              <p>{t("theWeddingOf", lang).toUpperCase()}</p>
               <h2 id="opening-title">{coupleLabel}</h2>
               {dateLong && <time>{dateLong}</time>}
             </div>
@@ -453,10 +454,10 @@ export default function Manjari(profile: TemplateProps) {
               </div>
             </div>
             <div className="opening__bottom">
-              <span>Dear,</span>
+              <span>{lang === "en" ? "Dear," : "Kepada Yth,"}</span>
               <strong>{guestName}</strong>
               <small>{tc.cover_apology || "We apologize for any misspelling of your name."}</small>
-              <button className="pill pill-burgundy" type="button" onClick={openInvitation}>Open Invitation</button>
+              <button className="pill pill-burgundy" type="button" onClick={openInvitation}>{t("openInvitation", lang)}</button>
             </div>
           </div>
         </div>

@@ -8,7 +8,6 @@ import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
   flattenPhotos,
-  formatLongDate,
   gcalLink,
   groomPhoto as groomPhotoOf,
   bridePhoto as bridePhotoOf,
@@ -18,21 +17,30 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import PianoWishes from "./PianoWishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./piano-garden.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage, t, formatDate } from "@/lib/i18n"
 
 const ASSET = (name: string) => `/templates/piano-garden/${name}`
 
-const DEFAULT_QUOTE =
+const DEFAULT_QUOTE_ID =
+  "Dan di atas semuanya itu: kenakanlah kasih, sebagai pengikat yang mempersatukan dan menyempurnakan."
+const DEFAULT_QUOTE_EN =
   "And over all these virtues put on love, which binds them all together in perfect unity."
-const DEFAULT_GALLERY_QUOTE = "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku."
-const DEFAULT_GIFT_DESCRIPTION =
+const DEFAULT_GALLERY_QUOTE_ID = "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku."
+const DEFAULT_GALLERY_QUOTE_EN = "Every love story is beautiful, but ours is my favorite."
+const DEFAULT_GIFT_DESCRIPTION_ID =
   "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini."
-const DEFAULT_CLOSING =
+const DEFAULT_GIFT_DESCRIPTION_EN =
+  "Your presence is the greatest gift. If you wish to send a gift, details are available below."
+const DEFAULT_CLOSING_ID =
   "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami."
-const DEFAULT_WISHES_SUBTITLE =
+const DEFAULT_CLOSING_EN =
+  "It would be an honor and joy for us to have you present and give your blessing on our wedding day."
+const DEFAULT_WISHES_SUBTITLE_ID =
   "Tinggalkan pesan cinta dan doa untuk kedua mempelai."
+const DEFAULT_WISHES_SUBTITLE_EN =
+  "Leave your love and prayers for the couple."
 
-function describePalette(colors?: { hex?: string; name?: string }[]): string {
+function describePalette(colors: { hex?: string; name?: string }[] | undefined, lang: "id" | "en"): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
   if (!names.length) return ""
   const list =
@@ -41,7 +49,7 @@ function describePalette(colors?: { hex?: string; name?: string }[]): string {
       : names.length === 2
         ? `${names[0]} & ${names[1]}`
         : `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`
-  return `Elegant Attire in ${list}.`
+  return lang === "en" ? `Elegant Attire in ${list}.` : `Busana elegan bernuansa ${list}.`
 }
 
 function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
@@ -128,8 +136,8 @@ export default function PianoGarden(profile: TemplateProps) {
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
   const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
-  const guestName = profile.guest_name || "Our Beloved Guest"
-  const dateLong = formatLongDate(profile.estimated_wedding_date)
+  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const dateLong = formatDate(profile.estimated_wedding_date, lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const events = (profile.sessions || []).filter(Boolean)
   const photos = flattenPhotos(profile.gallery_photos)
@@ -159,17 +167,17 @@ export default function PianoGarden(profile: TemplateProps) {
   const hasTrack = !!trackUrl
   const calendarUrl = gcalLink(events[0], groomShort, brideShort)
 
-  const quoteText = profile.quote_text || DEFAULT_QUOTE
+  const quoteText = profile.quote_text || (lang === "en" ? DEFAULT_QUOTE_EN : DEFAULT_QUOTE_ID)
   const quoteSource = profile.quote_source || "Colossians 3 : 14"
   const coverApology =
     tc.cover_apology || "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar."
   const galleryIntro = tc.gallery_intro || ""
-  const galleryQuote = tc.gallery_quote || DEFAULT_GALLERY_QUOTE
+  const galleryQuote = tc.gallery_quote || (lang === "en" ? DEFAULT_GALLERY_QUOTE_EN : DEFAULT_GALLERY_QUOTE_ID)
   const giftIntroTitle = tc.gift_intro_title || "Tanda Kasih"
-  const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION
-  const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
-  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
+  const giftIntroDescription = tc.gift_intro_description || (lang === "en" ? DEFAULT_GIFT_DESCRIPTION_EN : DEFAULT_GIFT_DESCRIPTION_ID)
+  const wishesSubtitle = tc.wishes_intro || (lang === "en" ? DEFAULT_WISHES_SUBTITLE_EN : DEFAULT_WISHES_SUBTITLE_ID)
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING_EN : DEFAULT_CLOSING_ID)
+  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors, lang)
   const livestream = profile.livestream
 
   const splitAt = photos.length > 8 ? Math.ceil(photos.length / 2) : photos.length
@@ -478,7 +486,7 @@ export default function PianoGarden(profile: TemplateProps) {
                 <source src={ASSET("opening-garden.mp4")} type="video/mp4" />
               </video>
               {opened && videoBuffering && !videoFailed && (
-                <div className="video-buffering" role="status" aria-live="polite" aria-label="Loading video">
+                <div className="video-buffering" role="status" aria-live="polite" aria-label={lang === "en" ? "Loading video" : "Memuat video"}>
                   <span className="gate-spinner" aria-hidden="true" />
                 </div>
               )}
@@ -655,19 +663,19 @@ export default function PianoGarden(profile: TemplateProps) {
             <div className="countdown" aria-label="Event countdown" data-aos="scale-in">
               <div data-aos="flip-in" data-aos-delay="0" className="garden-text-reveal" style={delay(0)}>
                 <strong>{countdown?.d ?? "00"}</strong>
-                <span>Days</span>
+                <span>{t("days", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="70" className="garden-text-reveal" style={delay(70)}>
                 <strong>{countdown?.h ?? "00"}</strong>
-                <span>Hours</span>
+                <span>{t("hours", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="140" className="garden-text-reveal" style={delay(140)}>
                 <strong>{countdown?.m ?? "00"}</strong>
-                <span>Minutes</span>
+                <span>{t("minutes", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="210" className="garden-text-reveal" style={delay(210)}>
                 <strong>{countdown?.s ?? "00"}</strong>
-                <span>Seconds</span>
+                <span>{t("seconds", lang)}</span>
               </div>
             </div>
             <div className="events-intro" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
@@ -711,7 +719,7 @@ export default function PianoGarden(profile: TemplateProps) {
                       {event.name || "Wedding Event"}
                     </h3>
                     <strong className="event-date garden-text-reveal" data-aos="fade-up" data-aos-delay="55" style={delay(55)}>
-                      {formatLongDate(event.date || profile.estimated_wedding_date)}
+                      {formatDate(event.date || profile.estimated_wedding_date, lang)}
                     </strong>
                     {event.time && (
                       <span className="event-time garden-text-reveal" data-aos="fade-up" data-aos-delay="110" style={delay(110)}>
@@ -979,6 +987,7 @@ export default function PianoGarden(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
+              language={lang}
             />
           </section>
 
@@ -1068,6 +1077,7 @@ export default function PianoGarden(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
+          language={lang}
         />
       )}
     </div>

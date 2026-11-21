@@ -8,7 +8,6 @@ import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
   flattenPhotos,
-  formatLongDate,
   gcalLink,
   groomPhoto as groomPhotoOf,
   bridePhoto as bridePhotoOf,
@@ -18,25 +17,39 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./adat-bugis.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage, t, formatDate } from "@/lib/i18n"
 
 const ASSET = (name: string) => `/templates/adat-bugis/${name}`
 
-const DEFAULT_QUOTE =
+const DEFAULT_QUOTE_ID =
   "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami."
-const DEFAULT_QUOTE_SOURCE = "Doa Pernikahan Adat Bugis"
+const DEFAULT_QUOTE_EN =
+  "In the name of Allah, the Most Gracious, the Most Merciful. May He bless our journey with love, harmony, and barakah."
+const DEFAULT_QUOTE_SOURCE_ID = "Doa Pernikahan Adat Bugis"
+const DEFAULT_QUOTE_SOURCE_EN = "A Bugis Wedding Prayer"
 const DEMO_TRACK = "/templates/adat-bugis/mula-macenning.mp3"
-const DEFAULT_GALLERY_QUOTE = "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama."
-const DEFAULT_GIFT_DESCRIPTION =
+const DEFAULT_GALLERY_QUOTE_ID = "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama."
+const DEFAULT_GALLERY_QUOTE_EN = "Love grows in prayer, family blessings, and every step we take together."
+const DEFAULT_GIFT_DESCRIPTION_ID =
   "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:"
-const DEFAULT_CLOSING =
+const DEFAULT_GIFT_DESCRIPTION_EN =
+  "Your presence is the greatest gift. Should you wish to honor us with a gift, it may be sent through:"
+const DEFAULT_CLOSING_ID =
   "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan."
-const DEFAULT_WISHES_SUBTITLE =
+const DEFAULT_CLOSING_EN =
+  "Thank you for your presence and prayers. May Allah SWT bless us all."
+const DEFAULT_WISHES_SUBTITLE_ID =
   "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu."
-const DEFAULT_PROFILES_INTRO =
+const DEFAULT_WISHES_SUBTITLE_EN =
+  "With great joy, we invite you to share your presence and blessings."
+const DEFAULT_PROFILES_INTRO_ID =
   "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan."
-const DEFAULT_EVENTS_INTRO =
+const DEFAULT_PROFILES_INTRO_EN =
+  "By the grace of Allah SWT, we were brought together to walk side by side in love and harmony."
+const DEFAULT_EVENTS_INTRO_ID =
   "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Bugis kami:"
+const DEFAULT_EVENTS_INTRO_EN =
+  "By the grace of Allah SWT, we invite you to join us in our Bugis wedding celebration:"
 
 function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
@@ -156,7 +169,7 @@ export default function AdatBugis(profile: TemplateProps) {
   const brideFull = (profile.bride_full_name || brideShort).trim()
   const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "Pernikahan"
   const guestName = profile.guest_name || "Tamu Undangan"
-  const dateLong = formatLongDate(profile.estimated_wedding_date)
+  const dateLong = formatDate(profile.estimated_wedding_date, lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const events = (profile.sessions || []).filter(Boolean)
   const photos = flattenPhotos(profile.gallery_photos)
@@ -194,18 +207,18 @@ export default function AdatBugis(profile: TemplateProps) {
   const hasTrack = !!trackUrl
   const calendarUrl = gcalLink(events[0], groomShort, brideShort)
 
-  const quoteText = profile.quote_text || DEFAULT_QUOTE
-  const quoteSource = profile.quote_source || DEFAULT_QUOTE_SOURCE
+  const quoteText = profile.quote_text || (lang === "en" ? DEFAULT_QUOTE_EN : DEFAULT_QUOTE_ID)
+  const quoteSource = profile.quote_source || (lang === "en" ? DEFAULT_QUOTE_SOURCE_EN : DEFAULT_QUOTE_SOURCE_ID)
   const coverApology =
-    tc.cover_apology || "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar."
+    tc.cover_apology || (lang === "en" ? "We apologize for any errors in names or titles." : "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.")
   const galleryIntro = tc.gallery_intro || ""
-  const galleryQuote = tc.gallery_quote || DEFAULT_GALLERY_QUOTE
-  const giftIntroTitle = tc.gift_intro_title || "Love Gift"
-  const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION
-  const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
-  const profilesIntro = tc.profiles_intro || DEFAULT_PROFILES_INTRO
-  const eventsIntro = tc.events_intro || DEFAULT_EVENTS_INTRO
+  const galleryQuote = tc.gallery_quote || (lang === "en" ? DEFAULT_GALLERY_QUOTE_EN : DEFAULT_GALLERY_QUOTE_ID)
+  const giftIntroTitle = tc.gift_intro_title || t("secGift", lang)
+  const giftIntroDescription = tc.gift_intro_description || (lang === "en" ? DEFAULT_GIFT_DESCRIPTION_EN : DEFAULT_GIFT_DESCRIPTION_ID)
+  const wishesSubtitle = tc.wishes_intro || (lang === "en" ? DEFAULT_WISHES_SUBTITLE_EN : DEFAULT_WISHES_SUBTITLE_ID)
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING_EN : DEFAULT_CLOSING_ID)
+  const profilesIntro = tc.profiles_intro || (lang === "en" ? DEFAULT_PROFILES_INTRO_EN : DEFAULT_PROFILES_INTRO_ID)
+  const eventsIntro = tc.events_intro || (lang === "en" ? DEFAULT_EVENTS_INTRO_EN : DEFAULT_EVENTS_INTRO_ID)
   const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const livestream = profile.livestream
 
@@ -498,7 +511,7 @@ export default function AdatBugis(profile: TemplateProps) {
                   {dateLong && <p className="gate-date">{dateLong}</p>}
                 </div>
                 <div className="gate-details" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
-                  <p className="cover-to">Kepada Yth:</p>
+                  <p className="cover-to">{t("toGuest", lang)}</p>
                   <p className="guest-name gate-guest name-fit" style={fitStyle(guestName)}>
                     {guestName}
                   </p>
@@ -514,7 +527,7 @@ export default function AdatBugis(profile: TemplateProps) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
                       <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
                     </svg>
-                    Buka Undangan
+                    {t("openInvitation", lang)}
                   </button>
                 </div>
               </div>
@@ -524,7 +537,7 @@ export default function AdatBugis(profile: TemplateProps) {
           <section
             className={`video-intro ${videoFailed ? "is-fallback" : "is-video"}${opened ? "" : " is-preloading"}`}
             id="adat-bugis-video-intro"
-            aria-label="Video pembuka"
+            aria-label={lang === "en" ? "Opening video" : "Video pembuka"}
             aria-hidden={!opened}
           >
             <div className="gate-stage gate-video">
@@ -541,7 +554,7 @@ export default function AdatBugis(profile: TemplateProps) {
                 <source src={ASSET("opening-garden.mp4")} type="video/mp4" />
               </video>
               {opened && videoBuffering && !videoFailed && (
-                <div className="video-buffering" role="status" aria-live="polite" aria-label="Memuat video">
+                <div className="video-buffering" role="status" aria-live="polite" aria-label={lang === "en" ? "Loading video" : "Memuat video"}>
                   <span className="gate-spinner" aria-hidden="true" />
                 </div>
               )}
@@ -597,7 +610,7 @@ export default function AdatBugis(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="groom-bride-section parallax-section" data-aos="fade-up" aria-label="Mempelai">
+          <section className="groom-bride-section parallax-section" data-aos="fade-up" aria-label={t("secCouple", lang)}>
             <div className="profile-card" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
               <div className="profile-intro" data-aos="fade-down" data-aos-delay="120" style={delay(120)}>
                 <h2 className="script profile-heading garden-text-reveal" data-aos="fade-up">
@@ -688,10 +701,10 @@ export default function AdatBugis(profile: TemplateProps) {
           </section>
 
           {honored.length > 0 && (
-            <section className="inviting-section parallax-section" data-aos="fade-up" aria-label="Turut Mengundang">
+            <section className="inviting-section parallax-section" data-aos="fade-up" aria-label={t("secInviting", lang)}>
               <div className="inviting-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
                 <h2 className="script inviting-title garden-text-reveal" data-aos="fade-down">
-                  Turut Mengundang
+                  {tc.inviting_title || t("secInviting", lang)}
                 </h2>
                 <ul className="inviting-list">
                   {honored.map((name, index) => (
@@ -710,27 +723,27 @@ export default function AdatBugis(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="events-section" data-aos="fade-up" aria-label="Acara">
+          <section className="events-section" data-aos="fade-up" aria-label={t("secEvent", lang)}>
             <img className="bouquet" src={ASSET("bouquet.webp")} alt="" data-aos="leaf-in" />
             <h2 className="script section-title garden-text-reveal" data-aos="fade-down">
-              Save The Date
+              {tc.save_date_label || t("saveTheDate", lang)}
             </h2>
-            <div className="countdown" aria-label="Hitung mundur acara" data-aos="scale-in">
+            <div className="countdown" aria-label={t("countdown", lang)} data-aos="scale-in">
               <div data-aos="flip-in" data-aos-delay="0" className="garden-text-reveal" style={delay(0)}>
                 <strong>{countdown?.d ?? "00"}</strong>
-                <span>Hari</span>
+                <span>{t("days", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="70" className="garden-text-reveal" style={delay(70)}>
                 <strong>{countdown?.h ?? "00"}</strong>
-                <span>Jam</span>
+                <span>{t("hours", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="140" className="garden-text-reveal" style={delay(140)}>
                 <strong>{countdown?.m ?? "00"}</strong>
-                <span>Menit</span>
+                <span>{t("minutes", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="210" className="garden-text-reveal" style={delay(210)}>
                 <strong>{countdown?.s ?? "00"}</strong>
-                <span>Detik</span>
+                <span>{t("seconds", lang)}</span>
               </div>
             </div>
             <div className="events-intro" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
@@ -748,7 +761,7 @@ export default function AdatBugis(profile: TemplateProps) {
                     <rect x="3" y="5" width="18" height="16" rx="2" />
                     <path d="M16 3v4M8 3v4M3 10h18" />
                   </svg>
-                  TAMBAH KE KALENDER
+                  {t("saveToCalendar", lang).toUpperCase()}
                 </a>
               )}
               <p>
@@ -771,10 +784,10 @@ export default function AdatBugis(profile: TemplateProps) {
                 >
                   <div className="event-card-inner" data-aos="fade-up">
                     <h3 className="script name-fit garden-text-reveal" style={fitStyle(event.name || "Acara Pernikahan")} data-aos="fade-up">
-                      {event.name || "Acara Pernikahan"}
+                      {event.name || (lang === "en" ? "Wedding Event" : "Acara Pernikahan")}
                     </h3>
                     <strong className="event-date garden-text-reveal" data-aos="fade-up" data-aos-delay="55" style={delay(55)}>
-                      {formatLongDate(event.date || profile.estimated_wedding_date)}
+                      {formatDate(event.date || profile.estimated_wedding_date, lang)}
                     </strong>
                     {event.time && (
                       <span className="event-time garden-text-reveal" data-aos="fade-up" data-aos-delay="110" style={delay(110)}>
@@ -809,7 +822,7 @@ export default function AdatBugis(profile: TemplateProps) {
                           <path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" />
                           <circle cx="12" cy="10" r="2" />
                         </svg>
-                        LIHAT LOKASI
+                        {t("viewLocation", lang).toUpperCase()}
                       </a>
                     )}
                   </div>
@@ -840,16 +853,16 @@ export default function AdatBugis(profile: TemplateProps) {
                     <circle cx="12" cy="12" r="8.5" />
                     <path d="m10.3 8.7 5.2 3.3-5.2 3.3Z" fill="currentColor" stroke="none" />
                   </svg>
-                  {livestream?.buttonLabel || "Tonton Live Streaming"}
+                  {livestream?.buttonLabel || t("watch", lang)}
                 </a>
               </div>
             </section>
           )}
 
           {hasRundown && (
-            <section className="tpl-rundown" aria-label="Rundown Acara">
+            <section className="tpl-rundown" aria-label={t("secRundown", lang)}>
               <div className="tpl-rundown__card" data-aos="fade-up">
-                <h2 className="tpl-rundown__title">Rundown Acara</h2>
+                <h2 className="tpl-rundown__title">{tc.rundown_title || t("secRundown", lang)}</h2>
                 <div className="tpl-rundown__list">
                   {rundownItems.map((item, index) => (
                     <article
@@ -872,16 +885,16 @@ export default function AdatBugis(profile: TemplateProps) {
               <div className="dress-code-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
                 <div className="dress-code-intro garden-text-reveal" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
                   <h2 id="dress-code-title" className="script">
-                    {profile.dresscode?.title || "Dress Code"}
+                    {tc.dresscode_title || profile.dresscode?.title || t("secDresscode", lang)}
                   </h2>
                   {dressDescription && <p>{dressDescription}</p>}
                 </div>
-                <ul className="dress-code-swatches" role="list" aria-label="Palet warna dress code" data-aos="fade-up" data-aos-delay="180" style={delay(180)}>
+                <ul className="dress-code-swatches" role="list" aria-label={lang === "en" ? "Dress code color palette" : "Palet warna dress code"} data-aos="fade-up" data-aos-delay="180" style={delay(180)}>
                   {dressColors.map((color, index) => (
                     <li
                       className="dress-code-swatch garden-text-reveal"
                       role="listitem"
-                      aria-label={color.name || color.hex || `Warna ${index + 1}`}
+                      aria-label={color.name || color.hex || (lang === "en" ? `Color ${index + 1}` : `Warna ${index + 1}`)}
                       key={`${color.hex || color.name}-${index}`}
                       data-aos="zoom-in"
                       data-aos-delay={index * 70}
@@ -901,9 +914,9 @@ export default function AdatBugis(profile: TemplateProps) {
           )}
 
           {hasGallery && (
-            <section className="our-gallery-section" data-aos="fade-up" aria-label="Our Gallery">
+            <section className="our-gallery-section" data-aos="fade-up" aria-label={tc.gallery_title || t("secGallery", lang)}>
               <h2 className="script section-title garden-text-reveal" data-aos="fade-down">
-                Our Gallery
+                {tc.gallery_title || t("secGallery", lang)}
               </h2>
               {galleryIntro && <p className="gallery-description">{galleryIntro}</p>}
 
@@ -919,7 +932,7 @@ export default function AdatBugis(profile: TemplateProps) {
                             <button
                               type="button"
                               tabIndex={index >= row.length ? -1 : 0}
-                              aria-label={`Lihat foto ${photoIndex + 1}`}
+                              aria-label={lang === "en" ? `View photo ${photoIndex + 1}` : `Lihat foto ${photoIndex + 1}`}
                               onClick={() => setLightbox(photoIndex)}
                             >
                               <img src={src} alt="" loading="lazy" decoding="async" />
@@ -941,7 +954,7 @@ export default function AdatBugis(profile: TemplateProps) {
                 <div className="gallery-video-card garden-text-reveal" data-aos="fade-up" data-aos-delay="180" style={delay(180)}>
                   <iframe
                     src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1&modestbranding=1&iv_load_policy=3&rel=0&playsinline=1`}
-                    title={`Video pernikahan ${coupleLabel}`}
+                    title={lang === "en" ? `Wedding video of ${coupleLabel}` : `Video pernikahan ${coupleLabel}`}
                     allow="autoplay; encrypted-media; picture-in-picture"
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
@@ -951,17 +964,17 @@ export default function AdatBugis(profile: TemplateProps) {
           )}
 
           {hasStory && (
-            <section className="love-story-section parallax-section" data-aos="fade-up" aria-label="Love Story">
+            <section className="love-story-section parallax-section" data-aos="fade-up" aria-label={tc.love_story_title || t("secStory", lang)}>
               <div className="story-card" data-aos="fade-up">
                 <img className="story-bouquet" src={ASSET("bouquet.webp")} alt="" data-aos="leaf-in" />
                 <h2 className="script garden-text-reveal" data-aos="fade-down">
-                  Love Story
+                  {tc.love_story_title || t("secStory", lang)}
                 </h2>
                 <div className="story-list">
                   {stories.map((story, index) => (
                     <article key={`${story.title || "story"}-${index}`}>
                       <HeartMarker />
-                      <h3>{story.title || `Bagian ${index + 1}`}</h3>
+                      <h3>{story.title || (lang === "en" ? `Chapter ${index + 1}` : `Bagian ${index + 1}`)}</h3>
                       {story.description && <p>{story.description}</p>}
                     </article>
                   ))}
@@ -997,7 +1010,7 @@ export default function AdatBugis(profile: TemplateProps) {
                           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                           <circle cx="12" cy="12" r="3" />
                         </svg>
-                        <span>Buka Amplop</span>
+                        <span>{t("openEnvelope", lang)}</span>
                       </button>
                     </div>
                   ) : (
@@ -1016,7 +1029,7 @@ export default function AdatBugis(profile: TemplateProps) {
                                 className="tpl-gift__copy-btn"
                                 onClick={() => copy(account.account_number || "")}
                               >
-                                Salin Nomor Rekening
+                                {t("copyAccount", lang)}
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tpl-gift__copy-icon" aria-hidden="true">
                                   <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
                                   <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -1035,7 +1048,7 @@ export default function AdatBugis(profile: TemplateProps) {
                           <p className="tpl-gift__address-label">{t("sendGift", lang)}</p>
                           <p className="tpl-gift__address-text">{giftAddress}</p>
                           <button type="button" className="tpl-gift__copy-btn" onClick={() => copy(giftAddress)}>
-                            Salin Alamat
+                            {t("copyAddress", lang)}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tpl-gift__copy-icon" aria-hidden="true">
                               <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
                               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -1050,9 +1063,9 @@ export default function AdatBugis(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="rsvp-wishes-section parallax-section" data-aos="fade-up" aria-label="Wishes">
+          <section className="rsvp-wishes-section parallax-section" data-aos="fade-up" aria-label={tc.wishes_title || t("secWishes", lang)}>
             <h2 className="script garden-text-reveal" data-aos="fade-down">
-              Wishes
+              {tc.wishes_title || t("secWishes", lang)}
             </h2>
             <p className="wishes-subtitle garden-text-reveal" data-aos="fade-up" data-aos-delay="100" style={delay(100)}>
               {wishesSubtitle}
@@ -1103,7 +1116,7 @@ export default function AdatBugis(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="thank-you-section" data-aos="fade-up" aria-label="Terima Kasih">
+          <section className="thank-you-section" data-aos="fade-up" aria-label={t("thankYou", lang)}>
             <img className="closing-photo" src={closingPhoto} alt={coupleLabel} />
             <div className="closing-shade" />
             <div className="closing-copy" data-aos="fade-up">
@@ -1143,8 +1156,8 @@ export default function AdatBugis(profile: TemplateProps) {
       </div>
 
       {lightbox !== null && photos[lightbox] && (
-        <div className="adat-bugis-lightbox" role="dialog" aria-modal="true" aria-label="Galeri foto">
-          <button type="button" className="adat-bugis-lightbox__close" aria-label="Tutup galeri" onClick={() => setLightbox(null)}>
+        <div className="adat-bugis-lightbox" role="dialog" aria-modal="true" aria-label={lang === "en" ? "Photo gallery" : "Galeri foto"}>
+          <button type="button" className="adat-bugis-lightbox__close" aria-label={lang === "en" ? "Close gallery" : "Tutup galeri"} onClick={() => setLightbox(null)}>
             ×
           </button>
           <button
@@ -1189,6 +1202,7 @@ export default function AdatBugis(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
+          language={lang}
         />
       )}
     </div>

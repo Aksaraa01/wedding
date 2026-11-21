@@ -1,15 +1,17 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 
-export function CloseButton({ onClick, className = "" }: { onClick: () => void; className?: string }) {
+export function CloseButton({ onClick, className = "", language }: { onClick: () => void; className?: string; language?: string }) {
+  const lang = normalizeLanguage(language)
   return (
     <button
       type="button"
-      aria-label="Tutup"
+      aria-label={t("close", lang)}
       onClick={onClick}
       className={`w-8 h-8 rounded-full bg-[#1a1f2e]/60 border border-[#38bdf8]/40 text-[#7bd0ff] hover:bg-[#38bdf8]/20 hover:text-[#dee2f6] active:scale-95 transition-all duration-200 flex items-center justify-center ${className}`}
     >
@@ -28,6 +30,7 @@ type ModalShellProps = {
   onClose: () => void
   children: ReactNode
   maxH?: string
+  language?: string
 }
 
 // Shared smoked-glass modal frame for the Skyline Penthouse room. Rendered
@@ -42,6 +45,7 @@ export default function ModalShell({
   onClose,
   children,
   maxH = "max-h-[90%]",
+  language,
 }: ModalShellProps) {
   return (
     <div className="absolute inset-0 z-40 flex items-end sm:items-center justify-center sm:p-4">
@@ -81,7 +85,7 @@ export default function ModalShell({
               )}
             </div>
           </div>
-          <CloseButton onClick={onClose} />
+          <CloseButton onClick={onClose} language={language} />
         </div>
         {/* Scrollable body */}
         <div className="custom-scrollbar overflow-y-auto px-5 py-4 space-y-4 flex-1">{children}</div>

@@ -526,7 +526,7 @@ export default function FilmRoll(profile: TemplateProps) {
 
   // ── copy: every visible string is reachable from the editor ──
   const coverTitle = (tc.cover_title || "").trim() || t("theWeddingOf", lang)
-  const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
+  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
   const openLabel = (tc.open_button || "").trim() || "Enter"
   const dearLabel = (tc.cover_apology || "").trim() || "Dear"
   const openingKicker = (tc.opening_kicker || "").trim() || "Prologue"
@@ -543,7 +543,7 @@ export default function FilmRoll(profile: TemplateProps) {
   const storyKicker = (tc.story_kicker || "").trim() || "Scene"
   const storyTitle = splitTitle((tc.love_story_title || "").trim() || "Our Story")
   const storyLead = (tc.story_intro || "").trim() || "Three scenes that brought us to the same frame."
-  const eventsKicker = (tc.events_kicker || "").trim() || "Save the Date"
+  const eventsKicker = (tc.events_kicker || "").trim() || t("saveTheDate", lang)
   const eventsTitle = splitTitle(
     (tc.events_title || "").trim() || (events.length > 1 ? "The Celebration" : (events[0]?.name || "").trim() || "The Celebration")
   )
@@ -2118,7 +2118,7 @@ export default function FilmRoll(profile: TemplateProps) {
             <button
               type="button"
               className="fr-arrow fr-arrow--light fr-light__p"
-              aria-label="Previous photo"
+              aria-label={t("previousPhoto", lang)}
               onClick={() => setLightbox((current) => (current === null ? null : (current - 1 + gallery.length) % gallery.length))}
             >
               ‹
@@ -2128,7 +2128,7 @@ export default function FilmRoll(profile: TemplateProps) {
             <button
               type="button"
               className="fr-arrow fr-arrow--light fr-light__n"
-              aria-label="Next photo"
+              aria-label={t("nextPhoto", lang)}
               onClick={() => setLightbox((current) => (current === null ? null : (current + 1) % gallery.length))}
             >
               ›
@@ -2231,6 +2231,7 @@ export default function FilmRoll(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
+          language={profile.language}
           anchor="bottom"
           bottom={80}
         />

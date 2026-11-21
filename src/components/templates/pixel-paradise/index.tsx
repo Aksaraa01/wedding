@@ -107,7 +107,7 @@ export default function PixelParadise(props: TemplateProps) {
             guestId={props.guest_id}
             guestSlug={props.guest_slug}
             allowFlexibleRsvp={props.guest_link_strict === false}
-            guestName={props.guest_name || "Tamu Undangan"}
+            guestName={props.guest_name || t("honoredGuest", lang)}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
             guestQrUrl={props.guest_qr_url}
@@ -118,6 +118,7 @@ export default function PixelParadise(props: TemplateProps) {
             qrEnabled={props.feature_gates?.qr_code_book === true}
             anchor="bottom"
             bottom={64}
+            language={lang}
           />
         )}
 

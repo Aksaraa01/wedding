@@ -1,6 +1,8 @@
 export interface TemplateExtraField {
   key: string
   label: string
+  /** English label for editor/ops when language is en. Falls back to EXTRA_LABEL_EN/key map, then label. */
+  labelEn?: string
   // Section of the invitation this copy belongs to, for grouped rendering in
   // the editor/ops "EKSTRA" accordion. Resolved by getTemplateExtraFields.
   section?: string
@@ -10,9 +12,13 @@ export interface TemplateExtraField {
   multiline?: boolean
   rows?: number
   placeholder?: string
+  /** English placeholder when language is en. */
+  placeholderEn?: string
   // Per-template placeholder override. Resolved by getTemplateExtraFields so a
   // shared field (e.g. gallery_quote) hints the copy of the active template.
   placeholders?: Record<string, string>
+  /** Per-template English placeholder overrides when language is en. */
+  placeholdersEn?: Record<string, string>
   templates: string[]
 }
 
@@ -83,6 +89,7 @@ export const TEMPLATE_EXTRA_SECTION_OF: Record<string, string> = {
   video_intro: "video",
   video_caption: "video",
   video_kicker: "video",
+  livestream_title: "video",
   livestream_cta: "video",
   dresscode_title: "dresscode",
   dresscode_intro: "dresscode",
@@ -191,6 +198,7 @@ export const TEMPLATE_EXTRA_ORDER_OF: Record<string, number> = {
   copy_account_toast: 66,
   copy_address_toast: 67,
   copy_account_button: 67.5,
+  livestream_title: 79.5,
   livestream_cta: 80,
   copy_address_button: 68,
   welcome_arc: 69,
@@ -788,8 +796,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "film-roll": "Order of the Day",
       "silver-gelatin": "Order of the Day",
       teatro: "Order of the Day",
-      "cinnabar-seal": "Rangkaian Acara", "ivory-lace": "Wedding Time Line", "embroidered-garden": "Order of the Day", lace: "The Day" },
-    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
+      "cinnabar-seal": "Rangkaian Acara", "ivory-lace": "Wedding Time Line", "embroidered-garden": "Order of the Day", lace: "The Day", "adat-melayu": "Rundown Acara", "adat-batak": "Rundown Acara", "adat-bugis": "Rundown Acara", "traditional-bugis-pinishi": "Rundown Acara", },
+    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi"],
   },
   {
     key: "rundown_intro",
@@ -814,8 +822,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "film-roll": "Our Story",
       "silver-gelatin": "Our Story",
       teatro: "Our Story",
-      "cinnabar-seal": "Love Story", "ivory-lace": "Our Love Story", lace: "How Our Story Began", manjari: "A Love Written in Time", "still-ever": "How Our Story Began", imagine: "Our Love Story", "embroidered-garden": "Our Story" },
-    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
+      "cinnabar-seal": "Love Story", "ivory-lace": "Our Love Story", lace: "How Our Story Began", manjari: "A Love Written in Time", "still-ever": "How Our Story Began", imagine: "Our Love Story", "embroidered-garden": "Our Story", "adat-melayu": "Love Story", "adat-batak": "Love Story", "adat-bugis": "Love Story", sandhya: "Love Story", evermore: "Love Story", },
+    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "adat-melayu", "adat-batak", "adat-bugis", "sandhya", "evermore"],
   },
   {
     key: "gallery_title",
@@ -830,9 +838,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "still-ever": "The Days We Kept",
       imagine: "Gallery Of Us",
       "embroidered-garden": "Our Moments",
-      lace: "Our Moments",
+      lace: "Our Moments", "adat-melayu": "Our Gallery", "adat-batak": "Our Gallery", "adat-bugis": "Our Gallery", evermore: "Captured Moments",
     },
-    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
+    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "adat-melayu", "adat-batak", "adat-bugis", "evermore"],
   },
   {
     key: "opening_kicker",
@@ -844,9 +852,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "mempelai_kicker",
     label: "Label Mempelai",
-    placeholders: { "love-line": "two people, one story", teatro: "The Cast" , "silver-gelatin": "The Couple" },
+    placeholders: { "love-line": "two people, one story", teatro: "The Cast" , "silver-gelatin": "The Couple", evermore: "Bride & Groom", },
     placeholder: "Mempelai",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line", "evermore"],
   },
   {
     key: "parents_label",
@@ -893,9 +901,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "inviting_title",
     label: "Judul Turut Mengundang",
-    placeholders: { "ubin-ottoman": "Keluarga & Kerabat", "love-line": "Turut Mengundang", teatro: "Our Families" , "silver-gelatin": "Our Families" },
+    placeholders: { "ubin-ottoman": "Keluarga & Kerabat", "love-line": "Turut Mengundang", teatro: "Our Families" , "silver-gelatin": "Our Families", "adat-melayu": "Turut Mengundang", "adat-batak": "Turut Mengundang", "adat-bugis": "Turut Mengundang", sandhya: "With Honour", },
     placeholder: "Keluarga & Sahabat",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line", "ubin-ottoman"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line", "ubin-ottoman", "adat-melayu", "adat-batak", "adat-bugis", "sandhya"],
   },
   {
     key: "rundown_kicker",
@@ -942,9 +950,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "wishes_title",
     label: "Judul Ucapan",
-    placeholders: { "ubin-ottoman": "Titip doa untuk ananda", "love-line": "Prayers & Wishes", "film-roll": "Wishes", teatro: "Curtain Call" , "silver-gelatin": "Wishes" },
+    placeholders: { "ubin-ottoman": "Titip doa untuk ananda", "love-line": "Prayers & Wishes", "film-roll": "Wishes", teatro: "Curtain Call" , "silver-gelatin": "Wishes", "adat-melayu": "Wishes", "adat-batak": "Wishes", "adat-bugis": "Wishes", evermore: "Wishes & Prayers", },
     placeholder: "Wishes",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "adat-melayu", "adat-batak", "adat-bugis", "evermore"],
   },
   {
     key: "closing_kicker",
@@ -1019,9 +1027,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "save_date_label",
     label: "Teks Save the Date",
-    placeholders: { "film-roll": "Save the Date", teatro: "Save the Date" },
+    placeholders: { "film-roll": "Save the Date", teatro: "Save the Date", "adat-melayu": "Save The Date", "adat-batak": "Save The Date", "adat-bugis": "Save The Date", },
     placeholder: "Save the Date",
-    templates: ["cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["cinnabar-seal", "iris", "teatro", "film-roll", "adat-melayu", "adat-batak", "adat-bugis"],
   },
   {
     key: "copy_address_button",
@@ -1201,8 +1209,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "countdown_title",
     label: "Judul Hitung Mundur",
-    templates: [],
-    placeholders: { },
+    templates: ["sandhya", "evermore"],
+    placeholders: { sandhya: "Counting the Days", evermore: "Counting Down To Forever", },
   },
   {
     key: "countdown_intro",
@@ -1381,8 +1389,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "dresscode_title",
     label: "Label Dress Code",
-    templates: [],
-    placeholders: {},
+    templates: ["adat-melayu", "adat-batak", "adat-bugis", "sandhya", "evermore"],
+    placeholders: { "adat-melayu": "Dress Code", "adat-batak": "Dress Code", "adat-bugis": "Dress Code", sandhya: "Dress Code", evermore: "Dress Code",},
   },
   {
     key: "dresscode_intro",
@@ -1852,6 +1860,12 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   },
 
   {
+    key: "livestream_title",
+    label: "Judul Live Streaming",
+    templates: ["evermore"],
+    placeholders: { evermore: "Join Us Online" },
+  },
+  {
     key: "livestream_cta",
     label: "Teks Tombol Live Streaming",
     templates: ["emerald-heirloom"],
@@ -1891,6 +1905,35 @@ const EXTRA_LABEL_EN: Record<string, string> = {
   viewLocation: "View Location Button",
 }
 
+const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
+  "Countdown": "Hitung Mundur",
+  "Save the Date": "Simpan Tanggal",
+  "Days": "Hari",
+  "Hours": "Jam",
+  "Minutes": "Menit",
+  "Seconds": "Detik",
+  "Open Invitation": "Buka Undangan",
+  "View Location": "Lihat Lokasi",
+  "Save to Calendar": "Simpan ke Kalender",
+  "Send Gift": "Kirim Hadiah",
+  "Our Story": "Kisah Kami",
+  "Love Story": "Kisah Cinta",
+  "Wedding Gift": "Hadiah Pernikahan",
+  "Wishes & Prayers": "Ucapan & Doa",
+  "RSVP": "RSVP",
+  "Dress Code": "Busana",
+  "Live Streaming": "Siaran Langsung",
+  "Order of Events": "Susunan Acara",
+  "With Love": "Dengan Cinta",
+  "Thank You": "Terima Kasih",
+  "Contact Us": "Hubungi Kami",
+  "The Wedding of": "Pernikahan",
+  "Join Live": "Tonton Siaran",
+  "Watch Live": "Tonton Langsung",
+  "Send Wishes": "Kirim Ucapan",
+  "Write a Wish": "Tulis Ucapan",
+}
+
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
   const base = {
     ...field,
@@ -1898,10 +1941,17 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
     order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
     placeholder: field.placeholders?.[code] ?? field.placeholder,
   }
-  if (lang !== "en") return base
+  if (lang !== "en") {
+    if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
+      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
+    }
+    return base
+  }
+  const enPlaceholder = field.placeholdersEn?.[code] ?? field.placeholderEn ?? base.placeholder
   return {
     ...base,
-    label: EXTRA_LABEL_EN[field.key] ?? base.label,
+    label: field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? base.label,
+    placeholder: enPlaceholder,
   }
 }
 

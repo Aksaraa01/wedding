@@ -9,11 +9,12 @@ type Props = {
   calendarUrl: string
   title: string
   addLabel: string
+  lang?: "id" | "en"
 }
 
 const pad = (n: number) => String(n).padStart(2, "0")
 
-export default function SaveDate({ target, calendarUrl, title, addLabel }: Props) {
+export default function SaveDate({ target, calendarUrl, title, addLabel, lang = "id" }: Props) {
   const t = useCountdown(target)
   const days = target ? String(t.days) : "00"
   const hours = target ? pad(t.hours) : "00"

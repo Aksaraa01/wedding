@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react"
 import type { TemplateProps } from "@/types/template"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { resolveCoupleName } from "@/lib/coupleName"
 import {
   countdownTarget,
@@ -43,6 +44,7 @@ function dotShort(iso?: string): string {
 }
 
 export default function Rail({ profile, accounts, giftAddress, giftAddressName, onOpenGift, onActiveMedia }: Props) {
+  const lang = normalizeLanguage(profile.language)
   useTibraBlur()
 
   const coupleLabel = resolveCoupleName(profile)
@@ -117,6 +119,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
         dateShort={dotShort(profile.estimated_wedding_date)}
         quoteText={profile.quote_text}
         quoteSource={profile.quote_source}
+        language={lang}
       />
 
       <Person
@@ -138,22 +141,23 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
         photos={bridePhotos}
       />
 
-      <Events sessions={sessions} />
+      <Events sessions={sessions} language={lang} />
 
-      <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} />
+      <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} language={lang} />
 
-      {giftOn && <GiftTeaser onOpen={onOpenGift} />}
+      {giftOn && <GiftTeaser onOpen={onOpenGift} language={lang} />}
 
-      {storyOn && <Story stories={stories} coupleLabel={coupleLabel} />}
+      {storyOn && <Story stories={stories} coupleLabel={coupleLabel} language={lang} />}
 
       {(videoOn || gallery.length > 0) && (
         <Portrait
           videoEmbed={videoOn ? videoEmbed : undefined}
           photos={gallery}
+          language={lang}
         />
       )}
 
-      {invitingOn && <Inviting families={inviting} />}
+      {invitingOn && <Inviting families={inviting} language={lang} />}
 
       <Wishes
         weddingProfileId={profile.wedding_profile_id}
@@ -162,7 +166,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
         guestLinkStrict={profile.guest_link_strict} language={profile.language}
       />
 
-      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} />
+      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} language={lang} />
     </div>
   )
 }

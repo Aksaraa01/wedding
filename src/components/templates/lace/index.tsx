@@ -106,7 +106,7 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 }
 
 // The ticking seconds are isolated so they never re-render the invitation.
-function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplateProps["sessions"] }) {
+function CountdownClock({ iso, sessions, lang }: { iso?: string; sessions?: TemplateProps["sessions"]; lang: "id" | "en" }) {
   const c = useCountdown(iso, sessions)
   const cells: Array<[string, string]> = [
     [c?.d ?? "00", "Days"],
@@ -115,7 +115,7 @@ function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplatePr
     [c?.s ?? "00", "Seconds"],
   ]
   return (
-    <div className="lc-clock" aria-label="Wedding countdown">
+    <div className="lc-clock" aria-label={t("countdown", lang)}>
       {cells.map(([value, label]) => (
         <div className="lc-clock__cell" key={label}>
           <strong>{value}</strong>
@@ -717,7 +717,7 @@ export default function Lace(profile: TemplateProps) {
             <span className="lc-bows" style={bandStyle(ART_BOWS)} aria-hidden="true" />
             <div className="lc-panel__body" data-lc-reveal>
               <h2 className="lc-display lc-panel__title">Countdown</h2>
-              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} />
+              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="lc-link lc-link--light" href={calendarUrl} target="_blank" rel="noreferrer">
                   Add to calendar
@@ -825,7 +825,7 @@ export default function Lace(profile: TemplateProps) {
             <div className="lc-dress__frame" data-lc-reveal>
               <span className="lc-dress__art" style={bandStyle(ART_DRESS_FRAME)} aria-hidden="true" />
               <div className="lc-dress__inner">
-                <h2 className="lc-display lc-heading">Dress Code</h2>
+                <h2 className="lc-display lc-heading">{tc.dresscode_title || t("secDresscode", lang)}</h2>
                 <p className="lc-display lc-dress__title">{profile.dresscode?.title || "Formal Attire"}</p>
                 <img className="lc-dress__couple" src={ART_DRESS_COUPLE} alt="" aria-hidden="true" loading="lazy" />
                 {profile.dresscode?.description && (
@@ -1167,6 +1167,7 @@ export default function Lace(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={88}
+                  language={profile.language}
         />
       )}
 

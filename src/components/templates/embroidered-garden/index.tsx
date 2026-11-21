@@ -179,29 +179,29 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 }
 
 // The seconds tick is isolated so it never reconciles the whole invitation.
-function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplateProps["sessions"] }) {
+function CountdownClock({ iso, sessions, lang }: { iso?: string; sessions?: TemplateProps["sessions"]; lang: "id" | "en" }) {
   const c = useCountdown(iso, sessions)
   return (
-    <div className="eg-clock" aria-label="Wedding countdown">
+    <div className="eg-clock" aria-label={t("countdown", lang)}>
       <div className="eg-clock__dial">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.d ?? "00"}</strong>
-        <span>Days</span>
+        <span>{t("days", lang)}</span>
       </div>
       <div className="eg-clock__dial">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.h ?? "00"}</strong>
-        <span>Hours</span>
+        <span>{t("hours", lang)}</span>
       </div>
       <div className="eg-clock__dial">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.m ?? "00"}</strong>
-        <span>Minutes</span>
+        <span>{t("minutes", lang)}</span>
       </div>
       <div className="eg-clock__dial eg-clock__dial--seconds">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.s ?? "00"}</strong>
-        <span>Seconds</span>
+        <span>{t("seconds", lang)}</span>
       </div>
     </div>
   )
@@ -771,7 +771,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             <div className="eg-countdown__frame" style={{ backgroundImage: `url(${ART_COUNTDOWN_FRAME})` }} aria-hidden="true" />
             <div className="eg-wrap eg-countdown__body" data-eg-reveal>
               <h2 className="eg-display eg-heading">Countdown</h2>
-              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} />
+              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="eg-link" href={calendarUrl} target="_blank" rel="noreferrer">
                   Add to calendar
@@ -926,7 +926,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <section className="eg-section eg-dress" data-section="dresscode">
             <div className="eg-dress__garland" style={{ backgroundImage: `url(${ART_DRESSCODE_GARLAND})` }} aria-hidden="true" />
             <div className="eg-wrap eg-dress__body" data-eg-reveal>
-              <h2 className="eg-display eg-heading">Dress Code</h2>
+              <h2 className="eg-display eg-heading">{tc.dresscode_title || t("secDresscode", lang)}</h2>
               <p className="eg-dress__title">{profile.dresscode?.title || "Formal Attire"}</p>
               {profile.dresscode?.description && <p className="eg-body eg-dress__note">{profile.dresscode.description}</p>}
               <div className="eg-swatches" aria-label="Dress code palette">
@@ -1162,7 +1162,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <div className="eg-wishes__frame" style={{ backgroundImage: `url(${ART_RSVP_ENVELOPE})` }} aria-hidden="true" />
           <img className="eg-wishes__topiary" src={ART_RSVP_TOPIARY} alt="" aria-hidden="true" loading="lazy" />
           <div className="eg-wrap eg-wishes__body" data-eg-reveal>
-            <h2 className="eg-display eg-heading">Wishes &amp; Prayers</h2>
+            <h2 className="eg-display eg-heading">{tc.wishes_title || t("secWishes", lang)}</h2>
             <p className="eg-body eg-wishes__intro">
               {tc.wishes_intro || "Leave a wish, a prayer, or a memory for us to keep."}
             </p>
@@ -1285,7 +1285,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               type="button"
               className="eg-lightbox__nav eg-lightbox__nav--prev"
               onClick={() => stepLightbox(-1)}
-              aria-label="Previous photo"
+              aria-label={lang === "en" ? "Previous photo" : "Foto sebelumnya"}
             >
               ‹
             </button>
@@ -1296,7 +1296,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               type="button"
               className="eg-lightbox__nav eg-lightbox__nav--next"
               onClick={() => stepLightbox(1)}
-              aria-label="Next photo"
+              aria-label={lang === "en" ? "Next photo" : "Foto berikutnya"}
             >
               ›
             </button>
@@ -1320,6 +1320,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={88}
+                  language={profile.language}
         />
       )}
 

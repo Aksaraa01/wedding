@@ -780,14 +780,14 @@ export default function Iris(profile: TemplateProps) {
       )}
 
       {lightbox !== null && gallery[lightbox] && (
-        <div className="ir-lightbox" role="dialog" aria-modal="true" aria-label="Penampil foto" onClick={() => setLightbox(null)}>
-          <button type="button" className="ir-lightbox__close" aria-label="Tutup" onClick={() => setLightbox(null)}>×</button>
+        <div className="ir-lightbox" role="dialog" aria-modal="true" aria-label={t("photoViewer", lang)} onClick={() => setLightbox(null)}>
+          <button type="button" className="ir-lightbox__close" aria-label={t("closeViewer", lang)} onClick={() => setLightbox(null)}>×</button>
           {gallery.length > 1 && (
-            <button type="button" className="ir-lightbox__nav ir-lightbox__nav--prev" aria-label="Foto sebelumnya" onClick={(e) => { e.stopPropagation(); stepLightbox(-1) }}>‹</button>
+            <button type="button" className="ir-lightbox__nav ir-lightbox__nav--prev" aria-label={t("previousPhoto", lang)} onClick={(e) => { e.stopPropagation(); stepLightbox(-1) }}>‹</button>
           )}
           <img src={gallery[lightbox]} alt="" onClick={(e) => e.stopPropagation()} />
           {gallery.length > 1 && (
-            <button type="button" className="ir-lightbox__nav ir-lightbox__nav--next" aria-label="Foto berikutnya" onClick={(e) => { e.stopPropagation(); stepLightbox(1) }}>›</button>
+            <button type="button" className="ir-lightbox__nav ir-lightbox__nav--next" aria-label={t("nextPhoto", lang)} onClick={(e) => { e.stopPropagation(); stepLightbox(1) }}>›</button>
           )}
           <span className="ir-lightbox__count" aria-hidden="true">{lightbox + 1} / {gallery.length}</span>
         </div>
@@ -809,6 +809,7 @@ export default function Iris(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
+          language={profile.language}
           anchor="center"
         />
       )}

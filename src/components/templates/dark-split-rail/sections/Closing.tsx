@@ -2,6 +2,7 @@
 
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import { ASSETS } from "@/lib/assets"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_BODY, FONT_DISPLAY } from "../fonts"
 import Section from "../Section"
 import Slideshow from "../Slideshow"
@@ -9,9 +10,11 @@ import Slideshow from "../Slideshow"
 type Props = {
   photos: string[]
   coupleLabel: string
+  language?: string
 }
 
-export default function Closing({ photos, coupleLabel }: Props) {
+export default function Closing({ photos, coupleLabel, language }: Props) {
+  const lang = normalizeLanguage(language)
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent(
     "Halo Aksaraa Wedding, saya tertarik membuat undangan digital"
   )}`
@@ -22,7 +25,7 @@ export default function Closing({ photos, coupleLabel }: Props) {
         <Slideshow images={photos} className="h-[46vh] w-full" overlayClassName="bg-black/45">
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-[20px] uppercase text-white" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-              Terima Kasih
+              {t("thankYou", lang)}
             </span>
           </div>
         </Slideshow>
@@ -30,7 +33,7 @@ export default function Closing({ photos, coupleLabel }: Props) {
 
       <div className="pt-10 text-center text-white">
         <p className="mx-auto max-w-[340px] text-[13px] leading-relaxed" style={{ ...FONT_BODY, color: "rgba(255,255,255,0.85)" }}>
-          Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kami.
+          {lang === "en" ? "It is our joy and honor to have you join us and give your blessing on our special day." : "Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kami."}
         </p>
         <p className="mt-6 text-[20px]" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
           {coupleLabel}

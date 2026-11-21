@@ -241,16 +241,18 @@ export function videoSource(url?: string | null): VideoSource | null {
   return { kind: "embed", src: `${base}${sep}autoplay=1&mute=1&playsinline=1` }
 }
 
-// Relative time (id-ID), e.g. "2m lalu".
-export function timeAgo(iso?: string): string {
+// Relative time, e.g. "2m ago" / "2 Menit Lalu".
+export function timeAgo(iso?: string, lang?: unknown): string {
   if (!iso) return ""
+  const en = typeof lang === "string" && lang.trim().toLowerCase() === "en"
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return "Baru Saja"
-  if (mins < 60) return `${mins} Menit Lalu`
+  if (mins < 1) return en ? "Just now" : "Baru Saja"
+  if (mins < 60) return en ? `${mins}m ago` : `${mins} Menit Lalu`
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} Jam Lalu`
-  return `${Math.floor(hours / 24)} Hari Lalu`
+  if (hours < 24) return en ? `${hours}h ago` : `${hours} Jam Lalu`
+  const days = Math.floor(hours / 24)
+  return en ? `${days}d ago` : `${days} Hari Lalu`
 }
 
 export function flattenPhotos(value: unknown): string[] {

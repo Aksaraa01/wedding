@@ -139,7 +139,7 @@ export default function PastelCoastal(props: TemplateProps) {
             guestId={props.guest_id}
             guestSlug={props.guest_slug}
             allowFlexibleRsvp={props.guest_link_strict === false}
-            guestName={props.guest_name || "Tamu Undangan"}
+            guestName={props.guest_name || t("honoredGuest", lang)}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
             guestQrUrl={props.guest_qr_url}
@@ -149,6 +149,7 @@ export default function PastelCoastal(props: TemplateProps) {
             rsvpMaxPax={props.rsvp_max_pax ?? 2}
             qrEnabled={props.feature_gates?.qr_code_book === true}
             anchor="center"
+            language={lang}
           />
         )}
 

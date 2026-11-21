@@ -252,7 +252,7 @@ export default function Majestic(profile: TemplateProps) {
   const eventsNote = (tc.events_note || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
-  const countdownTitle = (tc.countdown_title || "").trim() || "Save the Date"
+  const countdownTitle = (tc.countdown_title || "").trim() || t("saveTheDate", lang)
   const countdownIntro = (tc.countdown_intro || "").trim()
   const countdownLabels = [
     (tc.countdown_days || "").trim() || "Hari",
@@ -271,21 +271,21 @@ export default function Majestic(profile: TemplateProps) {
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || "The Wedding Gift"
   const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
-  const giftSendLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
-  const copyAccount = (tc.copy_account_button || "").trim() || "Salin Nomor"
-  const copyAddress = (tc.copy_address_button || "").trim() || "Salin Alamat"
+  const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
+  const copyAccount = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
+  const copyAddress = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
   const copyAccountToast = (tc.copy_account_toast || "").trim() || "Nomor rekening disalin"
   const copyAddressToast = (tc.copy_address_toast || "").trim() || "Alamat disalin"
   const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
   const dressTitle = (profile.dresscode?.title || "").trim() || "Formal"
   const dressNote = (tc.dresscode_note || "").trim() || "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai."
-  const wishesTitle = (tc.wishes_title || "").trim() || "Wishes"
+  const wishesTitle = (tc.wishes_title || "").trim() || t("secWishes", lang)
   const wishesIntro = (tc.wishes_intro || "").trim() || "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini."
   const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
   const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Nama lengkap"
   const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Ucapan & doa"
   const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tuliskan pesan Anda"
-  const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
+  const wishSubmit = (tc.wishes_submit || "").trim() || t("sendWishes", lang)
   const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
   const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
   const closingTitle = (tc.closing_title || "").trim() || t("secClosing", lang)
@@ -545,7 +545,7 @@ export default function Majestic(profile: TemplateProps) {
           body: JSON.stringify({
             wedding_profile_id: profile.wedding_profile_id,
             guest_id: profile.guest_id || null,
-            name: wishName.trim() || guestName || "Tamu Undangan",
+            name: wishName.trim() || guestName || (lang === "en" ? "Guest" : "Tamu Undangan"),
             message: text,
             source: "invitation",
           }),
@@ -1268,7 +1268,7 @@ export default function Majestic(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || "Tamu Undangan"}
+          guestName={profile.guest_name || (lang === "en" ? "Guest" : "Tamu Undangan")}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -1279,6 +1279,7 @@ export default function Majestic(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={92}
+          language={lang}
         />
       )}
     </div>

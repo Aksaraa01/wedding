@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { timeAgo } from "../shared/lib"
 import { wishNameState } from "../shared/wishName"
+import { normalizeLanguage } from "@/lib/i18n"
 
 type Wish = {
   id: string

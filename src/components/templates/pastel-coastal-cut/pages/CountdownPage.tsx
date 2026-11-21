@@ -5,17 +5,19 @@ import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
 import { countdownTarget, formatLongDate, gcalLink, type SessionData } from "../../shared/lib"
 import { useCountdown } from "../../shared/useCountdown"
 import { PastelCloud } from "../Atmosphere"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function CountdownPage({ profile, sessions }: { profile: TemplateProps; sessions: SessionData[] }) {
+  const lang = normalizeLanguage(profile.language)
   const target = countdownTarget(sessions, profile.estimated_wedding_date)
   const { days, hours, minutes, seconds } = useCountdown(target)
   const calLink = gcalLink(sessions[0], profile.groom_name, profile.bride_name)
   const pad2 = (n: number) => String(n).padStart(2, "0")
   const cells = [
-    { v: String(days), l: "Hari" },
-    { v: pad2(hours), l: "Jam" },
-    { v: pad2(minutes), l: "Menit" },
-    { v: pad2(seconds), l: "Detik" },
+    { v: String(days), l: t("days", lang) },
+    { v: pad2(hours), l: t("hours", lang) },
+    { v: pad2(minutes), l: t("minutes", lang) },
+    { v: pad2(seconds), l: t("seconds", lang) },
   ]
   const names = [(profile.groom_name || "").trim(), (profile.bride_name || "").trim()].filter(Boolean).join(" & ")
   return (
@@ -33,12 +35,12 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
               </div>
             )}
             <h1 className="text-[44px] leading-[1.02] font-normal mb-0.5 tracking-normal" style={{ ...FONT_SCRIPT, color: "#2c221a", textShadow: "0 1px 2px rgba(255,255,255,0.7)" }}>
-              Save The Date
+              {t("saveTheDate", lang)}
             </h1>
             <div className="flex items-center gap-2 mb-3">
               <span className="h-px w-6 bg-[#8E6B3D]/50" />
               <span className="text-[14.5px] font-bold tracking-wider" style={{ ...FONT_DISPLAY, color: "#2c221a" }}>
-                {formatLongDate(profile.estimated_wedding_date || sessions[0]?.date) || "Segera Hadir"}
+                {formatLongDate(profile.estimated_wedding_date || sessions[0]?.date) || (lang === "en" ? "Coming Soon" : "Segera Hadir")}
               </span>
               <span className="h-px w-6 bg-[#8E6B3D]/50" />
             </div>
@@ -65,7 +67,7 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
                 style={{ ...FONT_BODY, background: "linear-gradient(135deg, #b37a56 0%, #df8268 100%)" }}
               >
                 <span className="material-symbols-outlined text-[16px]">event_available</span>
-                <span>ADD TO CALENDAR</span>
+                <span>{t("saveToCalendar", lang)}</span>
               </a>
             )}
           </div>

@@ -598,7 +598,7 @@ export default function Teatro(profile: TemplateProps) {
   const eventsIntro = (tc.events_intro || "").trim() || "We would be honoured to have you with us as we say our vows."
   const eventsNote = (tc.events_note || "").trim() || "Doors open thirty minutes before the ceremony. Latecomers are seated between acts."
   const mapsLabel = (tc.maps_label || "").trim() || "View location"
-  const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
+  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
   const revealTitle = (tc.reveal_title || "").trim() || "Reveal"
   const revealHint = (tc.reveal_hint || "").trim() || "Scratch to discover the date"
   const revealScratchHint = (tc.reveal_scratch_hint || "").trim() || "Scratch all three circles to continue"
@@ -1459,7 +1459,7 @@ export default function Teatro(profile: TemplateProps) {
             <button
               type="button"
               className="te-lightbox__nav te-lightbox__nav--prev"
-              aria-label="Previous photo"
+              aria-label={t("previousPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(-1)
@@ -1473,7 +1473,7 @@ export default function Teatro(profile: TemplateProps) {
             <button
               type="button"
               className="te-lightbox__nav te-lightbox__nav--next"
-              aria-label="Next photo"
+              aria-label={t("nextPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(1)
@@ -1502,6 +1502,7 @@ export default function Teatro(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
+          language={profile.language}
           anchor="center"
         />
       )}

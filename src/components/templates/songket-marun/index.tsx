@@ -17,33 +17,12 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 const ART = (name: string) => `/templates/songket-marun/${name}.webp`
 
 const DEFAULT_BASMALAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-const DEFAULT_DOA = "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ"
-const DEFAULT_SALAM = "Assalamu'alaikum Warahmatullahi Wabarakatuh"
-const DEFAULT_OPENING =
-  "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan Walimatul Khitan putra kami tercinta. Merupakan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu."
-const DEFAULT_BLESSING =
-  "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan senantiasa dalam lindungan Allah SWT."
-const DEFAULT_CLOSING =
-  "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami."
-const DEFAULT_GIFT =
-  "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui tombol berikut."
 
 const WISH_PAGE = 10
-const MONTHS = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-]
-const WEEKDAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+const MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
+const MONTHS_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+const WEEKDAYS = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
+const WEEKDAYS_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 function reveal(delay = 0): CSSProperties {
   return { animationDelay: `${delay}s` }
@@ -93,6 +72,27 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.55) {
   )
 }
 
+const DEFAULTS = {
+  id: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    doa: "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
+    salam: "Assalamu'alaikum Warahmatullahi Wabarakatuh",
+    opening: "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan Walimatul Khitan putra kami tercinta. Merupakan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
+    blessing: "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan senantiasa dalam lindungan Allah SWT.",
+    closing: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.",
+    gift: "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui tombol berikut.",
+  },
+  en: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    doa: "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
+    salam: "Peace be upon you",
+    opening: "By the grace and mercy of Allah SWT, we invite you to the circumcision celebration of our beloved son. It would be an honor to have you join us and share your prayers and blessings.",
+    blessing: "May he grow to be a righteous child, devoted to his parents, and always under Allah's protection.",
+    closing: "It would be our great honor and joy to have you present and to receive your prayers and blessings for our son.",
+    gift: "Your prayers and presence are the greatest gift to us. If you wish to send a token of love, you may do so below.",
+  },
+} as const
+
 function timeLine(raw?: string): string {
   const value = (raw || "").trim()
   if (!value) return ""
@@ -109,6 +109,7 @@ function accountName(raw?: string): string {
 
 export default function SongketMarun(profile: TemplateProps) {
   const lang = normalizeLanguage(profile.language)
+  const d = DEFAULTS[lang]
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -184,55 +185,55 @@ export default function SongketMarun(profile: TemplateProps) {
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
   const coverGuestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
-  const salam = (tc.opening_salam || "").trim() || DEFAULT_SALAM
-  const basmalah = (tc.basmalah || "").trim() || DEFAULT_BASMALAH
-  const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
+  const salam = (tc.opening_salam || "").trim() || d.salam
+  const basmalah = (tc.basmalah || "").trim() || d.basmalah
+  const openingText = (profile.opening_description || "").trim() || d.opening
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
   const doaTitle = (tc.doa_title || "").trim() || "Doa untuk Ananda"
-  const doaArabic = (tc.doa_arabic || "").trim() || DEFAULT_DOA
-  const doaBlessing = (tc.doa_blessing || "").trim() || DEFAULT_BLESSING
-  const saveKicker = (tc.save_date_kicker || "").trim() || "Save the Date"
-  const saveTitle = (tc.save_date_title || "").trim() || "Hari Bahagia"
-  const saveLabel = (tc.save_date_label || "").trim() || "Simpan Tanggal"
+  const doaArabic = (tc.doa_arabic || "").trim() || d.doa
+  const doaBlessing = (tc.doa_blessing || "").trim() || d.blessing
+  const saveKicker = (tc.save_date_kicker || "").trim() || t("saveTheDate", lang)
+  const saveTitle = (tc.save_date_title || "").trim() || t("secEvent", lang)
+  const saveLabel = (tc.save_date_label || "").trim() || t("saveToCalendar", lang)
   const eventsKicker = (tc.events_kicker || "").trim() || t("secEvent", lang)
-  const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
-  const eventsLead = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
+  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Time & Venue" : "Waktu & Tempat")
+  const eventsLead = (tc.events_intro || "").trim() || (lang === "en" ? "God willing, the event will be held on:" : "Insya Allah acara akan diselenggarakan pada:")
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
-  const galleryKicker = (tc.gallery_kicker || "").trim() || "Galeri"
-  const galleryTitle = (tc.gallery_title || "").trim() || "Momen Bahagia"
-  const galleryLead = (tc.gallery_intro || "").trim() || "Sepenggal cerita ananda menjelang hari istimewanya."
-  const giftKicker = (tc.gift_kicker || "").trim() || "Amplop Digital"
-  const giftTitle = (tc.gift_intro_title || "").trim() || "Tanda Kasih"
-  const giftLead = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
-  const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
-  const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
-  const giftSendLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
+  const galleryKicker = (tc.gallery_kicker || "").trim() || t("secGallery", lang)
+  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Happy Moments" : "Momen Bahagia")
+  const galleryLead = (tc.gallery_intro || "").trim() || (lang === "en" ? "A glimpse of our child's moments before the special day." : "Sepenggal cerita ananda menjelang hari istimewanya.")
+  const giftKicker = (tc.gift_kicker || "").trim() || (lang === "en" ? "Digital Envelope" : "Amplop Digital")
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
+  const giftLead = (tc.gift_intro_description || "").trim() || d.gift
+  const copyAccountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
+  const copyAddressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
+  const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
-  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
-  const wishesKicker = (tc.wishes_kicker || "").trim() || "Doa & Ucapan"
-  const wishesTitle = (tc.wishes_title || "").trim() || "Titip Doa"
+  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
+  const wishesKicker = (tc.wishes_kicker || "").trim() || t("secWishes", lang)
+  const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Send a Prayer" : "Titip Doa")
   const wishesLead =
-    (tc.wishes_intro || "").trim() || "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya."
-  const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
-  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Tulis nama Anda"
-  const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Doa dan ucapan"
-  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tulis doa dan ucapan"
-  const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
-  const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
-  const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
+    (tc.wishes_intro || "").trim() || (lang === "en" ? "Write your best prayers and wishes for our child on this special day." : "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya.")
+  const wishNameLabel = (tc.wishes_name_label || "").trim() || (lang === "en" ? "Your Name" : "Nama Anda")
+  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Enter your name" : "Tulis nama Anda")
+  const wishMessageLabel = (tc.wishes_message_label || "").trim() || (lang === "en" ? "Prayers & wishes" : "Doa dan ucapan")
+  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Write your prayers and wishes" : "Tulis doa dan ucapan")
+  const wishSubmit = (tc.wishes_submit || "").trim() || t("sendWishes", lang)
+  const wishEmpty = (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama.")
+  const wishLoading = (tc.wishes_loading || "").trim() || t("loading", lang)
   const closingThanks = (tc.closing_thanks || "").trim() || t("secClosing", lang)
-  const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
-  const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
-  const closingKicker = (tc.closing_kicker || "").trim() || "Kami yang berbahagia"
-  const closingFamily = (tc.closing_family || "").trim() || "Keluarga Besar"
+  const closingText = (tc.closing_message || "").trim() || d.closing
+  const closingSalam = (tc.closing_salam || "").trim() || (lang === "en" ? "Peace be upon you" : "Wassalamu'alaikum Warahmatullahi Wabarakatuh")
+  const closingKicker = (tc.closing_kicker || "").trim() || t("withLoveAndGratitude", lang)
+  const closingFamily = (tc.closing_family || "").trim() || (lang === "en" ? "The Family of" : "Keluarga Besar")
 
   const parsedDate = eventDate ? new Date(eventDate) : null
   const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null
   const dayNum = validDate ? String(validDate.getDate()).padStart(2, "0") : "--"
-  const monthName = validDate ? MONTHS[validDate.getMonth()] : ""
+  const monthName = validDate ? (lang === "en" ? MONTHS_EN : MONTHS)[validDate.getMonth()] : ""
   const yearNum = validDate ? String(validDate.getFullYear()) : ""
-  const weekday = validDate ? WEEKDAYS[validDate.getDay()] : ""
+  const weekday = validDate ? (lang === "en" ? WEEKDAYS_EN : WEEKDAYS)[validDate.getDay()] : ""
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.kidsMusic : "")
   const wishes = useWishes(profile.wedding_profile_id, profile.guest_id)
@@ -249,8 +250,8 @@ export default function SongketMarun(profile: TemplateProps) {
 
   const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))
   const visibleWishes = wishes.wishes.slice(wishPage * WISH_PAGE, wishPage * WISH_PAGE + WISH_PAGE)
-  const pagerPrevLabel = `${wishesTitle} sebelumnya`
-  const pagerNextLabel = `${wishesTitle} berikutnya`
+  const pagerPrevLabel = lang === "en" ? `Previous ${wishesTitle}` : `${wishesTitle} sebelumnya`
+  const pagerNextLabel = lang === "en" ? `Next ${wishesTitle}` : `${wishesTitle} berikutnya`
 
   const showDock =
     !profile.preview_mode &&

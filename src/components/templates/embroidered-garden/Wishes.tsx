@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
+import { t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -98,16 +99,16 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso?: string): string {
+function wishAgo(iso: string | undefined, lang: "id" | "en"): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "Just now"
-  if (minutes < 60) return `${minutes} min ago`
+  if (minutes < 1) return lang === "en" ? "Just now" : "Baru saja"
+  if (minutes < 60) return lang === "en" ? `${minutes} min ago` : `${minutes} menit lalu`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} hr ago`
+  if (hours < 24) return lang === "en" ? `${hours} hr ago` : `${hours} jam lalu`
   const days = Math.floor(hours / 24)
-  return days === 1 ? "1 day ago" : `${days} days ago`
+  return lang === "en" ? `${days} day${days === 1 ? "" : "s"} ago` : days === 1 ? "1 hari lalu" : `${days} hari lalu`
 }
 
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName , language = "id"}: Props) {
@@ -152,7 +153,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Preview mode, your wish was not saved.")
+      setFeedback(language === "en" ? "Preview mode, your wish was not saved." : "Mode pratinjau, ucapan tidak disimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -169,19 +170,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Tamu Undangan",
+          name: name.trim() || guestName || t("honoredGuest", language),
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback("You have already sent a wish. Thank you for the love and the prayers.")
+        setFeedback(language === "en" ? "You have already sent a wish. Thank you for the love and the prayers." : "Anda sudah mengirim ucapan. Terima kasih atas cinta dan doanya.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback("Thank you. Your wish will appear once it has been reviewed.")
+        setFeedback(t("thanksForWish", language))
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -190,10 +191,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback("Too many messages right now. Please try again in a moment.")
+      setFeedback(language === "en" ? "Too many messages right now. Please try again in a moment." : "Terlalu banyak pesan saat ini. Silakan coba lagi sebentar lagi.")
     } catch {
       setStatus("error")
-      setFeedback("Could not send your wish. Please check your connection.")
+      setFeedback(t("wishFailed", language))
     }
   }, [weddingProfileId, guestId, guestName, name, message, status])
 
@@ -214,14 +215,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         }}
       >
         <div className="eg-field">
-          <label htmlFor="eg-wish-name">Name</label>
+          <label htmlFor="eg-wish-name">{language === "en" ? "Name" : "Nama"}</label>
           <input
             id="eg-wish-name"
             className="eg-input"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Your name"
+            placeholder={language === "en" ? "Your name" : "Nama Anda"}
             maxLength={80}
             autoComplete="name"
             readOnly={nameLocked}
@@ -230,13 +231,13 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <div className="eg-field">
-          <label htmlFor="eg-wish-message">Wish &amp; Prayer</label>
+          <label htmlFor="eg-wish-message">{t("secWishes", language)}</label>
           <textarea
             id="eg-wish-message"
             className="eg-input eg-textarea"
             value={message}
             onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
-            placeholder="Write a wish for the couple"
+            placeholder={t("writeWish", language)}
             rows={4}
             maxLength={MAX_CHARS}
           />
@@ -244,7 +245,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <button type="submit" className="eg-pill eg-wishes__submit" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? "Sending…" : "Send Wish"}
+          {status === "sending" ? t("sending", language) : t("sendWishes", language)}
         </button>
 
         {feedback && (
@@ -255,10 +256,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       </form>
 
       <div className="eg-wishes__feed">
-        {!loaded && <p className="eg-wishes__empty">Loading wishes…</p>}
+        {!loaded && <p className="eg-wishes__empty">{t("loading", language)}</p>}
         {loaded && wishes.length === 0 && (
           <p className="eg-wishes__empty">
-            No wishes yet. Be the first to write one for {coupleName || "the couple"}.
+            {language === "en" ? `No wishes yet. Be the first to write one for ${coupleName || "the couple"}.` : `Belum ada ucapan. Jadilah yang pertama untuk ${coupleName || "kedua mempelai"}.`}
           </p>
         )}
 
@@ -268,8 +269,8 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
               {pagedWishes.map((wish) => (
                 <article className="eg-wish" key={wish.id}>
                   <header className="eg-wish__head">
-                    <span className="eg-wish__name">{wish.name || "Tamu Undangan"}</span>
-                    <span className="eg-wish__date">{wishAgo(wish.created_at)}</span>
+                    <span className="eg-wish__name">{wish.name || t("honoredGuest", language)}</span>
+                    <span className="eg-wish__date">{wishAgo(wish.created_at, language)}</span>
                   </header>
                   <p className="eg-wish__text">{wish.message}</p>
                 </article>
@@ -281,7 +282,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="eg-pager-btn"
-                  aria-label="Previous page"
+                  aria-label={language === "en" ? "Previous page" : "Halaman sebelumnya"}
                   disabled={currentPage === 0}
                   onClick={() => setPage((value) => Math.max(0, value - 1))}
                 >
@@ -291,7 +292,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="eg-pager-btn"
-                  aria-label="Next page"
+                  aria-label={language === "en" ? "Next page" : "Halaman berikutnya"}
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
                 >

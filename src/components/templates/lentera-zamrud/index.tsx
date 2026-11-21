@@ -8,22 +8,31 @@ import { eventLabels } from "@/lib/eventType"
 import { childFullName, childFullNamesLine, childInitials, childNamesLine, resolveChildren } from "@/lib/children"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
+import { countdownTarget, formatDotDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
+import { formatDate } from "@/lib/formatDate"
 import { useWishes } from "../shared/kids/useWishes"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./lentera-zamrud.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage, t, type Language } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/lentera-zamrud/${name}.webp`
 
-const DEFAULT_BASMALAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-const DEFAULT_SALAM = "Assalamu'alaikum Warahmatullahi Wabarakatuh"
-const DEFAULT_OPENING =
-  "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan tasyakuran khitanan putra kami. Merupakan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu."
-const DEFAULT_CLOSING =
-  "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami."
-const DEFAULT_GIFT =
-  "Doa restu Bapak/Ibu/Saudara/i sudah lebih dari cukup bagi kami. Namun bila ingin memberikan tanda kasih, dapat melalui:"
+const DEFAULTS = {
+  id: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    salam: "Assalamu'alaikum Warahmatullahi Wabarakatuh",
+    opening: "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan tasyakuran khitanan putra kami. Merupakan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
+    closing: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.",
+    gift: "Doa restu Bapak/Ibu/Saudara/i sudah lebih dari cukup bagi kami. Namun bila ingin memberikan tanda kasih, dapat melalui:",
+  },
+  en: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    salam: "Peace be upon you",
+    opening: "By the grace and mercy of Allah SWT, we invite you to the circumcision celebration of our beloved son. It would be an honor to have you join us and share your prayers and blessings.",
+    closing: "It would be our great honor and joy to have you present and to receive your prayers and blessings for our son.",
+    gift: "Your prayers and presence are the greatest gift to us. If you wish to send a token of love, you may do so below:",
+  },
+} satisfies Record<Language, Record<string, string>>
 
 const WISH_PAGE = 10
 
@@ -82,11 +91,12 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5, wrap
   )
 }
 
-function timeLine(raw?: string): string {
+function timeLine(raw: string | undefined, lang: Language): string {
   const value = (raw || "").trim()
   if (!value) return ""
   const normalized = value.replace(/(\d)\s*-\s*(\d)/g, "$1 – $2")
-  const withPrefix = /^pukul/i.test(normalized) ? normalized : `Pukul ${normalized}`
+  const hasPrefix = /^(pukul|at)\b/i.test(normalized)
+  const withPrefix = hasPrefix ? normalized : lang === "en" ? `At ${normalized}` : `Pukul ${normalized}`
   return /wib/i.test(withPrefix) ? withPrefix : `${withPrefix} WIB`
 }
 
@@ -98,6 +108,7 @@ function accountName(raw?: string): string {
 
 export default function LenteraZamrud(profile: TemplateProps) {
   const lang = normalizeLanguage(profile.language)
+  const d = DEFAULTS[lang]
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -170,45 +181,45 @@ export default function LenteraZamrud(profile: TemplateProps) {
 
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
-  const guestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
-  const basmalah = (tc.basmalah || "").trim() || DEFAULT_BASMALAH
-  const salam = (tc.opening_salam || "").trim() || DEFAULT_SALAM
-  const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
+  const guestLabel = (tc.cover_guest_label || "").trim() || t("toGuest", lang)
+  const basmalah = (tc.basmalah || "").trim() || d.basmalah
+  const salam = (tc.opening_salam || "").trim() || d.salam
+  const openingText = (profile.opening_description || "").trim() || d.opening
   const countdownTitle = (tc.countdown_intro || "").trim() || labels.countdownLabel
-  const saveDateLabel = (tc.save_date_label || "").trim() || "Simpan Tanggal"
-  const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
-  const eventsIntro = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
+  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveToCalendar", lang)
+  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Time & Venue" : "Waktu & Tempat")
+  const eventsIntro = (tc.events_intro || "").trim() || (lang === "en" ? "God willing, the event will be held on:" : "Insya Allah acara akan diselenggarakan pada:")
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
-  const galleryTitle = (tc.gallery_title || "").trim() || "Galeri"
-  const galleryIntro = (tc.gallery_intro || "").trim() || "Momen kecil yang ingin kami bagikan."
+  const galleryTitle = (tc.gallery_title || "").trim() || t("secGallery", lang)
+  const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "Little moments we would like to share." : "Momen kecil yang ingin kami bagikan.")
   const wishesTitle = (tc.wishes_title || "").trim() || labels.wishesTitle
-  const wishesIntro = (tc.wishes_intro || "").trim() || "Kirimkan doa dan harapan terbaik untuk putra kami."
-  const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
-  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Tulis nama Anda"
-  const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Doa dan ucapan"
-  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tulis doa dan ucapan"
-  const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
-  const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
-  const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
+  const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Send your prayers and best wishes for our son." : "Kirimkan doa dan harapan terbaik untuk putra kami.")
+  const wishNameLabel = (tc.wishes_name_label || "").trim() || (lang === "en" ? "Your Name" : "Nama Anda")
+  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Enter your name" : "Tulis nama Anda")
+  const wishMessageLabel = (tc.wishes_message_label || "").trim() || (lang === "en" ? "Prayers & wishes" : "Doa dan ucapan")
+  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Write your prayers and wishes" : "Tulis doa dan ucapan")
+  const wishSubmit = (tc.wishes_submit || "").trim() || t("sendWishes", lang)
+  const wishEmpty = (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama.")
+  const wishLoading = (tc.wishes_loading || "").trim() || t("loading", lang)
   const giftTitle = (tc.gift_intro_title || "").trim() || labels.giftTitle
-  const giftLead = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
-  const giftNote = (tc.gift_transfer_note || "").trim() || "transfer ke rekening di bawah ini:"
-  const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
-  const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
-  const sendGiftLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
+  const giftLead = (tc.gift_intro_description || "").trim() || d.gift
+  const giftNote = (tc.gift_transfer_note || "").trim() || (lang === "en" ? "transfer to the account below:" : "transfer ke rekening di bawah ini:")
+  const copyAccountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
+  const copyAddressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
+  const sendGiftLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
-  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
+  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
   const closingKicker = (tc.closing_kicker || "").trim() || labels.closingHeadline
-  const closingFamily = (tc.closing_family || "").trim() || "Keluarga Besar"
-  const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
-  const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
+  const closingFamily = (tc.closing_family || "").trim() || (lang === "en" ? "The Family of" : "Keluarga Besar")
+  const closingText = (tc.closing_message || "").trim() || d.closing
+  const closingSalam = (tc.closing_salam || "").trim() || (lang === "en" ? "Peace be upon you" : "Wassalamu'alaikum Warahmatullahi Wabarakatuh")
 
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
 
   const parsedDate = eventDate ? new Date(eventDate) : null
   const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null
-  const dateLine = validDate ? formatLongDate(eventDate) : ""
+  const dateLine = validDate ? formatDate(eventDate, lang) : ""
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.kidsMusic : "")
   const wishes = useWishes(profile.wedding_profile_id, profile.guest_id)
@@ -343,10 +354,10 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const countdownCells = (() => {
     const ms = target && now ? Math.max(0, target.getTime() - now) : 0
     return [
-      { value: Math.floor(ms / 86400000), label: "Hari" },
-      { value: Math.floor((ms % 86400000) / 3600000), label: "Jam" },
-      { value: Math.floor((ms % 3600000) / 60000), label: "Menit" },
-      { value: Math.floor((ms % 60000) / 1000), label: "Detik" },
+      { value: Math.floor(ms / 86400000), label: t("days", lang) },
+      { value: Math.floor((ms % 86400000) / 3600000), label: t("hours", lang) },
+      { value: Math.floor((ms % 3600000) / 60000), label: t("minutes", lang) },
+      { value: Math.floor((ms % 60000) / 1000), label: t("seconds", lang) },
     ]
   })()
 
@@ -559,9 +570,9 @@ export default function LenteraZamrud(profile: TemplateProps) {
                     <article className="lz-event" key={`${session.name || "acara"}-${index}`}>
                       <h3 className="lz-event__name">{session.name || labels.mainEventName}</h3>
                       {(session.date || dateLine) && (
-                        <p className="lz-event__date">{formatLongDate(session.date || eventDate)}</p>
+                        <p className="lz-event__date">{formatDate(session.date || eventDate, lang)}</p>
                       )}
-                      {session.time && <p className="lz-event__time">{timeLine(session.time)}</p>}
+                      {session.time && <p className="lz-event__time">{timeLine(session.time, lang)}</p>}
                       {(session.venue || session.address) && (
                         <p className="lz-event__place">
                           {session.venue && session.address
@@ -703,7 +714,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
                         <button
                           type="button"
                           className="lz-gift-card__copy"
-                          onClick={() => copyText(account.account_number || "", "Nomor rekening disalin")}
+                          onClick={() => copyText(account.account_number || "", lang === "en" ? "Account number copied" : "Nomor rekening disalin")}
                           aria-label={copyAccountButton}
                         >
                           <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
@@ -721,7 +732,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
                       <button
                         type="button"
                         className="lz-gift-card__copy lz-gift-card__copy--wide"
-                        onClick={() => copyText(giftAddress, "Alamat disalin")}
+                        onClick={() => copyText(giftAddress, lang === "en" ? "Address copied" : "Alamat disalin")}
                         aria-label={copyAddressButton}
                       >
                         <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
@@ -845,6 +856,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message}
           rsvpMaxPax={profile.rsvp_max_pax}
           qrEnabled={Boolean(gates.qr_code_book)}
+          language={lang}
         />
       )}
     </div>

@@ -8,7 +8,6 @@ import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
   flattenPhotos,
-  formatLongDate,
   gcalLink,
   groomPhoto as groomPhotoOf,
   bridePhoto as bridePhotoOf,
@@ -20,7 +19,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./traditional-bugis-pinishi.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage, t, formatDate } from "@/lib/i18n"
 
 const ASSET = (name: string) => `/templates/traditional-bugis-pinishi/${name}`
 
@@ -202,7 +201,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const initialsList = initialsGlyphs(editorInitials)
   const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "Pernikahan"
   const guestName = profile.guest_name || "Tamu Undangan"
-  const dateLong = formatLongDate(profile.estimated_wedding_date)
+  const dateLong = formatDate(profile.estimated_wedding_date, lang)
   const dateDots = dottedDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const events = (profile.sessions || []).filter(Boolean)
@@ -513,7 +512,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </h1>
             {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
             <div className="pinishi-gate-guest">
-              <p className="pinishi-gate-guest-label">Kepada Yth.</p>
+              <p className="pinishi-gate-guest-label">{t("toGuest", lang)}</p>
               <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
                 {guestName}
               </p>
@@ -521,7 +520,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </div>
             <button className="pinishi-gate-btn" type="button" onClick={openInvitation}>
               <EnvelopeIcon />
-              Buka Undangan
+              {t("openInvitation", lang)}
             </button>
           </div>
         </section>
@@ -544,7 +543,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 </h1>
                 {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
                 <div className="pinishi-gate-guest">
-                  <p className="pinishi-gate-guest-label">Kepada Yth.</p>
+                  <p className="pinishi-gate-guest-label">{t("toGuest", lang)}</p>
                   <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
                     {guestName}
                   </p>
@@ -813,7 +812,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 >
                   <div className="pinishi-event-frame">
                     <h3>{event.name || "Acara Pernikahan"}</h3>
-                    <p className="pinishi-event-date">{formatLongDate(event.date || profile.estimated_wedding_date)}</p>
+                    <p className="pinishi-event-date">{formatDate(event.date || profile.estimated_wedding_date, lang)}</p>
                     {event.time && (
                       <p className="pinishi-event-line">
                         <ClockIcon />
@@ -828,7 +827,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                     )}
                     {mapsUrl && (
                       <a className="pinishi-maps" href={mapsUrl} target="_blank" rel="noopener noreferrer">
-                        Lihat Lokasi
+                        {t("viewLocation", lang)}
                       </a>
                     )}
                   </div>
@@ -892,7 +891,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 <p>{livestream?.description || "Temui kami secara virtual untuk menyaksikan acara pernikahan kami."}</p>
                 <a href={livestream!.url} target="_blank" rel="noopener noreferrer">
                   <CameraIcon />
-                  {livestream?.buttonLabel || "Tonton Live Streaming"}
+                  {livestream?.buttonLabel || t("watch", lang)}
                 </a>
               </div>
             </section>
@@ -902,7 +901,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <section className="pinishi-rundown" aria-label="Rundown Acara">
               <img className="pinishi-rundown-decor pinishi-rundown-decor--l" src={ASSET("decor-rundown-2.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-rundown-inner" data-aos="fade-up">
-                <h2 className="pinishi-title">Rundown Acara</h2>
+                <h2 className="pinishi-title">{tc.rundown_title || t("secRundown", lang)}</h2>
                 <div className="pinishi-rundown-list">
                   {rundownItems.map((item, index) => (
                     <article key={`${item.time || "rundown"}-${index}`}>
@@ -944,7 +943,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 <p>{giftIntroDescription}</p>
                 {!giftRevealed ? (
                   <button type="button" className="pinishi-gift-btn" onClick={() => setGiftRevealed(true)}>
-                    Buka Amplop
+                    {t("openEnvelope", lang)}
                   </button>
                 ) : (
                   <div className="pinishi-gift-body">
@@ -956,7 +955,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                             <p className="pinishi-gift-account-name">{account.account_name}</p>
                             <p className="pinishi-gift-account-number">{account.account_number}</p>
                             <button type="button" onClick={() => copy(account.account_number || "")}>
-                              Salin Nomor Rekening
+                              {t("copyAccount", lang)}
                             </button>
                           </div>
                         ))}
@@ -1059,7 +1058,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
       {lightbox !== null && photos[lightbox] && (
         <div className="pinishi-lightbox" role="dialog" aria-modal="true" aria-label="Galeri foto">
-          <button type="button" className="pinishi-lightbox-close" aria-label="Tutup galeri" onClick={() => setLightbox(null)}>
+          <button type="button" className="pinishi-lightbox-close" aria-label={lang === "en" ? "Close gallery" : "Tutup galeri"} onClick={() => setLightbox(null)}>
             ×
           </button>
           <button
@@ -1104,6 +1103,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
+          language={lang}
         />
       )}
     </div>

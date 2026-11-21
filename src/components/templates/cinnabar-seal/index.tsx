@@ -239,7 +239,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
 
   const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
   const openLabel = (tc.open_button || "").trim() || "Open Invitation"
-  const saveLabel = (tc.save_date_label || "").trim() || "Save the Date"
+  const saveLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
   const copyAddressLabel = (tc.copy_address_button || "").trim() || "Salin Alamat"
   const apology = (tc.cover_apology || "").trim()
   const welcomeLine = (tc.welcome_message || "").trim()
@@ -249,7 +249,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const storyKicker = (tc.story_kicker || "").trim() || "Our"
   const storyTitle = (tc.love_story_title || "").trim() || "Love Story"
   const storyIntro = (tc.story_intro || "").trim()
-  const eventsKicker = (tc.events_kicker || "").trim() || "Save the Date"
+  const eventsKicker = (tc.events_kicker || "").trim() || t("saveTheDate", lang)
   const eventsTitle = (tc.events_title || "").trim() || "The Celebration"
   const eventsIntro = (tc.events_intro || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
@@ -1084,17 +1084,17 @@ export default function CinnabarSeal(profile: TemplateProps) {
           className="cn-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label="Penampil foto"
+          aria-label={t("photoViewer", lang)}
           onClick={() => setLightbox(null)}
         >
-          <button type="button" className="cn-lightbox__close" aria-label="Tutup" onClick={() => setLightbox(null)}>
+          <button type="button" className="cn-lightbox__close" aria-label={t("closeViewer", lang)} onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
             <button
               type="button"
               className="cn-lightbox__nav cn-lightbox__nav--prev"
-              aria-label="Foto sebelumnya"
+              aria-label={t("previousPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(-1)
@@ -1108,7 +1108,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
             <button
               type="button"
               className="cn-lightbox__nav cn-lightbox__nav--next"
-              aria-label="Foto berikutnya"
+              aria-label={t("nextPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(1)
@@ -1143,6 +1143,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
+          language={profile.language}
           anchor="center"
         />
       )}

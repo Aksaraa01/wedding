@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
+import { formatWishAgo, normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -70,19 +71,8 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso?: string): string {
-  if (!iso) return ""
-  const diff = Date.now() - new Date(iso).getTime()
-  const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "Just now"
-  if (minutes < 60) return `${minutes} min ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} hr ago`
-  const days = Math.floor(hours / 24)
-  return days === 1 ? "1 day ago" : `${days} days ago`
-}
-
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName , language = "id"}: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, language = "id" }: Props) {
+  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   // Terbatas links prefill and lock the name; fleksibel links keep it editable.
@@ -124,7 +114,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Preview mode, your wish was not saved.")
+      setFeedback(t("previewWishNotSaved", lang))
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -141,19 +131,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Tamu Undangan",
+          name: name.trim() || guestName || t("guestHonored", lang),
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback("You have already sent a wish. Thank you for the love and the prayers.")
+        setFeedback(t("wishAlreadySent", lang))
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback("Thank you. Your wish will appear once it has been reviewed.")
+        setFeedback(t("thanksForWish", lang))
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -162,12 +152,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback("Too many messages right now. Please try again in a moment.")
+      setFeedback(t("tooManyMessages", lang))
     } catch {
       setStatus("error")
-      setFeedback("Could not send your wish. Please check your connection.")
+      setFeedback(t("wishFailed", lang))
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status])
+  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -186,14 +176,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         }}
       >
         <div className="il-field">
-          <label htmlFor="il-wish-name">Your Name</label>
+          <label htmlFor="il-wish-name">{lang === "en" ? "Your Name" : "Nama Anda"}</label>
           <input
             id="il-wish-name"
             className="il-input"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Your full name"
+            placeholder={lang === "en" ? "Your full name" : "Nama lengkap"}
             maxLength={80}
             autoComplete="name"
             readOnly={nameLocked}
@@ -202,13 +192,13 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <div className="il-field">
-          <label htmlFor="il-wish-message">A Note for the Couple</label>
+          <label htmlFor="il-wish-message">{lang === "en" ? "A Note for the Couple" : "Ucapan untuk Kedua Mempelai"}</label>
           <textarea
             id="il-wish-message"
             className="il-input il-textarea"
             value={message}
             onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
-            placeholder="Leave us a little message, if you'd like."
+            placeholder={lang === "en" ? "Leave us a little message, if you'd like." : "Tuliskan ucapan dan doa untuk kami."}
             rows={4}
             maxLength={MAX_CHARS}
           />
@@ -222,7 +212,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
           className="il-btn il-btn--solid il-form__submit"
           disabled={status === "sending" || !message.trim()}
         >
-          {status === "sending" ? "Sending…" : "Send Wish"}
+          {status === "sending" ? t("sending", lang) : t("sendWishes", lang)}
         </button>
 
         {feedback && (
@@ -233,11 +223,9 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       </form>
 
       <div className="il-feed">
-        {!loaded && <p className="il-feed__empty">Loading wishes…</p>}
+        {!loaded && <p className="il-feed__empty">{t("loadingWishes", lang)}</p>}
         {loaded && wishes.length === 0 && (
-          <p className="il-feed__empty">
-            No wishes yet. Be the first to write one for {coupleName || "the couple"}.
-          </p>
+          <p className="il-feed__empty">{t("noWishesYet", lang)}</p>
         )}
 
         {wishes.length > 0 && (
@@ -246,8 +234,8 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
               {pagedWishes.map((wish) => (
                 <article className="il-wish" key={wish.id}>
                   <header className="il-wish__head">
-                    <span className="il-wish__name">{wish.name || "A Guest"}</span>
-                    <span className="il-wish__date">{wishAgo(wish.created_at)}</span>
+                    <span className="il-wish__name">{wish.name || t("guestHonored", lang)}</span>
+                    <span className="il-wish__date">{formatWishAgo(wish.created_at, lang)}</span>
                   </header>
                   <p className="il-wish__text">{wish.message}</p>
                 </article>
@@ -259,7 +247,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="il-pager__btn"
-                  aria-label="Previous page"
+                  aria-label={t("previousPage", lang)}
                   disabled={currentPage === 0}
                   onClick={() => setPage((value) => Math.max(0, value - 1))}
                 >
@@ -271,7 +259,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="il-pager__btn"
-                  aria-label="Next page"
+                  aria-label={t("nextPage", lang)}
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
                 >

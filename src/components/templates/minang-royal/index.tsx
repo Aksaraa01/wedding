@@ -22,11 +22,14 @@ const DEMO_TRACK = "/templates/minang-royal/bergema.mp3"
 const DEFAULT_CLOSING =
   "Family & Friends. From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives."
 
-const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
-const ID_MONTHS = [
-  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
-]
+const DAYS = {
+  id: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
+  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+}
+const MONTHS = {
+  id: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+}
 
 type Session = NonNullable<TemplateProps["sessions"]>[number]
 
@@ -37,14 +40,14 @@ function parseEventDate(value?: string | null): Date | null {
   return isNaN(d.getTime()) ? null : d
 }
 
-function dayName(value?: string | null): string {
+function dayName(value: string | null | undefined, lang: "id" | "en"): string {
   const d = parseEventDate(value)
-  return d ? ID_DAYS[d.getDay()] : ""
+  return d ? DAYS[lang][d.getDay()] : ""
 }
 
-function longDate(value?: string | null): string {
+function longDate(value: string | null | undefined, lang: "id" | "en"): string {
   const d = parseEventDate(value)
-  return d ? `${d.getDate()} ${ID_MONTHS[d.getMonth()]} ${d.getFullYear()}` : ""
+  return d ? `${d.getDate()} ${MONTHS[lang][d.getMonth()]} ${d.getFullYear()}` : ""
 }
 
 function dotDate(value?: string | null): string {
@@ -207,7 +210,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             type="button"
             className={`music-box${playing ? " playing" : ""}`}
             onClick={toggleMusic}
-            aria-label={playing ? "Jeda musik" : "Putar musik"}
+            aria-label={playing ? (lang === "en" ? "Pause music" : "Jeda musik") : (lang === "en" ? "Play music" : "Putar musik")}
             aria-pressed={playing}
           >
             <span className="music-vinyl">
@@ -231,7 +234,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             <Ornaments />
             <div className="details">
               <h1 className="prime-title">{coupleLabel}</h1>
-              <p>Hai<br />{guestName}</p>
+              <p>{lang === "en" ? "Hello" : "Hai"}<br />{guestName}</p>
             </div>
           </div>
         </section>
@@ -244,10 +247,10 @@ export default function MinangRoyal(profile: TemplateProps) {
             <div className="inner">
               <div className="details">
                 <h1 className="prime-title">{coupleLabel}</h1>
-                <p>Hai<br />{guestName}</p>
+                <p>{lang === "en" ? "Hello" : "Hai"}<br />{guestName}</p>
                 <div>
                   <a href="#invitation" className="link" onClick={(event) => { event.preventDefault(); openInvitation() }}>
-                    Open Invitation
+                    {t("openInvitation", lang)}
                   </a>
                 </div>
               </div>
@@ -415,7 +418,7 @@ export default function MinangRoyal(profile: TemplateProps) {
               <div className="agenda-inner">
                 <div className="agenda-head">
                   <div className="orn-kupu-kupu-2"><div className="image-wrap"><img src={A("kupu-kupu-2.png")} alt="" /></div></div>
-                  <h1 className="agenda-title">Wedding Day</h1>
+                  <h1 className="agenda-title">{tc.events_title || t("secEvent", lang)}</h1>
                   <p className="agenda-description">
                     {tc.events_intro ||
                       "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:"}
@@ -438,10 +441,10 @@ export default function MinangRoyal(profile: TemplateProps) {
                               <div className="activity-item" key={`${event.name || "activity"}-${index}`}>
                                 <div className="activity-head">
                                   <h1 className="activity-title">{event.name || "Wedding Ceremony"}</h1>
-                                  {(dayName(group.date) || longDate(group.date)) && (
+                                  {(dayName(group.date, lang) || longDate(group.date, lang)) && (
                                     <p className="activity-date">
-                                      {dayName(group.date) && <span className="activity-day">{dayName(group.date)}</span>}
-                                      {(longDate(group.date) || dateLong) && <span className="activity-date-text">{longDate(group.date) || dateLong}</span>}
+                                      {dayName(group.date, lang) && <span className="activity-day">{dayName(group.date, lang)}</span>}
+                                      {(longDate(group.date, lang) || dateLong) && <span className="activity-date-text">{longDate(group.date, lang) || dateLong}</span>}
                                     </p>
                                   )}
                                   {event.time && <p className="activity-time">{event.time}</p>}

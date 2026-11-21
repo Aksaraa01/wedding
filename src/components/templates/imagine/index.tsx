@@ -1266,6 +1266,7 @@ export default function Imagine(props: TemplateProps) {
           qrEnabled={gates.qr_code_book === true}
           anchor="bottom"
           bottom={80}
+                  language={lang}
         />
       )}
     </div>

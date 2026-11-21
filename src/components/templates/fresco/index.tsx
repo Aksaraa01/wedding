@@ -329,9 +329,9 @@ export default function Fresco(profile: TemplateProps) {
   const openLabel = (tc.open_button || "").trim() || "Tap to open"
   const apology = (tc.cover_apology || "").trim()
   const venueLine = (events[0]?.venue || "").trim()
-  const countdownTitle = (tc.countdown_title || "").trim() || "Countdown"
+  const countdownTitle = (tc.countdown_title || "").trim() || t("countdown", lang)
   const countdownIntro = (tc.countdown_intro || "").trim() || "Until"
-  const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
+  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
   const openingTitle = (profile.opening_title || "").trim() || "A Word of Welcome"
   const openingBody = (profile.opening_description || "").trim()
   const quoteText = (profile.quote_text || "").trim()
@@ -1202,7 +1202,7 @@ export default function Fresco(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy} language={profile.language}
+              copy={wishCopy} language={lang}
             />
           </div>
         </section>
@@ -1316,6 +1316,7 @@ export default function Fresco(profile: TemplateProps) {
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="center"
+          language={lang}
         />
       )}
     </div>

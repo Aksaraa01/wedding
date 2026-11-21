@@ -1,5 +1,6 @@
 "use client"
 
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { useCountdown } from "../../shared/useCountdown"
 import { FONT_BODY, FONT_BTN, FONT_DISPLAY } from "../fonts"
 import Section from "../Section"
@@ -10,6 +11,7 @@ type Props = {
   target: Date | null
   gcal?: string
   coupleLabel: string
+  language?: string
 }
 
 function Cell({ value, label }: { value: number; label: string }) {
@@ -25,7 +27,8 @@ function Cell({ value, label }: { value: number; label: string }) {
   )
 }
 
-export default function SaveTheDate({ photos, target, gcal, coupleLabel }: Props) {
+export default function SaveTheDate({ photos, target, gcal, coupleLabel, language }: Props) {
+  const lang = normalizeLanguage(language)
   const { days, hours, minutes, seconds } = useCountdown(target)
 
   return (
@@ -34,7 +37,7 @@ export default function SaveTheDate({ photos, target, gcal, coupleLabel }: Props
         <Slideshow images={photos} className="h-[46vh] w-full" overlayClassName="bg-black/40">
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-[20px] uppercase text-white" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-              Save The Date
+              {t("saveTheDate", lang)}
             </span>
           </div>
         </Slideshow>
@@ -43,10 +46,10 @@ export default function SaveTheDate({ photos, target, gcal, coupleLabel }: Props
       <div className="pt-10 text-center text-white">
         {target && (
           <div className="mx-auto grid w-[285px] grid-cols-4 gap-5">
-            <Cell value={days} label="Hari" />
-            <Cell value={hours} label="Jam" />
-            <Cell value={minutes} label="Menit" />
-            <Cell value={seconds} label="Detik" />
+            <Cell value={days} label={t("days", lang)} />
+            <Cell value={hours} label={t("hours", lang)} />
+            <Cell value={minutes} label={t("minutes", lang)} />
+            <Cell value={seconds} label={t("seconds", lang)} />
           </div>
         )}
 
@@ -59,7 +62,7 @@ export default function SaveTheDate({ photos, target, gcal, coupleLabel }: Props
             style={{ ...FONT_BTN, letterSpacing: "1px", backgroundColor: "#1B1B18", color: "#F2F1EE" }}
           >
             <span className="material-symbols-outlined text-[16px]">event</span>
-            Simpan Tanggal
+            {t("saveToCalendar", lang)}
           </a>
         )}
 

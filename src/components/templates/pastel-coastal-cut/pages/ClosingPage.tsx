@@ -1,11 +1,13 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
 import { CouplePhoto } from "./MainPage"
 import { PastelCloud } from "../Atmosphere"
 
 export default function ClosingPage({ profile, onWishOpenChange }: { profile: TemplateProps; onWishOpenChange: (open: boolean) => void }) {
+  const lang = normalizeLanguage(profile.language)
   return (
     <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col items-center justify-center text-center px-6 pt-12 pb-8">
       <div className="relative w-full max-w-[420px] min-h-[500px] flex flex-col items-center justify-center p-6 text-center select-none">
@@ -20,12 +22,12 @@ export default function ClosingPage({ profile, onWishOpenChange }: { profile: Te
             <div className="absolute -inset-1.5 rounded-t-full rounded-b-xl border border-[#d4af37]/40 pointer-events-none" />
           </div>
           <h1 className="text-[34px] leading-[1.05] mb-1.5 drop-shadow-sm" style={{ ...FONT_SCRIPT, color: "#2c221a" }}>
-            Terima Kasih &amp; Doa Restu
+            {lang === "en" ? "Thank You & Blessings" : "Terima Kasih & Doa Restu"}
           </h1>
           <div className="flex items-center gap-2 mb-3.5 w-full max-w-[260px] justify-center">
             <span className="h-px w-6 bg-[#8c6d48]/40" />
             <span className="italic text-[11px] leading-relaxed text-center" style={{ ...FONT_DISPLAY, color: "#4a3a2f" }}>
-              Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara/i sekalian.
+              {lang === "en" ? "It is an honor and joy for us to have your presence and blessings on our special day." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara/i sekalian."}
             </span>
             <span className="h-px w-6 bg-[#8c6d48]/40" />
           </div>
@@ -36,7 +38,7 @@ export default function ClosingPage({ profile, onWishOpenChange }: { profile: Te
             style={FONT_BODY}
           >
             <span className="material-symbols-outlined text-[16px]">forum</span>
-            <span>Beri Doa &amp; Ucapan</span>
+            <span>{lang === "en" ? "Send Wishes & Prayers" : "Beri Doa & Ucapan"}</span>
           </button>
         </div>
       </div>

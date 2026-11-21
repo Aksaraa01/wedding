@@ -7,20 +7,13 @@ import { SG } from "../assets"
 import { externalHref } from "../links"
 import { EventIcon } from "./EventIcon"
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+const DAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const DAYS_ID = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+const MONTHS_EN = [
+  "January","February","March","April","May","June","July","August","September","October","November","December",
+]
+const MONTHS_ID = [
+  "Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember",
 ]
 
 function parseDate(value?: string | null): Date | null {
@@ -38,10 +31,11 @@ type Props = {
   dressTitle: string
   dressNote: string
   showDresscode: boolean
-  dressIcons: { man: string; woman: string }
+  dressIcons: { man?: string; woman?: string }
+  lang?: "id" | "en"
 }
 
-export default function Agenda({ profile, title, mapsLabel, dressTitle, dressNote, showDresscode }: Props) {
+export default function Agenda({ profile, title, mapsLabel, dressTitle, dressNote, showDresscode, dressIcons, lang = "id" }: Props) {
   const sessions = profile.sessions || []
   if (!sessions.length) return null
   const date = parseDate(sessions[0]?.date || profile.estimated_wedding_date)
@@ -75,11 +69,11 @@ export default function Agenda({ profile, title, mapsLabel, dressTitle, dressNot
           <div className="event-item">
             <div className="event-head">
               <div className="event-head-wrapper">
-                {date ? <h3 className="event-day">{DAYS[date.getDay()]}</h3> : null}
+                {date ? <h3 className="event-day">{(lang === "en" ? DAYS_EN : DAYS_ID)[date.getDay()]}</h3> : null}
                 {date ? (
                   <div className="event-date">
                     <div className="item-side">
-                      <p>{MONTHS[date.getMonth()]}</p>
+                      <p>{(lang === "en" ? MONTHS_EN : MONTHS_ID)[date.getMonth()]}</p>
                     </div>
                     <div className="divider" />
                     <div className="item-mid">

@@ -23,7 +23,8 @@ import "./olan.css"
 import "./olan-extra.css"
 import { normalizeLanguage, t } from "@/lib/i18n"
 
-const GUEST_FALLBACK = "Tamu Undangan"
+const GUEST_FALLBACK_ID = "Tamu Undangan"
+const GUEST_FALLBACK_EN = "Guest"
 const DRESSCODE_DEFAULT_INTRO = "Elegant attire in warm earth tones — please reserve white for the couple."
 
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -354,7 +355,7 @@ export default function Olan(profile: TemplateProps) {
               <p>
                 {content.cover_guest_label || "Dear"}
                 <br />
-                {guestName || GUEST_FALLBACK}
+                {guestName || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)}
               </p>
             </div>
           </div>
@@ -756,18 +757,18 @@ export default function Olan(profile: TemplateProps) {
 
                 <div className="save-date-head">
                   <h1 className="save-date-title" data-aos="zoom-in" data-aos-duration="1000">
-                    {content.countdown_title || "Countdown"}
+                    {content.countdown_title || t("countdown", lang)}
                   </h1>
                 </div>
                 <div className="save-date-body">
                   <div className="countdown">
                     <div className="count-item" data-aos="fade-down-right" data-aos-duration="1000" data-aos-delay="200">
                       <h2 className="count-num count-day">{countdown.days}</h2>
-                      <small className="count-text">{content.countdown_days || "Days"}</small>
+                      <small className="count-text">{content.countdown_days || t("days", lang)}</small>
                     </div>
                     <div className="count-item" data-aos="fade-down-left" data-aos-duration="1000" data-aos-delay="300">
                       <h2 className="count-num count-hour">{countdown.hours}</h2>
-                      <small className="count-text">{content.countdown_hours || "Hours"}</small>
+                      <small className="count-text">{content.countdown_hours || t("hours", lang)}</small>
                     </div>
                   </div>
                 </div>
@@ -775,11 +776,11 @@ export default function Olan(profile: TemplateProps) {
                   <div className="countdown">
                     <div className="count-item" data-aos="fade-up-right" data-aos-duration="1000" data-aos-delay="400">
                       <h2 className="count-num count-minute">{countdown.minutes}</h2>
-                      <small className="count-text">{content.countdown_minutes || "Minutes"}</small>
+                      <small className="count-text">{content.countdown_minutes || t("minutes", lang)}</small>
                     </div>
                     <div className="count-item" data-aos="fade-up-left" data-aos-duration="1000" data-aos-delay="500">
                       <h2 className="count-num count-second">{countdown.seconds}</h2>
-                      <small className="count-text">{content.countdown_seconds || "Seconds"}</small>
+                      <small className="count-text">{content.countdown_seconds || t("seconds", lang)}</small>
                     </div>
                   </div>
                 </div>
@@ -1156,13 +1157,13 @@ export default function Olan(profile: TemplateProps) {
                                     role="button"
                                     tabIndex={0}
                                     onClick={() =>
-                                      copyValue(selectedAccount.account_number || "", content.copy_account_toast || "Account number copied")
+                                      copyValue(selectedAccount.account_number || "", content.copy_account_toast || t("copiedToClipboard", lang))
                                     }
                                     onKeyDown={(e) => {
                                       if (e.key === "Enter" || e.key === " ")
                                         copyValue(
                                           selectedAccount.account_number || "",
-                                          content.copy_account_toast || "Account number copied"
+                                          content.copy_account_toast || t("copiedToClipboard", lang)
                                         )
                                     }}
                                   >
@@ -1191,9 +1192,9 @@ export default function Olan(profile: TemplateProps) {
                           <button
                             type="button"
                             className="olan-gift-address__copy"
-                            onClick={() => copyValue(giftAddress, content.copy_address_toast || "Address copied")}
+                            onClick={() => copyValue(giftAddress, content.copy_address_toast || t("copiedToClipboard", lang))}
                           >
-                            {content.copy_address_button || "Copy Address"}
+                            {content.copy_address_button || t("copyAddress", lang)}
                           </button>
                         </div>
                       ) : null}
@@ -1244,7 +1245,7 @@ export default function Olan(profile: TemplateProps) {
                     guestId={profile.guest_id}
                     guestName={guestName}
                     guestLinkStrict={profile.guest_link_strict}
-                    nameFallback={GUEST_FALLBACK}
+                    nameFallback={lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID}
                     copy={{
                       nameLabel: content.wishes_name_label || "Name",
                       namePlaceholder: content.wishes_name_placeholder || "Your name",
@@ -1254,7 +1255,7 @@ export default function Olan(profile: TemplateProps) {
                       empty: content.wishes_empty || "Be the first to leave a wish.",
                       more: content.wishes_more || "Show more comments",
                       loading: content.wishes_loading || "Loading",
-                    }} language={profile.language}
+                    }} language={lang}
                   />
                 </div>
               </div>
@@ -1417,7 +1418,7 @@ export default function Olan(profile: TemplateProps) {
               <p data-aos="fade-up" data-aos-duration="2000" data-aos-delay="1100">
                 {content.cover_guest_label || "Dear"}
                 <br />
-                {guestName || GUEST_FALLBACK}
+                {guestName || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)}
               </p>
               <div data-aos="fade-up" data-aos-duration="2600" data-aos-delay="1500">
                 <a
@@ -1466,7 +1467,7 @@ export default function Olan(profile: TemplateProps) {
       {/* ───────── lightbox ───────── */}
       {lightbox !== null && gallery[lightbox] ? (
         <div className="olan-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
-          <button type="button" className="olan-lightbox__close" onClick={closeLightbox} aria-label="Close">
+          <button type="button" className="olan-lightbox__close" onClick={closeLightbox} aria-label={lang === "en" ? "Close" : "Tutup"}>
             ×
           </button>
           <img src={gallery[lightbox]} alt="" onClick={(e) => e.stopPropagation()} />
@@ -1475,7 +1476,7 @@ export default function Olan(profile: TemplateProps) {
               <button
                 type="button"
                 className="olan-lightbox__nav prev"
-                aria-label="Previous photo"
+                aria-label={lang === "en" ? "Previous photo" : "Foto sebelumnya"}
                 onClick={(e) => {
                   e.stopPropagation()
                   setLightbox((i) => (i === null ? i : (i - 1 + gallery.length) % gallery.length))
@@ -1486,7 +1487,7 @@ export default function Olan(profile: TemplateProps) {
               <button
                 type="button"
                 className="olan-lightbox__nav next"
-                aria-label="Next photo"
+                aria-label={lang === "en" ? "Next photo" : "Foto berikutnya"}
                 onClick={(e) => {
                   e.stopPropagation()
                   setLightbox((i) => (i === null ? i : (i + 1) % gallery.length))
@@ -1502,7 +1503,7 @@ export default function Olan(profile: TemplateProps) {
       {/* ───────── film modal ───────── */}
       {videoLive ? (
         <div className="olan-video-modal" role="dialog" aria-modal="true" onClick={closeVideo}>
-          <button type="button" className="olan-lightbox__close" onClick={closeVideo} aria-label="Close">
+          <button type="button" className="olan-lightbox__close" onClick={closeVideo} aria-label={lang === "en" ? "Close" : "Tutup"}>
             ×
           </button>
           <div className="olan-video-modal__frame" onClick={(e) => e.stopPropagation()}>
@@ -1526,7 +1527,7 @@ export default function Olan(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={guestName || GUEST_FALLBACK}
+          guestName={guestName || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)}
           coupleName={coupleShort}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -1536,6 +1537,7 @@ export default function Olan(profile: TemplateProps) {
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="center"
+          language={lang}
         />
       )}
     </div>

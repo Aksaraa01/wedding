@@ -958,7 +958,7 @@ export default function SilverGelatin(profile: TemplateProps) {
             <button
               type="button"
               className="sg-lightbox__nav sg-lightbox__nav--prev"
-              aria-label="Previous photo"
+              aria-label={t("previousPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(-1)
@@ -972,7 +972,7 @@ export default function SilverGelatin(profile: TemplateProps) {
             <button
               type="button"
               className="sg-lightbox__nav sg-lightbox__nav--next"
-              aria-label="Next photo"
+              aria-label={t("nextPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(1)
@@ -1001,6 +1001,7 @@ export default function SilverGelatin(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
+          language={profile.language}
           anchor="bottom"
           bottom={80}
         />

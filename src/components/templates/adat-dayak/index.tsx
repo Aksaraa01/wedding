@@ -8,7 +8,6 @@ import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
   flattenPhotos,
-  formatLongDate,
   gcalLink,
   groomPhoto as groomPhotoOf,
   bridePhoto as bridePhotoOf,
@@ -18,25 +17,41 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./adat-dayak.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage, t, tf } from "@/lib/i18n"
+import { formatDate } from "@/lib/formatDate"
 
 const ASSET = (name: string) => `/templates/adat-dayak/${name}`
 
-const DEFAULT_QUOTE =
-  "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami."
-const DEFAULT_QUOTE_SOURCE = "Doa Pernikahan Adat Dayak"
+const DEFAULT_QUOTE: Record<string,string> = {
+  id: "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami.",
+  en: "Bismillahirrahmanirrahim. May Allah SWT always bestow blessings, love, and harmony upon our journey together.",
+}
+const DEFAULT_QUOTE_SOURCE: Record<string,string> = { id: "Doa Pernikahan Adat Dayak", en: "A Wedding Prayer" }
 const DEMO_TRACK = "/templates/adat-dayak/purnawandi-wawan-tabayang.mp3"
-const DEFAULT_GALLERY_QUOTE = "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama."
-const DEFAULT_GIFT_DESCRIPTION =
-  "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:"
-const DEFAULT_CLOSING =
-  "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan."
-const DEFAULT_WISHES_SUBTITLE =
-  "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu."
-const DEFAULT_PROFILES_INTRO =
-  "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan."
-const DEFAULT_EVENTS_INTRO =
-  "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Dayak kami:"
+const DEFAULT_GALLERY_QUOTE: Record<string,string> = {
+  id: "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+  en: "Love grows in prayer, family blessings, and every step we take together.",
+}
+const DEFAULT_GIFT_DESCRIPTION: Record<string,string> = {
+  id: "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+  en: "Without diminishing our respect, for those who wish to share a token of love, you may do so through:",
+}
+const DEFAULT_CLOSING: Record<string,string> = {
+  id: "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+  en: "For your presence and prayers, we extend our heartfelt thanks. May Allah SWT always bestow His blessings.",
+}
+const DEFAULT_WISHES_SUBTITLE: Record<string,string> = {
+  id: "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+  en: "With great joy, we invite you to join us and share your prayers and blessings.",
+}
+const DEFAULT_PROFILES_INTRO: Record<string,string> = {
+  id: "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.",
+  en: "By the grace and blessings of Allah SWT, we were brought together to walk side by side in love and harmony.",
+}
+const DEFAULT_EVENTS_INTRO: Record<string,string> = {
+  id: "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Dayak kami:",
+  en: "By the grace and blessings of Allah SWT, we invite you to join us in celebrating our wedding:",
+}
 
 function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
@@ -154,9 +169,9 @@ export default function AdatDayak(profile: TemplateProps) {
   const brideShort = (profile.bride_name || "").trim()
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
-  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "Pernikahan"
-  const guestName = profile.guest_name || "Tamu Undangan"
-  const dateLong = formatLongDate(profile.estimated_wedding_date)
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || (lang === "en" ? "Wedding" : "Pernikahan")
+  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const dateLong = formatDate(profile.estimated_wedding_date || "", lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const events = (profile.sessions || []).filter(Boolean)
   const photos = flattenPhotos(profile.gallery_photos)
@@ -194,18 +209,18 @@ export default function AdatDayak(profile: TemplateProps) {
   const hasTrack = !!trackUrl
   const calendarUrl = gcalLink(events[0], groomShort, brideShort)
 
-  const quoteText = profile.quote_text || DEFAULT_QUOTE
-  const quoteSource = profile.quote_source || DEFAULT_QUOTE_SOURCE
+  const quoteText = profile.quote_text || DEFAULT_QUOTE[lang]
+  const quoteSource = profile.quote_source || DEFAULT_QUOTE_SOURCE[lang]
   const coverApology =
-    tc.cover_apology || "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar."
+    tc.cover_apology || (lang === "en" ? "We apologize if there are any errors in the spelling of names and titles." : "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.")
   const galleryIntro = tc.gallery_intro || ""
-  const galleryQuote = tc.gallery_quote || DEFAULT_GALLERY_QUOTE
+  const galleryQuote = tc.gallery_quote || DEFAULT_GALLERY_QUOTE[lang]
   const giftIntroTitle = tc.gift_intro_title || "Love Gift"
-  const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION
-  const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
-  const profilesIntro = tc.profiles_intro || DEFAULT_PROFILES_INTRO
-  const eventsIntro = tc.events_intro || DEFAULT_EVENTS_INTRO
+  const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION[lang]
+  const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE[lang]
+  const closingMessage = tc.closing_message || DEFAULT_CLOSING[lang]
+  const profilesIntro = tc.profiles_intro || DEFAULT_PROFILES_INTRO[lang]
+  const eventsIntro = tc.events_intro || DEFAULT_EVENTS_INTRO[lang]
   const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const livestream = profile.livestream
 
@@ -424,9 +439,7 @@ export default function AdatDayak(profile: TemplateProps) {
       className={`adat-dayak-root aos-ready${opened ? " is-open" : " is-locked"}`}
       style={rootStyle}
     >
-      <a className="skip-link" href="#adat-dayak-invitation">
-        Lewati ke undangan
-      </a>
+      <a className="skip-link" href="#adat-dayak-invitation">{t("skipToInvitation", lang)}</a>
 
       {hasTrack && (
         <audio
@@ -442,7 +455,7 @@ export default function AdatDayak(profile: TemplateProps) {
         <button
           className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`}
           type="button"
-          aria-label="Putar atau jeda musik"
+          aria-label={t("playPauseMusic", lang)}
           onClick={toggleMusic}
         >
           <span className="tpl-vinyl">
@@ -462,7 +475,7 @@ export default function AdatDayak(profile: TemplateProps) {
       <div className="page-shell">
         <div className="desktop-blank" aria-hidden="true" />
 
-        <section className="cover" aria-label="Sampul undangan">
+        <section className="cover" aria-label={lang === "en" ? "Invitation cover" : "Sampul undangan"}>
           <div className="cover-left">
             <img src={coverPhoto} alt={coupleLabel} />
             <div className="cover-left-shade" />
@@ -485,7 +498,7 @@ export default function AdatDayak(profile: TemplateProps) {
         <main className="right-column" id="adat-dayak-invitation">
           <img className="right-parallax-background" src={ASSET("parallax-overlay.webp")} alt="" aria-hidden="true" />
 
-          <section className="cover-gate" aria-label="Sampul undangan" aria-hidden={opened}>
+          <section className="cover-gate" aria-label={lang === "en" ? "Invitation cover" : "Sampul undangan"} aria-hidden={opened}>
             <div className="gate-stage gate-initial">
               <img src={coverPhoto} alt={coupleLabel} />
               <div className="gate-shade" />
@@ -498,7 +511,7 @@ export default function AdatDayak(profile: TemplateProps) {
                   {dateLong && <p className="gate-date">{dateLong}</p>}
                 </div>
                 <div className="gate-details" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
-                  <p className="cover-to">Kepada Yth:</p>
+                  <p className="cover-to">{t("dearGuest", lang)}</p>
                   <p className="guest-name gate-guest name-fit" style={fitStyle(guestName)}>
                     {guestName}
                   </p>
@@ -514,7 +527,7 @@ export default function AdatDayak(profile: TemplateProps) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
                       <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
                     </svg>
-                    Buka Undangan
+                    {t("openInvitation", lang)}
                   </button>
                 </div>
               </div>
@@ -524,7 +537,7 @@ export default function AdatDayak(profile: TemplateProps) {
           <section
             className={`video-intro ${videoFailed ? "is-fallback" : "is-video"}${opened ? "" : " is-preloading"}`}
             id="adat-dayak-video-intro"
-            aria-label="Video pembuka"
+            aria-label={lang === "en" ? "Opening video" : "Video pembuka"}
             aria-hidden={!opened}
           >
             <div className="gate-stage gate-video">
@@ -541,7 +554,7 @@ export default function AdatDayak(profile: TemplateProps) {
                 <source src={ASSET("opening-garden.mp4")} type="video/mp4" />
               </video>
               {opened && videoBuffering && !videoFailed && (
-                <div className="video-buffering" role="status" aria-live="polite" aria-label="Memuat video">
+                <div className="video-buffering" role="status" aria-live="polite" aria-label={t("loadingVideo", lang)}>
                   <span className="gate-spinner" aria-hidden="true" />
                 </div>
               )}
@@ -559,7 +572,7 @@ export default function AdatDayak(profile: TemplateProps) {
               </div>
             </div>
             <div className="gate-stage gate-fallback">
-              <img src={ASSET("fallback.webp")} alt="Garden illustration for the invitation" />
+              <img src={ASSET("fallback.webp")} alt={lang === "en" ? "Garden illustration for the invitation" : "Ilustrasi taman untuk undangan"} />
               <div className="fallback-copy">
                 <p className="script">{t("theWeddingOf", lang)}</p>
                 <h2 className="name-fit" style={fitStyle(groomShort)}>
@@ -576,10 +589,10 @@ export default function AdatDayak(profile: TemplateProps) {
 
           {opened && (
           <>
-          <section className="verse-section" data-aos="fade-up" aria-label="Ayat">
+          <section className="verse-section" data-aos="fade-up" aria-label={t("secQuoteReligious", lang)}>
             <div className="quote-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
               <div className="quote-photo-wrap garden-text-reveal" data-aos="zoom-in" data-aos-delay="140" style={delay(140)}>
-                <img src={quotePhoto} alt={`${coupleLabel} bersama`} />
+                <img src={quotePhoto} alt={lang === "en" ? `${coupleLabel} together` : `${coupleLabel} bersama`} />
               </div>
               <div className="quote-copy" data-aos="fade-up" data-aos-delay="220" style={delay(220)}>
                 <p className="verse-hashtag name-fit garden-text-reveal" style={fitStyle(profile.display_name || `#${groomShort}${brideShort}`)} data-aos="fade-down">
@@ -597,7 +610,7 @@ export default function AdatDayak(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="groom-bride-section parallax-section" data-aos="fade-up" aria-label="Mempelai">
+          <section className="groom-bride-section parallax-section" data-aos="fade-up" aria-label={t("secCouple", lang)}>
             <div className="profile-card" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
               <div className="profile-intro" data-aos="fade-down" data-aos-delay="120" style={delay(120)}>
                 <h2 className="script profile-heading garden-text-reveal" data-aos="fade-up">
@@ -688,7 +701,7 @@ export default function AdatDayak(profile: TemplateProps) {
           </section>
 
           {honored.length > 0 && (
-            <section className="inviting-section parallax-section" data-aos="fade-up" aria-label="Turut Mengundang">
+            <section className="inviting-section parallax-section" data-aos="fade-up" aria-label={t("secInviting", lang)}>
               <div className="inviting-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
                 <h2 className="script inviting-title garden-text-reveal" data-aos="fade-down">
                   Turut Mengundang
@@ -710,27 +723,27 @@ export default function AdatDayak(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="events-section" data-aos="fade-up" aria-label="Acara">
+          <section className="events-section" data-aos="fade-up" aria-label={t("secEvent", lang)}>
             <img className="bouquet" src={ASSET("bouquet.webp")} alt="" data-aos="leaf-in" />
             <h2 className="script section-title garden-text-reveal" data-aos="fade-down">
               Save The Date
             </h2>
-            <div className="countdown" aria-label="Hitung mundur acara" data-aos="scale-in">
+            <div className="countdown" aria-label={t("countdown", lang)} data-aos="scale-in">
               <div data-aos="flip-in" data-aos-delay="0" className="garden-text-reveal" style={delay(0)}>
                 <strong>{countdown?.d ?? "00"}</strong>
-                <span>Hari</span>
+                <span>{t("days", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="70" className="garden-text-reveal" style={delay(70)}>
                 <strong>{countdown?.h ?? "00"}</strong>
-                <span>Jam</span>
+                <span>{t("hours", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="140" className="garden-text-reveal" style={delay(140)}>
                 <strong>{countdown?.m ?? "00"}</strong>
-                <span>Menit</span>
+                <span>{t("minutes", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="210" className="garden-text-reveal" style={delay(210)}>
                 <strong>{countdown?.s ?? "00"}</strong>
-                <span>Detik</span>
+                <span>{t("seconds", lang)}</span>
               </div>
             </div>
             <div className="events-intro" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
@@ -747,9 +760,7 @@ export default function AdatDayak(profile: TemplateProps) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
                     <rect x="3" y="5" width="18" height="16" rx="2" />
                     <path d="M16 3v4M8 3v4M3 10h18" />
-                  </svg>
-                  TAMBAH KE KALENDER
-                </a>
+                  </svg>{t("saveToCalendar", lang)}</a>
               )}
               <p>
                 {eventsIntro}
@@ -770,11 +781,11 @@ export default function AdatDayak(profile: TemplateProps) {
                   style={delay(120 + index * 60)}
                 >
                   <div className="event-card-inner" data-aos="fade-up">
-                    <h3 className="script name-fit garden-text-reveal" style={fitStyle(event.name || "Acara Pernikahan")} data-aos="fade-up">
-                      {event.name || "Acara Pernikahan"}
+                    <h3 className="script name-fit garden-text-reveal" style={fitStyle(event.name || t("weddingEventFallback", lang))} data-aos="fade-up">
+                      {event.name || t("weddingEventFallback", lang)}
                     </h3>
                     <strong className="event-date garden-text-reveal" data-aos="fade-up" data-aos-delay="55" style={delay(55)}>
-                      {formatLongDate(event.date || profile.estimated_wedding_date)}
+                      {formatDate(event.date || profile.estimated_wedding_date || "", lang)}
                     </strong>
                     {event.time && (
                       <span className="event-time garden-text-reveal" data-aos="fade-up" data-aos-delay="110" style={delay(110)}>
@@ -808,9 +819,7 @@ export default function AdatDayak(profile: TemplateProps) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
                           <path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" />
                           <circle cx="12" cy="10" r="2" />
-                        </svg>
-                        LIHAT LOKASI
-                      </a>
+                        </svg>{t("viewLocation", lang)}</a>
                     )}
                   </div>
                 </div>
@@ -819,13 +828,13 @@ export default function AdatDayak(profile: TemplateProps) {
           </section>
 
           {hasLivestream && (
-            <section className="live-streams-section parallax-section" data-aos="fade-up" aria-label="Live Streaming">
+            <section className="live-streams-section parallax-section" data-aos="fade-up" aria-label={t("secLivestream", lang)}>
               <div className="stream-card" data-aos="fade-up">
                 <h2 className="script garden-text-reveal" data-aos="fade-down">
-                  {livestream?.title || "Live Streaming"}
+                  {livestream?.title || tc.livestream_title || t("secLivestream", lang)}
                 </h2>
                 <p className="garden-text-reveal" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
-                  {livestream?.description || "Temui kami secara virtual untuk menyaksikan acara pernikahan kami melalui tautan di bawah ini:"}
+                  {livestream?.description || (lang === "en" ? "Join us virtually to witness our wedding through the link below:" : "Temui kami secara virtual untuk menyaksikan acara pernikahan kami melalui tautan di bawah ini:")}
                 </p>
                 <a
                   className="stream-link garden-text-reveal"
@@ -840,16 +849,16 @@ export default function AdatDayak(profile: TemplateProps) {
                     <circle cx="12" cy="12" r="8.5" />
                     <path d="m10.3 8.7 5.2 3.3-5.2 3.3Z" fill="currentColor" stroke="none" />
                   </svg>
-                  {livestream?.buttonLabel || "Tonton Live Streaming"}
+                  {livestream?.buttonLabel || t("watchLivestream", lang)}
                 </a>
               </div>
             </section>
           )}
 
           {hasRundown && (
-            <section className="tpl-rundown" aria-label="Rundown Acara">
+            <section className="tpl-rundown" aria-label={tc.rundown_title || t("rundownTitle", lang)}>
               <div className="tpl-rundown__card" data-aos="fade-up">
-                <h2 className="tpl-rundown__title">Rundown Acara</h2>
+                <h2 className="tpl-rundown__title">{tc.rundown_title || t("rundownTitle", lang)}</h2>
                 <div className="tpl-rundown__list">
                   {rundownItems.map((item, index) => (
                     <article
@@ -872,7 +881,7 @@ export default function AdatDayak(profile: TemplateProps) {
               <div className="dress-code-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
                 <div className="dress-code-intro garden-text-reveal" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
                   <h2 id="dress-code-title" className="script">
-                    {profile.dresscode?.title || "Dress Code"}
+                    {profile.dresscode?.title || tc.dresscode_title || t("secDresscode", lang)}
                   </h2>
                   {dressDescription && <p>{dressDescription}</p>}
                 </div>
@@ -881,7 +890,7 @@ export default function AdatDayak(profile: TemplateProps) {
                     <li
                       className="dress-code-swatch garden-text-reveal"
                       role="listitem"
-                      aria-label={color.name || color.hex || `Warna ${index + 1}`}
+                      aria-label={color.name || color.hex || tf("colorN", lang, { n: index + 1 })}
                       key={`${color.hex || color.name}-${index}`}
                       data-aos="zoom-in"
                       data-aos-delay={index * 70}
@@ -901,7 +910,7 @@ export default function AdatDayak(profile: TemplateProps) {
           )}
 
           {hasGallery && (
-            <section className="our-gallery-section" data-aos="fade-up" aria-label="Our Gallery">
+            <section className="our-gallery-section" data-aos="fade-up" aria-label={tc.gallery_title || t("secGallery", lang)}>
               <h2 className="script section-title garden-text-reveal" data-aos="fade-down">
                 Our Gallery
               </h2>
@@ -919,7 +928,7 @@ export default function AdatDayak(profile: TemplateProps) {
                             <button
                               type="button"
                               tabIndex={index >= row.length ? -1 : 0}
-                              aria-label={`Lihat foto ${photoIndex + 1}`}
+                              aria-label={tf("viewPhoto", lang, { n: photoIndex + 1 })}
                               onClick={() => setLightbox(photoIndex)}
                             >
                               <img src={src} alt="" loading="lazy" decoding="async" />
@@ -941,7 +950,7 @@ export default function AdatDayak(profile: TemplateProps) {
                 <div className="gallery-video-card garden-text-reveal" data-aos="fade-up" data-aos-delay="180" style={delay(180)}>
                   <iframe
                     src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1&modestbranding=1&iv_load_policy=3&rel=0&playsinline=1`}
-                    title={`Video pernikahan ${coupleLabel}`}
+                    title={lang === "en" ? `Wedding video of ${coupleLabel}` : `Video pernikahan ${coupleLabel}`}
                     allow="autoplay; encrypted-media; picture-in-picture"
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
@@ -951,7 +960,7 @@ export default function AdatDayak(profile: TemplateProps) {
           )}
 
           {hasStory && (
-            <section className="love-story-section parallax-section" data-aos="fade-up" aria-label="Love Story">
+            <section className="love-story-section parallax-section" data-aos="fade-up" aria-label={tc.love_story_title || t("secStory", lang)}>
               <div className="story-card" data-aos="fade-up">
                 <img className="story-bouquet" src={ASSET("bouquet.webp")} alt="" data-aos="leaf-in" />
                 <h2 className="script garden-text-reveal" data-aos="fade-down">
@@ -961,7 +970,7 @@ export default function AdatDayak(profile: TemplateProps) {
                   {stories.map((story, index) => (
                     <article key={`${story.title || "story"}-${index}`}>
                       <HeartMarker />
-                      <h3>{story.title || `Bagian ${index + 1}`}</h3>
+                      <h3>{story.title || tf("storyPart", lang, { n: index + 1 })}</h3>
                       {story.description && <p>{story.description}</p>}
                     </article>
                   ))}
@@ -971,7 +980,7 @@ export default function AdatDayak(profile: TemplateProps) {
           )}
 
           {hasGift && (
-            <section className="gift-section gift-section--covered" data-aos="fade-up" aria-label="Hadiah">
+            <section className="gift-section gift-section--covered" data-aos="fade-up" aria-label={t("secGift", lang)}>
               <svg className="gift-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
                 <path d="M3 10h18v10H3zM2 7h20v3H2zM12 7v13" />
                 <path d="M12 7s-1.5-5-4.5-5A2.5 2.5 0 0 0 5 4.5C5 7 12 7 12 7Zm0 0s1.5-5 4.5-5A2.5 2.5 0 0 1 19 4.5C19 7 12 7 12 7Z" />
@@ -997,7 +1006,7 @@ export default function AdatDayak(profile: TemplateProps) {
                           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                           <circle cx="12" cy="12" r="3" />
                         </svg>
-                        <span>Buka Amplop</span>
+                        <span>{t("openEnvelope", lang)}</span>
                       </button>
                     </div>
                   ) : (
@@ -1016,7 +1025,7 @@ export default function AdatDayak(profile: TemplateProps) {
                                 className="tpl-gift__copy-btn"
                                 onClick={() => copy(account.account_number || "")}
                               >
-                                Salin Nomor Rekening
+                                {t("copyAccount", lang)}
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tpl-gift__copy-icon" aria-hidden="true">
                                   <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
                                   <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -1034,9 +1043,7 @@ export default function AdatDayak(profile: TemplateProps) {
                           </svg>
                           <p className="tpl-gift__address-label">{t("sendGift", lang)}</p>
                           <p className="tpl-gift__address-text">{giftAddress}</p>
-                          <button type="button" className="tpl-gift__copy-btn" onClick={() => copy(giftAddress)}>
-                            Salin Alamat
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tpl-gift__copy-icon" aria-hidden="true">
+                          <button type="button" className="tpl-gift__copy-btn" onClick={() => copy(giftAddress)}>{t("copyAddress", lang)}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tpl-gift__copy-icon" aria-hidden="true">
                               <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
                               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
                             </svg>
@@ -1050,7 +1057,7 @@ export default function AdatDayak(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="rsvp-wishes-section parallax-section" data-aos="fade-up" aria-label="Wishes">
+          <section className="rsvp-wishes-section parallax-section" data-aos="fade-up" aria-label={tc.wishes_title || t("secWishes", lang)}>
             <h2 className="script garden-text-reveal" data-aos="fade-down">
               Wishes
             </h2>
@@ -1089,7 +1096,7 @@ export default function AdatDayak(profile: TemplateProps) {
                             href={href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label={`WhatsApp ${contact.name || "kontak"}`}
+                            aria-label={`WhatsApp ${contact.name || (lang === "en" ? "contact" : "kontak")}`}
                           >
                             <WhatsAppIcon />
                             WhatsApp
@@ -1103,13 +1110,13 @@ export default function AdatDayak(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="thank-you-section" data-aos="fade-up" aria-label="Terima Kasih">
+          <section className="thank-you-section" data-aos="fade-up" aria-label={t("thankYou", lang)}>
             <img className="closing-photo" src={closingPhoto} alt={coupleLabel} />
             <div className="closing-shade" />
             <div className="closing-copy" data-aos="fade-up">
               <div className="closing-message garden-text-reveal" data-aos="fade-up">
                 <p>{closingMessage}</p>
-                <strong>Dengan penuh hormat dan syukur,</strong>
+                <strong>{t("withRespectAndGratitude", lang)}</strong>
                 <p className="script closing-names name-fit" style={fitStyle(coupleLabel)}>
                   {groomShort} &amp; {brideShort}
                 </p>
@@ -1119,9 +1126,9 @@ export default function AdatDayak(profile: TemplateProps) {
                   <span className="tpl-footer__badge">
                     <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="tpl-footer__logo" draggable={false} />
                   </span>
-                  <span className="tpl-footer__cta">Undangan Pernikahan oleh Aksaraa</span>
+                  <span className="tpl-footer__cta">{t("weddingInvitationByAksaraa", lang)}</span>
                 </a>
-                <p className="tpl-footer__text">© {new Date().getFullYear()} {coupleLabel}. Digital Wedding Invitation.</p>
+                <p className="tpl-footer__text">© {new Date().getFullYear()} {coupleLabel}. {t("digitalWeddingInvitation", lang)}</p>
                 <div className="tpl-footer__socials">
                   <a href={waHref} target="_blank" rel="noopener noreferrer" className="tpl-footer__social" aria-label="WhatsApp Aksaraa Wedding">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -1143,23 +1150,23 @@ export default function AdatDayak(profile: TemplateProps) {
       </div>
 
       {lightbox !== null && photos[lightbox] && (
-        <div className="adat-dayak-lightbox" role="dialog" aria-modal="true" aria-label="Galeri foto">
-          <button type="button" className="adat-dayak-lightbox__close" aria-label="Tutup galeri" onClick={() => setLightbox(null)}>
+        <div className="adat-dayak-lightbox" role="dialog" aria-modal="true" aria-label={t("photoGallery", lang)}>
+          <button type="button" className="adat-dayak-lightbox__close" aria-label={t("closeGallery", lang)} onClick={() => setLightbox(null)}>
             ×
           </button>
           <button
             type="button"
             className="adat-dayak-lightbox__nav adat-dayak-lightbox__nav--prev"
-            aria-label="Foto sebelumnya"
+            aria-label={t("prevPhoto", lang)}
             onClick={() => setLightbox((value) => (value === null ? value : (value - 1 + photos.length) % photos.length))}
           >
             ‹
           </button>
-          <img src={photos[lightbox]} alt={`${coupleLabel} photo ${lightbox + 1}`} />
+          <img src={photos[lightbox]} alt={lang === "en" ? `${coupleLabel} photo ${lightbox + 1}` : `Foto ${coupleLabel} ${lightbox + 1}`} />
           <button
             type="button"
             className="adat-dayak-lightbox__nav adat-dayak-lightbox__nav--next"
-            aria-label="Foto berikutnya"
+            aria-label={t("nextPhoto", lang)}
             onClick={() => setLightbox((value) => (value === null ? value : (value + 1) % photos.length))}
           >
             ›
@@ -1181,6 +1188,7 @@ export default function AdatDayak(profile: TemplateProps) {
           guestName={guestName}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
+          language={profile.language}
           guestQrUrl={profile.guest_qr_url}
           guestTableNumber={profile.guest_table_number}
           guestRsvpStatus={profile.guest_rsvp_status}

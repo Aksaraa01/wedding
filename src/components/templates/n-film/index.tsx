@@ -773,7 +773,7 @@ export default function NFilm(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="nf-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightbox(null)}>
-          <button type="button" className="nf-close" aria-label="Close" onClick={() => setLightbox(null)}>
+          <button type="button" className="nf-close" aria-label={t("close", lang)} onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
@@ -808,7 +808,7 @@ export default function NFilm(profile: TemplateProps) {
 
       {videoOpen && film && (
         <div className="nf-modal" role="dialog" aria-modal="true" aria-label="The film" onClick={() => setVideoOpen(false)}>
-          <button type="button" className="nf-close" aria-label="Close" onClick={() => setVideoOpen(false)}>
+          <button type="button" className="nf-close" aria-label={t("close", lang)} onClick={() => setVideoOpen(false)}>
             ×
           </button>
           <div className="nf-modal__box" onClick={(event) => event.stopPropagation()}>
@@ -847,6 +847,7 @@ export default function NFilm(profile: TemplateProps) {
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="center"
+                  language={profile.language}
         />
       )}
     </div>

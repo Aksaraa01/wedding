@@ -19,11 +19,15 @@ import Wishes from "./Wishes"
 import "./boarding-pass.css"
 import { normalizeLanguage, t } from "@/lib/i18n"
 
-const DEFAULT_OPENING_TITLE = "Salam Hangat"
-const DEFAULT_OPENING_DESCRIPTION =
-  "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk ikut serta dalam perjalanan paling berarti bagi kami: hari pernikahan kami."
-const DEFAULT_CLOSING =
-  "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami."
+const DEFAULT_OPENING_TITLE = { id: "Salam Hangat", en: "Warm Greetings" } as const
+const DEFAULT_OPENING_DESCRIPTION = {
+  id: "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk ikut serta dalam perjalanan paling berarti bagi kami: hari pernikahan kami.",
+  en: "With gratitude and blessings, we invite you to be part of the most meaningful journey of our lives: our wedding day.",
+} as const
+const DEFAULT_CLOSING = {
+  id: "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
+  en: "It would be our joy to have you with us and to receive your prayers and blessings. Thank you for being part of our journey.",
+} as const
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
@@ -87,7 +91,7 @@ type Reveal = "fade" | "up" | "zoom"
 const IN = (kind: Reveal, delay = 0): Record<string, string> =>
   delay > 0 ? { "data-bp-reveal": kind, "data-bp-delay": `${delay}s` } : { "data-bp-reveal": kind }
 
-function Clock({ target, reveal }: { target: Date | null; reveal?: Record<string, string> }) {
+function Clock({ target, reveal, lang = "id" as "id" | "en" }: { target: Date | null; reveal?: Record<string, string>; lang?: "id" | "en" }) {
   const [now, setNow] = useState<number | null>(null)
   useEffect(() => {
     if (!target) return
@@ -98,14 +102,14 @@ function Clock({ target, reveal }: { target: Date | null; reveal?: Record<string
 
   const diff = target && now !== null ? Math.max(0, target.getTime() - now) : 0
   const units = [
-    { value: pad2(Math.floor(diff / 86400000)), label: "Days" },
-    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: "Hours" },
-    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: "Minutes" },
-    { value: pad2(Math.floor((diff % 60000) / 1000)), label: "Seconds" },
+    { value: pad2(Math.floor(diff / 86400000)), label: t("days", lang) },
+    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: t("hours", lang) },
+    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: t("minutes", lang) },
+    { value: pad2(Math.floor((diff % 60000) / 1000)), label: t("seconds", lang) },
   ]
 
   return (
-    <div className="bp-flaps" aria-label="Hitung mundur menuju hari bahagia" {...reveal}>
+    <div className="bp-flaps" aria-label={t("countdown", lang)} {...reveal}>
       {units.map((unit) => (
         <div className="bp-flap" key={unit.label}>
           <span className="bp-flap__digits">{target ? unit.value : "--"}</span>
@@ -183,7 +187,7 @@ export default function BoardingPass(profile: TemplateProps) {
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
   const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
-  const guestName = (profile.guest_name || "").trim() || "Tamu Undangan"
+  const guestName = (profile.guest_name || "").trim() || t("guestHonored", lang)
   const dateShort = shortDate(profile.estimated_wedding_date)
   const dateLong = longDate(profile.estimated_wedding_date)
   const firstSession = events[0]
@@ -191,14 +195,14 @@ export default function BoardingPass(profile: TemplateProps) {
   const yearShort = String(parseDate(profile.estimated_wedding_date)?.getFullYear() || "").slice(-2)
   const ticketCode = (tc.cover_kicker || "").trim() || `${initials} ${yearShort} · 01A`.trim()
 
-  const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE
+  const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE[lang]
   // The reference prints a kicker ("Salam Hangat") and then the couple's own
   // greeting. When the couple has not set one, the default would repeat the
   // kicker, so it is skipped instead of printed twice.
-  const greetingLine = openingTitle && openingTitle !== "Salam Hangat" ? openingTitle : ""
-  const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION
+  const greetingLine = openingTitle && openingTitle !== DEFAULT_OPENING_TITLE[lang] ? openingTitle : ""
+  const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION[lang]
   const hasQuote = !!((profile.quote_text || "").trim())
-  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING[lang]
   const galleryIntro = (tc.gallery_intro || "").trim() || "oleh-oleh dari perjalanan kami"
   const giftIntroTitle = (tc.gift_intro_title || "").trim() || "Tanda Kasih"
   const giftIntro = (tc.gift_intro_description || "").trim()
@@ -322,14 +326,14 @@ export default function BoardingPass(profile: TemplateProps) {
 
   const copy = useCallback(
     (value: string, label: string) => {
-      const done = () => showToast(`${label} disalin`)
+      const done = () => showToast(lang === "en" ? `${label} copied` : `${label} disalin`)
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(done, () => showToast("Gagal menyalin. Silakan salin manual."))
+        navigator.clipboard.writeText(value).then(done, () => showToast(t("failedToCopy", lang)))
         return
       }
-      showToast("Penyalinan tidak tersedia di peramban ini")
+      showToast(t("failedToCopy", lang))
     },
-    [showToast]
+    [showToast, lang]
   )
 
   const rootStyle = {
@@ -369,7 +373,7 @@ export default function BoardingPass(profile: TemplateProps) {
       <div className="bp-col">
       {/* 1 — cover: the couple's photograph, a wash, and one boarding pass. */}
       {!opened && (
-        <section className="bp-cover" data-section="sampul" aria-label="Buka undangan">
+        <section className="bp-cover" data-section="sampul" aria-label={t("openInvitation", lang)}>
           {coverStill && <img className="bp-cover__photo" src={coverStill} alt="" aria-hidden="true" />}
           <span className="bp-cover__wash" aria-hidden="true" />
 
@@ -633,7 +637,7 @@ export default function BoardingPass(profile: TemplateProps) {
             <div className="bp-board" {...IN("up")}>
               <p className="bp-board__label" {...IN("fade", 0.08)}>Papan Keberangkatan</p>
               <h2 className="bp-board__title" {...IN("up", 0.12)}>{t("secCountdown", lang)}</h2>
-              <Clock target={countdown} reveal={IN("up", 0.18)} />
+              <Clock target={countdown} reveal={IN("up", 0.18)} lang={lang} />
               <div className="bp-board__meta">
                 <div>
                   <p className="bp-board__metaLabel" {...IN("fade", 0.22)}>Tujuan</p>
@@ -753,7 +757,7 @@ export default function BoardingPass(profile: TemplateProps) {
               <h2 className="bp-title" {...IN("up", 0.06)}>Film Kami</h2>
             </div>
             <div className="bp-film" {...IN("up", 0.18)}>
-              <button type="button" className="bp-film__plate" onClick={() => setVideoOpen(true)} aria-label="Putar film">
+              <button type="button" className="bp-film__plate" onClick={() => setVideoOpen(true)} aria-label={lang === "en" ? "Play film" : "Putar film"}>
                 {heroStill && <img src={heroStill} alt="" loading="lazy" />}
                 <span className="bp-film__stamp" aria-hidden="true">
                   <svg viewBox="0 0 16 16" fill="currentColor">
@@ -810,7 +814,7 @@ export default function BoardingPass(profile: TemplateProps) {
                     <p className="bp-account__no">
                       <span>{account.account_number}</span>
                       {account.account_number && (
-                        <button type="button" className="bp-copy" onClick={() => copy(account.account_number || "", "Nomor rekening")}>
+                        <button type="button" className="bp-copy" onClick={() => copy(account.account_number || "", lang === "en" ? "Account number" : "Nomor rekening")}>
                           Salin
                         </button>
                       )}
@@ -825,7 +829,7 @@ export default function BoardingPass(profile: TemplateProps) {
               <div className="bp-address" {...IN("fade", 0.22)}>
                 {profile.gift_address_name && <p className="bp-address__name">{profile.gift_address_name}</p>}
                 <p className="bp-address__text">{giftAddress}</p>
-                <button type="button" className="bp-copy" style={{ marginTop: 10 }} onClick={() => copy(giftAddress, "Alamat")}>
+                <button type="button" className="bp-copy" style={{ marginTop: 10 }} onClick={() => copy(giftAddress, lang === "en" ? "Address" : "Alamat")}>
                   Salin alamat
                 </button>
               </div>
@@ -941,7 +945,7 @@ export default function BoardingPass(profile: TemplateProps) {
           type="button"
           className={`bp-music ${playing ? "is-on" : "is-off"}`}
           onClick={toggleMusic}
-          aria-label={playing ? "Jeda musik" : "Putar musik"}
+          aria-label={playing ? t("pauseMusic", lang) : t("playMusic", lang)}
           aria-pressed={playing}
         >
           <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -951,15 +955,15 @@ export default function BoardingPass(profile: TemplateProps) {
       )}
 
       {lightbox !== null && gallery[lightbox] && (
-        <div className="bp-lightbox" role="dialog" aria-modal="true" aria-label="Penampil foto" onClick={() => setLightbox(null)}>
-          <button type="button" className="bp-close" aria-label="Tutup" onClick={() => setLightbox(null)}>
+        <div className="bp-lightbox" role="dialog" aria-modal="true" aria-label={t("photoViewer", lang)} onClick={() => setLightbox(null)}>
+          <button type="button" className="bp-close" aria-label={t("closeViewer", lang)} onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
             <button
               type="button"
               className="bp-nav bp-nav--prev"
-              aria-label="Foto sebelumnya"
+              aria-label={t("previousPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(-1)
@@ -973,7 +977,7 @@ export default function BoardingPass(profile: TemplateProps) {
             <button
               type="button"
               className="bp-nav bp-nav--next"
-              aria-label="Foto berikutnya"
+              aria-label={t("nextPhoto", lang)}
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(1)
@@ -986,8 +990,8 @@ export default function BoardingPass(profile: TemplateProps) {
       )}
 
       {videoOpen && film && (
-        <div className="bp-modal" role="dialog" aria-modal="true" aria-label="Film kami" onClick={() => setVideoOpen(false)}>
-          <button type="button" className="bp-close" aria-label="Tutup" onClick={() => setVideoOpen(false)}>
+        <div className="bp-modal" role="dialog" aria-modal="true" aria-label={lang === "en" ? "Our film" : "Film kami"} onClick={() => setVideoOpen(false)}>
+          <button type="button" className="bp-close" aria-label={t("closeViewer", lang)} onClick={() => setVideoOpen(false)}>
             ×
           </button>
           <div className="bp-modal__box" onClick={(event) => event.stopPropagation()}>
@@ -996,7 +1000,7 @@ export default function BoardingPass(profile: TemplateProps) {
             ) : (
               <iframe
                 src={film.src}
-                title="Film pernikahan"
+                title={lang === "en" ? "Wedding film" : "Film pernikahan"}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
@@ -1025,6 +1029,7 @@ export default function BoardingPass(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
+          language={profile.language}
           anchor="center"
         />
       )}

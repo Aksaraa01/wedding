@@ -161,15 +161,15 @@ export default function Evermore(profile: TemplateProps) {
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
-  const coverKicker = tc.cover_kicker || "Dua Insan Ini\nAkan Menikah"
-  const profilesIntro = tc.profiles_intro || "Dua hati, satu playlist, dan nol kesepakatan soal mau makan apa."
-  const storyIntro = tc.story_intro || "Dari pertemuan tak sengaja hingga seumur hidup saling memilih."
-  const galleryIntro = tc.gallery_intro || "Beberapa bingkai yang telah kami lalui bersama, tersimpan seperti foto lama di album keluarga."
-  const galleryQuote = tc.gallery_quote || "Di antara sapaan pertama dan setiap hari esok, kami menemukan selamanya."
-  const giftIntroTitle = tc.gift_intro_title || "Hadiah Pernikahan"
-  const giftIntroDescription = tc.gift_intro_description || "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya dapat ditemukan di bawah ini."
-  const wishesIntro = tc.wishes_intro || "Tinggalkan beberapa harapan dan doa untuk kedua mempelai."
-  const closingMessage = tc.closing_message || "Merupakan suatu kehormatan dapat berbagi hari ini dengan Anda, dan terus menulis kisah kami dikelilingi orang-orang yang kami cintai."
+  const coverKicker = tc.cover_kicker || (lang === "en" ? "Two Hearts\nBecoming One" : "Dua Insan Ini\nAkan Menikah")
+  const profilesIntro = tc.profiles_intro || (lang === "en" ? "Two hearts, one playlist, and zero agreement on what to eat." : "Dua hati, satu playlist, dan nol kesepakatan soal mau makan apa.")
+  const storyIntro = tc.story_intro || (lang === "en" ? "From a chance meeting to a lifetime of choosing each other." : "Dari pertemuan tak sengaja hingga seumur hidup saling memilih.")
+  const galleryIntro = tc.gallery_intro || (lang === "en" ? "A few frames we've shared together, kept like old photos in a family album." : "Beberapa bingkai yang telah kami lalui bersama, tersimpan seperti foto lama di album keluarga.")
+  const galleryQuote = tc.gallery_quote || (lang === "en" ? "Between the first hello and every tomorrow, we found forever." : "Di antara sapaan pertama dan setiap hari esok, kami menemukan selamanya.")
+  const giftIntroTitle = tc.gift_intro_title || t("secGift", lang)
+  const giftIntroDescription = tc.gift_intro_description || (lang === "en" ? "Your presence is the greatest gift. If you wish to send a gift, details can be found below." : "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya dapat ditemukan di bawah ini.")
+  const wishesIntro = tc.wishes_intro || (lang === "en" ? "Leave your wishes and prayers for the couple." : "Tinggalkan beberapa harapan dan doa untuk kedua mempelai.")
+  const closingMessage = tc.closing_message || (lang === "en" ? "It is an honor to share this day with you, and to keep writing our story surrounded by the people we love." : "Merupakan suatu kehormatan dapat berbagi hari ini dengan Anda, dan terus menulis kisah kami dikelilingi orang-orang yang kami cintai.")
   const displayName = profile.display_name || `#${`${groomShort}${brideShort}`.replace(/\s+/g, "") || "OurWedding"}`
   const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const storyFallbacks = [
@@ -282,9 +282,9 @@ export default function Evermore(profile: TemplateProps) {
   const copy = useCallback(async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      showToast("Copied")
+      showToast(t("copiedToClipboard", lang))
     } catch {
-      showToast("Could not copy")
+      showToast(t("failedToCopy", lang))
     }
   }, [showToast])
 
@@ -376,7 +376,7 @@ export default function Evermore(profile: TemplateProps) {
               </section>
               <button className="open-button" type="button" onClick={openInvitation}>
                 <span className="envelope" aria-hidden="true" />
-                <span>Open Invitation</span>
+                <span>{t("openInvitation", lang)}</span>
               </button>
             </div>
           </section>
@@ -402,7 +402,7 @@ export default function Evermore(profile: TemplateProps) {
 
           <section className="profiles" aria-label="Bride and groom">
             <header className="profiles-intro">
-              <h2>Bride &amp; Groom</h2>
+              <h2>{tc.mempelai_kicker || t("secCouple", lang)}</h2>
               <p>{profilesIntro}</p>
             </header>
             <article className="profile-card profile-card-groom">
@@ -445,7 +445,7 @@ export default function Evermore(profile: TemplateProps) {
           {hasStory && (
             <section className="love-story" aria-labelledby="love-story-title">
               <header className="love-story-intro">
-                <h2 id="love-story-title">Love Story</h2>
+                <h2 id="love-story-title">{tc.love_story_title || t("secStory", lang)}</h2>
                 <p>{storyIntro}</p>
               </header>
               <div className="love-story-layout">
@@ -487,15 +487,15 @@ export default function Evermore(profile: TemplateProps) {
               </ol>
               <span className="countdown-dday">D-day</span>
             </div>
-            <div className="countdown-heading"><h2 id="countdown-title">Counting Down To Forever</h2></div>
+            <div className="countdown-heading"><h2 id="countdown-title">{tc.countdown_title || t("secCountdown", lang)}</h2></div>
             <div className="countdown-timer" aria-live="polite">
               <span className="evermore-ornament countdown-sparkle countdown-sparkle-left" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("four-point-sparkles.svg")) } as CSSProperties} />
               <span className="evermore-ornament countdown-sparkle countdown-sparkle-right" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("four-point-sparkles.svg")) } as CSSProperties} />
               <div className="countdown-time-grid">
-                <div className="countdown-time-part"><span>{countdown?.d ?? "00"}</span><small>Days</small></div>
-                <div className="countdown-time-part"><span>{countdown?.h ?? "00"}</span><small>Hours</small></div>
-                <div className="countdown-time-part"><span>{countdown?.m ?? "00"}</span><small>Minutes</small></div>
-                <div className="countdown-time-part"><span>{countdown?.s ?? "00"}</span><small>Seconds</small></div>
+                <div className="countdown-time-part"><span>{countdown?.d ?? "00"}</span><small>{t("days", lang)}</small></div>
+                <div className="countdown-time-part"><span>{countdown?.h ?? "00"}</span><small>{t("hours", lang)}</small></div>
+                <div className="countdown-time-part"><span>{countdown?.m ?? "00"}</span><small>{t("minutes", lang)}</small></div>
+                <div className="countdown-time-part"><span>{countdown?.s ?? "00"}</span><small>{t("seconds", lang)}</small></div>
               </div>
             </div>
             {calendarUrl && (
@@ -547,7 +547,7 @@ export default function Evermore(profile: TemplateProps) {
               ))}
               {hasLivestream && (
                 <article className="event-block event-streaming">
-                  <h2>{profile.livestream?.title || "Join Us Online"}</h2>
+                  <h2>{tc.livestream_title || profile.livestream?.title || t("secLivestream", lang)}</h2>
                   <p className="event-streaming-copy">{profile.livestream?.description || "Can't make it in person? Join the live stream and celebrate this lovely day with us from wherever you are."}</p>
                   <a className="event-button" href={profile.livestream!.url} target="_blank" rel="noopener noreferrer">
                     <span className="event-button-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m10 9 5 3-5 3V9Z" /></svg></span>
@@ -563,7 +563,7 @@ export default function Evermore(profile: TemplateProps) {
           {hasDresscode && (
             <section className="dress-code" aria-labelledby="dress-code-title">
               <header className="dress-code-intro">
-                <h2 id="dress-code-title">{profile.dresscode?.title || "Dress Code"}</h2>
+                <h2 id="dress-code-title">{tc.dresscode_title || profile.dresscode?.title || t("secDresscode", lang)}</h2>
                 {dressDescription && <p>{dressDescription}</p>}
               </header>
               <div className="dress-code-swatches" role="list" aria-label="Dress code colors">
@@ -580,7 +580,7 @@ export default function Evermore(profile: TemplateProps) {
               <header className="gallery-intro">
                 <span className="evermore-ornament gallery-title-sparkle gallery-title-sparkle-left" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("four-point-sparkles.svg")) } as CSSProperties} />
                 <span className="evermore-ornament gallery-title-sparkle gallery-title-sparkle-right" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("four-point-sparkles.svg")) } as CSSProperties} />
-                <h2 id="gallery-title">Captured Moments</h2>
+                <h2 id="gallery-title">{tc.gallery_title || t("secGallery", lang)}</h2>
                 <p>{galleryIntro}</p>
               </header>
               {galleryItems.length > 0 && (
@@ -615,7 +615,7 @@ export default function Evermore(profile: TemplateProps) {
                 <div className="gallery-video-card">
                   <span className="gallery-video-cover" style={{ backgroundImage: cssUrl(videoPoster) }} aria-hidden="true" />
                   <span className="gallery-video-play" aria-hidden="true"><span /></span>
-                  <button className="gallery-video-hitarea" type="button" aria-label="Play video with sound" onClick={() => setVideoOpen(true)} />
+                  <button className="gallery-video-hitarea" type="button" aria-label={lang === "en" ? "Play video with sound" : "Putar video dengan suara"} onClick={() => setVideoOpen(true)} />
                 </div>
               )}
             </section>
@@ -623,7 +623,7 @@ export default function Evermore(profile: TemplateProps) {
 
           <section className="rsvp" aria-labelledby="rsvp-title">
             <header className="rsvp-intro">
-              <h2 id="rsvp-title">Wishes &amp; Prayers</h2>
+              <h2 id="rsvp-title">{tc.wishes_title || t("secWishes", lang)}</h2>
               <p>{wishesIntro}</p>
             </header>
             <Wishes
@@ -767,6 +767,7 @@ export default function Evermore(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
+          language={lang}
         />
       )}
     </div>

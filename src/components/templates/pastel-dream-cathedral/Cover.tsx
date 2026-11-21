@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../shared/Skin"
 import { formatLongDate } from "../shared/lib"
 import ImpastoAtmosphere, { IM_ATMOSPHERE_CSS, ImpastoFlowers } from "./Atmosphere"
@@ -12,13 +13,16 @@ export default function ImpastoCover({
   guest_name,
   estimated_wedding_date,
   onOpen,
+  language,
 }: {
   groom_name?: string
   bride_name?: string
   guest_name?: string
   estimated_wedding_date?: string | null
   onOpen: () => void
+  language?: string
 }) {
+  const lang = normalizeLanguage(language)
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -54,25 +58,25 @@ export default function ImpastoCover({
               style={{ background: "radial-gradient(circle, rgba(255,244,220,0.55) 0%, rgba(255,244,220,0.18) 45%, transparent 70%)" }}
             />
             <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6)" }}>
-              THE WEDDING OF
+              {t("theWeddingOf", lang).toUpperCase()}
             </h2>
             <h1 className="relative text-[3.4rem] leading-[1.08] py-1 px-2" style={{ ...FONT_SCRIPT, color: "#FFFFFF", textShadow: "0 2px 6px rgba(74,52,39,0.45), 0 1px 2px rgba(74,52,39,0.35)" }}>
-              <span className="block">{groom_name || "Mempelai"} &amp;</span>
-              <span className="block">{bride_name || "Mempelai"}</span>
+              <span className="block">{groom_name || (lang === "en" ? "Groom" : "Mempelai")} &amp;</span>
+              <span className="block">{bride_name || (lang === "en" ? "Bride" : "Mempelai")}</span>
             </h1>
           </div>
           <p className="text-[0.88rem] tracking-[0.26em] font-semibold uppercase mt-1.5 text-[#F8F5EE]" style={{ ...FONT_DISPLAY, textShadow: "0 1px 3px rgba(0,0,0,0.9), 0 0 12px rgba(242,202,80,0.35)" }}>
-            {formatLongDate(estimated_wedding_date) || "Segera Hadir"}
+            {formatLongDate(estimated_wedding_date) || (lang === "en" ? "Coming Soon" : "Segera Hadir")}
           </p>
         </div>
 
         <div className="w-full max-w-md flex flex-col items-center gap-3 z-20 pb-9 shrink-0">
           <div className="text-center">
             <p className="italic text-[#f2ca50] text-[1.05rem] tracking-[0.06em] mb-1" style={{ ...FONT_DISPLAY, textShadow: "0 1px 2px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.7)" }}>
-              Kepada Yth. Bapak/Ibu/Saudara/i
+              {lang === "en" ? "Dear Mr./Mrs./Ms." : "Kepada Yth. Bapak/Ibu/Saudara/i"}
             </p>
             <h3 className="font-semibold text-[#FFFDF8] text-[1.4rem] tracking-[0.14em] uppercase" style={{ ...FONT_DISPLAY, textShadow: "0 2px 4px rgba(0,0,0,0.9), 0 4px 12px rgba(0,0,0,0.8)" }}>
-              {guest_name || "Tamu Undangan"}
+              {guest_name || t("honoredGuest", lang)}
             </h3>
           </div>
           <button
@@ -90,7 +94,7 @@ export default function ImpastoCover({
             }}
           >
             <span className="material-symbols-outlined text-[18px]">mail</span>
-            <span className="pt-0.5 font-semibold">BUKA UNDANGAN</span>
+            <span className="pt-0.5 font-semibold">{t("openInvitation", lang).toUpperCase()}</span>
           </button>
         </div>
       </div>

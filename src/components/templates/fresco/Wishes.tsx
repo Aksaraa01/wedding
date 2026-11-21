@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
+import { normalizeLanguage } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -55,11 +56,11 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso?: string): string {
+function wishAgo(iso?: string, lang: "id" | "en" = "id"): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "Just now"
+  if (minutes < 1) return lang === "en" ? "Just now" : "Baru saja"
   if (minutes < 60) return `${minutes} min ago`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `${hours} h ago`
@@ -68,6 +69,7 @@ function wishAgo(iso?: string): string {
 }
 
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy , language = "id"}: Props) {
+  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -205,7 +207,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
 
         <button type="submit" className="fr-submit" disabled={status === "sending" || !message.trim()}>
           {status === "sending" ? (
-            "Sending…"
+            lang === "en" ? "Sending…" : "Mengirim…"
           ) : (
             <>
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -237,7 +239,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
             <p className="fr-wish__text">{wish.message}</p>
             <p className="fr-wish__meta">
               <span className="fr-wish__name">{wish.name || "Tamu Undangan"}</span>
-              <span>{wishAgo(wish.created_at)}</span>
+              <span>{wishAgo(wish.created_at, lang)}</span>
             </p>
           </article>
         ))}

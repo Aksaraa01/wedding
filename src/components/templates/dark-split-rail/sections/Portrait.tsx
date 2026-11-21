@@ -1,6 +1,7 @@
 "use client"
 
 import { toTransformedUrl } from "@/lib/storageUrl"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_BODY } from "../fonts"
 import Section, { SectionHeading } from "../Section"
 import VideoPlayer from "../VideoPlayer"
@@ -8,16 +9,18 @@ import VideoPlayer from "../VideoPlayer"
 type Props = {
   videoEmbed?: string
   photos: string[]
+  language?: string
 }
 
-export default function Portrait({ videoEmbed, photos }: Props) {
+export default function Portrait({ videoEmbed, photos, language }: Props) {
+  const lang = normalizeLanguage(language)
   const gallery = photos.filter(Boolean)
   if (!videoEmbed && gallery.length === 0) return null
 
   return (
     <Section id="portrait" className="bg-black/[0.06]">
       <div className="text-center text-white">
-        <SectionHeading>Portrait of Us</SectionHeading>
+        <SectionHeading>{lang === "en" ? "Portrait of Us" : "Potret Kami"}</SectionHeading>
 
         {videoEmbed && (
           <div className="mt-6">
@@ -42,7 +45,7 @@ export default function Portrait({ videoEmbed, photos }: Props) {
         )}
 
         <p className="mt-4 text-[12px] text-white/60" style={FONT_BODY}>
-          {gallery.length} Kenangan
+          {gallery.length} {lang === "en" ? "Memories" : "Kenangan"}
         </p>
       </div>
     </Section>

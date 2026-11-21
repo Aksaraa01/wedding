@@ -555,7 +555,7 @@ export default function Sandhya(profile: TemplateProps) {
                   <rect x="2.5" y="5.5" width="19" height="13" rx="1.5" />
                   <path d="M3 6.5l9 7 9-7" />
                 </svg>
-                <span>Open Invitation</span>
+                <span>{t("openInvitation", lang)}</span>
               </button>
             </footer>
           </div>
@@ -686,7 +686,7 @@ export default function Sandhya(profile: TemplateProps) {
             <div className="scene__bg"><div className="scene__zoom">{bgDress && <img src={bgDress} alt="" decoding="async" />}</div></div>
             <div className="scene__veil scene__veil--top" />
             <div className="scene__content dresscode">
-              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>Dress Code</h3>
+              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>{tc.dresscode_title || t("secDresscode", lang)}</h3>
               {dressDescription && (
                 <p className="dresscode__desc serif-i reveal" style={{ "--d": ".65s" } as React.CSSProperties}>{dressDescription}</p>
               )}
@@ -713,15 +713,15 @@ export default function Sandhya(profile: TemplateProps) {
           <div className="scene__veil scene__veil--deep" />
           <div className="finale__scroll" id="sandhyaFinaleScroll" ref={finaleScrollRef}>
             <div className="finale__hero">
-              <h2 className="display finale__std reveal">Counting the Days</h2>
+              <h2 className="display finale__std reveal">{tc.countdown_title || t("secCountdown", lang)}</h2>
               <div className="countdown reveal">
-                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>Days</span></div>
+                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>{t("days", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>Hours</span></div>
+                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>{t("hours", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>Minutes</span></div>
+                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>{t("minutes", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>Seconds</span></div>
+                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>{t("seconds", lang)}</span></div>
               </div>
               {calUrl && (
                 <a className="btn-open finale__cal reveal" href={calUrl} target="_blank" rel="noopener noreferrer">
@@ -743,7 +743,7 @@ export default function Sandhya(profile: TemplateProps) {
 
               {stories.length > 0 && (
                 <section className="sheet__section sheet__section--story" data-io>
-                  <h3 className="display story__heading">Love Story</h3>
+                  <h3 className="display story__heading">{tc.love_story_title || t("secStory", lang)}</h3>
                   <div className="chapters">
                     {stories.map((s, i) => (
                       <article key={i} className={`chapter${i % 2 === 1 ? " chapter--alt" : ""}`}>
@@ -859,7 +859,7 @@ export default function Sandhya(profile: TemplateProps) {
 
               {honored.length > 0 && (
                 <section className="sheet__section sheet__section--honored" data-io>
-                  <h3 className="display story__heading">With Honour</h3>
+                  <h3 className="display story__heading">{tc.inviting_title || t("secInviting", lang)}</h3>
                   <div className="honored__grid">
                     <div className="honored__col">
                       <ul className="honored__names">
@@ -999,6 +999,7 @@ export default function Sandhya(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
+          language={lang}
         />
       )}
     </div>

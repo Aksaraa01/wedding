@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
-import type { TemplateProps } from "@/types/template"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { initialsGlyphs, monogramFontSize } from "../shared/lib"
 
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
@@ -33,13 +33,16 @@ export default function SkylineCover({
   guest_name,
   couple_initials,
   onOpen,
+  language,
 }: {
   groom_name?: string
   bride_name?: string
   guest_name?: string
   couple_initials?: string
   onOpen: () => void
+  language?: string
 }) {
+  const lang = normalizeLanguage(language)
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -82,14 +85,14 @@ export default function SkylineCover({
             className="text-[11px] sm:text-[13px] uppercase tracking-[0.35em] text-transparent bg-clip-text bg-gradient-to-r from-[#bdc8d1] via-[#dee2f6] to-[#bdc8d1] mb-4"
             style={BODY}
           >
-            The Wedding Of
+            {t("theWeddingOf", lang)}
           </p>
           <h1 className="text-4xl md:text-5xl leading-tight tracking-tight" style={DISPLAY}>
-            <span className="block">{groom_name || "Mempelai Pria"}</span>
+            <span className="block">{groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")}</span>
             <span className="block my-1 font-normal italic text-[#ffc640] text-transparent bg-clip-text bg-gradient-to-r from-[#ffdf9f] via-[#ffc640] to-[#e3aa00]" style={DISPLAY}>
               &amp;
             </span>
-            <span className="block">{bride_name || "Mempelai Wanita"}</span>
+            <span className="block">{bride_name || (lang === "en" ? "The Bride" : "Mempelai Wanita")}</span>
           </h1>
         </div>
 
@@ -97,10 +100,10 @@ export default function SkylineCover({
         <div className="w-full max-w-md flex flex-col items-center gap-3 z-20 pb-4">
           <div className="text-center">
             <p className="text-[10px] uppercase tracking-[0.25em] text-[#bdc8d1]/80 mb-1" style={BODY}>
-              Kepada Yth. Bapak/Ibu/Saudara/i
+              {lang === "en" ? "Dear Mr./Mrs./Ms." : "Kepada Yth. Bapak/Ibu/Saudara/i"}
             </p>
             <p className="text-base text-[#dee2f6] font-semibold tracking-wide" style={DISPLAY}>
-              {guest_name || "Tamu Undangan"}
+              {guest_name || t("honoredGuest", lang)}
             </p>
           </div>
           <button
@@ -113,7 +116,7 @@ export default function SkylineCover({
               <span className="material-symbols-outlined text-[16px]">mail</span>
             </span>
             <span className="text-sm font-semibold tracking-wide text-[#dee2f6] group-hover:text-[#c4e7ff] transition-colors">
-              Buka Undangan
+              {t("openInvitation", lang)}
             </span>
             <span className="material-symbols-outlined text-[#8ed5ff] text-[18px] group-hover:translate-x-1 transition-transform duration-300">
               arrow_forward

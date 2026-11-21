@@ -14,11 +14,13 @@ type Props = {
   address?: string
   addressName?: string
   intro: string
-  lang: "EN" | "ID"
+  lang?: "EN" | "ID" | "id" | "en"
+  language?: "id" | "en" | string
   onCopy: (text: string) => void
 }
 
-export default function Gift({ accounts, address, addressName, intro, lang, onCopy }: Props) {
+export default function Gift({ accounts, address, addressName, intro, lang: langProp, language, onCopy }: Props) {
+  const lang = ((): "id"|"en" => { const v = (language || langProp || "id").toString().toLowerCase(); return v === "en" ? "en" : "id" })()
   const [tab, setTab] = useState<"angpao" | "registry">(accounts.length > 0 ? "angpao" : "registry")
   const hasRegistry = !!address
 
@@ -42,7 +44,7 @@ export default function Gift({ accounts, address, addressName, intro, lang, onCo
           className={tab === "registry" ? "is-active" : ""}
           onClick={() => setTab("registry")}
         >
-          {lang === "ID" ? "Daftar Hadiah" : "Gift Registry"}
+          {lang === "id" ? "Daftar Hadiah" : "Gift Registry"}
         </button>
       </div>
 
@@ -50,7 +52,7 @@ export default function Gift({ accounts, address, addressName, intro, lang, onCo
         <div className="aj-gift__panel">
           {accounts.length === 0 && (
             <p className="aj-gift__empty">
-              {lang === "ID" ? "Belum ada rekening yang ditambahkan." : "No accounts have been added yet."}
+              {lang === "id" ? "Belum ada rekening yang ditambahkan." : "No accounts have been added yet."}
             </p>
           )}
           {accounts.map((account, i) => (
@@ -64,7 +66,7 @@ export default function Gift({ accounts, address, addressName, intro, lang, onCo
                 onClick={() => onCopy(account.account_number || "")}
                 disabled={!account.account_number}
               >
-                {lang === "ID" ? "Salin Nomor" : "Copy Number"}
+                {lang === "id" ? "Salin Nomor" : "Copy Number"}
               </button>
             </article>
           ))}
@@ -75,16 +77,16 @@ export default function Gift({ accounts, address, addressName, intro, lang, onCo
         <div className="aj-gift__panel">
           {hasRegistry ? (
             <article className="aj-gift__address">
-              <p className="aj-gift__bank">{lang === "ID" ? "Kirim Hadiah" : "Send a Gift"}</p>
+              <p className="aj-gift__bank">{lang === "id" ? "Kirim Hadiah" : "Send a Gift"}</p>
               <p className="aj-gift__addr-text">{address}</p>
               {addressName && <p className="aj-gift__holder">{addressName}</p>}
               <button type="button" className="aj-gift__copy" onClick={() => onCopy(address || "")}>
-                {lang === "ID" ? "Salin Alamat" : "Copy Address"}
+                {lang === "id" ? "Salin Alamat" : "Copy Address"}
               </button>
             </article>
           ) : (
             <p className="aj-gift__empty">
-              {lang === "ID" ? "Alamat pengiriman hadiah belum ditambahkan." : "No gift address has been added yet."}
+              {lang === "id" ? "Alamat pengiriman hadiah belum ditambahkan." : "No gift address has been added yet."}
             </p>
           )}
         </div>

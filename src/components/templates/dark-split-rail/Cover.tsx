@@ -10,7 +10,7 @@ type Props = {
   dateShort?: string
   objectPosition?: string
   onOpen: () => void
-  language?: "id" | "en"
+  language?: string
 }
 
 export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, objectPosition = "50% 50%", onOpen, language = "id" }: Props) {
@@ -29,7 +29,7 @@ export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, obj
 
       <div className="relative flex h-full flex-col items-center justify-center px-8 text-center text-white">
         <p className="text-[13px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-          The Wedding Of
+          {t("theWeddingOf", lang)}
         </p>
         <h1 className="mt-4 text-[34px] leading-tight" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
           {coupleLabel}
@@ -42,10 +42,10 @@ export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, obj
 
         <div className="mt-10">
           <p className="text-[13px] text-white/80" style={{ ...FONT_BODY, letterSpacing: "1.5px" }}>
-            Kepada Yth.
+            {lang === "en" ? "Dear," : "Kepada Yth."}
           </p>
           <p className="mt-1 text-[17px]" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
-            {guestName || "Tamu Undangan"}
+            {guestName || t("honoredGuest", lang)}
           </p>
         </div>
 

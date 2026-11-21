@@ -448,8 +448,8 @@ export default function NiharaMist(profile: TemplateProps) {
   }, [])
 
   const copy = useCallback(async (text: string) => {
-    showToast((await copyPlainText(text)) ? "Nomor berhasil disalin" : "Gagal menyalin nomor")
-  }, [showToast])
+    showToast((await copyPlainText(text)) ? t("copiedToClipboard", lang) : t("failedToCopy", lang))
+  }, [showToast, lang])
 
   const isActive = (name: SceneName) => scene === name
   const isLeaving = (name: SceneName) => leavingScene === name
@@ -918,7 +918,7 @@ export default function NiharaMist(profile: TemplateProps) {
             guestId={profile.guest_id}
             guestSlug={profile.guest_slug}
             allowFlexibleRsvp={profile.guest_link_strict === false}
-            guestName={profile.guest_name || "Tamu Undangan"}
+            guestName={profile.guest_name || t("honoredGuest", lang)}
             coupleName={coupleLabel}
             weddingProfileId={profile.wedding_profile_id!}
             guestQrUrl={profile.guest_qr_url}
@@ -928,6 +928,7 @@ export default function NiharaMist(profile: TemplateProps) {
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={profile.feature_gates?.qr_code_book === true}
             anchor="center"
+            language={lang}
           />
         )}
 
@@ -936,13 +937,13 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium tabular-nums text-white" onClick={(e) => e.stopPropagation()}>
               {lightbox + 1} / {gallery.length}
             </div>
-            <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label="Tutup">✕</button>
+            <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label={t("close", lang)}>✕</button>
             {gallery.length > 1 && (
-              <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label="Sebelumnya">‹</button>
+              <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label={lang === "en" ? "Previous" : "Sebelumnya"}>‹</button>
             )}
             <img src={gallery[lightbox]} alt="" draggable={false} className="max-h-[90vh] max-w-[95vw] select-none rounded-md object-contain" onClick={(e) => e.stopPropagation()} />
             {gallery.length > 1 && (
-              <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label="Berikutnya">›</button>
+              <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label={lang === "en" ? "Next" : "Berikutnya"}>›</button>
             )}
           </div>
         )}
@@ -962,7 +963,7 @@ export default function NiharaMist(profile: TemplateProps) {
               type="button"
               className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
               onClick={() => setVideoModal(false)}
-              aria-label="Tutup"
+              aria-label={t("close", lang)}
             >✕</button>
           </div>
         )}

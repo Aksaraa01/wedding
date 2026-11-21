@@ -26,9 +26,7 @@ import "./swan-garden.css"
 import "./overrides.css"
 import { normalizeLanguage, t } from "@/lib/i18n"
 
-const GUEST_FALLBACK = "Tamu Undangan"
-
-const COPY = {
+const COPY_EN = {
   cover_kicker: "Wedding Invitation",
   open_button: "Open Invitation",
   mempelai_title: "The Wedding Of",
@@ -68,6 +66,46 @@ const COPY = {
   live_description: "Join our ceremony from wherever you are.",
 } as const
 
+const COPY_ID: Record<keyof typeof COPY_EN, string> = {
+  cover_kicker: "Undangan Pernikahan",
+  open_button: "Buka Undangan",
+  mempelai_title: "Pernikahan",
+  mempelai_intro: "Dengan hormat kami mengundang Anda untuk merayakan pernikahan kami",
+  countdown_title: "Simpan Tanggal",
+  save_date_label: "Simpan ke Kalender",
+  events_title: "Hari Pernikahan",
+  maps_label: "Lihat Lokasi",
+  dresscode_title: "Dresscode",
+  dresscode_note: "Kami mohon tamu hadir dengan pakaian yang selaras dengan warna pernikahan kami.",
+  rundown_title: "Susunan Acara",
+  rundown_event_title: "Resepsi",
+  inviting_title: "Turut Mengundang",
+  inviting_intro: "Bersama keluarga yang mewujudkan hari ini.",
+  live_title: "Siaran Langsung",
+  live_button: "Buka Tautan",
+  gallery_title: "Potret Kami",
+  video_title: "Video Kami",
+  video_intro: "Film singkat dari hari-hari sebelum pernikahan.",
+  video_caption: "Film",
+  story_title: "Kisah Kami",
+  gift_title: "Hadiah Pernikahan",
+  gift_intro:
+    "Doa restu dan kehadiran Anda sudah lebih dari cukup bagi kami. Namun jika ingin memberi hadiah, kami menyediakan amplop digital untuk memudahkan Anda. Terima kasih.",
+  gift_address_title: "Kirim Hadiah",
+  copy_label: "Salin",
+  copied_label: "Tersalin",
+  wishes_title: "Ucapan & Doa",
+  wishes_intro: "Tinggalkan ucapan atau doa untuk kami.",
+  wishes_name_placeholder: "Nama",
+  wishes_message_placeholder: "Tulis ucapan Anda",
+  wishes_submit: "Kirim",
+  wishes_empty: "Jadilah yang pertama mengirim ucapan.",
+  closing_title: "Terima Kasih",
+  closing_message:
+    "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari bahagia kami. Kami sangat bersyukur memiliki Anda dalam hidup kami dan merasa terhormat Anda dapat hadir bersama kami.",
+  live_description: "Ikuti upacara kami dari mana pun Anda berada.",
+}
+
 function youtubeId(url?: string): string {
   if (!url) return ""
   const m =
@@ -92,7 +130,8 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
   const extras = (profile.template_content || {}) as Record<string, string>
   // A blank EKSTRA field must fall back to the design's own copy: a real
   // invitation should never show a bare heading where a sentence belongs.
-  const copy = (key: keyof typeof COPY) => ((extras[key] || "").trim() || COPY[key]) as string
+  const defaults = lang === "en" ? COPY_EN : COPY_ID
+  const copy = (key: keyof typeof COPY_EN) => ((extras[key] || "").trim() || defaults[key]) as string
 
   const [opened, setOpened] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
@@ -103,7 +142,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
   const bride = profile.bride_name || profile.bride_full_name || ""
   const coupleLabel = [groom, bride].filter(Boolean).join(" & ") || "The Couple"
   const guestName = (profile.guest_name || "").trim()
-  const guestLabel = `Dear, ${guestName || GUEST_FALLBACK}`
+  const guestLabel = lang === "en" ? `Dear, ${guestName || "Guest"}` : `Kepada Yth. ${guestName || "Tamu Undangan"}`
   const hashtag = prettyHashtag(profile.display_name)
   const coverSlots = Array.isArray(profile.cover_photos) ? profile.cover_photos : []
   const coverPhoto = firstImage(coverSlots[0])
@@ -291,7 +330,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             onPhoto={openLightbox}
           />
           {target ? (
-            <SaveDate target={target} calendarUrl={calendarUrl} title={copy("countdown_title")} addLabel={copy("save_date_label")} />
+            <SaveDate target={target} calendarUrl={calendarUrl} title={copy("countdown_title")} addLabel={copy("save_date_label")} lang={lang} />
           ) : null}
           <Agenda
             profile={profile}
@@ -301,6 +340,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             dressNote={copy("dresscode_note")}
             showDresscode={profile.dresscode_visible !== false && Boolean((profile.dresscode?.colors || []).length || profile.dresscode?.title)}
             dressIcons={{ man: "", woman: "" }}
+            lang={lang}
           />
           <Rundown
             items={profile.rundown || []}
@@ -355,7 +395,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             namePlaceholder={copy("wishes_name_placeholder")}
             messagePlaceholder={copy("wishes_message_placeholder")}
             submitLabel={copy("wishes_submit")}
-            emptyLabel={copy("wishes_empty")} language={profile.language}
+            emptyLabel={copy("wishes_empty")} language={lang}
           />
           <Closing title={copy("closing_title")} message={copy("closing_message")} />
           <Footnote coupleLabel={coupleLabel} kicker={copy("cover_kicker")} hashtag={hashtag} />
@@ -419,7 +459,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || GUEST_FALLBACK}
+          guestName={profile.guest_name || (lang === "en" ? "Guest" : "Tamu Undangan")}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -429,6 +469,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="center"
+          language={lang}
         />
       ) : null}
     </div>

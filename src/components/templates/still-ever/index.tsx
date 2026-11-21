@@ -31,11 +31,14 @@ const ART_HERO = A("hero-1.webp")
 const ART_STORY = A("hero-2.webp")
 const ART_CLOSING = A("hero-3.webp")
 
-const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-]
+const WEEKDAYS = {
+  id: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
+  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+}
+const MONTHS = {
+  id: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+}
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
 function parseDate(value?: string | null): Date | null {
@@ -46,15 +49,15 @@ function parseDate(value?: string | null): Date | null {
   return isNaN(d.getTime()) ? null : d
 }
 
-function dateBlockOf(value?: string | null) {
+function dateBlockOf(value: string | null | undefined, lang: "id" | "en") {
   const d = parseDate(value)
   if (!d) return null
   return {
     day: pad2(d.getDate()),
-    weekday: WEEKDAYS[d.getDay()],
-    month: MONTHS[d.getMonth()],
+    weekday: WEEKDAYS[lang][d.getDay()],
+    month: MONTHS[lang][d.getMonth()],
     year: String(d.getFullYear()),
-    full: `${WEEKDAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`,
+    full: `${WEEKDAYS[lang][d.getDay()]}, ${d.getDate()} ${MONTHS[lang][d.getMonth()]} ${d.getFullYear()}`,
   }
 }
 
@@ -80,14 +83,14 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 // The seconds tick lives in its own component: re-rendering it must not
 // reconcile the whole invitation tree, which otherwise drops a frame every
 // second — including in the middle of the envelope flip.
-function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplateProps["sessions"] }) {
+function CountdownClock({ iso, sessions, lang }: { iso?: string; sessions?: TemplateProps["sessions"]; lang: "id" | "en" }) {
   const countdown = useCountdown(iso, sessions)
   return (
-    <div className="se-clock" aria-label="Wedding countdown">
-      <div><strong>{countdown?.d ?? "00"}</strong><span>Days</span></div>
-      <div><strong>{countdown?.h ?? "00"}</strong><span>Hours</span></div>
-      <div><strong>{countdown?.m ?? "00"}</strong><span>Minutes</span></div>
-      <div><strong>{countdown?.s ?? "00"}</strong><span>Seconds</span></div>
+    <div className="se-clock" aria-label={t("countdown", lang)}>
+      <div><strong>{countdown?.d ?? "00"}</strong><span>{t("days", lang)}</span></div>
+      <div><strong>{countdown?.h ?? "00"}</strong><span>{t("hours", lang)}</span></div>
+      <div><strong>{countdown?.m ?? "00"}</strong><span>{t("minutes", lang)}</span></div>
+      <div><strong>{countdown?.s ?? "00"}</strong><span>{t("seconds", lang)}</span></div>
     </div>
   )
 }
@@ -154,7 +157,7 @@ export default function StillEver(profile: TemplateProps) {
   const youtubeId = isYouTubeEmbed ? videoEmbed.split("/").filter(Boolean).pop() || "" : ""
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!videoEmbed
 
-  const dateBlock = dateBlockOf(profile.estimated_wedding_date)
+  const dateBlock = dateBlockOf(profile.estimated_wedding_date, lang)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -522,7 +525,7 @@ export default function StillEver(profile: TemplateProps) {
                 </span>
               </div>
               <hr className="se-hr" />
-              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} />
+              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="se-pill se-countdown__cta" href={calendarUrl} target="_blank" rel="noreferrer">
                   Save the date
@@ -543,7 +546,7 @@ export default function StillEver(profile: TemplateProps) {
 
               <div className="se-events__list">
                 {events.map((event, index) => {
-                  const block = dateBlockOf(event.date) || dateBlock
+                  const block = dateBlockOf(event.date, lang) || dateBlock
                   const mapsUrl =
                     event.maps_url ||
                     (event.venue || event.address
@@ -659,7 +662,7 @@ export default function StillEver(profile: TemplateProps) {
           <section className="se-section se-stream" data-section="livestream">
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
-                <p className="se-eyebrow">Live Stream</p>
+                <p className="se-eyebrow">{t("secLivestream", lang)}</p>
                 <h2 className="se-display se-heading">Join From Anywhere</h2>
               </header>
 
@@ -953,6 +956,7 @@ export default function StillEver(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={88}
+                  language={profile.language}
         />
       )}
 

@@ -193,7 +193,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
             guestId={profile.guest_id}
             guestSlug={profile.guest_slug}
             allowFlexibleRsvp={profile.guest_link_strict === false}
-            guestName={profile.guest_name || "Tamu Undangan"}
+            guestName={profile.guest_name || t("honoredGuest", lang)}
             coupleName={coupleLabel}
             weddingProfileId={profile.wedding_profile_id!}
             guestQrUrl={profile.guest_qr_url}
@@ -203,6 +203,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={profile.feature_gates?.qr_code_book === true}
             anchor="center"
+            language={lang}
           />
         )}
 
