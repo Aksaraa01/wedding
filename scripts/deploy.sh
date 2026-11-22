@@ -316,10 +316,9 @@ if echo "$MIG_CHECK" | grep -q '^WARN'; then
 fi
 
 # The pre-deploy guard ran before the copy. A push that lands during the sync
-# makes this build stale (it would leave the server running older code than
-# origin/main). Re-check under the lock before switching the server over.
-step "Re-verify origin/main did not move during the sync"
-if ! node scripts/predeploy-guard.mjs --sync-only; then
+# makes this build stale. Re-check under the lock before switching the server over.
+step "Re-verify origin/${GUARD_BRANCH} did not move during the sync"
+if ! node scripts/predeploy-guard.mjs --sync-only --branch "$GUARD_BRANCH"; then
   echo "✗ Another agent pushed to origin/main while this build was syncing."
   echo "  This build is stale — restoring the previous bundle instead of switching to it."
   rollback
