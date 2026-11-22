@@ -464,8 +464,8 @@ output, then restart PM2 — all handled by `npm run deploy`.
 git add -A && git commit -m "feat: describe_change"
 git push origin main
 git fetch origin && git status -sb        # HEAD must be exactly origin/main
-set -a; source .env.build.prod; set +a   # NEXT_PUBLIC_* only; never source .env.local
-npm run build:env -- --env prod
+cp /path/to/repo/.env.runtime.prod .      # service role + DB password (600)
+npm run build:env -- --env prod           # self-loads .env.build.prod + .env.runtime.prod
 npm run deploy -- --target prod --branch prod
 ```
 
@@ -578,6 +578,14 @@ Notes:
   The guard reads `origin/main:releases/ledger.jsonl` (`--ledger-ref`); a
   verification is only visible to the gate after it is **committed and pushed to
   `main`**. `release:verify` writes the file, it does not commit it.
+- **Schema gate:** `build:env` runs `npm run check:schema -- --env <env>` first and
+  **refuses** when the target database is missing a migration from
+  `supabase/migrations/`. This exists because prod was missing
+  `20261121000001_wedding_profile_language` while staging had it: the editor's
+  API selected `wedding_profiles.language`, PostgREST answered 42703, the route
+  surfaced "Profile not found", and every template smoke test still passed.
+  `--skip-schema-check` is emergency-only. Credentials come from
+  `.env.runtime.<env>` (ref/dbHost live in `env/contract.mjs`).
 - **Build prerequisite:** `SUPABASE_SERVICE_ROLE_KEY` must be exported even though
   it is server-only — `src/lib/supabase.ts` calls `createClient()` at module scope,
   so `next build` fails with `supabaseKey is required` without it. It comes from

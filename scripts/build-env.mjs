@@ -144,6 +144,17 @@ if (existsSync(".env.local") && !args.includes("--allow-env-local")) {
 }
 if (existsSync(".env.local")) console.warn("! --allow-env-local: .env.local may override your build env")
 
+// ---------- 4c. the target database must have every migration ----------
+// A migration that is merged but not applied ships code that selects a column
+// the database does not have. PostgREST answers 42703, routes turn it into 404,
+// and the template smoke test still passes (2026-11-23 editor incident).
+if (args.includes("--skip-schema-check")) {
+  console.warn("! --skip-schema-check: database drift is NOT being checked")
+} else {
+  console.log(`\n▸ schema check (${target})\n`)
+  execSync(`node scripts/check-schema.mjs --env ${target}`, { stdio: "inherit" })
+}
+
 // ---------- 5. build ----------
 console.log(`\n▸ next build (${target})\n`)
 execSync("npx next build", { stdio: "inherit" })
