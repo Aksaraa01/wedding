@@ -97,6 +97,33 @@ Two install/upgrade traps on this repo:
   git command with `DEVELOPER_DIR=/Library/Developer/CommandLineTools`
   (e.g. `DEVELOPER_DIR=/Library/Developer/CommandLineTools git status`).
 
+### Credentials — never in git (HARD RULE)
+
+Secrets must never enter the repository, its history, commit messages, issues, or chat.
+This is not advisory: `.env.local.prod` and `.env.local.bak-2026-11-02-2327` were
+committed in 2026 (service-role key, DB password, `WP_INTERNAL_SECRET`,
+`CLOUDFLARE_API_TOKEN`) and had to be rewritten out of **all** history on
+2026-11-22 with `git filter-repo` + force-push of every branch and tag. Assume any
+secret that ever appeared in git is compromised: **rotate it**, then purge.
+
+- **Allowed in git:** `.env.example` only — key names, never values.
+- **Never commit:** `.env*` (except `.env.example`), `*.pem`, `*.key`, service-role
+  keys, DB passwords, JWTs, PATs (`ghp_`, `github_pat_`), Cloudflare tokens,
+  `WP_INTERNAL_SECRET`, `SCANNER_JWT_SECRET`, `AUTH_SESSION_SECRET`, `CRON_SECRET`,
+  `HEALTH_TOKEN`, `OPENROUTER_API_KEY`.
+- **Where secrets live:** local `.env.development.local` (dev), `.env.build.<env>`
+  (build-time `NEXT_PUBLIC_*`), `.env.runtime.<env>` (server secrets), `.env.ops`
+  (management tokens, never sourced for build/deploy); on the host
+  `/var/www/<app>/.env.production` (chmod 600, loaded by PM2 `--env-file`).
+- **Enforcement:** `npm run tree:doctor` (also run by `scripts/predeploy-guard.mjs`)
+  fails when a tracked `.env*` file or a secret-shaped string is found, and
+  `build:env` refuses `.env.local` and unknown `NEXT_PUBLIC_*`.
+- **Incident order:** rotate the credential at the provider → update the env files
+  → rebuild/redeploy → only then rewrite history. Rewriting first leaves a live
+  key in old clones, forks, and backups.
+- Never paste a PAT/token into chat or code; if one is exposed, revoke it in
+  GitHub and let Keychain hold the replacement.
+
 ### WordPress Integration (Live WP as Source of Truth)
 WP hosts the Elementor template masters. Each couple gets a **duplicate** of the master (post + linked popups) that is patched with their data via the mu-plugin REST API.
 
