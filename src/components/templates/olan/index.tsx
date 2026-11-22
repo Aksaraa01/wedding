@@ -28,8 +28,11 @@ const GUEST_FALLBACK_EN = "Guest"
 const DRESSCODE_DEFAULT_INTRO = "Elegant attire in warm earth tones — please reserve white for the couple."
 
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 const EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const ID_MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
 const EN_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const ID_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
@@ -46,27 +49,29 @@ function ordinal(n: number): string {
   return n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th"
 }
 
-// "January 04th, 2025" — the reference's cover date.
-function longDate(value?: string | null): { day: string; month: string; year: string; ord: string } | null {
+// EN: "January 04th, 2025" (reference). ID: "04 Januari 2025" (no ordinal).
+function longDate(value?: string | null, lang: "id" | "en" = "id"): { day: string; month: string; year: string; ord: string } | null {
   const d = parseDate(value)
   if (!d) return null
+  const isEn = lang === "en"
   return {
     day: pad2(d.getDate()),
-    month: EN_MONTHS[d.getMonth()],
+    month: (isEn ? EN_MONTHS : ID_MONTHS)[d.getMonth()],
     year: String(d.getFullYear()),
-    ord: ordinal(d.getDate()),
+    ord: isEn ? ordinal(d.getDate()) : "",
   }
 }
 
-function shortDate(value?: string | null): { day: string; month: string; year: string; ord: string; weekday: string } | null {
+function shortDate(value?: string | null, lang: "id" | "en" = "id"): { day: string; month: string; year: string; ord: string; weekday: string } | null {
   const d = parseDate(value)
   if (!d) return null
+  const isEn = lang === "en"
   return {
     day: pad2(d.getDate()),
-    month: EN_MONTHS_SHORT[d.getMonth()],
+    month: (isEn ? EN_MONTHS_SHORT : ID_MONTHS_SHORT)[d.getMonth()],
     year: String(d.getFullYear()),
-    ord: ordinal(d.getDate()),
-    weekday: EN_DAYS[d.getDay()],
+    ord: isEn ? ordinal(d.getDate()) : "",
+    weekday: (isEn ? EN_DAYS : ID_DAYS)[d.getDay()],
   }
 }
 
@@ -159,7 +164,7 @@ export default function Olan(profile: TemplateProps) {
   // watch-with-sound copy of the same clip.
   const gateFilm = gates.video !== false && profile.video_section_visible !== false ? videoSource(profile.video_url) : null
 
-  const date = longDate(profile.estimated_wedding_date || sessions[0]?.date)
+  const date = longDate(profile.estimated_wedding_date || sessions[0]?.date, lang)
   const target = useMemo(() => countdownTarget(sessions, profile.estimated_wedding_date), [sessions, profile.estimated_wedding_date])
   const calendar = gcalLink(sessions[0], groomName, brideName)
 
@@ -376,8 +381,7 @@ export default function Olan(profile: TemplateProps) {
                   </h1>
                   {date ? (
                     <p className="date" data-aos="fade-up" data-aos-duration="3000" data-aos-delay="1000">
-                      {date.month} {date.day}
-                      <sup>{date.ord}</sup>, {date.year}
+                      {date.month} {date.day}{date.ord ? <sup>{date.ord}</sup> : null}, {date.year}
                     </p>
                   ) : null}
                 </div>
@@ -811,7 +815,7 @@ export default function Olan(profile: TemplateProps) {
                 </div>
                 <div className="agenda-body">
                   {sessions.map((session, index) => {
-                    const sd = shortDate(session.date)
+                    const sd = shortDate(session.date, lang)
                     return (
                       <div className="event-item" key={`${session.name || "event"}-${index}`}>
                         {sd ? (
@@ -820,8 +824,7 @@ export default function Olan(profile: TemplateProps) {
                               {sd.weekday}
                             </h3>
                             <h2 className="event-date" data-aos="fade-up" data-aos-duration="1000">
-                              {sd.month} {sd.day}
-                              <sup>{sd.ord}</sup>, {sd.year}
+                              {sd.month} {sd.day}{sd.ord ? <sup>{sd.ord}</sup> : null}, {sd.year}
                             </h2>
                           </div>
                         ) : null}
@@ -907,11 +910,11 @@ export default function Olan(profile: TemplateProps) {
               <h2 className="olan-inviting__title" data-aos="zoom-in" data-aos-duration="1200">
                 {content.inviting_title || t("secInviting", lang)}
               </h2>
-              {content.inviting_intro ? (
-                <p className="olan-inviting__intro" data-aos="fade-up" data-aos-duration="1000">
-                  {content.inviting_intro}
-                </p>
-              ) : null}
+              <p className="olan-inviting__intro" data-aos="fade-up" data-aos-duration="1000">
+                {content.inviting_intro || (lang === "en"
+                  ? "We also present the families who extend this invitation alongside us."
+                  : "Dengan hormat, kami turut mengundang keluarga besar yang telah mendampingi perjalanan kami.")}
+              </p>
               <ul className="olan-inviting__list">
                 {honored.map((family, i) => (
                   <li key={`${family}-${i}`} data-aos="fade-up" data-aos-duration="1000" data-aos-delay={i * 60}>
@@ -1303,7 +1306,7 @@ export default function Olan(profile: TemplateProps) {
                 {date ? (
                   <p className="date" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
                     {date.month} {date.day}
-                    <sup>{date.ord}</sup>, {date.year}
+                    {date.ord ? <sup>{date.ord}</sup> : null}, {date.year}
                   </p>
                 ) : null}
                 {profile.display_name ? (

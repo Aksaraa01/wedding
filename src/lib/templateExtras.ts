@@ -1910,6 +1910,8 @@ const EXTRA_SECTION_LABEL_ID: Record<string, string> = {
 }
 
 const EXTRA_LABEL_EN: Record<string, string> = {
+  inviting_intro: "Inviting Introduction",
+  inviting_title: "Inviting Title",
   contacts_title: "Contact Title",
   closing_message: "Closing Message",
   wishes_intro: "Wishes Introduction",
@@ -1966,6 +1968,8 @@ const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
   "Account Name": "Nama Pemilik Rekening",
   "Account number copied": "Nomor rekening disalin",
   "Address copied": "Alamat disalin",
+  "We also present the families who extend this invitation alongside us.": "Dengan hormat, kami turut mengundang keluarga besar yang telah mendampingi perjalanan kami.",
+  "Together with the families who make this day possible.": "Bersama keluarga yang membuat hari ini terwujud.",
 }
 
 const EXTRA_LABEL_EN_RE: Array<[RegExp, string]> = [
