@@ -83,6 +83,16 @@ Two install/upgrade traps on this repo:
 - Raw `&` inside a pasted `?to=` is repaired in `guestToFromParams()` (`src/lib/guest-slug.ts`), called by `/w/[slug]`: the query parser splits "?to=Sindy Sihombing&/Partner" into `to` plus an empty-valued fake param, and those fragments are rejoined with `&` before resolution. `src/proxy.ts` cannot do it — Caddy rewrites subdomains to `/w/{slug}` before Next sees them, so the proxy's host branch never runs in production.
 - WP guestbook/RSVP (WeddingPress comment-kit/kit2) validates the author with `/^[^?%$=\/]{1,30}$/` and answers “Mohon maaf! Khusus untuk tamu undangan”. The mu-plugin's `wp_footer` script fills the field with `aksaraa_clean_guest_name()` (`/` → ` & `, drops `? % $ =`); keep the PHP and JS rules in sync (`&` is allowed by WP, so it is left alone).
 
+### Repository visibility & rulesets
+- The repo is **public** (`Aksaraa01/wedding`). Public visibility is what makes
+  rulesets free; a paid Team plan is no longer needed for them.
+- Active rulesets: `prod` (deletion, force-push, linear history) and `main`
+  (deletion, force-push). Both allow **direct pushes** (no PR requirement), so
+  the release train (`release:pick` -> `git push origin prod`) keeps working.
+- Because the repo is public, `AGENTS.md`, `docs/`, the ledger and the commit
+  history are world-readable. Never add a credential, internal token, or private
+  customer data here — see "Credentials — never in git" above.
+
 ### Git
 - Commit directly to `origin main`
 - No PR workflow
