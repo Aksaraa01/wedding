@@ -63,7 +63,7 @@ Two install/upgrade traps on this repo:
 - Prod subdomain pattern: `{slug}.wedding.aksaraa.com` → `/w/{slug}`. Staging B1 uses path mode; `coupleUrl()` handles this via env (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SITE_ENV`/`APP_ENV`, `NEXT_PUBLIC_COUPLE_URL_MODE`, optional `NEXT_PUBLIC_COUPLE_APEX_DOMAIN`).
 - Node.js 22 via nvm (`/home/askaraa/.nvm/versions/node/v22.23.2/bin/node`)
 - Standalone output: `.next/standalone/server.js` + `.next/standalone/.next/static/` + `.next/standalone/public/`
-- PM2 env vars must be injected via ecosystem config (`.env.local` not loaded in standalone mode)
+- PM2 env: the server `.env.production` (chmod 600) is loaded with `node_args: ["--env-file=…/.env.production"]`; `.env.local` is NOT loaded in standalone mode. The versioned templates are `ecosystem.prod.config.cjs` / `ecosystem.staging.config.cjs`.
 
 ### Supabase Storage
 - Bucket: `media`, folder prefix: `seeded/`
