@@ -544,6 +544,35 @@ Notes:
 - Status: `npm run release:status`. Drain WP queue explicitly only when needed: `npm run release:drain -- --env prod --profile <id> --dry-run`.
 - Rollback: restore snapshot or redeploy previous verified release; also revert `prod` so branch == live. Migrations are expand/contract; never drop a column in the same release that stops using it.
 
+#### Release operations — the details that bite
+
+- **Ledger location:** `releases/ledger.jsonl` on **`main`** (not on `prod`).
+  The guard reads `origin/main:releases/ledger.jsonl` (`--ledger-ref`); a
+  verification is only visible to the gate after it is **committed and pushed to
+  `main`**. `release:verify` writes the file, it does not commit it.
+- **Build prerequisite:** `SUPABASE_SERVICE_ROLE_KEY` must be exported even though
+  it is server-only — `src/lib/supabase.ts` calls `createClient()` at module scope,
+  so `next build` fails with `supabaseKey is required` without it. It comes from
+  `.env.runtime.<env>` / `.env.local.prod`, never from `.env.build.<env>`.
+- **Database access:** prod pooler is
+  `aws-0-ap-northeast-1.pooler.supabase.com`; staging is
+  **`aws-1-ap-south-1.pooler.supabase.com`** (`aws-0` answers
+  `tenant/user … not found`). Rotate a DB password with
+  `PATCH /v1/projects/{ref}/database/password` (`SUPABASE_ACCESS_TOKEN` from
+  `.env.ops`); the app itself uses the service-role key, so no restart is needed.
+- **Rulesets:** `prod` requires **linear history** — never merge `main` into
+  `prod`; cherry-pick (`release:pick`) or the push is rejected. Both `main` and
+  `prod` block force-push and deletion.
+- **Runtime health:** `curl -H "X-Health-Token: $HEALTH_TOKEN"   http://127.0.0.1:3002/api/health/env` (on the host; 3003 for staging) proves the
+  running process's env/commit/anon fingerprint. `HEALTH_TOKEN` falls back to
+  `CRON_SECRET` then `WP_INTERNAL_SECRET`.
+- **WP worker env:** `WP_QUEUE_CONCURRENCY` (default 6), `WP_POLL_MS` (800),
+  `WP_RECLAIM_ON_BOOT=false` only if the app is ever scaled beyond one instance
+  (boot reclaim assumes a single process).
+- **Ops tokens:** `.env.ops` is for management APIs/psql only. Never source it
+  before `build:env` or `deploy` — `build:env` rejects unknown `NEXT_PUBLIC_*`,
+  but a stray secret in the shell is still avoidable.
+
 #### Manual recovery only
 `npm run deploy` already reloads PM2. Use these by hand only when recovering:
 ```bash
