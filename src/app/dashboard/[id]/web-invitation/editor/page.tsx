@@ -626,6 +626,7 @@ function EditorInner({ id }: { id: string }) {
 
   // Manual preview update: flush pending save + sync to WP, then refresh the iframe.
   const handleUpdatePreview = useCallback(async () => {
+    setShowMobileBar(false)
     setSaveStatus("saving")
     setUpdatingPreview(true)
     setSyncError(null)
