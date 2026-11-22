@@ -59,22 +59,51 @@ const ok = (msg) => console.log(`✓ ${msg}`)
 if (!allowStale) {
   try {
     execSync("git fetch origin --quiet", { stdio: "ignore", env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" } })
+    // A tag/commit build skips the branch comparison: the tag is immutable and
+    // `--commit` pins exactly which tree must be in the working directory.
+    const commitIdx2 = args.indexOf("--commit")
+    const expectCommit = commitIdx2 >= 0 ? args[commitIdx2 + 1] : null
+    if (expectCommit) {
+      const want = execSync(`git rev-parse ${expectCommit}^{commit}`, {
+        encoding: "utf8",
+        env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
+      }).trim()
+      const headFull = execSync("git rev-parse HEAD", {
+        encoding: "utf8",
+        env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
+      }).trim()
+      if (want !== headFull) {
+        fail(`working tree is at ${headFull.slice(0, 7)} but --commit ${expectCommit} is ${want.slice(0, 7)}.\n  Build from that ref: git worktree add --detach /tmp/build ${expectCommit}`)
+      }
+      ok(`tree matches --commit ${expectCommit} (${headFull.slice(0, 7)})`)
+    } else {
     const upstream = `origin/${expectBranch}`
     const behind = execSync(`git rev-list --count HEAD..${upstream}`, {
       encoding: "utf8",
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
-    if (Number(behind) > 0) {
-      fail(
-        `local HEAD is ${behind} commit(s) behind ${upstream}.\n` +
-          `  A deploy from this tree would overwrite newer work (this is what wiped adat-jawa-2).\n` +
-          `  Run: git pull --rebase origin ${expectBranch}   (or pass --allow-stale if intentional)`,
-      )
-    }
     const ahead = execSync(`git rev-list --count ${upstream}..HEAD`, {
       encoding: "utf8",
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
+    if (Number(behind) > 0) {
+      // "Behind" is an ancestry count, not a timeline: a cherry-picked branch
+      // always has commits the other line does not. Say that, with the numbers,
+      // and point at the fix instead of a misleading "git pull --rebase".
+      const hint =
+        expectBranch === "prod"
+          ? `  A prod deploy must be built from ${upstream}. Promote first:\n` +
+            `    - cherry-pick model: git switch prod && npm run release:pick -- <sha>\n` +
+            `    - trunk model: tag the verified main commit (npm run release:tag) and build that tag\n` +
+            `  Never build prod from main: NEXT_PUBLIC_* is baked per environment.`
+          : `  Run: git pull --rebase origin ${expectBranch}   (or pass --allow-stale if intentional)`
+      fail(
+        `HEAD is not ${upstream}.\n` +
+          `  diverged: HEAD-only ${ahead} commit(s), ${upstream}-only ${behind} commit(s).\n` +
+          `  "${behind} behind" means ${upstream} contains ${behind} commit(s) this build does not.\n` +
+          hint,
+      )
+    }
     if (!allowAhead && Number(ahead) > 0) {
       fail(
         `local HEAD is ${ahead} commit(s) ahead of ${upstream}.\n` +
@@ -87,6 +116,7 @@ if (!allowStale) {
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
     ok(`tree in sync with ${upstream} (HEAD ${head})`)
+    }
   } catch (e) {
     if (String(e.message).includes("PREDEPLOY")) throw e
     console.warn("! could not verify git sync (git unavailable) — continuing")

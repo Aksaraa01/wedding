@@ -37,6 +37,7 @@ SKIP_GUARD=0; NO_ROLLBACK=0
 GUARD_REF=""
 GUARD_SITE_URL=""
 GUARD_BRANCH="${GUARD_BRANCH:-}"
+GUARD_COMMIT=""
 SMOKE_BASE=""
 
 args=("$@")
@@ -54,6 +55,8 @@ while [ $i -lt ${#args[@]} ]; do
       i=$((i + 1)); GUARD_SITE_URL="${args[$i]:-}" ;;
     --branch)
       i=$((i + 1)); GUARD_BRANCH="${args[$i]:-}" ;;
+    --commit)
+      i=$((i + 1)); GUARD_COMMIT="${args[$i]:-}" ;;
     --base)
       i=$((i + 1)); SMOKE_BASE="${args[$i]:-}" ;;
   esac
@@ -98,6 +101,7 @@ trap cleanup_lock EXIT
 if [ "$SKIP_GUARD" = "0" ]; then
   step "Pre-deploy guard"
   guard_args=(--target "$TARGET" --branch "$GUARD_BRANCH" --ref "$GUARD_REF")
+  [ -n "$GUARD_COMMIT" ] && guard_args+=(--commit "$GUARD_COMMIT")
   [ -n "$GUARD_SITE_URL" ] && guard_args+=(--site-url "$GUARD_SITE_URL")
   node scripts/predeploy-guard.mjs "${guard_args[@]}"
 fi
@@ -322,7 +326,7 @@ fi
 # The pre-deploy guard ran before the copy. A push that lands during the sync
 # makes this build stale. Re-check under the lock before switching the server over.
 step "Re-verify origin/${GUARD_BRANCH} did not move during the sync"
-if ! node scripts/predeploy-guard.mjs --sync-only --branch "$GUARD_BRANCH"; then
+if ! node scripts/predeploy-guard.mjs --sync-only --branch "$GUARD_BRANCH" ${GUARD_COMMIT:+--commit "$GUARD_COMMIT"}; then
   echo "✗ Another agent pushed to origin/main while this build was syncing."
   echo "  This build is stale — restoring the previous bundle instead of switching to it."
   rollback

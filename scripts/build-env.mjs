@@ -38,6 +38,36 @@ if (!CONTRACT[target]) {
 }
 const contract = CONTRACT[target]
 
+// ---------- 0. load the environment files this repo defines ----------
+// `build:env` is the only supported build path, so it must not depend on the
+// operator remembering to `source` anything. Values already in the shell win
+// (CI secrets), missing keys come from .env.build.<env> then .env.runtime.<env>.
+// This is also what makes SUPABASE_SERVICE_ROLE_KEY available for the
+// module-eval `createClient()` in src/lib/supabase.ts.
+function loadEnvFile(file) {
+  if (!existsSync(file)) return 0
+  let n = 0
+  for (const raw of readFileSync(file, "utf8").split("\n")) {
+    const line = raw.trim()
+    if (!line || line.startsWith("#")) continue
+    const i = line.indexOf("=")
+    if (i < 0) continue
+    const key = line.slice(0, i).trim()
+    let value = line.slice(i + 1).trim()
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1)
+    }
+    if (process.env[key] === undefined) {
+      process.env[key] = value
+      n++
+    }
+  }
+  return n
+}
+const loadedBuild = loadEnvFile(`.env.build.${target}`)
+const loadedRuntime = loadEnvFile(`.env.runtime.${target}`)
+ok(`env files: .env.build.${target} (${loadedBuild}) + .env.runtime.${target} (${loadedRuntime})`)
+
 // ---------- 1. required public keys must match the contract ----------
 for (const [key, expected] of Object.entries(contract.buildPublic)) {
   const actual = (process.env[key] || "").trim()

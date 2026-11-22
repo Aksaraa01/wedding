@@ -21,6 +21,7 @@
     "release:reject": "node scripts/release-reject.mjs",
     "release:status": "node scripts/release-status.mjs",
     "release:pick": "node scripts/release-pick.mjs",
+    "release:tag": "node scripts/release-tag.mjs",
     "tree:doctor": "node scripts/tree-doctor.mjs",
     "test:cs:e2e": "node scripts/cs-e2e.mjs",
     "test:cs:coverage": "node --import ./scripts/register-ts-resolve.mjs --experimental-strip-types scripts/cs-widget-coverage.mjs",

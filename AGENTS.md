@@ -560,6 +560,15 @@ Notes:
 - Pick to prod: `git switch prod && git pull --ff-only && npm run release:pick -- <sha...>` (cherry-pick -x; conflict => abort, fix on main).
 - **Mandatory rehearsal**: build/deploy the composed `prod` branch to staging (`--target staging --branch prod`), verify, then deploy prod.
 - Prod deploy gate: commit must be ancestor of latest verified staging tip and not rejected; `--allow-unverified` is emergency-only.
+- **Recommended: promote by tag, not by branch.** `main` is always releasable and
+  staging runs its tip. To release: `npm run release:tag -- --env prod --commit <sha>`
+  (refuses unless the SHA is verified), then build from the tag and deploy with
+  `npm run deploy -- --target prod --commit <tag>`. `--commit` skips the branch
+  comparison and pins the tree, so a tag can never be "N commits behind".
+  Rollback = deploy an older verified tag; no history rewrite, no force-push.
+- The legacy `prod` branch still works (`release:pick`), but every cherry-pick adds
+  a prod-only commit, so a `main`-based prod build will always report "behind".
+  Prefer tags; keep cherry-picks for backports that must not ship all of `main`.
 - Status: `npm run release:status`. Drain WP queue explicitly only when needed: `npm run release:drain -- --env prod --profile <id> --dry-run`.
 - Rollback: restore snapshot or redeploy previous verified release; also revert `prod` so branch == live. Migrations are expand/contract; never drop a column in the same release that stops using it.
 
