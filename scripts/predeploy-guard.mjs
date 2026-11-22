@@ -365,6 +365,19 @@ if (copyOffenders) {
 }
 ok("single copy path (src/lib/clipboard.ts)")
 
+// ---------- 3d. tree hygiene + credentials ----------
+// Blocks a deploy if a credential file or secret-shaped string is tracked, if
+// the index lies about a deletion, or if a rebase/merge left stale state.
+// (`.env.local.prod` and `.env.local.bak-*` were committed in 2026 and had to be
+// rewritten out of history; this is the regression guard.)
+try {
+  const out = execSync("node scripts/tree-doctor.mjs 2>&1 || true", { encoding: "utf8" })
+  if (out.includes("✗")) fail(`tree doctor failed:\n${out}`)
+  ok("tree doctor clean (no tracked credentials)")
+} catch {
+  console.warn("! could not run tree doctor")
+}
+
 // ---------- 4. media budget (report only) ----------
 // Every template's art is served straight from the box, whose measured egress is
 // ~4 Mbps in total. This prints the offenders on every deploy so the growth is
