@@ -368,9 +368,10 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
    export SUPABASE_ACCESS_TOKEN=...
    npx supabase link --project-ref jclolnjkjhyjilvymagr && npx supabase db push
    ```
-2. Build with the staging env (B1 staging should bake `NEXT_PUBLIC_SITE_URL=https://wedding-stg.aksaraa.com`, `NEXT_PUBLIC_SITE_ENV=staging`, `NEXT_PUBLIC_COUPLE_URL_MODE=path`, and keep outbound side-effects gated, e.g. `NOTIFY_GROUP_ENABLED=false`):
+2. Build with the staging env (use `build:env`; it validates the contract, refuses unknown `NEXT_PUBLIC_*`, and writes `RELEASE.json`):
    ```bash
-   set -a; source .env.staging; set +a; npm run build
+   set -a; source .env.build.staging; set +a
+   npm run build:env -- --env staging
    cp -r .next/static .next/standalone/.next/static
    cp -r public .next/standalone/public
    ```
@@ -384,10 +385,11 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
    npm run deploy -- --target staging
    ```
    Staging target defaults: ref `jclolnjkjhyjilvymagr`, site URL `https://wedding-stg.aksaraa.com`, smoke base `https://wedding-stg.aksaraa.com`, remote `/var/www/aksara-wedding-staging`, PM2 `aksara-wedding-staging`.
-6. After staging passes, rebuild with the prod env and deploy prod with the **unchanged default flow** (see Deploy below):
+6. After staging passes, verify/rehearse as needed, then build prod with `build:env` and deploy:
    ```bash
-   set -a; source .env.local.prod; set +a; npm run build
-   npm run deploy
+   set -a; source .env.build.prod; set +a
+   npm run build:env -- --env prod
+   npm run deploy -- --target prod
    ```
 
 ### Production testing policy
@@ -398,22 +400,22 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
 The VPS has 2GB RAM and CANNOT run `next build`. Build locally, ship the build
 output, then restart PM2 — all handled by `npm run deploy`.
 
-**Order is commit → push → build → deploy.** The guard refuses an unpushed HEAD,
-so pushing first is mandatory, not optional:
+**Order is commit → push → build:env → deploy.** The guard refuses an unpushed HEAD, dirty tree, or bundle whose `RELEASE.json`/anon-key fingerprint does not match the target env.
 
 ```bash
 git add -A && git commit -m "feat: describe_change"
 git push origin main
 git fetch origin && git status -sb        # HEAD must be exactly origin/main
-set -a; source .env.local.prod; set +a
-npm run build
-npm run deploy
+set -a; source .env.build.prod; set +a   # NEXT_PUBLIC_* only; never source .env.local
+npm run build:env -- --env prod
+npm run deploy -- --target prod
 ```
 
 `npm run deploy` runs, in order:
 
 ```
-lock → guard → snapshot → sync → prune → re-verify origin/main → pm2 → smoke → BUILD_ID check
+lock → guard → snapshot → sync → prune → RELEASE.json commit check → migration check
+→ re-verify branch → drain WP worker → pm2 reload → health/env assert → smoke → history
 ```
 
 A typical deploy takes ~3 minutes and **does not take the site down** — the sync
@@ -437,8 +439,8 @@ is additive, so whatever version is live keeps serving until the PM2 reload.
 > ```bash
 > git fetch origin && git worktree add --detach /tmp/build origin/main
 > cd /tmp/build && cp -Rc "$OLDPWD/node_modules" ./node_modules
-> set -a; source /path/to/repo/.env.local.prod; set +a
-> npm run build && npm run deploy
+> set -a; source /path/to/repo/.env.build.prod; set +a
+> npm run build:env -- --env prod && npm run deploy -- --target prod
 > ```
 > Never bypass the guard or the lock (`--allow-stale`, `--allow-dirty`,
 > `--skip-build-check`) unless the other agent is confirmed stopped. If the lock
@@ -490,20 +492,18 @@ Notes:
   (`ServerAliveInterval=15`, `CountMax=6`) because this link drops connections
   mid-transfer; `public/` additionally uses `rsync --partial --timeout=180`.
 
-> **CRITICAL — verify baked env BEFORE deploying.** `NEXT_PUBLIC_*` values are
-> baked into the bundle at build time. If the wrong env file is sourced (or none
-> is), the build silently points at the wrong Supabase project and every DB read
-> on prod fails with `TypeError: fetch failed` (login *masks* this — its "user
-> not found" 401 is the `!user` branch when the query errors). This happened on
-> 2026-08-14: the deployed bundle baked `127.0.0.1:54321` + the local
-> `supabase-demo` anon key. The guard checks this automatically; to check by hand
-> before deploying:
-> ```bash
-> grep -rho "127\.0\.0\.1:54321\|ylmfgorryxzpdckkebnr\.supabase\.co\|jclolnjkjhyjilvymagr\.supabase\.co\|supabase-demo" \
->   .next/standalone/.next/server/chunks | sort | uniq -c
-> ```
-> Only `ylmfgorryxzpdckkebnr.supabase.co` should appear. If it also shows the
-> local or staging URL, rebuild with the right env sourced.
+> **CRITICAL — env is now a contract, not a convention.** Use `npm run build:env -- --env prod|staging` from a clean worktree. It refuses missing/forbidden/unknown `NEXT_PUBLIC_*`, refuses `.env.local` presence, verifies the anon-key fingerprint (a source-literal URL cannot satisfy it), and writes `RELEASE.json`. The guard refuses any bundle without a matching manifest. Do not `source .env.local`; rename it to `.env.development.local` for dev.
+
+#### Release flow (staging → verify → prod train)
+
+- `main` = integration/staging tip. `prod` = what is in prod (cherry-picks only).
+- Deploy staging: `npm run build:env -- --env staging && npm run deploy -- --target staging` (records `staged` in `releases/ledger.jsonl`).
+- Verify: `npm run release:verify -- --env staging --commit <sha>` (or `--reject --reason ...`).
+- Pick to prod: `git switch prod && git pull --ff-only && npm run release:pick -- <sha...>` (cherry-pick -x; conflict => abort, fix on main).
+- **Mandatory rehearsal**: build/deploy the composed `prod` branch to staging (`--target staging --branch prod`), verify, then deploy prod.
+- Prod deploy gate: commit must be ancestor of latest verified staging tip and not rejected; `--allow-unverified` is emergency-only.
+- Status: `npm run release:status`. Drain WP queue explicitly only when needed: `npm run release:drain -- --env prod --profile <id> --dry-run`.
+- Rollback: restore snapshot or redeploy previous verified release; also revert `prod` so branch == live. Migrations are expand/contract; never drop a column in the same release that stops using it.
 
 #### Manual recovery only
 `npm run deploy` already reloads PM2. Use these by hand only when recovering:

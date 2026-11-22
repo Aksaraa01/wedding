@@ -221,6 +221,40 @@ if (manifest.coupleMode !== contract.buildPublic.NEXT_PUBLIC_COUPLE_URL_MODE) {
 }
 ok(`bundle identity: ${manifest.env} @ ${String(manifest.commit).slice(0, 7)} (${manifest.coupleMode})`)
 
+// ---------- 2a. prod gate: only verified, non-rejected staging ancestry ----------
+const allowUnverified = args.includes("--allow-unverified")
+if (expectTarget === "prod") {
+  const ledgerPath = ".release-ledger.jsonl"
+  const ledgerPathAlt = "releases/ledger.jsonl"
+  const ledgerFile = existsSync(ledgerPath) ? ledgerPath : existsSync(ledgerPathAlt) ? ledgerPathAlt : null
+  if (!ledgerFile) {
+    if (allowUnverified) console.warn("! no release ledger found — skipping prod verification gate (--allow-unverified)")
+    else fail("no release ledger (releases/ledger.jsonl). Verify the commit on staging first, or pass --allow-unverified for an emergency.")
+  } else {
+    const entries = readFileSync(ledgerFile, "utf8").split("\n").filter(Boolean).flatMap((l) => { try { return [JSON.parse(l)] } catch { return [] } })
+    const verifiedStaging = entries.filter((e) => e.env === "staging" && e.state === "verified")
+    const tip = verifiedStaging[verifiedStaging.length - 1]
+    if (!tip) {
+      if (allowUnverified) console.warn("! no verified staging tip in ledger (--allow-unverified)")
+      else fail("prod deploy requires a verified staging tip in releases/ledger.jsonl. Run: npm run release:verify -- --env staging --commit <sha>")
+    } else {
+      const isAnc = (() => { try { execSync(`git merge-base --is-ancestor ${manifest.commit} ${tip.sha}`, { stdio: "ignore", env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" } }); return true } catch { return false } })()
+      if (!isAnc) {
+        if (allowUnverified) console.warn(`! ${manifest.short} is not an ancestor of verified staging tip ${String(tip.sha).slice(0,7)} (--allow-unverified)`)
+        else fail(`commit ${manifest.short} is not an ancestor of the latest verified staging tip ${String(tip.sha).slice(0,7)}.\n  Verify it on staging before promoting to prod.`)
+      } else {
+        const rejection = entries.find((e) => e.sha === manifest.commit && e.env === "staging" && e.state === "rejected" && e.at > tip.at)
+        if (rejection) {
+          if (allowUnverified) console.warn(`! commit ${manifest.short} was rejected after verification (--allow-unverified): ${rejection.note || ""}`)
+          else fail(`commit ${manifest.short} was rejected after staging verification: ${rejection.note || "(no reason)"}`)
+        } else {
+          ok(`prod gate: ${manifest.short} is ancestor of verified staging tip ${String(tip.sha).slice(0,7)}`)
+        }
+      }
+    }
+  }
+}
+
 // ---------- 2b. baked Supabase env (defence in depth) ----------
 const chunkDir = ".next/standalone/.next/server/chunks"
 if (!existsSync(chunkDir)) fail("no .next/standalone build found — run `npm run build` first")

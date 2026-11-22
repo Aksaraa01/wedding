@@ -16,7 +16,7 @@
  */
 import { execSync } from "node:child_process"
 import { createHash } from "node:crypto"
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { CONTRACT, ENV_NAMES } from "../env/contract.mjs"
 
@@ -100,6 +100,20 @@ const commit = execSync("git rev-parse HEAD", { encoding: "utf8", env: gitEnv })
 const branch = execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8", env: gitEnv }).trim()
 ok(`clean tree at ${commit.slice(0, 7)} (${branch})`)
 
+// ---------- 4b. .env.local is a staging footgun ----------
+// Next loads .env.local for production builds too. In this repo it holds staging
+// credentials. A clean worktree has no gitignored files, so the safest rule is:
+// build only from a worktree that has no .env.local. Allow an explicit override
+// for local debugging, never for deploy builds.
+if (existsSync(".env.local") && !args.includes("--allow-env-local")) {
+  fail(
+    ".env.local exists in this tree. Next loads it during `next build`, which is how staging values\n" +
+      "  leaked into prod builds. Build from a clean worktree, or move it to .env.development.local.\n" +
+      "  (Emergency debug only: --allow-env-local)",
+  )
+}
+if (existsSync(".env.local")) console.warn("! --allow-env-local: .env.local may override your build env")
+
 // ---------- 5. build ----------
 console.log(`\n▸ next build (${target})\n`)
 execSync("npx next build", { stdio: "inherit" })
@@ -113,6 +127,14 @@ try {
 }
 
 // ---------- 6. bake the identity into the bundle ----------
+const migrations = readdirSync("supabase/migrations")
+  .filter((f) => f.endsWith(".sql"))
+  .map((f) => f.split("_")[0])
+  .filter((v) => /^\d+$/.test(v))
+  .sort()
+const dupVersions = migrations.filter((v, i) => migrations.indexOf(v) !== i)
+if (dupVersions.length) fail(`duplicate migration versions: ${[...new Set(dupVersions)].join(", ")}`)
+
 const manifest = {
   env: target,
   commit,
@@ -128,6 +150,7 @@ const manifest = {
   siteUrl: (process.env.NEXT_PUBLIC_SITE_URL || "").trim(),
   coupleMode: (process.env.NEXT_PUBLIC_COUPLE_URL_MODE || "").trim(),
   contractHash: createHash("sha256").update(JSON.stringify(contract)).digest("hex"),
+  migrations,
 }
 
 const write = (path, body) => {

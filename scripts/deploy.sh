@@ -266,6 +266,55 @@ if [ "$REMOTE_COMMIT" != "$LOCAL_COMMIT" ]; then
 fi
 echo "  server bundle = ${LOCAL_COMMIT:0:7} (${LOCAL_BUILD_ENV})"
 
+step "Verify release migrations are applied"
+MIG_CHECK="$(ssh "${SSH_OPTS[@]}" "$SERVER" "bash -s -- '$REMOTE'" <<'EOS'
+set -u
+REMOTE_APP="$1"
+REL="$REMOTE_APP/.next/standalone/RELEASE.json"
+[ -f "$REL" ] || { echo "WARN no RELEASE.json"; exit 0; }
+node --input-type=commonjs - "$REL" "$REMOTE_APP" <<'NODE'
+const fs = require('fs');
+const rel = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+const migrations = Array.isArray(rel.migrations) ? rel.migrations : [];
+if (!migrations.length) { console.log('WARN no migrations in RELEASE.json'); process.exit(0); }
+const app = process.argv[3];
+function envFile(p){ try{ return fs.readFileSync(p,'utf8'); }catch{ return ''; } }
+const text = envFile(app + '/.env.production') + '\n' + envFile(app + '/.env.runtime.' + (rel.env||'prod'));
+function get(k){ const m = text.match(new RegExp('^'+k+'=(.*)$','m')); return m ? m[1].trim().replace(/^"|"$/g,'') : (process.env[k]||''); }
+const dbUrl = get('SUPABASE_DB_URL') || get('DATABASE_URL');
+const host = get('SUPABASE_DB_HOST') || ('aws-0-ap-northeast-1.pooler.supabase.com');
+const pass = get('SUPABASE_DB_PASSWORD');
+const ref = rel.supabaseRef || (rel.env === 'staging' ? 'jclolnjkjhyjilvymagr' : 'ylmfgorryxzpdckkebnr');
+const user = get('SUPABASE_DB_USER') || ('postgres.' + ref);
+const db = get('SUPABASE_DB_NAME') || 'postgres';
+const port = Number(get('SUPABASE_DB_PORT') || 6543);
+if (!dbUrl && !pass) { console.log('WARN cannot check migrations (no DB credentials on host)'); process.exit(0); }
+(async () => {
+  let Client;
+  try { Client = require(app + '/.next/standalone/node_modules/pg').Client; }
+  catch { try { Client = require('pg').Client; } catch { console.log('WARN pg not available on host'); process.exit(0); } }
+  const client = dbUrl ? new Client({ connectionString: dbUrl }) : new Client({ host, port, user, password: pass, database: db, ssl: { rejectUnauthorized: false } });
+  await client.connect();
+  const res = await client.query('select version from supabase_migrations.schema_migrations');
+  const applied = new Set(res.rows.map(r => String(r.version)));
+  const missing = migrations.filter(v => !applied.has(String(v)));
+  await client.end();
+  if (missing.length) { console.error('FAIL missing migrations in DB: ' + missing.join(', ')); process.exit(2); }
+  console.log('OK ' + migrations.length + ' migrations present');
+})().catch(e => { console.log('WARN migration check failed: ' + (e.message||e)); process.exit(0); });
+NODE
+EOS
+)" || true
+echo "$MIG_CHECK" | tail -5
+if echo "$MIG_CHECK" | grep -q '^FAIL'; then
+  echo "✗ release migrations are not applied on target DB"
+  rollback
+  exit 1
+fi
+if echo "$MIG_CHECK" | grep -q '^WARN'; then
+  echo "  ! migration assertion could not be fully verified (see warning)"
+fi
+
 # The pre-deploy guard ran before the copy. A push that lands during the sync
 # makes this build stale (it would leave the server running older code than
 # origin/main). Re-check under the lock before switching the server over.
@@ -336,6 +385,65 @@ drain_wp_worker
 step "Reload PM2 (ecosystem, --update-env)"
 ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
 
+# Prove the running process is the bundle we just reloaded. The bundle can be on
+# disk while the process is still on the old env/commit (bad reload, wrong env
+# file, missing runtime secret). /api/health/env is token-gated and returns no
+# secrets; if the running build predates it, warn but don't block this rollout.
+step "Assert running process matches RELEASE.json"
+assert_health_env() {
+  ssh "${SSH_OPTS[@]}" "$SERVER" "bash -s -- '$REMOTE' '$LOCAL_PORT' '$PM2_APP'" <<'EOS'
+set -u
+REMOTE_APP="$1"; PORT="$2"; APP="$3"
+BASE="http://127.0.0.1:${PORT}"
+token="${HEALTH_TOKEN:-${CRON_SECRET:-${WP_INTERNAL_SECRET:-}}}"
+if [ -z "$token" ] && [ -f "$REMOTE_APP/.env.production" ]; then
+  for k in HEALTH_TOKEN CRON_SECRET WP_INTERNAL_SECRET; do
+    v="$(grep -m1 "^${k}=" "$REMOTE_APP/.env.production" 2>/dev/null | cut -d= -f2- || true)"
+    [ -n "$v" ] && token="$v" && break
+  done
+fi
+if [ -z "$token" ]; then
+  id="$(pm2 id "$APP" 2>/dev/null | grep -o '[0-9]\+' | head -1 || true)"
+  if [ -n "$id" ]; then
+    for k in HEALTH_TOKEN CRON_SECRET WP_INTERNAL_SECRET; do
+      v="$(pm2 env "$id" 2>/dev/null | grep -m1 "^${k}" \
+        | sed -E "s/^${k}[[:space:]]*[:=][[:space:]]*//; s/^\"//; s/\",?[[:space:]]*$//; s/[[:space:]]*$//" || true)"
+      [ -n "$v" ] && token="$v" && break
+    done
+  fi
+fi
+if [ -z "$token" ]; then echo "WARN no health token on host"; exit 0; fi
+code="$(curl -sS -o /tmp/health-env.json -w '%{http_code}' --max-time 15 "$BASE/api/health/env" -H "X-Health-Token: $token" || true)"
+if [ "$code" = "404" ]; then echo "WARN /api/health/env not present in running build (pre-phase3)"; exit 0; fi
+if [ "$code" != "200" ]; then echo "FAIL health env HTTP $code"; cat /tmp/health-env.json; exit 1; fi
+cat /tmp/health-env.json
+EOS
+}
+HEALTH_OUT="$(assert_health_env)" || { echo "$HEALTH_OUT"; echo "✗ running process failed env/commit assertion"; rollback; exit 1; }
+echo "$HEALTH_OUT" | sed -n '1,6p'
+if echo "$HEALTH_OUT" | grep -q '^WARN'; then
+  echo "  ! health/env assertion skipped (see warning above)"
+else
+  REMOTE_ENV_COMMIT="$(echo "$HEALTH_OUT" | tr -d '\n ' | sed -n 's/.*"commit":"\([0-9a-f]\{7,\}\)".*/\1/p')"
+  REMOTE_ENV_NAME="$(echo "$HEALTH_OUT" | tr -d '\n ' | sed -n 's/.*"env":"\([^"]*\)".*/\1/p')"
+  REMOTE_ENV_ANON="$(echo "$HEALTH_OUT" | tr -d '\n ' | sed -n 's/.*"anonKeySha256":"\([0-9a-f]\{12\}\)".*/\1/p')"
+  LOCAL_ANON="$(node -e 'console.log((require("./.next/build-env.json").anonKeySha256||"").slice(0,12))')"
+  if [ -n "$REMOTE_ENV_COMMIT" ] && [ "$REMOTE_ENV_COMMIT" != "$LOCAL_COMMIT" ]; then
+    echo "✗ running process reports commit ${REMOTE_ENV_COMMIT:0:7}, expected ${LOCAL_COMMIT:0:7}"
+    rollback; exit 1
+  fi
+  if [ -n "$REMOTE_ENV_NAME" ] && [ "$REMOTE_ENV_NAME" != "$TARGET" ]; then
+    echo "✗ running process reports env $REMOTE_ENV_NAME, expected $TARGET"
+    rollback; exit 1
+  fi
+  if [ -n "$REMOTE_ENV_ANON" ] && [ "$REMOTE_ENV_ANON" != "$LOCAL_ANON" ]; then
+    echo "✗ running process anon fingerprint $REMOTE_ENV_ANON != expected $LOCAL_ANON"
+    rollback; exit 1
+  fi
+  ok_line="  health/env ok: ${REMOTE_ENV_NAME:-?} @ ${REMOTE_ENV_COMMIT:0:7}"
+  echo "$ok_line"
+fi
+
 step "Post-deploy smoke test"
 if node scripts/postdeploy-smoke.mjs --base "$SMOKE_BASE"; then
   LOCAL_BUILD="$(cat .next/standalone/.next/BUILD_ID)"
@@ -347,6 +455,16 @@ if node scripts/postdeploy-smoke.mjs --base "$SMOKE_BASE"; then
   fi
   step "Deployed successfully — ${LOCAL_COMMIT:0:7} (BUILD_ID $LOCAL_BUILD)"
   record_deploy success || true
+  # Append to the local release ledger (best effort; never fail a good deploy).
+  node -e '
+    const fs=require("fs"); const p="releases/ledger.jsonl";
+    const m=require("./.next/build-env.json");
+    const env=process.argv[1];
+    const state = env === "staging" ? "staged" : "deployed";
+    const purpose = (env === "staging" && m.branch && m.branch !== "main") ? "rehearsal" : "deploy";
+    const e={at:new Date().toISOString(),sha:m.commit,short:(m.commit||"").slice(0,7),env,state,purpose,by:process.env.USER||process.env.LOGNAME||"unknown",buildId:m.buildId,branch:m.branch};
+    fs.mkdirSync("releases",{recursive:true}); fs.appendFileSync(p,JSON.stringify(e)+"\n");
+  ' "$TARGET" >/dev/null 2>&1 || echo "  ! could not append releases/ledger.jsonl"
   # The snapshot is kept: it becomes .deploy-snapshot.1 on the next deploy, so a
   # rollback target survives more than one release.
 else
