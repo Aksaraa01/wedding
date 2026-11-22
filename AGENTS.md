@@ -86,7 +86,9 @@ Two install/upgrade traps on this repo:
 ### Git
 - Commit directly to `origin main`
 - No PR workflow
-- Remote is HTTPS: `https://github.com/askaraamini/wedding.git`. Authentication
+- Remote is HTTPS: `https://github.com/Aksaraa01/wedding.git` (the repo was transferred
+  from the `askaraamini` user to the `Aksaraa01` org; the old URL still redirects,
+  but use the canonical one). Authentication
   comes from macOS Keychain (`credential.helper=osxkeychain`); there is no token
   in this repo, `AGENTS.md`, or `~/.git-credentials`. Never paste a PAT into chat,
   code, or markdown — if one is exposed, revoke it in GitHub and let Keychain
