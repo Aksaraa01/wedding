@@ -13,3 +13,4 @@ supabase/.temp
 .env.build.*
 .env.runtime.*
 .env.ops
+tsconfig.tsbuildinfo
