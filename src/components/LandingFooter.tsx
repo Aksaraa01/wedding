@@ -1,3 +1,5 @@
+import { siteOrigin } from "@/lib/site"
+
 export default function LandingFooter() {
   return (
     <footer className="relative z-10 w-full border-t border-[#EFE9DD] bg-white pb-10 pt-12 text-left md:pt-16">
@@ -50,7 +52,7 @@ export default function LandingFooter() {
               <li><a className="transition-colors hover:text-[#1A1817]" href="/templates">Galeri Template</a></li>
               <li><a className="transition-colors hover:text-[#1A1817]" href="/customize">Harga &amp; Paket</a></li>
               <li><a className="transition-colors hover:text-[#1A1817]" href="/artikel">Artikel &amp; Panduan</a></li>
-              <li><a className="transition-colors hover:text-[#1A1817]" href="https://wedding.aksaraa.com">Aksaraa Wedding</a></li>
+              <li><a className="transition-colors hover:text-[#1A1817]" href={siteOrigin()}>Aksaraa Wedding</a></li>
             </ul>
           </div>
         </div>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import type { TemplateProps } from "@/types/template"
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { ASSETS } from "@/lib/assets"
 import { FONT_PIXEL } from "../shared/Skin"
@@ -33,8 +32,15 @@ const CAT_POS: Record<QuestStep, { top: string; left: string; flip: boolean }> =
   inviting: { top: "49%", left: "38%", flip: false },
   video: { top: "47%", left: "64%", flip: true },
 }
-const STEP_LABEL_ID: Record<QuestStep, string> = { couple: "MEMPELAI", story: "KISAH CINTA", events: "ACARA", gallery: "GALERI", gift: "HADIAH", inviting: "TURUT MENGUNDANG", video: "VIDEO" }
-const STEP_LABEL_EN: Record<QuestStep, string> = { couple: "COUPLE", story: "LOVE STORY", events: "DATE & VENUE", gallery: "GALLERY", gift: "WEDDING GIFT", inviting: "INVITING", video: "VIDEO" }
+const STEP_LABEL: Record<QuestStep, string> = {
+  couple: "SOULMATES",
+  story: "LOVE STORY",
+  events: "DATE & VENUE",
+  gallery: "GALLERY",
+  gift: "WEDDING GIFT",
+  inviting: "TURUT MENGUNDANG",
+  video: "VIDEO",
+}
 
 type Props = {
   profile: TemplateProps
@@ -48,7 +54,6 @@ type Props = {
 }
 
 export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, onWishOpenChange, galleryOpen, onGalleryOpenChange, onCardVisibilityChange }: Props) {
-  const lang = normalizeLanguage(profile.language)
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
   const sessions = Array.isArray(profile.sessions) ? profile.sessions : []
@@ -100,7 +105,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
 
   const videoEmbed = normalizeVideoUrl(profile.video_url)
   const videoData: VideoCardData = videoEmbed ? { state: "ready", videoUrl: videoEmbed } : { state: "none" }
-  const coupleTitle = `${profile.groom_name || (lang === "en" ? "Groom" : "Mempelai")} & ${profile.bride_name || (lang === "en" ? "Bride" : "Mempelai")}: ${lang === "en" ? "The Journey Begins" : "Perjalanan Dimulai"}`
+  const coupleTitle = `${profile.groom_name || "Mempelai"} & ${profile.bride_name || "Mempelai"}: The Journey Begins`
 
   const go = (i: number) => {
     if (i < 0 || i >= steps.length) return
@@ -171,12 +176,12 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
             <button
               type="button"
               onClick={() => onWishOpenChange(true)}
-              aria-label={lang === "en" ? "Open live wishes" : "Buka Live Wishes & Doa"}
+              aria-label="Buka Live Wishes & Doa"
               className="px-2 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
               style={FONT_PIXEL}
             >
               <span className="material-symbols-outlined text-[13px]">forum</span>
-              <span>{lang === "en" ? "WISHES" : "UCAPAN"}</span>
+              <span>WISHES</span>
             </button>
             <button
               type="button"
@@ -185,7 +190,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
               style={FONT_PIXEL}
             >
               <span className="material-symbols-outlined text-[13px]">{cardHidden ? "visibility" : "visibility_off"}</span>
-              <span>{cardHidden ? (lang === "en" ? "SHOW" : "LIHAT") : (lang === "en" ? "HIDE" : "SEMBUNYI")}</span>
+              <span>{cardHidden ? "SHOW" : "HIDE"}</span>
             </button>
           </div>
         </div>
@@ -210,7 +215,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
             />
           )}
           {step === "inviting" && <FamilyCard families={families} onHide={() => setCardHidden(true)} />}
-          {step === "video" && <VideoCard data={videoData} title={coupleTitle} onHide={() => setCardHidden(true)} language={profile.language} />}
+          {step === "video" && <VideoCard data={videoData} title={coupleTitle} onHide={() => setCardHidden(true)} />}
         </main>
       )}
 
@@ -224,7 +229,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
           >
             <span className="material-symbols-outlined text-sm animate-bounce text-pink-400">expand_less</span>
             <span className="text-[9px] tracking-wider text-cyan-200" style={FONT_PIXEL}>
-              {lang === "en" ? "OPEN INFO / VIEW CARD" : "BUKA INFO / LIHAT KARTU"}
+              BUKA INFO / VIEW CARD
             </span>
           </button>
         </div>
@@ -241,17 +246,17 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
             style={FONT_PIXEL}
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span>
-            {lang === "en" ? "PREV" : "KEMBALI"}
+            PREV
           </button>
-          <div className="flex items-center gap-1.5" role="tablist" aria-label={lang === "en" ? "Steps" : "Langkah"}>
+          <div className="flex items-center gap-1.5" role="tablist" aria-label="Langkah">
             {steps.map((k, i) => (
               <button
                 key={k}
                 type="button"
                 role="tab"
                 aria-selected={started && i === stepIdx}
-                aria-label={(lang === "en" ? STEP_LABEL_EN : STEP_LABEL_ID)[k]}
-                title={(lang === "en" ? STEP_LABEL_EN : STEP_LABEL_ID)[k]}
+                aria-label={STEP_LABEL[k]}
+                title={STEP_LABEL[k]}
                 onClick={() => go(i)}
                 className={`rounded-full transition-all cursor-pointer ${started && i === stepIdx ? "w-2.5 h-2.5 bg-cyan-400 shadow-[0_0_8px_#38bdf8]" : started && i < stepIdx ? "w-2 h-2 bg-cyan-400/60" : "w-2 h-2 bg-slate-700"}`}
               />
@@ -267,7 +272,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
             }`}
             style={FONT_PIXEL}
           >
-            {!started ? (lang === "en" ? "START" : "MULAI") : isLast ? (lang === "en" ? "FINISH" : "SELESAI") : (lang === "en" ? "NEXT" : "LANJUT")}
+            {!started ? "START" : isLast ? "FINISH" : "NEXT"}
             <span className="material-symbols-outlined text-sm">{started && isLast ? "done_all" : "arrow_forward"}</span>
           </button>
         </div>
@@ -280,8 +285,8 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
         <button
           type="button"
           onClick={onToggleMusic}
-          aria-label={t("playPauseMusic", lang)}
-          title={t("playPauseMusic", lang)}
+          aria-label="Putar atau jeda musik"
+          title="Putar atau jeda musik"
           className="fixed right-4 z-[95] w-11 h-11 rounded-full bg-white text-[#111827] shadow-lg border border-black/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
           style={{ bottom: 230, right: 16 }}
         >
@@ -303,6 +308,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
         guestId={profile.guest_id}
         guestName={profile.guest_name}
         hideTrigger
+        language={profile.language}
       />
     </div>
   )

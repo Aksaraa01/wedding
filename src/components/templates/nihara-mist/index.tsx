@@ -14,8 +14,10 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 
 type SceneName = "cover" | "verse" | "couple" | "events" | "dresscode" | "finale"
 
-const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"]
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+const MONTHS_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+const MONTHS_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
+const DAYS_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+const DAYS_ID = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
 
 function parseIso(iso?: string) {
   const m = (iso || "").slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/)
@@ -23,11 +25,13 @@ function parseIso(iso?: string) {
   return { y: Number(m[1]), m: Number(m[2]) - 1, d: Number(m[3]) }
 }
 
-function longDate(iso?: string) {
+function longDate(iso: string | undefined, lang: "id" | "en") {
   const p = parseIso(iso)
   if (!p) return ""
   const date = new Date(Date.UTC(p.y, p.m, p.d))
-  return `${DAYS[date.getUTCDay()]}, ${p.d} ${MONTHS[p.m]} ${p.y}`
+  const days = lang === "en" ? DAYS_EN : DAYS_ID
+  const months = lang === "en" ? MONTHS_EN : MONTHS_ID
+  return `${days[date.getUTCDay()]}, ${p.d} ${months[p.m]} ${p.y}`
 }
 
 function shortDate(iso?: string) {
@@ -60,7 +64,7 @@ function flattenPhotos(value: unknown): string[] {
   return []
 }
 
-function describePalette(colors?: { hex?: string; name?: string }[]): string {
+function describePalette(colors: { hex?: string; name?: string }[] | undefined, lang: "id" | "en"): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
   if (!names.length) return ""
   const list =
@@ -69,7 +73,7 @@ function describePalette(colors?: { hex?: string; name?: string }[]): string {
       : names.length === 2
         ? `${names[0]} & ${names[1]}`
         : `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`
-  return `Elegant Attire in ${list}.`
+  return lang === "en" ? `Elegant Attire in ${list}.` : `Busana elegan bernuansa ${list}.`
 }
 
 function useCountdown(iso?: string) {
@@ -127,10 +131,11 @@ function youtubeId(url?: string) {
 
 export default function NiharaMist(profile: TemplateProps) {
   const lang = normalizeLanguage(profile.language)
+  const tc = (profile.template_content || {}) as Record<string, string>
   const gates = profile.feature_gates || {}
   const dresscode = profile.dresscode
   const hasDresscode = profile.dresscode_visible !== false && !!dresscode && (dresscode.colors?.length ?? 0) > 0
-  const dressDescription = describePalette(dresscode?.colors)
+  const dressDescription = describePalette(dresscode?.colors, lang)
   const livestream = profile.livestream
   const hasLivestream = profile.livestream_visible !== false && !!livestream?.url
 
@@ -194,7 +199,7 @@ export default function NiharaMist(profile: TemplateProps) {
     ? (profile.inviting_families || []).filter(Boolean)
     : []
   const guestName = profile.guest_name || t("honoredGuest", lang)
-  const dateLong = longDate(profile.estimated_wedding_date)
+  const dateLong = longDate(profile.estimated_wedding_date, lang)
   const dateShort = shortDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date)
   const hasTrack = !!profile.track_url
@@ -207,7 +212,7 @@ export default function NiharaMist(profile: TemplateProps) {
   const galleryItems = gallery
   const videoId = youtubeId(profile.video_url)
   const hasVideo = !!videoId && gates.video !== false && profile.video_section_visible !== false
-  const calUrl = calendarUrl(`The Wedding of ${coupleLabel}`, profile.estimated_wedding_date, events[0]?.venue || events[0]?.address || "")
+  const calUrl = calendarUrl(`${t("theWeddingOf", lang)} ${coupleLabel}`, profile.estimated_wedding_date, events[0]?.venue || events[0]?.address || "")
   const showGuestDock =
     opened &&
     lightbox === null &&
@@ -485,7 +490,7 @@ export default function NiharaMist(profile: TemplateProps) {
           className={`tpl-preload-root${preloadLeaving ? " is-leaving" : ""}`}
           role="status"
           aria-live="polite"
-          aria-label="Memuat undangan"
+          aria-label={lang === "en" ? "Loading invitation" : "Memuat undangan"}
           style={{ "--tpl-preload-font-display": "var(--nihara-font-heading)", "--tpl-preload-accent": "var(--warm)" } as React.CSSProperties}
         >
           <div className="tpl-preload-vignette" aria-hidden="true" />
@@ -534,16 +539,16 @@ export default function NiharaMist(profile: TemplateProps) {
             </header>
             <footer className="cover__bottom">
               <div className="cover__guest reveal" style={{ "--d": "1s" } as React.CSSProperties}>
-                <p className="label cover__greeting">Dear,</p>
+                <p className="label cover__greeting">{lang === "en" ? "Dear," : "Kepada Yth.,"}</p>
                 <p className="cover__guest-name">{guestName}</p>
-                <p className="cover__apology">We apologize for any error in the writing of names &amp; titles</p>
+                <p className="cover__apology">{tc.cover_apology || (lang === "en" ? "We apologize for any error in the writing of names & titles" : "Mohon maaf apabila terdapat kesalahan penulisan nama dan gelar")}</p>
               </div>
               <button type="button" className="btn-open reveal" style={{ "--d": "1.25s" } as React.CSSProperties} onClick={openInvitation}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
                   <rect x="2.5" y="5.5" width="19" height="13" rx="1.5" />
                   <path d="M3 6.5l9 7 9-7" />
                 </svg>
-                <span>Open Invitation</span>
+                <span>{t("openInvitation", lang)}</span>
               </button>
             </footer>
           </div>
@@ -644,21 +649,21 @@ export default function NiharaMist(profile: TemplateProps) {
                         <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" />
                         <circle cx="12" cy="10" r="2.5" />
                       </svg>
-                      <span>OPEN MAPS</span>
+                      <span>{t("viewLocation", lang).toUpperCase()}</span>
                     </a>
                   )}
                 </article>
               ))}
               {hasLivestream && (
                 <article className={`event-card event-card--pos${events.length % 3}${isActive("events") && step === events.length ? " is-current" : ""}`}>
-                  <h3 className="event-card__title">Live Streaming</h3>
-                  <p className="event-card__venue serif-i">Join us virtually as we exchange our vows, for beloved family and friends who cannot be with us in person.</p>
+                  <h3 className="event-card__title">{t("secLivestream", lang)}</h3>
+                  <p className="event-card__venue serif-i">{lang === "en" ? "Join us virtually as we exchange our vows, for beloved family and friends who cannot be with us in person." : "Bergabunglah secara virtual saat kami mengucapkan janji suci, bagi keluarga dan sahabat yang belum dapat hadir."}</p>
                   <a className="btn-map" href={livestream.url} target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
                       <rect x="2.5" y="5.5" width="19" height="13" rx="3.5" />
                       <path d="M10 9.2l5 2.8-5 2.8z" fill="currentColor" stroke="none" />
                     </svg>
-                    <span>Watch Live Stream</span>
+                    <span>{t("watchLivestream", lang)}</span>
                   </a>
                 </article>
               )}
@@ -672,7 +677,7 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="scene__bg"><div className="scene__zoom">{bgDress && <img src={bgDress} alt="" decoding="async" />}</div></div>
             <div className="scene__veil scene__veil--top" />
             <div className="scene__content dresscode">
-              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>Dress Code</h3>
+              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>{tc.dresscode_title || t("secDresscode", lang)}</h3>
               {dressDescription && (
                 <p className="dresscode__desc serif-i reveal" style={{ "--d": ".65s" } as React.CSSProperties}>{dressDescription}</p>
               )}
@@ -698,7 +703,7 @@ export default function NiharaMist(profile: TemplateProps) {
                   ref={finaleIframeRef}
                   id="niharaFinaleVideo"
                   src={"https://www.youtube-nocookie.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId + "&controls=0&modestbranding=1&showinfo=0&cc_load_policy=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1"}
-                  title="Video pernikahan"
+                  title={lang === "en" ? "Wedding video" : "Video pernikahan"}
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                   style={{ position: "absolute", top: "50%", left: "50%", width: "177.78vh", height: "100vh", minWidth: "100%", minHeight: "100%", transform: "translate(-50%, -50%) scale(1.18)", border: 0, pointerEvents: "none", filter: "contrast(1.03) brightness(.86) saturate(.88)" }}
                   referrerPolicy="strict-origin-when-cross-origin"
@@ -710,15 +715,15 @@ export default function NiharaMist(profile: TemplateProps) {
           </div>          <div className="scene__veil scene__veil--deep" />
           <div className="finale__scroll" id="niharaFinaleScroll" ref={finaleScrollRef}>
             <div className="finale__hero">
-              <h2 className="display finale__std reveal">Counting the Days</h2>
+              <h2 className="display finale__std reveal">{tc.countdown_title || t("secCountdown", lang)}</h2>
               <div className="countdown reveal">
-                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>Days</span></div>
+                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>{tc.countdown_days || t("days", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>Hours</span></div>
+                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>{tc.countdown_hours || t("hours", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>Minutes</span></div>
+                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>{tc.countdown_minutes || t("minutes", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>Seconds</span></div>
+                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>{tc.countdown_seconds || t("seconds", lang)}</span></div>
               </div>
               {calUrl && (
                 <a className="btn-open finale__cal reveal" href={calUrl} target="_blank" rel="noopener noreferrer">
@@ -726,7 +731,7 @@ export default function NiharaMist(profile: TemplateProps) {
                     <rect x="3" y="4.5" width="18" height="16" rx="2" />
                     <path d="M3 9h18M8 2.5v4M16 2.5v4" />
                   </svg>
-                  <span>SAVE THE DATE</span>
+                  <span>{(tc.save_date_label || t("saveTheDate", lang)).toUpperCase()}</span>
                 </a>
               )}
             </div>
@@ -734,7 +739,7 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="sheet">
               {stories.length > 0 && (
                 <section className="sheet__section sheet__section--story" data-io>
-                  <h3 className="display story__heading">Love Story</h3>
+                  <h3 className="display story__heading">{tc.love_story_title || t("secStory", lang)}</h3>
                   <div className="chapters">
                     {stories.map((s, i) => (
                       <article key={i} className={`chapter${i % 2 === 1 ? " chapter--alt" : ""}`}>
@@ -755,26 +760,26 @@ export default function NiharaMist(profile: TemplateProps) {
 
               {gallery.length > 0 && (
                 <section className="sheet__section sheet__section--gallery" data-io>
-                  <h3 className="display gallery__title">{t("secGallery", lang)}</h3>
+                  <h3 className="display gallery__title">{tc.gallery_title || t("secGallery", lang)}</h3>
                   {hasVideo && (
                     <div className="nihara-video">
                       <AutoplayYouTube
                         videoId={videoId}
-                        title="Video pernikahan"
+                        title={lang === "en" ? "Wedding video" : "Video pernikahan"}
                         signal={opened ? 1 : 0}
                       />
                       <button
                         type="button"
                         className="nihara-video__hit"
                         onClick={() => setVideoModal(true)}
-                        aria-label="Buka video pasangan"
+                        aria-label={lang === "en" ? "Open couple video" : "Buka video pasangan"}
                       />
                     </div>
                   )}
                   <div className="mist-strip">
                     {gallery.map((url: string, i: number) => (
                       <figure key={i} className="mist-tile">
-                        <button type="button" aria-label={`Lihat foto ${i + 1}`} onClick={() => setLightbox(i)}>
+                        <button type="button" aria-label={lang === "en" ? `View photo ${i + 1}` : `Lihat foto ${i + 1}`} onClick={() => setLightbox(i)}>
                           <img src={url} alt="" loading="lazy" />
                           <span className="mist-tile__haze" aria-hidden="true" />
                         </button>
@@ -786,9 +791,9 @@ export default function NiharaMist(profile: TemplateProps) {
 
               {accounts.length > 0 && (
                 <section className="sheet__section sheet__section--gift" data-io>
-                  <h3 className="display story__heading">A Token of Love</h3>
+                  <h3 className="display story__heading">{tc.gift_intro_title || t("secGift", lang)}</h3>
                   <p className="gift__intro serif-i">
-                    Your presence is the greatest gift. If you would like to send a token of love, you can find the details below.
+                    {tc.gift_intro_description || (lang === "en" ? "Your presence is the greatest gift. If you would like to send a token of love, you can find the details below." : "Kehadiran Anda adalah hadiah terindah bagi kami. Namun jika Anda ingin memberikan tanda kasih, detailnya tersedia di bawah ini.")}
                   </p>
                   {!giftOpen ? (
                     <button type="button" className="btn-open gift__open" onClick={() => setGiftOpen(true)}>
@@ -796,18 +801,18 @@ export default function NiharaMist(profile: TemplateProps) {
                         <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
                         <circle cx="12" cy="12" r="3" />
                       </svg>
-                      <span>Open Envelope</span>
+                      <span>{t("openEnvelope", lang)}</span>
                     </button>
                   ) : (
                     <div className="tpl-gift">
                       <div className="tpl-gift__accounts">
                         {accounts.map((a, i) => (
                           <div key={i} className="tpl-gift__account">
-                            <p className="tpl-gift__heading">{a.provider_name || (lang === "en" ? "Bank" : "Bank")}</p>
+                            <p className="tpl-gift__heading">{a.provider_name || "Bank"}</p>
                             <p className="tpl-gift__account-number">{a.account_number}</p>
                             <p className="tpl-gift__account-name">{a.account_name}</p>
                             <button type="button" className="tpl-gift__copy-btn" onClick={() => copy(String(a.account_number || ""))}>
-                              Salin Nomor
+                              {t("copyNumber", lang)}
                             </button>
                           </div>
                         ))}
@@ -843,7 +848,10 @@ export default function NiharaMist(profile: TemplateProps) {
                 weddingProfileId={profile.wedding_profile_id}
                 guestId={profile.guest_id}
                 guestName={profile.guest_name}
-                guestLinkStrict={profile.guest_link_strict} language={profile.language}
+                guestLinkStrict={profile.guest_link_strict}
+                language={profile.language}
+                title={tc.wishes_title || t("secWishes", lang)}
+                intro={tc.wishes_intro || (lang === "en" ? "Leave your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua.")}
               />
 
               <section className="sheet__section sheet__closing" data-io>
@@ -858,7 +866,7 @@ export default function NiharaMist(profile: TemplateProps) {
                   </p>
                 </div>
                 <p className="serif-i sheet__pray">
-                  It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day.
+                  {tc.closing_message || (lang === "en" ? "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.")}
                 </p>
                 {profile.display_name && <p className="hand sheet__tag">{profile.display_name}</p>}
               </section>
@@ -869,7 +877,7 @@ export default function NiharaMist(profile: TemplateProps) {
                     href={waHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label="Hubungi Aksaraa Wedding via WhatsApp"
+                    aria-label={lang === "en" ? "Contact Aksaraa Wedding via WhatsApp" : "Hubungi Aksaraa Wedding via WhatsApp"}
                     className="tpl-footer__link"
                   >
                     <span className="tpl-footer__badge">
@@ -892,11 +900,11 @@ export default function NiharaMist(profile: TemplateProps) {
         <div className="grain" aria-hidden="true" />
         <div className={`hint${opened && hintVisible && scene !== "finale" ? " is-show" : ""}`} aria-hidden="true">
           <span className="hint__line" />
-          <p className="label label--dim">Swipe up</p>
+          <p className="label label--dim">{lang === "en" ? "Swipe up" : "Geser ke atas"}</p>
         </div>
 
         {hasTrack && (
-          <button type="button" className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`} aria-label="Toggle music" onClick={toggleMusic}>
+          <button type="button" className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`} aria-label={lang === "en" ? "Toggle music" : "Putar atau jeda musik"} onClick={toggleMusic}>
             <span className="tpl-vinyl">
               <span className="tpl-vinyl-groove tpl-vinyl-groove-1" />
               <span className="tpl-vinyl-groove tpl-vinyl-groove-2" />
@@ -939,11 +947,11 @@ export default function NiharaMist(profile: TemplateProps) {
             </div>
             <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label={t("close", lang)}>✕</button>
             {gallery.length > 1 && (
-              <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label={lang === "en" ? "Previous" : "Sebelumnya"}>‹</button>
+              <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label={t("prevPhoto", lang)}>‹</button>
             )}
             <img src={gallery[lightbox]} alt="" draggable={false} className="max-h-[90vh] max-w-[95vw] select-none rounded-md object-contain" onClick={(e) => e.stopPropagation()} />
             {gallery.length > 1 && (
-              <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label={lang === "en" ? "Next" : "Berikutnya"}>›</button>
+              <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label={t("nextPhoto", lang)}>›</button>
             )}
           </div>
         )}
@@ -954,7 +962,7 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="aspect-video w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&rel=0&playsinline=1&modestbranding=1`}
-                title="Video pasangan"
+                title={lang === "en" ? "Couple video" : "Video pasangan"}
                 className="h-full w-full"
                 allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
               />

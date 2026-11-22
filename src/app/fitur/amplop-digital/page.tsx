@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Amplop Digital & Alamat Kado",
   description:
     "Amplop digital pernikahan: rekening bank, e-wallet, QRIS, dan alamat pengiriman kado fisik, terintegrasi di undangan, aman & praktis.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/amplop-digital" },
+  alternates: { canonical: `${siteOrigin()}/fitur/amplop-digital` },
   openGraph: {
     title: "Amplop Digital & Alamat Kado | Aksaraa",
     description:

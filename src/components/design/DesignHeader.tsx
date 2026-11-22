@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { siteOrigin } from "@/lib/site"
 
 const LINKS = [
   { label: "Beranda", href: "/landing" },
   { label: "Desain", href: "/", current: true },
   { label: "Harga", href: "/customize" },
   { label: "Artikel", href: "/artikel" },
-  { label: "Aksaraa Wedding", href: "https://wedding.aksaraa.com" },
+  { label: "Aksaraa Wedding", href: siteOrigin() },
   { label: "Ceriavite", href: "https://ceriavite.aksaraa.com" },
 ]
 

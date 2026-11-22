@@ -65,6 +65,7 @@ export default function PixelQuest(props: TemplateProps) {
               couple_initials={props.couple_initials}
               onOpen={openInvitation}
               backgroundUrl={ASSETS.pixelQuest.coverBg}
+              language={lang}
             />
           ) : (
             <Quest

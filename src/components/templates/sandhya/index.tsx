@@ -12,7 +12,7 @@ import Wishes from "./Wishes"
 import VideoModalPlayer from "./VideoModalPlayer"
 import BackgroundVideo from "../dark-split-rail/BackgroundVideo"
 import "./sandhya.css"
-import { normalizeLanguage, t, tf } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 type SceneName = "cover" | "verse" | "couple" | "events" | "dresscode" | "finale"
 
@@ -25,10 +25,8 @@ const SANDHYA_THEMES = [
   { id: "clay", name: "Clay", value: "#c98f6b" },
 ]
 
-const MONTHS_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"]
-const MONTHS_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
-const DAYS_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-const DAYS_ID = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
 function parseIso(iso?: string) {
   const m = (iso || "").slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/)
@@ -36,13 +34,11 @@ function parseIso(iso?: string) {
   return { y: Number(m[1]), m: Number(m[2]) - 1, d: Number(m[3]) }
 }
 
-function longDate(iso: string | undefined, lang: "id" | "en") {
+function longDate(iso?: string) {
   const p = parseIso(iso)
   if (!p) return ""
   const date = new Date(Date.UTC(p.y, p.m, p.d))
-  const days = lang === "en" ? DAYS_EN : DAYS_ID
-  const months = lang === "en" ? MONTHS_EN : MONTHS_ID
-  return `${days[date.getUTCDay()]}, ${p.d} ${months[p.m]} ${p.y}`
+  return `${DAYS[date.getUTCDay()]}, ${p.d} ${MONTHS[p.m]} ${p.y}`
 }
 
 function shortDate(iso?: string) {
@@ -56,7 +52,7 @@ function initialsOf(groom?: string, bride?: string) {
   return `${a}${b}`.toUpperCase() || "A"
 }
 
-function describePalette(colors: { hex?: string; name?: string }[] | undefined, lang: "id" | "en"): string {
+function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
   if (!names.length) return ""
   const list =
@@ -65,7 +61,7 @@ function describePalette(colors: { hex?: string; name?: string }[] | undefined, 
       : names.length === 2
         ? `${names[0]} & ${names[1]}`
         : `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`
-  return lang === "en" ? `Elegant Attire in ${list}.` : `Busana elegan bernuansa ${list}.`
+  return `Elegant Attire in ${list}.`
 }
 
 function useCountdown(iso?: string) {
@@ -125,7 +121,7 @@ export default function Sandhya(profile: TemplateProps) {
   const gates = profile.feature_gates || {}
   const dresscode = profile.dresscode
   const hasDresscode = profile.dresscode_visible !== false && !!dresscode && (dresscode.colors?.length ?? 0) > 0
-  const dressDescription = describePalette(dresscode?.colors, lang)
+  const dressDescription = describePalette(dresscode?.colors)
   const livestream = profile.livestream
   const hasLivestream = profile.livestream_visible !== false && !!livestream?.url
 
@@ -176,7 +172,7 @@ export default function Sandhya(profile: TemplateProps) {
     return () => { if (coupleExitTimer.current) clearTimeout(coupleExitTimer.current) }
   }, [coupleExit])
 
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || t("theWeddingOf", lang)
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
   const groomShort = profile.groom_name || ""
   const brideShort = profile.bride_name || ""
   const groomFull = profile.groom_full_name || ""
@@ -189,13 +185,13 @@ export default function Sandhya(profile: TemplateProps) {
   const coverList = flattenPhotos(profile.cover_photos)
   const tc = profile.template_content || {}
   const themeValue = SANDHYA_THEMES.find((t) => t.id === themeId)?.value || SANDHYA_THEMES[0].value
-  const coverApology = tc.cover_apology || (lang === "en" ? "We apologize for any error in the writing of names & titles" : "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.")
-  const galleryQuote = tc.gallery_quote || (lang === "en" ? "Every love story is beautiful, but ours is my favorite." : "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.")
-  const giftIntroTitle = tc.gift_intro_title || t("secGift", lang)
-  const giftIntroDescription = tc.gift_intro_description || (lang === "en" ? "Your presence is the greatest gift. If you would like to send a token of love, the details are available below." : "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.")
-  const closingMessage = tc.closing_message || (lang === "en" ? "It is an honor and a joy for us if you would be pleased to attend and give your blessing on our wedding day." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.")
-  const openingTitle = profile.opening_title || (lang === "en" ? "Warmest Greetings" : "Salam Hangat")
-  const openingDescription = profile.opening_description || (lang === "en" ? "With great joy and gratitude, we invite you to share in the beginning of our forever." : "Dengan penuh sukacita dan rasa syukur, kami mengundang Anda untuk berbagi di awal kisah selamanya kami.")
+  const coverApology = tc.cover_apology || "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar."
+  const galleryQuote = tc.gallery_quote || "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku."
+  const giftIntroTitle = tc.gift_intro_title || "Tanda Kasih"
+  const giftIntroDescription = tc.gift_intro_description || "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini."
+  const closingMessage = tc.closing_message || "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami."
+  const openingTitle = profile.opening_title || "Warmest Greetings"
+  const openingDescription = profile.opening_description || "With great joy and gratitude, we invite you to share in the beginning of our forever."
   // Backgrounds from cover_photos slots (like nihara-mist)
   const bgVerse = coverList[1] || gallery[0] || cover
   const bgEvents = coverList[2] || gallery[1] || bgVerse
@@ -214,8 +210,8 @@ export default function Sandhya(profile: TemplateProps) {
   const honored = gates.inviting_families !== false && profile.inviting_families_visible !== false
     ? (profile.inviting_families || []).filter(Boolean)
     : []
-  const guestName = profile.guest_name || t("honoredGuest", lang)
-  const dateLong = longDate(profile.estimated_wedding_date, lang)
+  const guestName = profile.guest_name || "Our Beloved Guest"
+  const dateLong = longDate(profile.estimated_wedding_date)
   const dateShort = shortDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date)
   const hasTrack = !!profile.track_url
@@ -223,7 +219,7 @@ export default function Sandhya(profile: TemplateProps) {
   const bridePhoto = photoList(profile.bride_photo_url)[0]
   const coupleImages = [groomPhoto || bridePhoto || cover, bridePhoto || groomPhoto || cover]
   const galleryLoop = gallery.length > 1 ? [...gallery, ...gallery] : gallery
-  const calUrl = calendarUrl(`${t("theWeddingOf", lang)} ${coupleLabel}`, profile.estimated_wedding_date, events[0]?.venue || events[0]?.address || "")
+  const calUrl = calendarUrl(`The Wedding of ${coupleLabel}`, profile.estimated_wedding_date, events[0]?.venue || events[0]?.address || "")
   const showGuestDock =
     opened &&
     lightbox === null &&
@@ -456,8 +452,8 @@ export default function Sandhya(profile: TemplateProps) {
   }, [])
 
   const copy = useCallback(async (text: string) => {
-    try { await navigator.clipboard.writeText(text); showToast(t("copiedToClipboard", lang)) }
-    catch { showToast(t("failedToCopy", lang)) }
+    try { await navigator.clipboard.writeText(text); showToast("Number copied") }
+    catch { showToast("Could not copy number") }
   }, [showToast])
 
   const isActive = (name: SceneName) => scene === name
@@ -501,7 +497,7 @@ export default function Sandhya(profile: TemplateProps) {
           className={`tpl-preload-root${preloadLeaving ? " is-leaving" : ""}`}
           role="status"
           aria-live="polite"
-          aria-label={lang === "en" ? "Loading invitation" : "Memuat undangan"}
+          aria-label="Loading invitation"
           style={{ "--tpl-preload-font-display": "var(--sandhya-font-heading)", "--tpl-preload-accent": "var(--warm)" } as React.CSSProperties}
         >
           <div className="tpl-preload-vignette" aria-hidden="true" />
@@ -550,7 +546,7 @@ export default function Sandhya(profile: TemplateProps) {
             </header>
             <footer className="cover__bottom">
               <div className="cover__guest reveal" style={{ "--d": "1s" } as React.CSSProperties}>
-                <p className="label cover__greeting">{lang === "en" ? "Dear," : "Kepada Yth.,"}</p>
+                <p className="label cover__greeting">Dear,</p>
                 <p className="cover__guest-name">{guestName}</p>
                 <p className="cover__apology">{coverApology}</p>
               </div>
@@ -559,7 +555,7 @@ export default function Sandhya(profile: TemplateProps) {
                   <rect x="2.5" y="5.5" width="19" height="13" rx="1.5" />
                   <path d="M3 6.5l9 7 9-7" />
                 </svg>
-                <span>{t("openInvitation", lang)}</span>
+                <span>Open Invitation</span>
               </button>
             </footer>
           </div>
@@ -652,7 +648,7 @@ export default function Sandhya(profile: TemplateProps) {
               {events.map((s, i) => (
                 <article key={i} className={`event-card event-card--pos${i % 3}${isActive("events") && step === i ? " is-current" : ""}`}>
                   <h3 className="event-card__title">{s.name}</h3>
-                  <p className="event-card__line">{longDate(s.date || profile.estimated_wedding_date, lang)}</p>
+                  <p className="event-card__line">{longDate(s.date || profile.estimated_wedding_date)}</p>
                   {s.time && <p className="event-card__line event-card__line--dim">{s.time}</p>}
                   {s.venue && <p className="event-card__venue serif-i">{s.venue}</p>}
                   {s.address && <p className="event-card__addr">{s.address}</p>}
@@ -662,21 +658,21 @@ export default function Sandhya(profile: TemplateProps) {
                         <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" />
                         <circle cx="12" cy="10" r="2.5" />
                       </svg>
-                      <span>{t("viewLocation", lang).toUpperCase()}</span>
+                      <span>OPEN MAPS</span>
                     </a>
                   )}
                 </article>
               ))}
               {hasLivestream && (
                 <article className={`event-card event-card--pos${events.length % 3}${isActive("events") && step === events.length ? " is-current" : ""}`}>
-                  <h3 className="event-card__title">{t("secLivestream", lang)}</h3>
-                  <p className="event-card__venue serif-i">{lang === "en" ? "Join us virtually as we exchange our vows, for beloved family and friends who cannot be with us in person." : "Bergabunglah secara virtual saat kami mengucapkan janji suci, bagi keluarga dan sahabat yang belum dapat hadir."}</p>
+                  <h3 className="event-card__title">Live Streaming</h3>
+                  <p className="event-card__venue serif-i">Join us virtually as we exchange our vows, for beloved family and friends who cannot be with us in person.</p>
                   <a className="btn-map" href={livestream.url} target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
                       <rect x="2.5" y="5.5" width="19" height="13" rx="3.5" />
                       <path d="M10 9.2l5 2.8-5 2.8z" fill="currentColor" stroke="none" />
                     </svg>
-                    <span>{t("watchLivestream", lang)}</span>
+                    <span>Watch Live Stream</span>
                   </a>
                 </article>
               )}
@@ -690,7 +686,7 @@ export default function Sandhya(profile: TemplateProps) {
             <div className="scene__bg"><div className="scene__zoom">{bgDress && <img src={bgDress} alt="" decoding="async" />}</div></div>
             <div className="scene__veil scene__veil--top" />
             <div className="scene__content dresscode">
-              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>{tc.dresscode_title || t("secDresscode", lang)}</h3>
+              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>Dress Code</h3>
               {dressDescription && (
                 <p className="dresscode__desc serif-i reveal" style={{ "--d": ".65s" } as React.CSSProperties}>{dressDescription}</p>
               )}
@@ -717,15 +713,15 @@ export default function Sandhya(profile: TemplateProps) {
           <div className="scene__veil scene__veil--deep" />
           <div className="finale__scroll" id="sandhyaFinaleScroll" ref={finaleScrollRef}>
             <div className="finale__hero">
-              <h2 className="display finale__std reveal">{tc.countdown_title || t("secCountdown", lang)}</h2>
+              <h2 className="display finale__std reveal">Counting the Days</h2>
               <div className="countdown reveal">
-                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>{t("days", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>Days</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>{t("hours", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>Hours</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>{t("minutes", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>Minutes</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>{t("seconds", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>Seconds</span></div>
               </div>
               {calUrl && (
                 <a className="btn-open finale__cal reveal" href={calUrl} target="_blank" rel="noopener noreferrer">
@@ -733,13 +729,13 @@ export default function Sandhya(profile: TemplateProps) {
                     <rect x="3" y="4.5" width="18" height="16" rx="2" />
                     <path d="M3 9h18M8 2.5v4M16 2.5v4" />
                   </svg>
-                  <span>{(tc.save_date_label || t("saveTheDate", lang)).toUpperCase()}</span>
+                  <span>SAVE THE DATE</span>
                 </a>
               )}
             </div>
             <div className="sheet">
               <section className="sheet__section sheet__section--opening" data-io>
-                <p className="label opening__eyebrow">{tc.opening_kicker || (lang === "en" ? "With Joy" : "Dengan Sukacita")}</p>
+                <p className="label opening__eyebrow">With Joy</p>
                 <h3 className="opening__title">{openingTitle}</h3>
                 <p className="opening__text serif-i">{openingDescription}</p>
                 <img className="opening__flower" src="/templates/sandhya/flower-1.webp" alt="" aria-hidden="true" />
@@ -747,7 +743,7 @@ export default function Sandhya(profile: TemplateProps) {
 
               {stories.length > 0 && (
                 <section className="sheet__section sheet__section--story" data-io>
-                  <h3 className="display story__heading">{tc.love_story_title || t("secStory", lang)}</h3>
+                  <h3 className="display story__heading">Love Story</h3>
                   <div className="chapters">
                     {stories.map((s, i) => (
                       <article key={i} className={`chapter${i % 2 === 1 ? " chapter--alt" : ""}`}>
@@ -774,7 +770,7 @@ export default function Sandhya(profile: TemplateProps) {
                       <div className="car-track" style={{ "--dur": `${Math.max(36, gallery.length * 8)}s` } as React.CSSProperties}>
                         {galleryLoop.map((url, i) => (
                           <figure key={`a-${i}`} className="car-tile">
-                            <button type="button" aria-label={tf("viewPhoto", lang, { n: (i % gallery.length) + 1 })} onClick={() => setLightbox(i % gallery.length)}>
+                            <button type="button" aria-label={`View photo ${(i % gallery.length) + 1}`} onClick={() => setLightbox(i % gallery.length)}>
                               <img src={url} alt="" loading="lazy" />
                             </button>
                           </figure>
@@ -792,7 +788,7 @@ export default function Sandhya(profile: TemplateProps) {
                       <div className="car-track" style={{ "--dur": `${Math.max(40, gallery.length * 9)}s` } as React.CSSProperties}>
                         {[...gallery].reverse().concat([...gallery].reverse()).map((url, i) => (
                           <figure key={`b-${i}`} className="car-tile">
-                            <button type="button" aria-label={tf("viewPhoto", lang, { n: gallery.length - (i % gallery.length) })} onClick={() => setLightbox((gallery.length - 1 - (i % gallery.length) + gallery.length) % gallery.length)}>
+                            <button type="button" aria-label={`View photo ${gallery.length - (i % gallery.length)}`} onClick={() => setLightbox((gallery.length - 1 - (i % gallery.length) + gallery.length) % gallery.length)}>
                               <img src={url} alt="" loading="lazy" />
                             </button>
                           </figure>
@@ -804,14 +800,14 @@ export default function Sandhya(profile: TemplateProps) {
                     <div className="sandhya-video">
                       <AutoplayYouTube
                         videoId={videoId}
-                        title={lang === "en" ? "Our wedding film" : "Film pernikahan kami"}
+                        title="Our wedding film"
                         signal={scene === "finale" ? 1 : 0}
                       />
                       <button
                         type="button"
                         className="sandhya-video__hit"
                         onClick={() => setVideoModal(true)}
-                        aria-label={lang === "en" ? "Play our wedding film" : "Putar film pernikahan kami"}
+                        aria-label="Play our wedding film"
                       />
                     </div>
                   )}
@@ -828,7 +824,7 @@ export default function Sandhya(profile: TemplateProps) {
                         <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
                         <circle cx="12" cy="12" r="3" />
                       </svg>
-                      <span>{t("openEnvelope", lang)}</span>
+                      <span>Open Envelope</span>
                     </button>
                   ) : (
                     <div className="tpl-gift">
@@ -842,13 +838,13 @@ export default function Sandhya(profile: TemplateProps) {
                               <rect x="9" y="9" width="13" height="13" rx="2" />
                               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                             </svg>
-                            <span>{t("copy", lang)}</span>
+                            <span>Copy</span>
                           </button>
                         </div>
                       ))}
                       {giftAddress && (
                         <div className="tpl-gift__address">
-                          <p className="tpl-gift__address-label">{t("sendGift", lang)}</p>
+                          <p className="tpl-gift__address-label">Send a Gift</p>
                           <p className="tpl-gift__address-text">{giftAddress}</p>
                           {profile.gift_address_name && <p className="tpl-gift__account-name">{profile.gift_address_name}</p>}
                         </div>
@@ -863,7 +859,7 @@ export default function Sandhya(profile: TemplateProps) {
 
               {honored.length > 0 && (
                 <section className="sheet__section sheet__section--honored" data-io>
-                  <h3 className="display story__heading">{tc.inviting_title || t("secInviting", lang)}</h3>
+                  <h3 className="display story__heading">With Honour</h3>
                   <div className="honored__grid">
                     <div className="honored__col">
                       <ul className="honored__names">
@@ -881,10 +877,7 @@ export default function Sandhya(profile: TemplateProps) {
                 coupleName={coupleLabel}
                 weddingProfileId={profile.wedding_profile_id!}
                 guestName={guestName}
-                guestLinkStrict={profile.guest_link_strict}
-                language={profile.language}
-                title={tc.wishes_title || t("secWishes", lang)}
-                intro={tc.wishes_intro || (lang === "en" ? `Leave a message of love and a prayer for ${coupleLabel || "the couple"}.` : `Tinggalkan pesan cinta dan doa untuk ${coupleLabel || "kedua mempelai"}.`)}
+                guestLinkStrict={profile.guest_link_strict} language={profile.language}
               />
 
               <section className="sheet__section sheet__closing" data-io>
@@ -906,7 +899,7 @@ export default function Sandhya(profile: TemplateProps) {
                     href={waHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={lang === "en" ? "Contact Aksaraa Wedding via WhatsApp" : "Hubungi Aksaraa Wedding via WhatsApp"}
+                    aria-label="Hubungi Aksaraa Wedding via WhatsApp"
                     className="tpl-footer__link"
                   >
                     <span className="tpl-footer__badge">
@@ -926,14 +919,14 @@ export default function Sandhya(profile: TemplateProps) {
 
       <div className={`hint${opened && hintVisible && scene !== "finale" ? " is-show" : ""}`} aria-hidden="true">
         <span className="hint__line" />
-        <p className="label label--dim">{lang === "en" ? "Swipe up" : "Geser ke atas"}</p>
+        <p className="label label--dim">Swipe up</p>
       </div>
 
       {hasTrack && (
         <button
           type="button"
           className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`}
-          aria-label={t("playPauseMusic", lang)}
+          aria-label="Toggle music"
           onClick={toggleMusic}
         >
           <span className="tpl-vinyl">
@@ -957,13 +950,13 @@ export default function Sandhya(profile: TemplateProps) {
           <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium tabular-nums text-white" onClick={(e) => e.stopPropagation()}>
             {lightbox + 1} / {gallery.length}
           </div>
-          <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label={t("close", lang)}>✕</button>
+          <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label="Close">✕</button>
           {gallery.length > 1 && (
-            <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label={t("prevPhoto", lang)}>‹</button>
+            <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label="Previous">‹</button>
           )}
           <img src={gallery[lightbox]} alt="" draggable="false" className="max-h-[90vh] max-w-[95vw] select-none rounded-md object-contain" onClick={(e) => e.stopPropagation()} />
           {gallery.length > 1 && (
-            <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label={t("nextPhoto", lang)}>›</button>
+            <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label="Next">›</button>
           )}
         </div>
       )}
@@ -975,7 +968,7 @@ export default function Sandhya(profile: TemplateProps) {
           onClick={() => setVideoModal(false)}
           role="dialog"
           aria-modal="true"
-          aria-label={lang === "en" ? "Our wedding film" : "Film pernikahan kami"}
+          aria-label="Our wedding film"
         >
           <button
             type="button"
@@ -1006,7 +999,6 @@ export default function Sandhya(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
-          language={lang}
         />
       )}
     </div>

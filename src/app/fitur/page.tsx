@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Fitur Lengkap Undangan Digital",
   description:
     "Jelajahi 8 fitur unggulan undangan digital Aksaraa: RSVP otomatis, buku tamu QR, galeri foto, wish wall, reminder WA, amplop digital, dan banyak lagi.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur" },
+  alternates: { canonical: `${siteOrigin()}/fitur` },
   openGraph: {
     title: "Fitur Lengkap Undangan Digital | Aksaraa Wedding",
     description:

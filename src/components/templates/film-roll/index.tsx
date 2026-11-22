@@ -499,7 +499,7 @@ export default function FilmRoll(profile: TemplateProps) {
   const brideName = (profile.bride_name || "").trim()
   const groomFull = (profile.groom_full_name || "").trim() || groomName
   const brideFull = (profile.bride_full_name || "").trim() || brideName
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
   // Purely the editor's "Singkatan Pasangan": no inserted "&", no forced split.
   const editorInitials = (profile.couple_initials || "").trim().replace(/\s*&\s*/g, "")
   const initials =
@@ -526,10 +526,10 @@ export default function FilmRoll(profile: TemplateProps) {
 
   // ── copy: every visible string is reachable from the editor ──
   const coverTitle = (tc.cover_title || "").trim() || t("theWeddingOf", lang)
-  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
-  const openLabel = (tc.open_button || "").trim() || (lang === "en" ? "Enter" : "Masuk")
-  const dearLabel = (tc.cover_apology || "").trim() || (lang === "en" ? "Dear" : "Kepada Yth.")
-  const openingKicker = (tc.opening_kicker || "").trim() || (lang === "en" ? "Prologue" : "Prolog")
+  const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
+  const openLabel = (tc.open_button || "").trim() || "Enter"
+  const dearLabel = (tc.cover_apology || "").trim() || "Dear"
+  const openingKicker = (tc.opening_kicker || "").trim() || "Prologue"
   const openingBody =
     (tc.welcome_message || "").trim() ||
     "Before the credits roll and the lights come up, there was a first look, a first laugh, and a promise we kept rehearsing until it became a life."
@@ -539,56 +539,56 @@ export default function FilmRoll(profile: TemplateProps) {
   const prologueQuote = quoteCopy && quoteCopy !== openingBody ? quoteCopy : ""
   const quoteSource = (profile.quote_source || "").trim()
   const castKicker = ""
-  const parentsLabel = (tc.parents_label || "").trim() || (lang === "en" ? "With the blessing of" : "Dengan restu")
-  const storyKicker = (tc.story_kicker || "").trim() || (lang === "en" ? "Scene" : "Adegan")
-  const storyTitle = splitTitle((tc.love_story_title || "").trim() || (lang === "en" ? "Our Story" : "Kisah Kami"))
-  const storyLead = (tc.story_intro || "").trim() || (lang === "en" ? "Three scenes that brought us to the same frame." : "Tiga adegan yang membawa kami ke bingkai yang sama.")
-  const eventsKicker = (tc.events_kicker || "").trim() || t("saveTheDate", lang)
+  const parentsLabel = (tc.parents_label || "").trim() || "With the blessing of"
+  const storyKicker = (tc.story_kicker || "").trim() || "Scene"
+  const storyTitle = splitTitle((tc.love_story_title || "").trim() || "Our Story")
+  const storyLead = (tc.story_intro || "").trim() || "Three scenes that brought us to the same frame."
+  const eventsKicker = (tc.events_kicker || "").trim() || "Save the Date"
   const eventsTitle = splitTitle(
-    (tc.events_title || "").trim() || (events.length > 1 ? (lang === "en" ? "The Celebration" : "Perayaan") : (events[0]?.name || "").trim() || (lang === "en" ? "The Celebration" : "Perayaan"))
+    (tc.events_title || "").trim() || (events.length > 1 ? "The Celebration" : (events[0]?.name || "").trim() || "The Celebration")
   )
-  const eventsIntro = (tc.events_intro || "").trim() || (lang === "en" ? "We would be honoured to have you with us as we say our vows." : "Merupakan kehormatan bagi kami bila Anda hadir saat kami mengucapkan janji.")
-  const mapsLabel = (tc.maps_label || "").trim() || (lang === "en" ? "Open Map" : "Buka Peta")
-  const calendarLabel = (tc.events_note || "").trim() || (lang === "en" ? "Save to calendar" : "Simpan ke kalender")
-  const rundownKicker = (tc.rundown_kicker || "").trim() || (lang === "en" ? "The Programme" : "Susunan Acara")
-  const rundownTitle = splitTitle((tc.rundown_title || "").trim() || (lang === "en" ? "Order of the Day" : "Rangkaian Acara"))
-  const rundownIntro = (tc.rundown_intro || "").trim() || (lang === "en" ? "How the day will unfold, from the first arrival to the last farewell." : "Bagaimana hari akan berlangsung, dari kedatangan pertama hingga perpisahan terakhir.")
-  const galleryKicker = (tc.gallery_kicker || "").trim() || (lang === "en" ? "Stills" : "Potret")
-  const galleryTitle = splitTitle((tc.gallery_title || "").trim() || (lang === "en" ? "Precious Moments" : "Momen Berharga"))
-  const galleryLead = (tc.gallery_quote || "").trim() || (tc.gallery_intro || "").trim() || (lang === "en" ? "Every love story is beautiful, but ours is our favourite." : "Setiap kisah cinta itu indah, tapi kisah kami adalah favorit kami.")
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "Action!" : "Aksi!")
-  const videoTitle = splitTitle((tc.video_title || "").trim() || (lang === "en" ? "Trailer" : "Cuplikan"))
-  const videoIntro = (tc.video_intro || "").trim() || (lang === "en" ? "The day as it happened, kept in motion." : "Hari itu sebagaimana terjadi, tersimpan dalam gerak.")
-  const giftKicker = (tc.gift_kicker || "").trim() || (lang === "en" ? "With Love" : "Dengan Cinta")
+  const eventsIntro = (tc.events_intro || "").trim() || "We would be honoured to have you with us as we say our vows."
+  const mapsLabel = (tc.maps_label || "").trim() || "Open Map"
+  const calendarLabel = (tc.events_note || "").trim() || "Save to calendar"
+  const rundownKicker = (tc.rundown_kicker || "").trim() || "The Programme"
+  const rundownTitle = splitTitle((tc.rundown_title || "").trim() || "Order of the Day")
+  const rundownIntro = (tc.rundown_intro || "").trim() || "How the day will unfold, from the first arrival to the last farewell."
+  const galleryKicker = (tc.gallery_kicker || "").trim() || "Stills"
+  const galleryTitle = splitTitle((tc.gallery_title || "").trim() || "Precious Moments")
+  const galleryLead = (tc.gallery_quote || "").trim() || (tc.gallery_intro || "").trim() || "Every love story is beautiful, but ours is our favourite."
+  const videoKicker = (tc.video_kicker || "").trim() || "Action!"
+  const videoTitle = splitTitle((tc.video_title || "").trim() || "Trailer")
+  const videoIntro = (tc.video_intro || "").trim() || "The day as it happened, kept in motion."
+  const giftKicker = (tc.gift_kicker || "").trim() || "With Love"
   const giftTitle = splitTitle((tc.gift_intro_title || "").trim() || t("secGift", lang))
   const giftLead =
     (tc.gift_intro_description || "").trim() ||
     "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here."
-  const giftSignature = (tc.gift_signature || "").trim() || (lang === "en" ? "With love and gratitude" : "Dengan cinta dan terima kasih")
-  const dressKicker = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dresscode" : "Busana")
-  const dressHeading = dressTitleWritten || (lang === "en" ? "What to Wear" : "Busana")
+  const giftSignature = (tc.gift_signature || "").trim() || "With love and gratitude"
+  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dresscode"
+  const dressHeading = dressTitleWritten || "What to Wear"
   const dressColorNames = dressColors.map((color) => (color.name || "").trim()).filter(Boolean)
   const dressIntro =
     dressIntroWritten ||
     (dressColorNames.length
       ? `We would love to see you in ${nameList(dressColorNames)}.`
       : "We would love to see you in the palette below.")
-  const wishesKicker = (tc.wishes_kicker || "").trim() || (lang === "en" ? "Prayers & Wishes" : "Doa & Ucapan")
-  const wishesTitle = splitTitle((tc.wishes_title || "").trim() || (lang === "en" ? "Wishes" : "Ucapan"))
-  const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Write your best prayers and wishes for us." : "Tulis doa dan ucapan terbaik Anda untuk kami.")
+  const wishesKicker = (tc.wishes_kicker || "").trim() || "Prayers & Wishes"
+  const wishesTitle = splitTitle((tc.wishes_title || "").trim() || "Wishes")
+  const wishesIntro = (tc.wishes_intro || "").trim() || "Write your best prayers and wishes for us."
   const creditsKicker = (tc.closing_kicker || "").trim() || coverTitle
-  const closingSee = (tc.closing_see || "").trim() || (lang === "en" ? "See you at the pictures." : "Sampai jumpa di sana.")
-  const accountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening tersalin")
-  const addressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat tersalin")
-  const addressButton = (tc.copy_address_button || "").trim() || (lang === "en" ? "Copy address" : "Salin alamat")
+  const closingSee = (tc.closing_see || "").trim() || "See you at the pictures."
+  const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
+  const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
+  const addressButton = (tc.copy_address_button || "").trim() || "Copy address"
 
   const wishCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Name" : "Nama"),
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Your full name" : "Nama lengkap Anda"),
-    messageLabel: (tc.wishes_message_label || "").trim() || (lang === "en" ? "Message" : "Pesan"),
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave a wish for the couple" : "Tulis ucapan untuk pasangan"),
-    submit: (tc.wishes_submit || "").trim() || (lang === "en" ? "Submit now" : "Kirim sekarang"),
-    empty: (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama."),
+    nameLabel: (tc.wishes_name_label || "").trim() || "Name",
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Your full name",
+    messageLabel: (tc.wishes_message_label || "").trim() || "Message",
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Leave a wish for the couple",
+    submit: (tc.wishes_submit || "").trim() || "Submit now",
+    empty: (tc.wishes_empty || "").trim() || "No wishes yet. Be the first.",
   }
 
   const target = useMemo(
@@ -618,7 +618,7 @@ export default function FilmRoll(profile: TemplateProps) {
         hasGuest ? { label: dearLabel, value: shorten(guestName, 40) } : null,
         mainEvent?.venue || mainEvent?.address
           ? {
-              label: (mainEvent?.name || "").trim() || (lang === "en" ? "Venue" : "Tempat"),
+              label: (mainEvent?.name || "").trim() || "Venue",
               value: shorten(String(mainEvent?.venue || mainEvent?.address).split("\n")[0], 40),
             }
           : null,
@@ -1688,12 +1688,12 @@ export default function FilmRoll(profile: TemplateProps) {
                         <div className={`fr-slide__it${eventIdx === eventIndex ? " is-on" : ""}`} key={`${event.name || "event"}-${eventIdx}`}>
                           <div className="fr-paper fr-stub">
                             <div className="fr-card__bar fr-eyeb">
-                              <span>{event.name || (lang === "en" ? "Admit One" : "Tiket Masuk")}</span>
+                              <span>{event.name || "Admit One"}</span>
                               <span>No. {pad2(eventIdx + 1)}</span>
                             </div>
                             <div className="fr-row fr-stub__title">
                               <span className="fr-name">
-                                <b>{event.name || (lang === "en" ? "The Celebration" : "Perayaan")}</b>
+                                <b>{event.name || "The Celebration"}</b>
                               </span>
                             </div>
                             <div className="fr-row">
@@ -1738,7 +1738,7 @@ export default function FilmRoll(profile: TemplateProps) {
                     <button
                       type="button"
                       className="fr-slide__btn"
-                      aria-label={lang === "en" ? "Previous event" : "Acara sebelumnya"}
+                      aria-label="Previous event"
                       disabled={eventIndex === 0}
                       onClick={() => setEventIndex((current) => Math.max(0, current - 1))}
                     >
@@ -1760,7 +1760,7 @@ export default function FilmRoll(profile: TemplateProps) {
                     <button
                       type="button"
                       className="fr-slide__btn"
-                      aria-label={lang === "en" ? "Next event" : "Acara berikutnya"}
+                      aria-label="Next event"
                       disabled={eventIndex >= events.length - 1}
                       onClick={() => setEventIndex((current) => Math.min(events.length - 1, current + 1))}
                     >
@@ -1822,7 +1822,7 @@ export default function FilmRoll(profile: TemplateProps) {
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </i>
-                    <span className="fr-eyeb">{lang === "en" ? "Play" : "Putar"}</span>
+                    <span className="fr-eyeb">Play</span>
                   </button>
                 </div>
               )}
@@ -1832,7 +1832,7 @@ export default function FilmRoll(profile: TemplateProps) {
                   {accounts.map((account, accountIdx) => (
                     <div className="fr-paper" key={`${account.account_number || "acc"}-${accountIdx}`}>
                       <div className="fr-card__bar fr-eyeb">
-                        <span>{account.provider_name || (lang === "en" ? "Bank" : "Bank")}</span>
+                        <span>{account.provider_name || "Bank"}</span>
                       </div>
                       <div className="fr-row">
                         <span className="fr-name">
@@ -1845,7 +1845,7 @@ export default function FilmRoll(profile: TemplateProps) {
                             className="fr-link fr-eyeb"
                             onClick={() => copyText(account.account_number || "", accountToast)}
                           >
-                            {lang === "en" ? "Copy" : "Salin"}
+                            Copy
                           </button>
                         )}
                       </div>
@@ -1908,7 +1908,7 @@ export default function FilmRoll(profile: TemplateProps) {
                     {honored.length > 0 && (
                       <ul className="fr-credits fr-credits--c">
                         <li>
-                          <span className="fr-eyeb">{(tc.inviting_kicker || "").trim() || (lang === "en" ? "Also inviting" : "Turut mengundang")}</span>
+                          <span className="fr-eyeb">{(tc.inviting_kicker || "").trim() || "Also inviting"}</span>
                         </li>
                         {honored.map((family, familyIdx) => (
                           <li key={`${family}-${familyIdx}`}>
@@ -1920,7 +1920,7 @@ export default function FilmRoll(profile: TemplateProps) {
                   </div>
                   {closingSee && <span className="fr-serif fr-center">{closingSee}</span>}
                   <button type="button" className="fr-tix" onClick={share}>
-                    <span className="fr-tix__l">{lang === "en" ? "Share" : "Bagikan"}</span>
+                    <span className="fr-tix__l">Share</span>
                     <span className="fr-tix__r">
                       <ArrowSvg />
                     </span>
@@ -1950,7 +1950,7 @@ export default function FilmRoll(profile: TemplateProps) {
 
       {opened && (
         <div className={`fr-nav${menuOpen ? " is-open" : ""}${smallOpen ? " is-small" : ""}`}>
-          <button type="button" className="fr-logo" onClick={goHome} aria-label={lang === "en" ? "Back to the cover" : "Kembali ke sampul"}>
+          <button type="button" className="fr-logo" onClick={goHome} aria-label="Back to the cover">
             <span>{initials || "A"}</span>
           </button>
 
@@ -1964,7 +1964,7 @@ export default function FilmRoll(profile: TemplateProps) {
                   setMenuOpen(false)
                 }}
                 aria-expanded={smallOpen}
-                aria-label={lang === "en" ? "Scene list" : "Daftar adegan"}
+                aria-label="Scene list"
               >
                 <span className="fr-tk__top">
                   <span className="fr-tk__img">
@@ -1990,7 +1990,7 @@ export default function FilmRoll(profile: TemplateProps) {
                   setSmallOpen(false)
                 }}
                 aria-expanded={menuOpen}
-                aria-label={lang === "en" ? "Open the menu" : "Buka menu"}
+                aria-label="Open the menu"
               >
                 <i />
                 <i />
@@ -2061,7 +2061,7 @@ export default function FilmRoll(profile: TemplateProps) {
                       type="button"
                       className={playing ? "" : "is-off"}
                       onClick={toggleMusic}
-                      aria-label={playing ? (lang === "en" ? "Pause the music" : "Jeda musik") : (lang === "en" ? "Play the music" : "Putar musik")}
+                      aria-label={playing ? "Pause the music" : "Play the music"}
                       aria-pressed={playing}
                     >
                       <span className="fr-eq" aria-hidden="true">
@@ -2072,7 +2072,7 @@ export default function FilmRoll(profile: TemplateProps) {
                       </span>
                     </button>
                   )}
-                  <button type="button" onClick={share} aria-label={lang === "en" ? "Share the invitation" : "Bagikan undangan"}>
+                  <button type="button" onClick={share} aria-label="Share the invitation">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                       <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
                       <path d="M12 3v12M8 7l4-4 4 4" />
@@ -2096,7 +2096,7 @@ export default function FilmRoll(profile: TemplateProps) {
           type="button"
           className={`fr-music${playing ? "" : " is-off"}`}
           onClick={toggleMusic}
-          aria-label={playing ? (lang === "en" ? "Pause the music" : "Jeda musik") : (lang === "en" ? "Play the music" : "Putar musik")}
+          aria-label={playing ? "Pause the music" : "Play the music"}
           aria-pressed={playing}
         >
           <span className="fr-eq" aria-hidden="true">
@@ -2109,16 +2109,16 @@ export default function FilmRoll(profile: TemplateProps) {
       )}
 
       {lightbox !== null && gallery[lightbox] && (
-        <div className="fr-light" role="dialog" aria-modal="true" aria-label={lang === "en" ? "Photo viewer" : "Penampil foto"}>
+        <div className="fr-light" role="dialog" aria-modal="true" aria-label="Photo viewer">
           <img src={gallery[lightbox]} alt="" />
-          <button type="button" className="fr-arrow fr-light__x" aria-label={lang === "en" ? "Close" : "Tutup"} onClick={() => setLightbox(null)}>
+          <button type="button" className="fr-arrow fr-light__x" aria-label="Close" onClick={() => setLightbox(null)}>
             ✕
           </button>
           {gallery.length > 1 && (
             <button
               type="button"
               className="fr-arrow fr-arrow--light fr-light__p"
-              aria-label={t("previousPhoto", lang)}
+              aria-label="Previous photo"
               onClick={() => setLightbox((current) => (current === null ? null : (current - 1 + gallery.length) % gallery.length))}
             >
               ‹
@@ -2128,7 +2128,7 @@ export default function FilmRoll(profile: TemplateProps) {
             <button
               type="button"
               className="fr-arrow fr-arrow--light fr-light__n"
-              aria-label={t("nextPhoto", lang)}
+              aria-label="Next photo"
               onClick={() => setLightbox((current) => (current === null ? null : (current + 1) % gallery.length))}
             >
               ›
@@ -2156,7 +2156,7 @@ export default function FilmRoll(profile: TemplateProps) {
           <button
             type="button"
             className="fr-arrow fr-arrow--light fr-player__x"
-            aria-label={lang === "en" ? "Close" : "Tutup"}
+            aria-label="Close"
             onClick={() => setVideoLive(false)}
           >
             ✕
@@ -2231,7 +2231,6 @@ export default function FilmRoll(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
-          language={profile.language}
           anchor="bottom"
           bottom={80}
         />

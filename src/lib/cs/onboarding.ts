@@ -3,6 +3,7 @@
 // langsung masuk wedding_profiles (write-through) + patch WP bila perlu.
 
 import { supabaseAdmin } from "@/lib/supabase"
+import { siteOrigin } from "@/lib/site"
 import { getPublishBlockers } from "@/lib/publishBlockers"
 import { getRowGates } from "@/lib/featureGates"
 import { getTemplateContentSpec } from "@/components/templates"
@@ -465,13 +466,13 @@ function templateListReply(templates: Record<string, unknown>[]): string {
 }
 
 function previewLink(profile: Record<string, unknown>): string {
-  return `https://wedding.aksaraa.com/preview/${profile.id}`
+  return `${siteOrigin()}/preview/${profile.id}`
 }
 
 function publishReply(profile: Record<string, unknown>): string {
   const link = profile.is_published
-    ? `Undangannya sudah tayang: https://wedding.aksaraa.com/w/${profile.slug}`
-    : `Undangannya belum tayang. Buka halaman pratinjau & konfirmasi di sini:\nhttps://wedding.aksaraa.com/dashboard/${profile.id}/web-invitation/editor?review=1\n\nLangkahnya: login → halaman pratinjau langsung terbuka (bukan editor isi) → tekan tombol *Konfirmasi*. Setelah dikonfirmasi, undangan langsung tayang.`
+    ? `Undangannya sudah tayang: ${siteOrigin()}/w/${profile.slug}`
+    : `Undangannya belum tayang. Buka halaman pratinjau & konfirmasi di sini:\n${siteOrigin()}/dashboard/${profile.id}/web-invitation/editor?review=1\n\nLangkahnya: login → halaman pratinjau langsung terbuka (bukan editor isi) → tekan tombol *Konfirmasi*. Setelah dikonfirmasi, undangan langsung tayang.`
   return `Sip, semua sudah oke. ${link}`
 }
 

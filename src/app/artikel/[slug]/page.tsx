@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { siteOrigin } from "@/lib/site"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ARTICLES, getArticle } from "@/data/artikel"
@@ -16,7 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const article = getArticle(slug)
   if (!article) return {}
-  const url = `https://wedding.aksaraa.com/artikel/${article.slug}`
+  const base = siteOrigin()
+  const url = `${base}/artikel/${article.slug}`
   return {
     title: article.title,
     description: article.description,
@@ -73,7 +75,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const article = getArticle(slug)
   if (!article) notFound()
 
-  const url = `https://wedding.aksaraa.com/artikel/${article.slug}`
+  const base = siteOrigin()
+  const url = `${base}/artikel/${article.slug}`
   const { html: bodyHtml, toc } = withTocAnchors(article.body)
   const jsonLd = {
     "@context": "https://schema.org",
@@ -83,11 +86,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     datePublished: article.date,
     inLanguage: "id-ID",
     wordCount: wordCount(article.body),
-    author: { "@type": "Organization", name: "Aksaraa Wedding", url: "https://wedding.aksaraa.com" },
+    author: { "@type": "Organization", name: "Aksaraa Wedding", url: base },
     publisher: {
       "@type": "Organization",
       name: "Aksaraa Wedding",
-      logo: { "@type": "ImageObject", url: "https://wedding.aksaraa.com/icon.svg" },
+      logo: { "@type": "ImageObject", url: `${base}/icon.svg` },
     },
     mainEntityOfPage: url,
   }
@@ -95,8 +98,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Beranda", item: "https://wedding.aksaraa.com/hero" },
-      { "@type": "ListItem", position: 2, name: "Artikel", item: "https://wedding.aksaraa.com/artikel" },
+      { "@type": "ListItem", position: 1, name: "Beranda", item: `${base}/hero` },
+      { "@type": "ListItem", position: 2, name: "Artikel", item: `${base}/artikel` },
       { "@type": "ListItem", position: 3, name: article.title, item: url },
     ],
   }

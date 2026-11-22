@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { generateToken } from "@/lib/qr"
 import { cachedRead } from "@/lib/refCache"
 import { resolveEventPhoto } from "@/lib/event-photo"
+import { siteOrigin } from "@/lib/site"
 import { DGB_BASE_QUOTA, GALLERY_DEFAULT_CAP, GALLERY_DEFAULT_QUOTA, galeriEventCap, matchGaleriTier, type GaleriTierRow } from "@/lib/packages"
 
 // Server-only gallery helpers (imports supabaseAdmin — never import from
@@ -247,6 +248,6 @@ export function wibToUtcIso(date: string, time: string): string | null {
 }
 
 export function galleryCameraUrl(token: string): string {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://wedding.aksaraa.com").replace(/\/+$/, "")
+  const base = siteOrigin().replace(/\/+$/, "")
   return `${base}/g/${encodeURIComponent(token)}`
 }

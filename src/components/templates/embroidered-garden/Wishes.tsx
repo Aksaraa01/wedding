@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
-import { formatWishAgo, normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -24,161 +23,94 @@ const PAGE_SIZE = 5
 const MAX_CHARS = 500
 const DEMO_ID = "demo-wedding-profile-id"
 
-function demoWishes(lang: "id" | "en"): Wish[] {
-  return lang === "en"
-    ? [
+const DEMO_WISHES: Wish[] = [
   {
     id: "demo-1",
     name: "The Albarn Family",
     message: "Wishing you a lifetime of gentleness, laughter, and the kind of love that only grows quieter and deeper with time.",
-    created_at: new Date(Date.now() - 86400000).toISOString(),
+    created_at: new Date(Date.now() - 86_400_000).toISOString(),
   },
   {
     id: "demo-2",
     name: "A Friend of Faye",
     message: "Finally! We have watched this story unfold from the very first chapter. Congratulations, you two.",
-    created_at: new Date(Date.now() - 172800000).toISOString(),
+    created_at: new Date(Date.now() - 172_800_000).toISOString(),
   },
   {
     id: "demo-3",
     name: "David's Old Colleague",
     message: "May your home always be warm, your table always full, and your patience always longer than the queue at the airport.",
-    created_at: new Date(Date.now() - 259200000).toISOString(),
+    created_at: new Date(Date.now() - 259_200_000).toISOString(),
   },
   {
     id: "demo-4",
     name: "The Reed Family",
     message: "With all our love and blessings for the road ahead. We are so happy for you both.",
-    created_at: new Date(Date.now() - 345600000).toISOString(),
+    created_at: new Date(Date.now() - 345_600_000).toISOString(),
   },
   {
     id: "demo-5",
     name: "An Old Friend",
     message: "From the people who watched you become who you are, congratulations, and all of our love.",
-    created_at: new Date(Date.now() - 432000000).toISOString(),
+    created_at: new Date(Date.now() - 432_000_000).toISOString(),
   },
   {
     id: "demo-6",
     name: "The Garden Club",
     message: "May your marriage grow like the garden we planted together, slowly, patiently, and in every season.",
-    created_at: new Date(Date.now() - 518400000).toISOString(),
+    created_at: new Date(Date.now() - 518_400_000).toISOString(),
   },
   {
     id: "demo-7",
     name: "Faye's Godmother",
     message: "I have prayed for this day since you were small. Be kind to one another, and laugh often.",
-    created_at: new Date(Date.now() - 604800000).toISOString(),
+    created_at: new Date(Date.now() - 604_800_000).toISOString(),
   },
   {
     id: "demo-8",
     name: "The Southworths",
     message: "Congratulations on finding the person who makes ordinary afternoons feel like celebrations.",
-    created_at: new Date(Date.now() - 691200000).toISOString(),
+    created_at: new Date(Date.now() - 691_200_000).toISOString(),
   },
   {
     id: "demo-9",
     name: "A Neighbour",
     message: "May your home always have a full pot of tea and an open door for the people you love.",
-    created_at: new Date(Date.now() - 777600000).toISOString(),
+    created_at: new Date(Date.now() - 777_600_000).toISOString(),
   },
   {
     id: "demo-10",
     name: "David's Sister",
     message: "You got the good one, and she got the good one. That is rare. Take care of each other.",
-    created_at: new Date(Date.now() - 864000000).toISOString(),
+    created_at: new Date(Date.now() - 864_000_000).toISOString(),
   },
   {
     id: "demo-11",
     name: "The Choir",
     message: "Wishing you a life that sings. We will be at the front row, loudly and proudly.",
-    created_at: new Date(Date.now() - 950400000).toISOString(),
+    created_at: new Date(Date.now() - 950_400_000).toISOString(),
   },
   {
     id: "demo-12",
     name: "Work Friends",
     message: "Thank you for always leaving the last slice. Now you have a lifetime of slices to share.",
-    created_at: new Date(Date.now() - 1036800000).toISOString(),
+    created_at: new Date(Date.now() - 1_036_800_000).toISOString(),
   },
-    ]
-    : [
-  {
-    id: "demo-1",
-    name: "Keluarga Albarn",
-    message: "Semoga kalian selalu diberkahi kelembutan, tawa, dan cinta yang semakin dalam seiring waktu.",
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: "demo-2",
-    name: "Sahabat Faye",
-    message: "Akhirnya! Kami menyaksikan kisah ini sejak bab pertama. Selamat untuk kalian berdua.",
-    created_at: new Date(Date.now() - 172800000).toISOString(),
-  },
-  {
-    id: "demo-3",
-    name: "Rekan Lama David",
-    message: "Semoga rumah kalian selalu hangat, meja selalu penuh, dan kesabaran selalu lebih panjang dari antrean.",
-    created_at: new Date(Date.now() - 259200000).toISOString(),
-  },
-  {
-    id: "demo-4",
-    name: "Keluarga Reed",
-    message: "Dengan segenap cinta dan doa untuk perjalanan kalian ke depan. Kami sangat bahagia untuk kalian.",
-    created_at: new Date(Date.now() - 345600000).toISOString(),
-  },
-  {
-    id: "demo-5",
-    name: "Teman Lama",
-    message: "Dari kami yang menyaksikan kalian tumbuh, selamat, dan semua cinta kami untuk kalian.",
-    created_at: new Date(Date.now() - 432000000).toISOString(),
-  },
-  {
-    id: "demo-6",
-    name: "Klub Kebun",
-    message: "Semoga pernikahan kalian tumbuh seperti kebun yang kita tanam bersama, perlahan, sabar, dan di setiap musim.",
-    created_at: new Date(Date.now() - 518400000).toISOString(),
-  },
-  {
-    id: "demo-7",
-    name: "Ibu Baptis Faye",
-    message: "Aku telah mendoakan hari ini sejak kamu kecil. Berbaik hatilah satu sama lain, dan seringlah tertawa.",
-    created_at: new Date(Date.now() - 604800000).toISOString(),
-  },
-  {
-    id: "demo-8",
-    name: "Keluarga Southworth",
-    message: "Selamat telah menemukan orang yang membuat sore biasa terasa seperti perayaan.",
-    created_at: new Date(Date.now() - 691200000).toISOString(),
-  },
-  {
-    id: "demo-9",
-    name: "Tetangga",
-    message: "Semoga rumah kalian selalu punya teh hangat dan pintu yang terbuka untuk orang-orang yang kalian sayangi.",
-    created_at: new Date(Date.now() - 777600000).toISOString(),
-  },
-  {
-    id: "demo-10",
-    name: "Adik David",
-    message: "Kalian mendapatkan pasangan terbaik. Itu langka. Jaga satu sama lain.",
-    created_at: new Date(Date.now() - 864000000).toISOString(),
-  },
-  {
-    id: "demo-11",
-    name: "Paduan Suara",
-    message: "Semoga hidup kalian penuh nyanyian. Kami akan ada di baris depan, dengan bangga.",
-    created_at: new Date(Date.now() - 950400000).toISOString(),
-  },
-  {
-    id: "demo-12",
-    name: "Teman Kantor",
-    message: "Terima kasih selalu menyisakan potongan terakhir. Sekarang kalian punya seumur hidup untuk berbagi.",
-    created_at: new Date(Date.now() - 1036800000).toISOString(),
-  },
-    ]
+]
+
+function wishAgo(iso?: string): string {
+  if (!iso) return ""
+  const diff = Date.now() - new Date(iso).getTime()
+  const minutes = Math.floor(diff / 60_000)
+  if (minutes < 1) return "Just now"
+  if (minutes < 60) return `${minutes} min ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} hr ago`
+  const days = Math.floor(hours / 24)
+  return days === 1 ? "1 day ago" : `${days} days ago`
 }
 
-
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName , language = "id"}: Props) {
-  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   // Terbatas links prefill and lock the name; fleksibel links keep it editable.
@@ -195,7 +127,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       return
     }
     if (weddingProfileId === DEMO_ID) {
-      setWishes(demoWishes(lang))
+      setWishes(DEMO_WISHES)
       setLoaded(true)
       return
     }
@@ -213,14 +145,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     return () => {
       cancelled = true
     }
-  }, [weddingProfileId, lang])
+  }, [weddingProfileId])
 
   const send = useCallback(async () => {
     const text = message.trim()
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(t("previewWishNotSaved", lang))
+      setFeedback("Preview mode, your wish was not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -237,19 +169,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || t("honoredGuest", lang),
+          name: name.trim() || guestName || "Tamu Undangan",
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback(t("wishAlreadySent", lang))
+        setFeedback("You have already sent a wish. Thank you for the love and the prayers.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback(t("thanksForWish", lang))
+        setFeedback("Thank you. Your wish will appear once it has been reviewed.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -258,12 +190,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback(t("tooManyMessages", lang))
+      setFeedback("Too many messages right now. Please try again in a moment.")
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback("Could not send your wish. Please check your connection.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
+  }, [weddingProfileId, guestId, guestName, name, message, status])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -282,14 +214,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         }}
       >
         <div className="eg-field">
-          <label htmlFor="eg-wish-name">{lang === "en" ? "Name" : "Nama"}</label>
+          <label htmlFor="eg-wish-name">Name</label>
           <input
             id="eg-wish-name"
             className="eg-input"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder={lang === "en" ? "Your name" : "Nama Anda"}
+            placeholder="Your name"
             maxLength={80}
             autoComplete="name"
             readOnly={nameLocked}
@@ -298,13 +230,13 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <div className="eg-field">
-          <label htmlFor="eg-wish-message">{t("secWishes", lang)}</label>
+          <label htmlFor="eg-wish-message">Wish &amp; Prayer</label>
           <textarea
             id="eg-wish-message"
             className="eg-input eg-textarea"
             value={message}
             onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
-            placeholder={t("writeWish", lang)}
+            placeholder="Write a wish for the couple"
             rows={4}
             maxLength={MAX_CHARS}
           />
@@ -312,7 +244,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <button type="submit" className="eg-pill eg-wishes__submit" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? t("sending", lang) : t("sendWishes", lang)}
+          {status === "sending" ? "Sending…" : "Send Wish"}
         </button>
 
         {feedback && (
@@ -323,10 +255,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       </form>
 
       <div className="eg-wishes__feed">
-        {!loaded && <p className="eg-wishes__empty">{t("loadingWishes", lang)}</p>}
+        {!loaded && <p className="eg-wishes__empty">Loading wishes…</p>}
         {loaded && wishes.length === 0 && (
           <p className="eg-wishes__empty">
-            {lang === "en" ? `No wishes yet. Be the first to write one for ${coupleName || "the couple"}.` : `Belum ada ucapan. Jadilah yang pertama untuk ${coupleName || "kedua mempelai"}.`}
+            No wishes yet. Be the first to write one for {coupleName || "the couple"}.
           </p>
         )}
 
@@ -336,8 +268,8 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
               {pagedWishes.map((wish) => (
                 <article className="eg-wish" key={wish.id}>
                   <header className="eg-wish__head">
-                    <span className="eg-wish__name">{wish.name || t("honoredGuest", lang)}</span>
-                    <span className="eg-wish__date">{formatWishAgo(wish.created_at, lang)}</span>
+                    <span className="eg-wish__name">{wish.name || "Tamu Undangan"}</span>
+                    <span className="eg-wish__date">{wishAgo(wish.created_at)}</span>
                   </header>
                   <p className="eg-wish__text">{wish.message}</p>
                 </article>
@@ -349,7 +281,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="eg-pager-btn"
-                  aria-label={t("previousPage", lang)}
+                  aria-label="Previous page"
                   disabled={currentPage === 0}
                   onClick={() => setPage((value) => Math.max(0, value - 1))}
                 >
@@ -359,7 +291,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="eg-pager-btn"
-                  aria-label={t("nextPage", lang)}
+                  aria-label="Next page"
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
                 >

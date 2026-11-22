@@ -2,14 +2,13 @@
 
 import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
-import { normalizeLanguage } from "@/lib/i18n"
 
-function EventBlock({ session, align, lang = "id" }: { session: SessionData; align: "left" | "right"; lang?: "id" | "en" }) {
+function EventBlock({ session, align }: { session: SessionData; align: "left" | "right" }) {
   const right = align === "right"
   return (
     <section className={`flex flex-col max-w-[310px] drop-shadow-sm ${right ? "items-end text-right self-end mt-4" : "items-start text-left"}`}>
       <h1 className="text-[46px] leading-[1.1] font-normal mb-3 tracking-normal" style={{ ...FONT_SCRIPT, color: "#332a24", textShadow: "0 1px 2px rgba(255,255,255,0.4)" }}>
-        {session.name || (lang === "en" ? "Event" : "Acara")}
+        {session.name || "Acara"}
       </h1>
       {session.date && (
         <p className="text-[18px] font-semibold tracking-wide mb-1" style={{ ...FONT_BODY, color: "#2c221a" }}>
@@ -51,7 +50,7 @@ function EventBlock({ session, align, lang = "id" }: { session: SessionData; ali
 
 // Renders all invited sessions on one page. With two sessions, keeps the
 // top-left / bottom-right composition; with one or more, alternates sides.
-export default function EventPage({ sessions, lang = "id" }: { sessions: SessionData[]; lang?: "id" | "en" }) {
+export default function EventPage({ sessions }: { sessions: SessionData[] }) {
   const list = (sessions || []).filter((s) => s && (s.date || s.venue || s.time || s.name || s.address))
   return (
     <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col px-6 pt-10 pb-16 pointer-events-auto select-none">
@@ -59,14 +58,14 @@ export default function EventPage({ sessions, lang = "id" }: { sessions: Session
       <div className="relative flex-1 w-full h-full flex flex-col justify-between px-3 pt-6 pb-2 gap-4">
         {list.length > 0 ? (
           list.map((session, i) => (
-            <EventBlock key={i} session={session} align={i % 2 === 0 ? "left" : "right"} lang={lang} />
+            <EventBlock key={i} session={session} align={i % 2 === 0 ? "left" : "right"} />
           ))
         ) : (
           <span />
         )}
         <footer className="w-full flex items-center justify-center relative pt-2">
           <span className="text-[11px] font-semibold uppercase" style={{ ...FONT_BODY, letterSpacing: "0.2em", color: "rgba(61,48,37,0.9)" }}>
-            {lang === "en" ? "Swipe up" : "Geser ke atas"}
+            Geser ke atas
           </span>
         </footer>
       </div>

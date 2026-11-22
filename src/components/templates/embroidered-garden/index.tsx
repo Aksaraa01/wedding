@@ -179,29 +179,29 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 }
 
 // The seconds tick is isolated so it never reconciles the whole invitation.
-function CountdownClock({ iso, sessions, lang }: { iso?: string; sessions?: TemplateProps["sessions"]; lang: "id" | "en" }) {
+function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplateProps["sessions"] }) {
   const c = useCountdown(iso, sessions)
   return (
-    <div className="eg-clock" aria-label={t("countdown", lang)}>
+    <div className="eg-clock" aria-label="Wedding countdown">
       <div className="eg-clock__dial">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.d ?? "00"}</strong>
-        <span>{t("days", lang)}</span>
+        <span>Days</span>
       </div>
       <div className="eg-clock__dial">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.h ?? "00"}</strong>
-        <span>{t("hours", lang)}</span>
+        <span>Hours</span>
       </div>
       <div className="eg-clock__dial">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.m ?? "00"}</strong>
-        <span>{t("minutes", lang)}</span>
+        <span>Minutes</span>
       </div>
       <div className="eg-clock__dial eg-clock__dial--seconds">
         <img src={ART_COUNTDOWN_MEDALLION} alt="" aria-hidden="true" loading="lazy" />
         <strong>{c?.s ?? "00"}</strong>
-        <span>{t("seconds", lang)}</span>
+        <span>Seconds</span>
       </div>
     </div>
   )
@@ -351,9 +351,9 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const hasGift = accounts.length > 0 || !!giftAddress
   const giftTabs = accounts.length > 0 && !!giftAddress
 
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
   const monogram = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "A&E"
-  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const guestName = profile.guest_name || "Tamu Undangan"
   const dateLong = longDate(profile.estimated_wedding_date)
   // The couple's "kalimat pembuka" — the greeting / doa they write once for
   // every template. It belongs to the mempelai block (the cover carries only
@@ -361,7 +361,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   // authored before this mapping existed.
   const welcomeMessage =
     (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
-  const openingTitle = (profile.opening_title || "").trim() || (lang === "en" ? "Together with their families" : "Bersama keluarga kami")
+  const openingTitle = (profile.opening_title || "").trim() || "Together with their families"
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
 
@@ -755,11 +755,11 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         <section className="eg-welcome" data-section="hero">
           <div className="eg-welcome__art" style={{ backgroundImage: `url(${ART_SWANS})` }} aria-hidden="true" />
           <div className="eg-welcome__body" data-eg-reveal>
-            <p className="eg-kicker">{tc.welcome_invite || (lang === "en" ? "Welcome to our wedding" : "Selamat datang di pernikahan kami")}</p>
+            <p className="eg-kicker">{tc.welcome_invite || "Welcome to our wedding"}</p>
             <h1 className="eg-display eg-welcome__names">
-              <span>{profile.groom_name || (lang === "en" ? "Groom" : "Mempelai Pria")}</span>
+              <span>{profile.groom_name || "Groom"}</span>
               <em>&amp;</em>
-              <span>{profile.bride_name || (lang === "en" ? "Bride" : "Mempelai Wanita")}</span>
+              <span>{profile.bride_name || "Bride"}</span>
             </h1>
             {dateLong && <p className="eg-welcome__date">{dateLong}</p>}
           </div>
@@ -771,7 +771,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             <div className="eg-countdown__frame" style={{ backgroundImage: `url(${ART_COUNTDOWN_FRAME})` }} aria-hidden="true" />
             <div className="eg-wrap eg-countdown__body" data-eg-reveal>
               <h2 className="eg-display eg-heading">Countdown</h2>
-              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
+              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} />
               {calendarUrl && (
                 <a className="eg-link" href={calendarUrl} target="_blank" rel="noreferrer">
                   Add to calendar
@@ -789,10 +789,10 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             <div className="eg-couple__grid">
               <article className="eg-person">
                 <figure className="eg-gilded">
-                  <img src={groomPhoto} alt={profile.groom_full_name || profile.groom_name || (lang === "en" ? "The groom" : "Mempelai pria")} loading="lazy" />
+                  <img src={groomPhoto} alt={profile.groom_full_name || profile.groom_name || "The groom"} loading="lazy" />
                 </figure>
                 <h3 className="eg-display eg-person__name">
-                  {profile.groom_full_name || profile.groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")}
+                  {profile.groom_full_name || profile.groom_name || "The Groom"}
                 </h3>
                 {profile.groom_parents && <p className="eg-person__parents">{profile.groom_parents}</p>}
                 {profile.groom_instagram && (
@@ -817,10 +817,10 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               </span>
               <article className="eg-person">
                 <figure className="eg-gilded">
-                  <img src={bridePhoto} alt={profile.bride_full_name || profile.bride_name || (lang === "en" ? "The bride" : "Mempelai wanita")} loading="lazy" />
+                  <img src={bridePhoto} alt={profile.bride_full_name || profile.bride_name || "The bride"} loading="lazy" />
                 </figure>
                 <h3 className="eg-display eg-person__name">
-                  {profile.bride_full_name || profile.bride_name || (lang === "en" ? "The Bride" : "Mempelai Wanita")}
+                  {profile.bride_full_name || profile.bride_name || "The Bride"}
                 </h3>
                 {profile.bride_parents && <p className="eg-person__parents">{profile.bride_parents}</p>}
                 {profile.bride_instagram && (
@@ -875,7 +875,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               <div className="eg-events__list">
                 {events.map((event, index) => (
                   <article className="eg-event" key={`${event.name || "event"}-${index}`}>
-                    <h3 className="eg-display eg-event__name">{event.name || t("weddingEventFallback", lang)}</h3>
+                    <h3 className="eg-display eg-event__name">{event.name || "Wedding Event"}</h3>
                     <p className="eg-event__when">
                       {longDate(event.date) && <span>{longDate(event.date)}</span>}
                       {event.time && <span>{event.time}</span>}
@@ -899,7 +899,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         {rundown.length > 0 && (
           <section className="eg-section eg-rundown" data-section="rundown">
             <div className="eg-wrap" data-eg-reveal>
-              <h2 className="eg-display eg-heading">{tc.rundown_title || t("rundownTitle", lang)}</h2>
+              <h2 className="eg-display eg-heading">{tc.rundown_title || "Order of the Day"}</h2>
               {tc.rundown_intro && <p className="eg-body eg-rundown__intro">{tc.rundown_intro}</p>}
               <ol className="eg-rundown__list">
                 {rundown.map((item, index) => (
@@ -926,10 +926,10 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <section className="eg-section eg-dress" data-section="dresscode">
             <div className="eg-dress__garland" style={{ backgroundImage: `url(${ART_DRESSCODE_GARLAND})` }} aria-hidden="true" />
             <div className="eg-wrap eg-dress__body" data-eg-reveal>
-              <h2 className="eg-display eg-heading">{tc.dresscode_title || t("secDresscode", lang)}</h2>
-              <p className="eg-dress__title">{profile.dresscode?.title || (lang === "en" ? "Formal Attire" : "Busana Formal")}</p>
+              <h2 className="eg-display eg-heading">Dress Code</h2>
+              <p className="eg-dress__title">{profile.dresscode?.title || "Formal Attire"}</p>
               {profile.dresscode?.description && <p className="eg-body eg-dress__note">{profile.dresscode.description}</p>}
-              <div className="eg-swatches" aria-label={t("secDresscode", lang)}>
+              <div className="eg-swatches" aria-label="Dress code palette">
                 {dressColors.map((color, index) => (
                   <span className="eg-swatch" key={`${color.hex || color.name}-${index}`}>
                     <i style={{ "--eg-swatch": color.hex || "#ccc" } as CSSProperties} aria-hidden="true" />
@@ -948,7 +948,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             <div className="eg-wrap eg-story__body" data-eg-reveal>
               <div className="eg-story__arch" style={{ backgroundImage: `url(${ART_STORY_FRAME})` }} aria-hidden="true" />
               <div className="eg-story__inner">
-                <h2 className="eg-display eg-heading">{tc.love_story_title || (lang === "en" ? "How Our Story Began" : "Awal Kisah Kami")}</h2>
+                <h2 className="eg-display eg-heading">{tc.love_story_title || "How Our Story Began"}</h2>
                 {tc.story_intro && <p className="eg-body eg-story__intro">{tc.story_intro}</p>}
                 <ol className="eg-chapters">
                   {stories.map((story, index) => (
@@ -1009,7 +1009,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             <div className="eg-wrap eg-gallery__quote" data-eg-reveal>
               <span className="eg-gallery__mark" aria-hidden="true">&#8220;</span>
               <p className="eg-gallery__quote-text">
-                {tc.gallery_quote || (lang === "en" ? "Every love story is beautiful, but ours is my favourite." : "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.")}
+                {tc.gallery_quote || "Every love story is beautiful, but ours is my favourite."}
               </p>
               <p className="eg-gallery__sign">{coupleLabel}</p>
             </div>
@@ -1043,7 +1043,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         {hasFilm && (
           <section className="eg-section eg-film" data-section="video">
             <div className="eg-wrap eg-film__head" data-eg-reveal>
-              <h2 className="eg-display eg-heading">{tc.video_title || t("secVideo", lang)}</h2>
+              <h2 className="eg-display eg-heading">{tc.video_title || "Our Wedding Film"}</h2>
               {tc.video_intro && <p className="eg-body eg-film__intro">{tc.video_intro}</p>}
             </div>
 
@@ -1054,7 +1054,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
                 ) : (
                   <iframe
                     src={film!.src}
-                    title={tc.video_title || t("secVideo", lang)}
+                    title={tc.video_title || "Our Wedding Film"}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     loading="lazy"
@@ -1062,7 +1062,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
                 )}
               </div>
               <p className="eg-film__caption">
-                {tc.video_caption || (lang === "en" ? "Press play to hear it again" : "Tekan putar untuk mendengarkannya lagi")}
+                {tc.video_caption || "Press play to hear it again"}
               </p>
             </div>
           </section>
@@ -1084,7 +1084,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
                   </p>
 
                   {giftTabs && (
-                    <div className="eg-tabs" role="tablist" aria-label={t("secGift", lang)}>
+                    <div className="eg-tabs" role="tablist" aria-label="Gift details">
                       <button
                         type="button"
                         role="tab"
@@ -1118,7 +1118,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
                               aria-expanded={open}
                               onClick={() => setOpenAccount(open ? -1 : index)}
                             >
-                              <span className="eg-account__bank">{account.provider_name || (lang === "en" ? "Bank Account" : "Rekening Bank")}</span>
+                              <span className="eg-account__bank">{account.provider_name || "Bank"}</span>
                               <svg className="eg-account__chev" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M6 9.5 12 15l6-5.5" />
                               </svg>
@@ -1162,9 +1162,9 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <div className="eg-wishes__frame" style={{ backgroundImage: `url(${ART_RSVP_ENVELOPE})` }} aria-hidden="true" />
           <img className="eg-wishes__topiary" src={ART_RSVP_TOPIARY} alt="" aria-hidden="true" loading="lazy" />
           <div className="eg-wrap eg-wishes__body" data-eg-reveal>
-            <h2 className="eg-display eg-heading">{tc.wishes_title || t("secWishes", lang)}</h2>
+            <h2 className="eg-display eg-heading">Wishes &amp; Prayers</h2>
             <p className="eg-body eg-wishes__intro">
-              {tc.wishes_intro || (lang === "en" ? "Leave a wish, a prayer, or a memory for us to keep." : "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.")}
+              {tc.wishes_intro || "Leave a wish, a prayer, or a memory for us to keep."}
             </p>
             <Wishes
               weddingProfileId={profile.wedding_profile_id}
@@ -1185,7 +1185,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           )}
           <div className="eg-wrap eg-closing__body" data-eg-reveal>
             <h2 className="eg-display eg-closing__names">
-              {profile.groom_name || (lang === "en" ? "Groom" : "Mempelai Pria")} &amp; {profile.bride_name || (lang === "en" ? "Bride" : "Mempelai Wanita")}
+              {profile.groom_name || "Groom"} &amp; {profile.bride_name || "Bride"}
             </h2>
             <p className="eg-body eg-closing__message">{closingMessage}</p>
             <img className="eg-closing__art" src={ART_CLOSING} alt="" aria-hidden="true" loading="lazy" />
@@ -1221,7 +1221,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         className={`eg-gate${opening ? " is-opening" : ""}${namesIn ? " is-names" : ""}`}
         role="dialog"
         aria-modal="true"
-        aria-label={t("openInvitation", lang)}
+        aria-label="Open the invitation"
         onClick={openGate}
       >
         <div className="eg-gate__film">
@@ -1266,7 +1266,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         {/* Same badge as the adat family's video spinner: a small circular
             indicator in the corner, so the gate never reads as a status bar. */}
         {buffering && (
-          <span className="eg-gate__buffer" role="status" aria-label={t("loadingVideo", lang)}>
+          <span className="eg-gate__buffer" role="status" aria-label="Memuat video">
             <span className="eg-gate__buffer-ring" aria-hidden="true" />
           </span>
         )}
@@ -1276,8 +1276,8 @@ export default function EmbroideredGarden(profile: TemplateProps) {
 
       {/* ── Photo lightbox (story + gallery photos) ────────────── */}
       {lightbox !== null && lightbox.photos[lightbox.index] && (
-        <div className="eg-lightbox" role="dialog" aria-modal="true" aria-label={t("photoViewer", lang)}>
-          <button type="button" className="eg-lightbox__close" onClick={() => setLightbox(null)} aria-label={t("closeViewer", lang)}>
+        <div className="eg-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+          <button type="button" className="eg-lightbox__close" onClick={() => setLightbox(null)} aria-label="Close photo">
             ✕
           </button>
           {lightbox.photos.length > 1 && (
@@ -1285,7 +1285,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               type="button"
               className="eg-lightbox__nav eg-lightbox__nav--prev"
               onClick={() => stepLightbox(-1)}
-              aria-label={lang === "en" ? "Previous photo" : "Foto sebelumnya"}
+              aria-label="Previous photo"
             >
               ‹
             </button>
@@ -1296,7 +1296,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               type="button"
               className="eg-lightbox__nav eg-lightbox__nav--next"
               onClick={() => stepLightbox(1)}
-              aria-label={lang === "en" ? "Next photo" : "Foto berikutnya"}
+              aria-label="Next photo"
             >
               ›
             </button>
@@ -1309,7 +1309,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || t("honoredGuest", lang)}
+          guestName={profile.guest_name || "Guest"}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -1320,7 +1320,6 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={88}
-                  language={profile.language}
         />
       )}
 

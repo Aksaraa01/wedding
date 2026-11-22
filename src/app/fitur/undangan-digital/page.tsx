@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Undangan Digital Pernikahan",
   description:
     "Undangan website premium dengan desain elegan, countdown, love story, galeri foto, dan RSVP terintegrasi, siap dibagikan via WhatsApp.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/undangan-digital" },
+  alternates: { canonical: `${siteOrigin()}/fitur/undangan-digital` },
   openGraph: {
     title: "Undangan Digital Pernikahan Premium | Aksaraa",
     description:

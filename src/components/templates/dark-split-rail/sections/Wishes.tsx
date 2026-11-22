@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { timeAgo } from "../../shared/lib"
 import { COLORS, FONT_BODY, FONT_BTN, FONT_DISPLAY } from "../fonts"
 import Section, { SectionHeading } from "../Section"
@@ -19,7 +18,7 @@ type Props = {
   guestId?: string
   guestName?: string
   guestLinkStrict?: boolean
-  language?: string
+  language?: "id" | "en"
 }
 
 function ArrowLeftIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
@@ -60,7 +59,7 @@ function ArrowRightIcon({ className = "", size = 16 }: { className?: string; siz
   )
 }
 
-function initials(name?: string | null, lang: "id" | "en" = "id"): string {
+function initials(name?: string | null, lang: string = "id"): string {
   const parts = (name || t("honoredGuest", lang)).split(/\s+/).filter(Boolean)
   const first = parts[0]?.[0] || "T"
   const second = parts[1]?.[0] || parts[0]?.[1] || ""
@@ -68,7 +67,6 @@ function initials(name?: string | null, lang: "id" | "en" = "id"): string {
 }
 
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict , language = "id"}: Props) {
-  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -105,7 +103,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId) {
       setStatus("done")
-      setFeedback(lang === "en" ? "Preview mode — wishes are not saved." : "Mode pratinjau, ucapan tidak tersimpan.")
+      setFeedback("Mode pratinjau, ucapan tidak tersimpan.")
       setMessage("")
       setTimeout(() => {
         setStatus("idle")
@@ -121,14 +119,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || t("honoredGuest", lang),
+          name: name.trim() || guestName || "Tamu Undangan",
           message: text,
           source: "invitation",
         }),
       })
       if (res.status === 409 || res.ok) {
         setStatus("done")
-        setFeedback(res.ok ? (lang === "en" ? "Saved, awaiting moderation ✦" : "Tersimpan, menunggu moderasi ✦") : t("thanksForWish", lang))
+        setFeedback(res.ok ? "Tersimpan, menunggu moderasi ✦" : "Terima kasih! Ucapan Anda telah tersampaikan.")
         setMessage("")
         setTimeout(() => {
           setStatus("idle")
@@ -136,11 +134,11 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         }, 4000)
       } else {
         setStatus("error")
-        setFeedback(lang === "en" ? "Too many submissions. Please try again later." : "Terlalu banyak kiriman. Coba lagi nanti.")
+        setFeedback("Terlalu banyak kiriman. Coba lagi nanti.")
       }
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback("Gagal terkirim. Periksa koneksi Anda.")
     }
   }, [weddingProfileId, guestId, guestName, name, message, status])
 
@@ -149,10 +147,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
 
   return (
     <Section id="wishes" className="border-t border-white/[0.08]">
-      <SectionHeading>{t("secWishes", lang)}</SectionHeading>
+      <SectionHeading>Best Wishes</SectionHeading>
 
       <p className="mx-auto mt-5 max-w-[360px] text-center leading-relaxed" style={{ ...FONT_BODY, color: "rgba(242,241,238,0.85)" }}>
-        {lang === "en" ? "Share your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua."}
+        Berikan harapan dan doa terbaikmu di sini untuk kami berdua.
       </p>
 
       <form
@@ -164,12 +162,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       >
         <>
           <label className="block text-[10px] uppercase" style={{ ...FONT_BODY, letterSpacing: "2px", color: "rgba(242,241,238,0.7)" }}>
-            {lang === "en" ? "Name" : "Nama"}
+            Nama
           </label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={lang === "en" ? "Your name" : "Nama Anda"}
+            placeholder="Nama Anda"
             className="mt-2 w-full rounded-lg border bg-white/[0.04] px-4 py-3 text-[14px] outline-none focus:border-[#AF8D5C]"
             style={{ ...FONT_DISPLAY, borderColor: "rgba(255,255,255,0.14)", color: COLORS.cream }}
             readOnly={nameLocked}
@@ -178,12 +176,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </>
 
         <label className="mt-5 block text-[10px] uppercase" style={{ ...FONT_BODY, letterSpacing: "2px", color: "rgba(242,241,238,0.7)" }}>
-          {t("secWishes", lang)}
+          Ucapan & Doa
         </label>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value.slice(0, 500))}
-          placeholder={t("writeWish", lang)}
+          placeholder="Tulis Ucapan"
           rows={4}
           className="mt-2 w-full resize-none rounded-lg border bg-white/[0.04] px-4 py-3 text-[14px] outline-none focus:border-[#AF8D5C]"
           style={{ ...FONT_BODY, borderColor: "rgba(255,255,255,0.14)", color: COLORS.cream }}
@@ -198,7 +196,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
           className="mt-5 w-full rounded-full py-3 text-[12px] uppercase transition-transform duration-300 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
           style={{ ...FONT_BTN, letterSpacing: "1.5px", backgroundColor: COLORS.ink, color: COLORS.cream }}
         >
-          {status === "sending" ? t("sending", lang) : t("sendWishes", lang)}
+          {status === "sending" ? "Mengirim..." : "Kirim Ucapan"}
         </button>
 
         {feedback && (
@@ -222,10 +220,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 >
                   <div className={`flex-1 min-w-[180px] ${i % 2 === 0 ? "" : "text-right"}`}>
                     <p className="text-[17px] leading-none italic" style={{ ...FONT_DISPLAY, color: COLORS.cream }}>
-                      {w.name || t("honoredGuest", lang)}
+                      {w.name || "Tamu Undangan"}
                     </p>
                     <p className="mt-1 text-[9px] uppercase" style={{ ...FONT_BODY, letterSpacing: "2px", color: "rgba(242,241,238,0.5)" }}>
-                      {timeAgo(w.created_at, lang)}
+                      {timeAgo(w.created_at)}
                     </p>
                     <p className="mt-2 whitespace-pre-line text-[13px] leading-relaxed" style={{ ...FONT_BODY, color: "rgba(242,241,238,0.85)" }}>
                       {w.message}
@@ -243,7 +241,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   className="flex h-8 w-8 items-center justify-center rounded-full border text-white/70 transition-colors hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed"
                   style={{ borderColor: "rgba(255,255,255,0.14)" }}
-                  aria-label={lang === "en" ? "Previous page" : "Halaman sebelumnya"}
+                  aria-label="Halaman sebelumnya"
                 >
                   <ArrowLeftIcon size={14} />
                 </button>
@@ -256,7 +254,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   className="flex h-8 w-8 items-center justify-center rounded-full border text-white/70 transition-colors hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed"
                   style={{ borderColor: "rgba(255,255,255,0.14)" }}
-                  aria-label={lang === "en" ? "Next page" : "Halaman berikutnya"}
+                  aria-label="Halaman berikutnya"
                 >
                   <ArrowRightIcon size={14} />
                 </button>
@@ -268,13 +266,13 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
 
       {!loaded && weddingProfileId && (
         <p className="mt-8 text-center text-[12px]" style={{ ...FONT_BODY, color: "rgba(242,241,238,0.5)" }}>
-          {lang === "en" ? "Loading wishes & prayers…" : "Memuat doa & ucapan…"}
+          Memuat doa & ucapan…
         </p>
       )}
 
       {loaded && wishes.length === 0 && (
         <p className="mt-8 text-center text-[13px] leading-relaxed" style={{ ...FONT_BODY, color: "rgba(242,241,238,0.7)" }}>
-          {lang === "en" ? "No wishes yet. Be the first!" : "Belum ada doa & ucapan. Jadilah yang pertama!"}
+          Belum ada doa & ucapan. Jadilah yang pertama!
         </p>
       )}
     </Section>

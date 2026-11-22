@@ -219,7 +219,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateLong = formatLongDate(profile.estimated_wedding_date)
   const dateDotted = dottedDate(profile.estimated_wedding_date)
@@ -238,52 +238,52 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
 
   const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
-  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
-  const saveLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
-  const copyAddressLabel = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
+  const openLabel = (tc.open_button || "").trim() || "Open Invitation"
+  const saveLabel = (tc.save_date_label || "").trim() || "Save the Date"
+  const copyAddressLabel = (tc.copy_address_button || "").trim() || "Salin Alamat"
   const apology = (tc.cover_apology || "").trim()
   const welcomeLine = (tc.welcome_message || "").trim()
-  const openingKicker = (tc.opening_kicker || "").trim() || (lang === "en" ? "With Blessings" : "Dengan Restu")
-  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || t("secCouple", lang)
-  const parentsLabel = (tc.parents_label || "").trim() || (lang === "en" ? "Child of" : "Anak dari")
-  const storyKicker = (tc.story_kicker || "").trim() || (lang === "en" ? "Our" : "Kisah")
-  const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Love Story" : "Kisah Cinta")
+  const openingKicker = (tc.opening_kicker || "").trim() || "With Blessings"
+  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "Mempelai"
+  const parentsLabel = (tc.parents_label || "").trim() || "Anak dari"
+  const storyKicker = (tc.story_kicker || "").trim() || "Our"
+  const storyTitle = (tc.love_story_title || "").trim() || "Love Story"
   const storyIntro = (tc.story_intro || "").trim()
-  const eventsKicker = (tc.events_kicker || "").trim() || t("saveTheDate", lang)
-  const eventsTitle = (tc.events_title || "").trim() || t("secEvent", lang)
+  const eventsKicker = (tc.events_kicker || "").trim() || "Save the Date"
+  const eventsTitle = (tc.events_title || "").trim() || "The Celebration"
   const eventsIntro = (tc.events_intro || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
-  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Friends" : "Keluarga & Sahabat")
+  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Sahabat"
   const invitingIntro = (tc.inviting_intro || "").trim()
-  const rundownKicker = (tc.rundown_kicker || "").trim() || t("rundownTitle", lang)
-  const rundownTitle = (tc.rundown_title || "").trim() || t("rundownTitle", lang)
+  const rundownKicker = (tc.rundown_kicker || "").trim() || "Rundown"
+  const rundownTitle = (tc.rundown_title || "").trim() || t("secEvent", lang)
   const rundownIntro = (tc.rundown_intro || "").trim()
-  const galleryKicker = (tc.gallery_kicker || "").trim() || (lang === "en" ? "Precious" : "Momen")
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Momen Kami")
+  const galleryKicker = (tc.gallery_kicker || "").trim() || "Precious"
+  const galleryTitle = (tc.gallery_title || "").trim() || "Moments"
   const galleryIntro = (tc.gallery_intro || "").trim()
-  const videoKicker = (tc.video_kicker || "").trim() || t("secVideo", lang)
-  const videoTitle = (tc.video_title || "").trim() || t("secVideo", lang)
+  const videoKicker = (tc.video_kicker || "").trim() || "Our Film"
+  const videoTitle = (tc.video_title || "").trim() || "The Wedding Film"
   const videoIntro = (tc.video_intro || "").trim()
-  const giftKicker = (tc.gift_kicker || "").trim() || (lang === "en" ? "Digital Envelope" : "Amplop Digital")
-  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
+  const giftKicker = (tc.gift_kicker || "").trim() || "Digital Envelope"
+  const giftTitle = (tc.gift_intro_title || "").trim() || "Send your gift"
   const giftIntro = (tc.gift_intro_description || "").trim()
-  const giftButton = (tc.gift_button || "").trim() || t("sendGift", lang)
-  const dressKicker = (tc.dresscode_kicker || "").trim() || t("secDresscode", lang)
-  const wishesKicker = (tc.wishes_kicker || "").trim() || t("secWishes", lang)
-  const wishesTitle = (tc.wishes_title || "").trim() || t("secWishes", lang)
+  const giftButton = (tc.gift_button || "").trim() || "Make a Gift Now"
+  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
+  const wishesKicker = (tc.wishes_kicker || "").trim() || "Words for Us"
+  const wishesTitle = (tc.wishes_title || "").trim() || "Wishes"
   const wishesIntro = (tc.wishes_intro || "").trim()
-  const closingKicker = (tc.closing_kicker || "").trim() || t("thankYou", lang)
-  const accountToast = (tc.copy_account_toast || "").trim() || t("copiedToClipboard", lang)
-  const addressToast = (tc.copy_address_toast || "").trim() || t("copiedToClipboard", lang)
+  const closingKicker = (tc.closing_kicker || "").trim() || "Thank You"
+  const accountToast = (tc.copy_account_toast || "").trim() || "Nomor rekening disalin"
+  const addressToast = (tc.copy_address_toast || "").trim() || "Alamat disalin"
 
   const wishCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Name" : "Nama"),
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Full name" : "Nama lengkap"),
+    nameLabel: (tc.wishes_name_label || "").trim() || "Nama",
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Nama lengkap",
     messageLabel: (tc.wishes_message_label || "").trim() || t("secWishes", lang),
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave your best wishes and prayers" : "Titipkan pesan dan doa terbaik"),
-    submit: (tc.wishes_submit || "").trim() || t("sendWishes", lang),
-    empty: (tc.wishes_empty || "").trim() || t("noWishesYet", lang),
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Titipkan pesan dan doa terbaik",
+    submit: (tc.wishes_submit || "").trim() || "Kirim Ucapan",
+    empty: (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama.",
   }
 
   const target = useMemo(
@@ -428,7 +428,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
             <Seal initials={initials} size="sm" />
           </span>
           <h1 className="cn-names" {...ON_LOAD("up", 0.12)}>
-            {groomName || (lang === "en" ? "Groom" : "Mempelai Pria")}
+            {groomName || "Mempelai"}
             {brideName && (
               <>
                 <br />
@@ -524,7 +524,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
               <Seal initials={initials} size="md" />
             </span>
             <h2 className="cn-names cn-names--hero" {...IN("up", 0.06)}>
-              {groomName || (lang === "en" ? "Groom" : "Mempelai Pria")}
+              {groomName || "Mempelai"}
               {brideName && (
                 <>
                   <br />
@@ -1084,17 +1084,17 @@ export default function CinnabarSeal(profile: TemplateProps) {
           className="cn-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label={t("photoViewer", lang)}
+          aria-label="Penampil foto"
           onClick={() => setLightbox(null)}
         >
-          <button type="button" className="cn-lightbox__close" aria-label={t("closeViewer", lang)} onClick={() => setLightbox(null)}>
+          <button type="button" className="cn-lightbox__close" aria-label="Tutup" onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
             <button
               type="button"
               className="cn-lightbox__nav cn-lightbox__nav--prev"
-              aria-label={t("previousPhoto", lang)}
+              aria-label="Foto sebelumnya"
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(-1)
@@ -1108,7 +1108,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
             <button
               type="button"
               className="cn-lightbox__nav cn-lightbox__nav--next"
-              aria-label={t("nextPhoto", lang)}
+              aria-label="Foto berikutnya"
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(1)
@@ -1143,7 +1143,6 @@ export default function CinnabarSeal(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
-          language={profile.language}
           anchor="center"
         />
       )}

@@ -1,10 +1,11 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Harga Undangan Pernikahan Digital & Paket Fitur",
   description:
     "Lihat harga undangan pernikahan digital Aksaraa dan pilih paket: undangan website, buku tamu digital QR, galeri foto tamu, wish wall, reminder WhatsApp.",
-  alternates: { canonical: "https://wedding.aksaraa.com/customize" },
+  alternates: { canonical: `${siteOrigin()}/customize` },
   openGraph: {
     title: "Harga Undangan Pernikahan Digital & Paket Fitur | Aksaraa",
     description:

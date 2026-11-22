@@ -543,7 +543,7 @@ export default function Teatro(profile: TemplateProps) {
       : []
 
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
-  const dressIntro = (tc.dresscode_intro || profile.dresscode?.description || "").trim() || (lang === "en" ? "We would be delighted if you joined us in the palette below." : "Kami akan sangat senang bila Anda hadir dengan palet warna di bawah ini.")
+  const dressIntro = (tc.dresscode_intro || profile.dresscode?.description || "").trim() || "We would be delighted if you joined us in the palette below."
   const dressTitle = (profile.dresscode?.title || "").trim()
   const dressNote = (tc.dresscode_note || "").trim()
   const hasDresscode = profile.dresscode_visible !== false && (dressColors.length > 0 || !!dressIntro || !!dressTitle)
@@ -562,13 +562,13 @@ export default function Teatro(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
   const coupleInitials = (profile.couple_initials || "").trim() || [groomName.charAt(0), brideName.charAt(0)].filter(Boolean).join("")
   // display_name is the "Hashtag Instagram Post" field. Legacy rows stored the
   // couple's names there; a name is not a hashtag, so print a derived hashtag
   // instead of repeating the names under the initials.
   const rawHashtag = (profile.display_name || "").trim()
-  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || coupleInitials.replace(/[^A-Za-z0-9]/g, "") || (lang === "en" ? "OurWedding" : "PernikahanKami")}`
+  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || coupleInitials.replace(/[^A-Za-z0-9]/g, "") || "OurWedding"}`
   const hashtag = rawHashtag.startsWith("#") ? rawHashtag : derivedHashtag
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateLong = longDateEn(profile.estimated_wedding_date)
@@ -582,64 +582,64 @@ export default function Teatro(profile: TemplateProps) {
   const brideIg = igHandle(profile.bride_instagram)
 
   const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
-  const openLabel = (tc.open_button || "").trim() || (lang === "en" ? "Tap to continue" : "Ketuk untuk melanjutkan")
-  const apology = (tc.cover_apology || "").trim() || (lang === "en" ? "We apologize for any misspelling of your name or title." : "Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.")
-  const welcomeInvite = (tc.welcome_invite || "").trim() || (lang === "en" ? "Together with our families, we invite you to this important moment." : "Bersama keluarga kami, kami mengundang Anda ke momen istimewa ini.")
-  const openingKicker = (tc.opening_kicker || "").trim() || (lang === "en" ? "Prologue" : "Prolog")
-  const quoteTitle = (tc.quote_title || "").trim() || (lang === "en" ? "Prologue" : "Prolog")
-  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || (lang === "en" ? "The Cast" : "Para Mempelai")
-  const mempelaiIntro = (tc.profiles_intro || "").trim() || (lang === "en" ? "Two families, one stage, and a lifetime of curtain calls." : "Dua keluarga, satu panggung, dan seumur hidup bersama.")
-  const parentsLabel = (tc.parents_label || "").trim() || (lang === "en" ? "Blessed By" : "Dengan Restu")
-  const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Our Story" : "Kisah Kami")
-  const storyKicker = (tc.story_kicker || "").trim() || (lang === "en" ? "In Three Acts" : "Dalam Tiga Babak")
-  const storyIntro = (tc.story_intro || "").trim() || (lang === "en" ? "The acts that brought us to opening night." : "Babak-babak yang membawa kami ke malam pembukaan.")
-  const eventsKicker = (tc.events_kicker || "").trim() || (lang === "en" ? "The celebration will take place at" : "Perayaan akan berlangsung di")
+  const openLabel = (tc.open_button || "").trim() || "Tap to continue"
+  const apology = (tc.cover_apology || "").trim() || "We apologize for any misspelling of your name or title."
+  const welcomeInvite = (tc.welcome_invite || "").trim() || "Together with our families, we invite you to this important moment."
+  const openingKicker = (tc.opening_kicker || "").trim() || "Prologue"
+  const quoteTitle = (tc.quote_title || "").trim() || "Prologue"
+  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "The Cast"
+  const mempelaiIntro = (tc.profiles_intro || "").trim() || "Two families, one stage, and a lifetime of curtain calls."
+  const parentsLabel = (tc.parents_label || "").trim() || "Blessed By"
+  const storyTitle = (tc.love_story_title || "").trim() || "Our Story"
+  const storyKicker = (tc.story_kicker || "").trim() || "In Three Acts"
+  const storyIntro = (tc.story_intro || "").trim() || "The acts that brought us to opening night."
+  const eventsKicker = (tc.events_kicker || "").trim() || "The celebration will take place at"
   const eventsTitle = (tc.events_title || "").trim() || ""
-  const eventsIntro = (tc.events_intro || "").trim() || (lang === "en" ? "We would be honoured to have you with us as we say our vows." : "Merupakan kehormatan bagi kami bila Anda hadir saat kami mengucapkan janji.")
-  const eventsNote = (tc.events_note || "").trim() || (lang === "en" ? "Doors open thirty minutes before the ceremony. Latecomers are seated between acts." : "Pintu dibuka tiga puluh menit sebelum upacara. Tamu yang terlambat dipersilakan masuk di sela-sela acara.")
-  const mapsLabel = (tc.maps_label || "").trim() || (lang === "en" ? "View location" : "Lihat lokasi")
-  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
-  const revealTitle = (tc.reveal_title || "").trim() || (lang === "en" ? "Reveal" : "Ungkap")
-  const revealHint = (tc.reveal_hint || "").trim() || (lang === "en" ? "Scratch to discover the date" : "Gosok untuk melihat tanggal")
-  const revealScratchHint = (tc.reveal_scratch_hint || "").trim() || (lang === "en" ? "Scratch all three circles to continue" : "Gosok ketiga lingkaran untuk melanjutkan")
-  const scrollLabel = (tc.scroll_label || "").trim() || (lang === "en" ? "Scroll" : "Gulir")
+  const eventsIntro = (tc.events_intro || "").trim() || "We would be honoured to have you with us as we say our vows."
+  const eventsNote = (tc.events_note || "").trim() || "Doors open thirty minutes before the ceremony. Latecomers are seated between acts."
+  const mapsLabel = (tc.maps_label || "").trim() || "View location"
+  const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
+  const revealTitle = (tc.reveal_title || "").trim() || "Reveal"
+  const revealHint = (tc.reveal_hint || "").trim() || "Scratch to discover the date"
+  const revealScratchHint = (tc.reveal_scratch_hint || "").trim() || "Scratch all three circles to continue"
+  const scrollLabel = (tc.scroll_label || "").trim() || "Scroll"
   const countdownIntro = (tc.countdown_intro || "").trim() || "until the big day"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || (lang === "en" ? "With the blessing of" : "Dengan restu")
-  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Our Families" : "Keluarga Kami")
-  const invitingIntro = (tc.inviting_intro || "").trim() || (lang === "en" ? "With deep gratitude we also present the families who extend this invitation alongside us." : "Dengan penuh rasa syukur kami hadirkan pula keluarga yang turut mengundang bersama kami.")
-  const rundownKicker = (tc.rundown_kicker || "").trim() || (lang === "en" ? "The Programme" : "Susunan Acara")
-  const rundownTitle = (tc.rundown_title || "").trim() || (lang === "en" ? "Order of the Day" : "Rangkaian Acara")
-  const rundownIntro = (tc.rundown_intro || "").trim() || (lang === "en" ? "How the evening will unfold, from the first arrival to the final bow." : "Bagaimana acara akan berlangsung, dari kedatangan pertama hingga penutup.")
-  const galleryKicker = (tc.gallery_kicker || "").trim() || (lang === "en" ? "Gallery" : "Galeri")
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Scenes" : "Momen")
-  const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "Frames from the days that led us here, kept like programmes from a favourite show." : "Potret dari hari-hari yang membawa kami ke sini, disimpan seperti kenangan pertunjukan favorit.")
-  const galleryQuote = (tc.gallery_quote || "").trim() || (lang === "en" ? "Every love story is beautiful, but ours is my favourite." : "Setiap kisah cinta itu indah, tapi kisah kami adalah favorit saya.")
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Film")
+  const invitingKicker = (tc.inviting_kicker || "").trim() || "With the blessing of"
+  const invitingTitle = (tc.inviting_title || "").trim() || "Our Families"
+  const invitingIntro = (tc.inviting_intro || "").trim() || "With deep gratitude we also present the families who extend this invitation alongside us."
+  const rundownKicker = (tc.rundown_kicker || "").trim() || "The Programme"
+  const rundownTitle = (tc.rundown_title || "").trim() || "Order of the Day"
+  const rundownIntro = (tc.rundown_intro || "").trim() || "How the evening will unfold, from the first arrival to the final bow."
+  const galleryKicker = (tc.gallery_kicker || "").trim() || "Gallery"
+  const galleryTitle = (tc.gallery_title || "").trim() || "Scenes"
+  const galleryIntro = (tc.gallery_intro || "").trim() || "Frames from the days that led us here, kept like programmes from a favourite show."
+  const galleryQuote = (tc.gallery_quote || "").trim() || "Every love story is beautiful, but ours is my favourite."
+  const videoKicker = (tc.video_kicker || "").trim() || "The Film"
   const videoTitle = (tc.video_title || "").trim() || ""
-  const videoIntro = (tc.video_intro || "").trim() || (lang === "en" ? "The day as it happened, kept in motion." : "Hari itu sebagaimana terjadi, tersimpan dalam gerak.")
-  const giftKicker = (tc.gift_kicker || "").trim() || (lang === "en" ? "Wedding Registry" : "Hadiah Pernikahan")
-  const giftTitle = (tc.gift_intro_title || "").trim() || (lang === "en" ? "Gifts" : "Hadiah")
-  const giftIntro = (tc.gift_intro_description || "").trim() || (lang === "en" ? "Your presence is the greatest gift. Should you wish to send a token of love, the details are below." : "Kehadiran Anda adalah hadiah terbesar. Jika Anda ingin mengirimkan tanda kasih, detailnya ada di bawah.")
-  const giftSignature = (tc.gift_signature || "").trim() || (lang === "en" ? "With love and gratitude" : "Dengan cinta dan terima kasih")
-  const giftButton = (tc.gift_button || "").trim() || (lang === "en" ? "Open the registry" : "Buka hadiah")
-  const dressKicker = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dress Code" : "Busana")
-  const wishesKicker = (tc.wishes_kicker || "").trim() || (lang === "en" ? "Wishes" : "Ucapan")
-  const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Curtain Call" : "Tirai Penutup")
-  const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Leave a wish, a prayer, or a memory for us to keep." : "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.")
-  const closingKicker = (tc.closing_kicker || "").trim() || t("thankYou", lang)
-  const closingMessage = (tc.closing_message || "").trim() || (lang === "en" ? "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say." : "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat Anda sangat berarti bagi kami.")
-  const closingSee = (tc.closing_see || "").trim() || (lang === "en" ? "See you on opening night." : "Sampai jumpa di hari bahagia.")
-  const accountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening tersalin")
-  const addressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat tersalin")
-  const addressButton = (tc.copy_address_button || "").trim() || (lang === "en" ? "Copy address" : "Salin alamat")
+  const videoIntro = (tc.video_intro || "").trim() || "The day as it happened, kept in motion."
+  const giftKicker = (tc.gift_kicker || "").trim() || "Wedding Registry"
+  const giftTitle = (tc.gift_intro_title || "").trim() || "Gifts"
+  const giftIntro = (tc.gift_intro_description || "").trim() || "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."
+  const giftSignature = (tc.gift_signature || "").trim() || "With love and gratitude"
+  const giftButton = (tc.gift_button || "").trim() || "Open the registry"
+  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
+  const wishesKicker = (tc.wishes_kicker || "").trim() || "Wishes"
+  const wishesTitle = (tc.wishes_title || "").trim() || "Curtain Call"
+  const wishesIntro = (tc.wishes_intro || "").trim() || "Leave a wish, a prayer, or a memory for us to keep."
+  const closingKicker = (tc.closing_kicker || "").trim() || "Thank You"
+  const closingMessage = (tc.closing_message || "").trim() || "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
+  const closingSee = (tc.closing_see || "").trim() || "See you on opening night."
+  const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
+  const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
+  const addressButton = (tc.copy_address_button || "").trim() || "Copy address"
 
   const wishCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Name" : "Nama"),
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Your full name" : "Nama lengkap Anda"),
-    messageLabel: (tc.wishes_message_label || "").trim() || (lang === "en" ? "Message" : "Pesan"),
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave a wish for the couple" : "Tulis ucapan untuk pasangan"),
-    submit: (tc.wishes_submit || "").trim() || (lang === "en" ? "Send wishes" : "Kirim ucapan"),
-    empty: (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama."),
+    nameLabel: (tc.wishes_name_label || "").trim() || "Name",
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Your full name",
+    messageLabel: (tc.wishes_message_label || "").trim() || "Message",
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Leave a wish for the couple",
+    submit: (tc.wishes_submit || "").trim() || "Send wishes",
+    empty: (tc.wishes_empty || "").trim() || "No wishes yet. Be the first.",
   }
 
   const target = useMemo(
@@ -958,7 +958,7 @@ export default function Teatro(profile: TemplateProps) {
             <div className="te-stage__copy">
               <p className="te-stage__kicker">{coverKicker}</p>
               <h1 className="te-stage__names">
-                <span className="te-stage__name">{groomName || (lang === "en" ? "Groom" : "Mempelai Pria")}</span>
+                <span className="te-stage__name">{groomName || "Groom"}</span>
                 {brideName && (
                   <>
                     <span className="te-stage__amp" aria-hidden="true">&amp;</span>
@@ -1454,12 +1454,12 @@ export default function Teatro(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="te-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightbox(null)}>
-          <button type="button" className="te-lightbox__close" aria-label={lang === "en" ? "Close" : "Tutup"} onClick={() => setLightbox(null)}>×</button>
+          <button type="button" className="te-lightbox__close" aria-label="Close" onClick={() => setLightbox(null)}>×</button>
           {gallery.length > 1 && (
             <button
               type="button"
               className="te-lightbox__nav te-lightbox__nav--prev"
-              aria-label={t("previousPhoto", lang)}
+              aria-label="Previous photo"
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(-1)
@@ -1473,7 +1473,7 @@ export default function Teatro(profile: TemplateProps) {
             <button
               type="button"
               className="te-lightbox__nav te-lightbox__nav--next"
-              aria-label={t("nextPhoto", lang)}
+              aria-label="Next photo"
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(1)
@@ -1502,7 +1502,6 @@ export default function Teatro(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
-          language={profile.language}
           anchor="center"
         />
       )}

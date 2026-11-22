@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Link Unik & QR Pass per Tamu",
   description:
     "Tautan unik & QR Pass per tamu: anti tamu tak diundang, rekap RSVP akurat, nomor meja otomatis, aman & personal.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/link-unik" },
+  alternates: { canonical: `${siteOrigin()}/fitur/link-unik` },
   openGraph: {
     title: "Link Unik & QR Pass per Tamu | Aksaraa",
     description:
@@ -36,8 +37,8 @@ export default function LinkUnikPage() {
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Tautan Unik per Tamu</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Setiap tamu mendapat link undangan unik: `https://wedding.aksaraa.com/w/[slug]?to=[nama]`.
-              Nama tamu maupun slug sama-sama diterima, spasi dan simbol (mis. `/`) otomatis
+              Setiap tamu mendapat link undangan unik: <code>{siteOrigin()}/w/[slug]?to=[nama]</code>.
+              Nama tamu maupun slug sama-sama diterima, spasi dan simbol (mis. <code>/</code>) otomatis
               dirapikan, jadi tidak ada tautan yang gagal dibuka.
               Link tidak bisa ditebak, tidak bisa dibagikan ke orang lain, hanya tamu bersangkutan yang bisa buka.
             </p>

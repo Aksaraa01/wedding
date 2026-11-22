@@ -155,7 +155,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         <div className="fade-in-up flex flex-col items-center mb-6 text-center">
         </div>
         <section className="relative w-full aspect-square max-w-md mx-auto mb-6 flex flex-col items-center justify-center">
-          <img src="https://wedding.aksaraa.com/frames/welcome-flower.png" alt="" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ transform: "scale(1.05)" }} />
+          <img src="/frames/welcome-flower.png" alt="" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ transform: "scale(1.05)" }} />
           <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-sm ring-1 ring-surface-variant z-10 mb-8 mt-12">{loading ? (<div className="w-full h-full bg-surface-container-high animate-pulse" />) : (<StorageImage alt="Couple Portrait" width={600} className="w-full h-full object-cover" src={coverPhoto || "/defaults/couple.png"} />)}</div>
           <div className="text-center space-y-2 mt-auto pb-5 px-8 py-6 rounded-xl border border-white/20 shadow-sm bg-white/10 z-10 w-full">
             <p className="text-label-md text-primary uppercase tracking-widest font-body-md">Selamat Datang,</p>

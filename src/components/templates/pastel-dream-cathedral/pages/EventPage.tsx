@@ -14,7 +14,7 @@ function EventBlock({ session, align, lang = "id" }: { session: SessionData; ali
         <img src={ASSETS.pastelDreamCathedral.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover mix-blend-screen opacity-50 drop-shadow-md" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
       </div>
       <h1 className="text-[38px] leading-tight font-normal mb-2" style={{ ...FONT_SCRIPT, color: "#1c1815" }}>
-        {session.name || (lang === "en" ? "Event" : "Acara")}
+        {session.name || "Acara"}
       </h1>
       {session.date && (
         <p className="text-[13px] font-medium tracking-wide mb-1" style={{ ...FONT_BODY, color: "#2d241e" }}>
@@ -71,7 +71,7 @@ export default function EventPage({ sessions, lang = "id" }: { sessions: Session
         )}
         <footer className="w-full flex items-center justify-center relative pt-2">
           <span className="text-[11px] font-semibold uppercase" style={{ ...FONT_BODY, letterSpacing: "0.2em", color: "rgba(61,48,37,0.9)" }}>
-            {lang === "en" ? "Swipe up" : "Geser ke atas"}
+            Geser ke atas
           </span>
         </footer>
       </div>

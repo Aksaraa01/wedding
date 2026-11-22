@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ARTICLES } from "@/data/artikel"
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: "Artikel: Panduan Undangan Digital & Persiapan Nikah",
   description:
     "Artikel seputar undangan pernikahan digital, biaya wedding organizer, checklist persiapan nikah, dan ide disposable camera untuk resepsi.",
-  alternates: { canonical: "https://wedding.aksaraa.com/artikel" },
+  alternates: { canonical: `${siteOrigin()}/artikel` },
   openGraph: {
     title: "Artikel Undangan Digital & Persiapan Nikah | Aksaraa",
     description:
@@ -28,7 +29,7 @@ export default function ArtikelIndexPage() {
     itemListElement: ARTICLES.map((a, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: `https://wedding.aksaraa.com/artikel/${a.slug}`,
+      url: `${siteOrigin()}/artikel/${a.slug}`,
       name: a.title,
     })),
   }

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { siteOrigin } from "@/lib/site"
 import { waLink } from "@/lib/contact"
 
 const WA_SUPPORT = waLink("Halo Aksaraa, saya mau tanya soal desain undangan.")
@@ -19,7 +20,7 @@ const HELP = [
 ]
 
 const MORE = [
-  { label: "Aksaraa Wedding", href: "https://wedding.aksaraa.com", external: true },
+  { label: "Aksaraa Wedding", href: siteOrigin(), external: true },
   { label: "Ceriavite", href: "https://ceriavite.aksaraa.com", external: true },
   { label: "Beranda", href: "/landing" },
 ]

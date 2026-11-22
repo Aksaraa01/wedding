@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState, type FormEvent } from "react"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage, t, tf } from "@/lib/i18n"
 import { timeAgo } from "../shared/lib"
 import { wishNameState } from "../shared/wishName"
 
@@ -18,11 +18,13 @@ type Props = {
   guestName?: string
   guestLinkStrict?: boolean
   language?: string
+  title?: string
+  intro?: string
 }
 
 const PAGE_SIZE = 10
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, language = "id" }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, language = "id", title, intro }: Props) {
   const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
@@ -95,15 +97,15 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       setStatus("error")
       setFeedback(t("wishFailed", lang))
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status])
+  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
 
   const totalPages = Math.ceil(wishes.length / PAGE_SIZE) || 1
   const pagedWishes = wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   return (
     <section className="sheet__section sheet__section--wishes" data-io>
-      <h3 className="display story__heading">{t("secWishes", lang)}</h3>
-      <p className="wishes__intro serif-i">{lang === "en" ? "Share your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua."}</p>
+      <h3 className="display story__heading">{title || t("secWishes", lang)}</h3>
+      <p className="wishes__intro serif-i">{intro || (lang === "en" ? "Leave your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua.")}</p>
 
       <form
         className="wishes__form"
@@ -126,7 +128,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </label>
 
         <label className="wishes__field">
-          <span className="wishes__label">{t("secWishes", lang)}</span>
+          <span className="wishes__label">{lang === "en" ? "Wishes & Prayers" : "Ucapan & Doa"}</span>
           <textarea
             className="wishes__textarea"
             value={message}
@@ -144,7 +146,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         {feedback && <p className={`wishes__feedback${status === "error" ? " is-error" : ""}`}>{feedback}</p>}
       </form>
 
-      {!loaded && weddingProfileId && <p className="wishes__empty">{lang === "en" ? "Loading wishes & prayers…" : "Memuat doa & ucapan…"}</p>}
+      {!loaded && weddingProfileId && <p className="wishes__empty">{lang === "en" ? "Loading wishes…" : "Memuat doa & ucapan…"}</p>}
 
       {loaded && wishes.length === 0 && <p className="wishes__empty">{lang === "en" ? "No wishes yet. Be the first!" : "Belum ada doa & ucapan. Jadilah yang pertama!"}</p>}
 
@@ -167,7 +169,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 className="wishes__page"
                 disabled={page === 0}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
-                aria-label={lang === "en" ? "Previous page" : "Halaman sebelumnya"}
+                aria-label={t("prevPhoto", lang)}
               >
                 ‹
               </button>
@@ -179,7 +181,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 className="wishes__page"
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                aria-label={lang === "en" ? "Next page" : "Halaman berikutnya"}
+                aria-label={t("nextPhoto", lang)}
               >
                 ›
               </button>

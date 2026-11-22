@@ -1,7 +1,10 @@
 // Bagian murni jawaban "template <kategori> ada apa aja": label, link, format.
-// Tanpa import supaya bisa diuji tanpa Supabase.
 
-const SITE = "https://wedding.aksaraa.com"
+import { siteOrigin } from "@/lib/site"
+
+function site() {
+  return siteOrigin()
+}
 
 const LABELS: Record<string, { label: string; page?: string }> = {
   adat: { label: "adat/tradisional", page: "adat" },
@@ -41,7 +44,8 @@ export function categoryLabel(key: string): string {
 
 export function categoryPageUrl(key: string): string {
   const page = LABELS[key]?.page
-  return page ? `${SITE}/templates/kategori/${page}` : `${SITE}/templates`
+  const base = site()
+  return page ? `${base}/templates/kategori/${page}` : `${base}/templates`
 }
 
 function isPlaceholder(name: string): boolean {
@@ -60,7 +64,7 @@ export function formatCategoryReply(key: string, rows: CategoryTemplateRow[], li
   if (!unique.length) {
     return [
       `Untuk template ${label} belum ada yang aktif saat ini.`,
-      `Semua desain bisa dilihat di ${SITE}/templates`,
+      `Semua desain bisa dilihat di ${site()}/templates`,
       "Kalau mau, sebutkan tema atau daerahnya biar aku bantu carikan yang paling dekat.",
     ].join("\n")
   }
@@ -86,13 +90,13 @@ export function formatShelfReply(shelf: "newest" | "popular", rows: CategoryTemp
     )
   )
   if (!unique.length) {
-    return `Daftar desain bisa dilihat di ${SITE}/templates`
+    return `Daftar desain bisa dilihat di ${site()}/templates`
   }
   const shown = unique.slice(0, limit)
   const title = shelf === "newest" ? "Desain terbaru" : "Desain paling banyak dipilih"
   const lines = [`${title} saat ini:`, ...shown.map((name) => `• ${name}`)]
   if (unique.length > shown.length) lines.push(`• …dan ${unique.length - shown.length} desain lain`)
-  lines.push("", `Preview dan filter lengkapnya di ${SITE}/templates`)
+  lines.push("", `Preview dan filter lengkapnya di ${site()}/templates`)
   lines.push("Mau aku bantu pilihkan yang cocok dengan acara Kakak?")
   return lines.join("\n")
 }

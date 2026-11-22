@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -65,7 +64,6 @@ export default function Wishes({
   copy,
   language = "id"
 }: Props) {
-  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -109,7 +107,7 @@ export default function Wishes({
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(t("previewWishNotSaved", lang))
+      setFeedback("Preview mode — your wish was not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -133,12 +131,12 @@ export default function Wishes({
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback(t("wishAlreadySent", lang))
+        setFeedback("You have already sent a wish. Thank you for your kindness.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback(t("thanksForWish", lang))
+        setFeedback("Thank you. Your wish appears once it has been reviewed.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -147,12 +145,12 @@ export default function Wishes({
         return
       }
       setStatus("error")
-      setFeedback(t("tooManyMessages", lang))
+      setFeedback("Too many messages right now. Please try again in a moment.")
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback("Your wish could not be sent. Please check your connection.")
     }
-  }, [weddingProfileId, guestId, guestName, nameFallback, name, message, status, lang])
+  }, [weddingProfileId, guestId, guestName, nameFallback, name, message, status])
 
   return (
     <>
@@ -212,7 +210,7 @@ export default function Wishes({
                 disabled={status === "sending" || !message.trim()}
                 aria-busy={status === "sending"}
               >
-                <span className="fr-tix__l">{status === "sending" ? t("sending", lang) : copy.submit}</span>
+                <span className="fr-tix__l">{copy.submit}</span>
                 <span className="fr-tix__r">
                   <svg viewBox="0 0 14 13" aria-hidden="true" focusable="false">
                     <path d="M1 6.5h11M7.5 1.5l5 5-5 5" />

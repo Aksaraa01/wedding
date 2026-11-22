@@ -9,10 +9,30 @@ function withSecurityHeaders(res: NextResponse) {
   return res
 }
 
-export function proxy(req: NextRequest) {
-  const hostname = req.nextUrl.hostname
+// Hosts that serve the wedding app itself (not a couple invitation).
+const WEDDING_APP_HOSTS = new Set([
+  "wedding.aksaraa.com",
+  "www.wedding.aksaraa.com",
+  "wedding-stg.aksaraa.com",
+  "www.wedding-stg.aksaraa.com",
+])
 
-  if (hostname === "wedding.aksaraa.com") {
+function isWeddingAppHost(hostname: string): boolean {
+  if (WEDDING_APP_HOSTS.has(hostname)) return true
+  const configured = (process.env.NEXT_PUBLIC_SITE_URL || "").trim()
+  if (configured) {
+    try {
+      const h = new URL(configured).hostname.toLowerCase()
+      if (hostname === h || hostname === `www.${h}`) return true
+    } catch {}
+  }
+  return false
+}
+
+export function proxy(req: NextRequest) {
+  const hostname = req.nextUrl.hostname.toLowerCase()
+
+  if (isWeddingAppHost(hostname)) {
     return withSecurityHeaders(NextResponse.next())
   }
 
@@ -57,7 +77,23 @@ export function proxy(req: NextRequest) {
   const match = hostname.match(/^(.+?)\.(aksaraa\.com|aksaraa\.app|localhost)$/)
   if (match) {
     const slug = match[1]
-    if (slug === "www") return withSecurityHeaders(NextResponse.next())
+    // These first labels are app/marketing/infra hosts, never a couple slug.
+    // "wedding-stg" and any staging-style label are also protected by the
+    // isWeddingAppHost() check above, but keep the reserved set defensive.
+    if (
+      slug === "www" ||
+      slug === "wedding" ||
+      slug === "wedding-stg" ||
+      slug === "ceriavite" ||
+      slug === "cdn" ||
+      slug === "wp" ||
+      slug === "art" ||
+      slug === "staging" ||
+      slug === "stg" ||
+      slug === "education"
+    ) {
+      return withSecurityHeaders(NextResponse.next())
+    }
 
     const url = new URL(req.url)
 

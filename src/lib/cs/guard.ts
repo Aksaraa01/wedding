@@ -29,17 +29,29 @@ export interface GuardResult {
   violations: Violation[]
 }
 
-const LINK_ALLOWLIST = [
-  "wedding.aksaraa.com",
-  "aksaraa.com",
-  "cdn.aksaraa.com",
-  "wp.aksaraa.com",
-  "wa.me",
-  "api.whatsapp.com",
-  "maps.google.com",
-  "maps.app.goo.gl",
-  "goo.gl",
-]
+import { siteOrigin } from "@/lib/site"
+
+function linkAllowlist(): string[] {
+  const base = [
+    "wedding.aksaraa.com",
+    "wedding-stg.aksaraa.com",
+    "aksaraa.com",
+    "cdn.aksaraa.com",
+    "wp.aksaraa.com",
+    "wa.me",
+    "api.whatsapp.com",
+    "maps.google.com",
+    "maps.app.goo.gl",
+    "goo.gl",
+  ]
+  try {
+    const host = new URL(siteOrigin()).hostname.toLowerCase()
+    if (host && !base.includes(host)) base.push(host)
+  } catch {}
+  return base
+}
+
+const LINK_ALLOWLIST = linkAllowlist()
 
 const CLAIM_RULES: { code: string; re: RegExp; evidenceNeedle: string }[] = [
   { code: "policy_claim", re: /\bnett\b/i, evidenceNeedle: "nett" },
@@ -287,7 +299,8 @@ export function validateReply(input: GuardInput): GuardResult {
       violations.push({ code: "bad_link", severity: "error", detail: "URL tidak valid" })
       continue
     }
-    const allowed = LINK_ALLOWLIST.some((domain) => host === domain || host.endsWith(`.${domain}`))
+    const allowlist = linkAllowlist()
+    const allowed = allowlist.some((domain) => host === domain || host.endsWith(`.${domain}`))
     if (!allowed && !evidenceBlob.includes(host)) {
       violations.push({ code: "bad_link", severity: "error", detail: `domain tidak diizinkan: ${host}` })
     }

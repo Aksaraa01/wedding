@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Galeri Foto Tamu (Disposable Camera Digital)",
   description:
     "Galeri foto tamu digital: tamu upload foto candid via QR di meja, tampil live seperti disposable camera, tanpa aplikasi, real-time.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/galeri-foto-tamu" },
+  alternates: { canonical: `${siteOrigin()}/fitur/galeri-foto-tamu` },
   openGraph: {
     title: "Galeri Foto Tamu Disposable Camera Digital | Aksaraa",
     description:

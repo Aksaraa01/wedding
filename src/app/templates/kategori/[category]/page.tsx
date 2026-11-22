@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   return {
     title: cat.h1,
     description: cat.description,
-    alternates: { canonical: `https://wedding.aksaraa.com/templates/kategori/${cat.id}` },
+    alternates: { canonical: `${siteOrigin()}/templates/kategori/${cat.id}` },
     openGraph: { title: cat.h1, description: cat.description },
   }
 }

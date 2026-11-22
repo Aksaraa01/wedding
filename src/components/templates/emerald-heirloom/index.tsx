@@ -18,10 +18,9 @@ import {
 import Wishes, { type WishesCopy } from "./Wishes"
 import { EH_ASSETS } from "./assets"
 import "./emerald-heirloom.css"
-import { normalizeLanguage, t, type Language } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
-const GUEST_FALLBACK_ID = "Tamu Undangan"
-const GUEST_FALLBACK_EN = "Guest"
+const GUEST_FALLBACK = "Tamu Undangan"
 
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 const EN_MONTHS = [
@@ -49,21 +48,16 @@ function parseDate(value?: string | null): Date | null {
   return isNaN(date.getTime()) ? null : date
 }
 
-const ID_DAYS = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
-const ID_MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
-function longDate(value: string | null | undefined, withWeekday = false, lang: Language = "en"): string {
+function longDate(value?: string | null, withWeekday = false): string {
   const date = parseDate(value)
   if (!date) return ""
-  const days = lang === "id" ? ID_DAYS : EN_DAYS
-  const months = lang === "id" ? ID_MONTHS : EN_MONTHS
-  const core = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
-  return withWeekday ? `${days[date.getDay()]}, ${core}` : core
+  const core = `${date.getDate()} ${EN_MONTHS[date.getMonth()]} ${date.getFullYear()}`
+  return withWeekday ? `${EN_DAYS[date.getDay()]}, ${core}` : core
 }
 
-function weekdayName(value: string | null | undefined, lang: Language = "en"): string {
+function weekdayName(value?: string | null): string {
   const date = parseDate(value)
-  if (!date) return ""
-  return (lang === "id" ? ID_DAYS : EN_DAYS)[date.getDay()]
+  return date ? EN_DAYS[date.getDay()] : ""
 }
 
 function slashDate(value?: string | null): string {
@@ -82,7 +76,7 @@ function igHandle(raw?: string): string {
   return text.replace(/^@/, "")
 }
 
-function Countdown({ target, lang }: { target: Date | null; lang: Language }) {
+function Countdown({ target }: { target: Date | null }) {
   const [now, setNow] = useState<number | null>(null)
   useEffect(() => {
     if (!target) return
@@ -93,14 +87,14 @@ function Countdown({ target, lang }: { target: Date | null; lang: Language }) {
 
   const diff = target && now !== null ? Math.max(0, target.getTime() - now) : 0
   const units = [
-    { value: pad2(Math.floor(diff / 86400000)), label: t("days", lang) },
-    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: t("hours", lang) },
-    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: t("minutes", lang) },
-    { value: pad2(Math.floor((diff % 60000) / 1000)), label: t("seconds", lang) },
+    { value: pad2(Math.floor(diff / 86400000)), label: "Days" },
+    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: "Hours" },
+    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: "Minutes" },
+    { value: pad2(Math.floor((diff % 60000) / 1000)), label: "Seconds" },
   ]
 
   return (
-    <div className="eh-count__grid" role="group" aria-label={lang === "en" ? "Countdown to the wedding day" : "Hitung mundur menuju hari pernikahan"}>
+    <div className="eh-count__grid" role="group" aria-label="Countdown to the wedding day">
       {units.map((unit) => (
         <div className="eh-count__unit" key={unit.label}>
           <b>{target ? unit.value : "--"}</b>
@@ -205,19 +199,19 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
   const groomFull = (profile.groom_full_name || "").trim() || groomName
   const brideFull = (profile.bride_full_name || "").trim() || brideName
   const groomIg = igHandle(profile.groom_instagram)
   const brideIg = igHandle(profile.bride_instagram)
-  const guestName = (profile.guest_name || "").trim() || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)
+  const guestName = (profile.guest_name || "").trim() || GUEST_FALLBACK
 
   const rawHashtag = (profile.display_name || "").trim()
-  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || (lang === "en" ? "OurWedding" : "PernikahanKami")}`
+  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || "OurWedding"}`
   const hashtag = rawHashtag.startsWith("#") ? rawHashtag : derivedHashtag
 
   const dateObject = parseDate(profile.estimated_wedding_date)
-  const dateLong = longDate(profile.estimated_wedding_date, false, lang)
+  const dateLong = longDate(profile.estimated_wedding_date)
   const coverDate = dateLong
 
   const events = useMemo(() => (profile.sessions || []).filter(Boolean), [profile.sessions])
@@ -261,7 +255,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
   const liveEmbed = liveUrl
     ? liveUrl.replace("watch?v=", "embed/").replace("youtu.be/", "www.youtube.com/embed/").split("&")[0]
     : ""
-  const liveCta = (tc.livestream_cta || "").trim() || (lang === "en" ? "Join Live" : "Tonton Siaran")
+  const liveCta = (tc.livestream_cta || "").trim() || "Join Live"
   const hasLive = profile.livestream_visible !== false && !!liveUrl
 
   const target = useMemo(
@@ -272,59 +266,59 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
   const openingBody = (profile.opening_description || "").trim()
   const quoteText = (profile.quote_text || "").trim()
-  const coverKicker = (tc.cover_kicker || "").trim() || (lang === "en" ? "We invite you to\nthe wedding of" : "Kami mengundang Anda ke\npernikahan")
-  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
+  const coverKicker = (tc.cover_kicker || "").trim() || "We invite you to\nthe wedding of"
+  const openLabel = (tc.open_button || "").trim() || "Open Invitation"
   const apology = (tc.cover_apology || "").trim()
-  const guestLabel = (tc.cover_guest_label || "").trim() || (lang === "en" ? "Dear," : "Kepada Yth.,")
-  const welcomeLine = (tc.welcome_invite || "").trim() || (lang === "en" ? "We're getting married." : "Kami akan menikah.")
+  const guestLabel = (tc.cover_guest_label || "").trim() || "Dear,"
+  const welcomeLine = (tc.welcome_invite || "").trim() || "We're getting married."
   const openingKicker = (tc.opening_kicker || "").trim()
-  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
-  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || t("secCouple", lang)
+  const saveDateLabel = (tc.save_date_label || "").trim() || "Save The Date"
+  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "Bride & Groom"
   const mempelaiTitle = (tc.mempelai_title || "").trim() || mempelaiKicker
   const mempelaiIntro =
-    (tc.profiles_intro || "").trim() || (lang === "en" ? "With great joy and respect, we cordially invite you to attend the wedding celebration of our beloved son and daughter." : "Dengan penuh sukacita dan hormat, kami mengundang Anda untuk menghadiri perayaan pernikahan putra-putri kami tercinta.")
-  const parentsLabel = (tc.parents_label || "").trim() || t("childOf", lang)
-  const storyTitle = (tc.love_story_title || "").trim() || t("secStory", lang)
+    (tc.profiles_intro || "").trim() || "With great joy and respect, we cordially invite you to attend the wedding celebration of our beloved son and daughter."
+  const parentsLabel = (tc.parents_label || "").trim() || "Child of"
+  const storyTitle = (tc.love_story_title || "").trim() || "Our Story"
   const storyKicker = (tc.story_kicker || "").trim()
   const storyIntro = (tc.story_intro || "").trim()
-  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Event & Venue" : "Waktu & Tempat")
+  const eventsTitle = (tc.events_title || "").trim() || "Event & Venue"
   const eventsKicker = (tc.events_kicker || "").trim()
-  const eventsIntro = (tc.events_intro || "").trim() || (lang === "en" ? "With due respect, we would like to inform you that for those who wish to attend, below are the details of the time and venue of the event." : "Dengan hormat, kami sampaikan informasi waktu dan tempat acara bagi yang berkenan hadir.")
+  const eventsIntro = (tc.events_intro || "").trim() || "With due respect, we would like to inform you that for those who wish to attend, below are the details of the time and venue of the event."
   const eventsNote = (tc.events_note || "").trim()
-  const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
+  const mapsLabel = (tc.maps_label || "").trim() || "See Location"
   const invitingKicker = (tc.inviting_kicker || "").trim()
-  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "With Honor" : "Turut Mengundang")
+  const invitingTitle = (tc.inviting_title || "").trim() || "With Honor"
   const invitingIntro = (tc.inviting_intro || "").trim()
-  const rundownTitle = (tc.rundown_title || "").trim() || t("secRundown", lang)
+  const rundownTitle = (tc.rundown_title || "").trim() || "Rundown"
   const rundownKicker = (tc.rundown_kicker || "").trim()
   const rundownIntro = (tc.rundown_intro || "").trim()
-  const galleryTitle = (tc.gallery_title || "").trim() || t("secGallery", lang)
+  const galleryTitle = (tc.gallery_title || "").trim() || "Gallery"
   const galleryIntro = (tc.gallery_intro || "").trim()
   const galleryQuote = (tc.gallery_quote || "").trim()
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Video")
+  const videoKicker = (tc.video_kicker || "").trim() || "The Film"
   const videoTitle = (tc.video_title || "").trim()
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim()
   const giftWish = (tc.gift_wish || "").trim()
   const giftButton = (tc.gift_button || "").trim() || t("secGift", lang)
-  const dressKicker = (tc.dresscode_kicker || "").trim() || t("secDresscode", lang)
-  const wishesTitle = (tc.wishes_title || "").trim() || t("secWishes", lang)
+  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
+  const wishesTitle = (tc.wishes_title || "").trim() || "Wedding Wishes"
   const wishesIntro = (tc.wishes_intro || "").trim()
-  const closingKicker = (tc.closing_kicker || "").trim() || t("thankYou", lang)
+  const closingKicker = (tc.closing_kicker || "").trim() || "Thank You"
   const closingMessage = (tc.closing_message || "").trim()
-  const accountToast = (tc.copy_account_toast || "").trim() || t("copiedToClipboard", lang)
-  const addressToast = (tc.copy_address_toast || "").trim() || t("copiedToClipboard", lang)
-  const addressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
-  const accountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
+  const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
+  const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
+  const addressButton = (tc.copy_address_button || "").trim() || "Copy address"
+  const accountButton = (tc.copy_account_button || "").trim() || "Copy account number"
 
   const wishCopy: WishesCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Name" : "Nama"),
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Your full name" : "Nama lengkap Anda"),
-    messageLabel: (tc.wishes_message_label || "").trim() || (lang === "en" ? "Message" : "Pesan"),
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave a wish for the couple" : "Tulis ucapan untuk pasangan"),
-    submit: (tc.wishes_submit || "").trim() || t("sendWishes", lang),
-    empty: (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama."),
+    nameLabel: (tc.wishes_name_label || "").trim() || "Name",
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Your full name",
+    messageLabel: (tc.wishes_message_label || "").trim() || "Message",
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Leave a wish for the couple",
+    submit: (tc.wishes_submit || "").trim() || "Send Greeting",
+    empty: (tc.wishes_empty || "").trim() || "No wishes yet. Be the first.",
   }
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -724,7 +718,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               <img src={EH_ASSETS.laceThin} alt="" loading="lazy" draggable={false} />
             </div>
             <div className="eh-count__dial" data-eh-reveal="fade">
-              <Countdown target={target} lang={lang} />
+              <Countdown target={target} />
             </div>
             {calendarHref && (
               <a
@@ -943,7 +937,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                   />
                   <div className="eh-event__body">
                     {event.name && <h3 className="eh-event__name">{event.name}</h3>}
-                    {event.date && <p className="eh-event__weekday">{weekdayName(event.date, lang)}</p>}
+                    {event.date && <p className="eh-event__weekday">{weekdayName(event.date)}</p>}
                     {event.date && <p className="eh-event__date">{slashDate(event.date)}</p>}
                     {event.time && <p className="eh-event__time">{event.time}</p>}
                     {event.venue && <p className="eh-event__venue">{event.venue}</p>}
@@ -997,7 +991,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
         {/* 8 — rundown */}
         {rundown.length > 0 && (
-          <section className="eh-rundown" data-section="rundown" aria-label={t("secRundown", lang)}>
+          <section className="eh-rundown" data-section="rundown" aria-label="Order of the day">
             <header className="eh-rundown__head" data-eh-reveal="up">
               {rundownKicker && <p className="eh-kicker">{rundownKicker}</p>}
               <h2 className="eh-title">{rundownTitle}</h2>
@@ -1024,7 +1018,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
         {/* 9 — gallery */}
         {gallery.length > 0 && (
-          <section className="eh-gallery" data-section="galeri" aria-label={t("secGallery", lang)}>
+          <section className="eh-gallery" data-section="galeri" aria-label="Gallery">
             <header className="eh-gallery__head" data-eh-reveal="up">
               <h2 className="eh-title">{galleryTitle}</h2>
               {galleryIntro && <p className="eh-intro">{galleryIntro}</p>}
@@ -1039,7 +1033,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                 type="button"
                 className="eh-gallery__photo"
                 onClick={() => setLightbox(galleryIndex)}
-                aria-label={lang === "en" ? "Open photo" : "Buka foto"}
+                aria-label="Open photo"
               >
                 <img src={gallery[galleryIndex]} alt="" loading="lazy" draggable={false} />
               </button>
@@ -1048,7 +1042,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                   <button
                     type="button"
                     className="eh-gallery__nav eh-gallery__nav--prev"
-                    aria-label={lang === "en" ? "Previous photo" : "Foto sebelumnya"}
+                    aria-label="Previous photo"
                     onClick={() => setGalleryIndex((i) => (i - 1 + gallery.length) % gallery.length)}
                   >
                     ‹
@@ -1056,7 +1050,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                   <button
                     type="button"
                     className="eh-gallery__nav eh-gallery__nav--next"
-                    aria-label={lang === "en" ? "Next photo" : "Foto berikutnya"}
+                    aria-label="Next photo"
                     onClick={() => setGalleryIndex((i) => (i + 1) % gallery.length)}
                   >
                     ›
@@ -1118,7 +1112,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                 ) : (
                   <>
                     {filmPoster && <img className="eh-film__poster" src={filmPoster} alt="" aria-hidden="true" />}
-                    <button type="button" className="eh-film__play" onClick={() => setFilmOn(true)} aria-label={lang === "en" ? "Play the wedding film" : "Putar video pernikahan"}>
+                    <button type="button" className="eh-film__play" onClick={() => setFilmOn(true)} aria-label="Play the wedding film">
                       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path d="M8 5v14l11-7Z" />
                       </svg>
@@ -1281,7 +1275,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy} language={lang}
+              copy={wishCopy} language={profile.language}
             />
           </div>
           {wishesDecos.map((spec, index) => (
@@ -1352,14 +1346,14 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="eh-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightbox(null)}>
-          <button type="button" className="eh-lightbox__close" aria-label={lang === "en" ? "Close" : "Tutup"} onClick={() => setLightbox(null)}>
+          <button type="button" className="eh-lightbox__close" aria-label="Close" onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
             <button
               type="button"
               className="eh-lightbox__nav eh-lightbox__nav--prev"
-              aria-label={lang === "en" ? "Previous photo" : "Foto sebelumnya"}
+              aria-label="Previous photo"
               onClick={(event) => {
                 event.stopPropagation()
                 setLightbox((i) => (i === null ? null : (i - 1 + gallery.length) % gallery.length))
@@ -1373,7 +1367,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
             <button
               type="button"
               className="eh-lightbox__nav eh-lightbox__nav--next"
-              aria-label={lang === "en" ? "Next photo" : "Foto berikutnya"}
+              aria-label="Next photo"
               onClick={(event) => {
                 event.stopPropagation()
                 setLightbox((i) => (i === null ? null : (i + 1) % gallery.length))
@@ -1399,7 +1393,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)}
+          guestName={profile.guest_name || GUEST_FALLBACK}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
