@@ -38,7 +38,7 @@ if (rejectedAfter) die(`${short(sha)} was rejected after verification: ${rejecte
 const exists = gitTry(`rev-parse -q --verify refs/tags/${tag}`)
 if (exists.ok) die(`tag ${tag} already exists`)
 
-git(`tag -a ${tag} -m "Aksaraa ${env} release ${date}\n\ncommit ${sha}\nverified ${lastVerified.at}"`)
+git(`tag -a ${tag} ${sha} -m "Aksaraa ${env} release ${date}\n\ncommit ${sha}\nverified ${lastVerified.at}"`)
 git(`push origin refs/tags/${tag}`)
 appendJsonl(ledgerPath, {
   at: nowIso(),
