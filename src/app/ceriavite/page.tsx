@@ -3,6 +3,7 @@ import Link from "next/link"
 import { supabaseAdmin } from "@/lib/supabase"
 import { KIDS_SITE } from "@/lib/eventType"
 import { waLink } from "@/lib/contact"
+import { siteOrigin } from "@/lib/site"
 
 export const metadata: Metadata = {
   title: { absolute: "Ceriavite | Undangan Digital Khitanan, Aqiqah, dan Ulang Tahun" },
@@ -354,7 +355,7 @@ export default async function CeriaviteLandingPage() {
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#EFE9DD] pt-5 text-[11px] text-[#8B857C]">
             <Link href="/daftar" className="hover:text-[#1A1817]">Daftar</Link>
             <Link href="/login" className="hover:text-[#1A1817]">Masuk</Link>
-            <a href="https://wedding.aksaraa.com" className="hover:text-[#1A1817]">Aksaraa Wedding</a>
+            <a href={siteOrigin()} className="hover:text-[#1A1817]">Aksaraa Wedding</a>
             <span className="ml-auto">© {new Date().getFullYear()} Aksaraa</span>
           </div>
         </div>

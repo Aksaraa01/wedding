@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -17,8 +16,8 @@ type Props = {
   guestName?: string
   guestLinkStrict?: boolean
   coupleName?: string
-  lang?: "EN" | "ID" | "id" | "en"
-  language?: "id" | "en" | string
+  lang: "EN" | "ID"
+  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 5
@@ -50,16 +49,15 @@ function wishAgo(iso: string | undefined, language: "id" | "en" = "id"): string 
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return language === "en" ? "now" : "baru saja"
-  if (minutes < 60) return language === "en" ? `${minutes}m` : `${minutes} mnt`
+  if (minutes < 1) return "now"
+  if (minutes < 60) return `${minutes}m`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return language === "en" ? `${hours}h` : `${hours} jam`
+  if (hours < 24) return `${hours}h`
   const days = Math.floor(hours / 24)
-  return language === "en" ? `${days}d` : `${days} hr`
+  return `${days}d`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, lang: langProp , language = "id"}: Props) {
-  const lang = normalizeLanguage(language || langProp || "id")
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, lang , language = "id"}: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -100,7 +98,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(t("previewWishNotSaved", lang))
+      setFeedback(lang === "ID" ? "Mode pratinjau, ucapan tidak disimpan." : "Preview mode, your wishes are not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -117,19 +115,27 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || t("honoredGuest", lang),
+          name: name.trim() || guestName || "Our Beloved Guest",
           message: text,
           source: "invitation",
         }),
       })
       if (res.status === 409) {
         setStatus("error")
-        setFeedback(t("wishAlreadySent", lang))
+        setFeedback(
+          lang === "ID"
+            ? "Anda sudah mengirim ucapan. Terima kasih atas doanya."
+            : "You have already sent your wishes. Thank you for your love and prayers."
+        )
         return
       }
       if (res.ok) {
         setStatus("done")
-        setFeedback(t("thanksForWish", lang))
+        setFeedback(
+          lang === "ID"
+            ? (language === "en" ? "Thank you! Your wish will appear after moderation." : "Terima kasih! Ucapan Anda akan tampil setelah moderasi.")
+            : "Thank you! Your wishes will appear after moderation."
+        )
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -138,10 +144,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback(t("tooManyMessages", lang))
+      setFeedback(lang === "ID" ? "Terlalu banyak pesan. Coba lagi nanti." : "Too many messages right now. Please try again.")
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback(lang === "ID" ? "Gagal mengirim. Periksa koneksi Anda." : "Could not send your wishes. Please check your connection.")
     }
   }, [weddingProfileId, guestId, guestName, name, message, status, lang])
 
@@ -155,7 +161,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
   return (
     <div className="aj-wishes">
       <p className="aj-wishes__intro">
-        {lang === "id"
+        {lang === "ID"
           ? `Tinggalkan pesan cinta dan doa untuk ${coupleName || "kedua mempelai"}.`
           : `Leave a message of love and a prayer for ${coupleName || "the couple"}.`}
       </p>
@@ -171,10 +177,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
           className="aj-wishes__input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder={lang === "id" ? "Nama Anda" : "Your name"}
+          placeholder={lang === "ID" ? "Nama Anda" : "Your name"}
           maxLength={80}
           autoComplete="name"
-          aria-label={lang === "id" ? "Nama" : "Name"}
+          aria-label={lang === "ID" ? "Nama" : "Name"}
           readOnly={nameLocked}
           aria-readonly={nameLocked}
         />
@@ -182,43 +188,43 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
           className="aj-wishes__textarea"
           value={message}
           onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
-          placeholder={lang === "id" ? "Tulis ucapan & doa" : "Write your wishes"}
+          placeholder={lang === "ID" ? "Tulis ucapan & doa" : "Write your wishes"}
           rows={2}
           maxLength={MAX_CHARS}
-          aria-label={lang === "id" ? "Ucapan" : "Wishes"}
+          aria-label={lang === "ID" ? "Ucapan" : "Wishes"}
         />
         <div className="aj-wishes__row">
           <span className="aj-wishes__count">{message.length}/{MAX_CHARS}</span>
           <button type="submit" className="aj-wishes__submit" disabled={status === "sending" || !message.trim()}>
-            {status === "sending" ? (lang === "id" ? "Mengirim..." : "Sending...") : lang === "id" ? "Kirim" : "Send"}
+            {status === "sending" ? (lang === "ID" ? "Mengirim..." : "Sending...") : lang === "ID" ? "Kirim" : "Send"}
           </button>
         </div>
         {feedback && <p className={`aj-wishes__feedback${status === "error" ? " is-error" : ""}`}>{feedback}</p>}
       </form>
 
       <div className="aj-wishes__list">
-        {!loaded && <p className="aj-wishes__empty">{t("loadingWishes", lang)}</p>}
+        {!loaded && <p className="aj-wishes__empty">{lang === "ID" ? "Memuat ucapan..." : "Loading wishes..."}</p>}
         {loaded && wishes.length === 0 && (
           <p className="aj-wishes__empty">
-            {t("noWishesYet", lang)}
+            {lang === "ID" ? "Belum ada ucapan. Jadilah yang pertama." : "No wishes yet. Be the first to leave one."}
           </p>
         )}
         {paged.map((wish) => (
           <article key={wish.id} className="aj-wishes__item">
             <div className="aj-wishes__meta">
-              <b>{wish.name || (lang === "id" ? "Tamu" : "Guest")}</b>
-              <span>{wishAgo(wish.created_at, lang)}</span>
+              <b>{wish.name || (lang === "ID" ? "Tamu" : "Guest")}</b>
+              <span>{wishAgo(wish.created_at, language)}</span>
             </div>
             <p>{wish.message}</p>
           </article>
         ))}
         {totalPages > 1 && (
           <div className="aj-wishes__pager">
-            <button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={currentPage === 0} aria-label={t("previousPage", lang)}>
+            <button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={currentPage === 0} aria-label="Previous">
               ‹
             </button>
             <span>{currentPage + 1} / {totalPages}</span>
-            <button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1} aria-label={t("nextPage", lang)}>
+            <button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1} aria-label="Next">
               ›
             </button>
           </div>

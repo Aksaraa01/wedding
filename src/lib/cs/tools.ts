@@ -23,10 +23,8 @@ import {
   getProductDetail,
   listProductDetails,
   productForPackage,
-  siteBaseUrl,
   type ProductKey,
 } from "@/lib/cs/productKnowledge"
-import { normalizeDemoUrl } from "./templateListReply"
 
 export interface CsToolContext {
   contactId: string
@@ -203,16 +201,13 @@ async function toolQuotePrice(args: Record<string, unknown>): Promise<ToolResult
 
 async function toolListTemplates(args: Record<string, unknown>): Promise<ToolResult> {
   const limit = Math.max(1, Math.min(20, Number(args.limit) || 8))
-  const baseUrl = siteBaseUrl()
 
   // Ambil lebih banyak lalu saring di sini: label kategori di DB tidak seragam
   // ("Adat", "Adat/Tradisional", "Budaya"), jadi exact match selalu gagal.
   let query = supabaseAdmin
     .from("web_templates")
-    .select("id,code,name,category,tier,preview_image_url,demo_url,no_photo,popular_rank,is_active,sort_order,created_at")
+    .select("id,code,name,category,tier,preview_image_url,demo_url,no_photo,popular_rank,is_active")
     .order("popular_rank", { ascending: true, nullsFirst: false })
-    .order("sort_order", { ascending: true, nullsFirst: false })
-    .order("created_at", { ascending: false })
     .limit(60)
 
   if (args.has_photos === true) query = query.eq("no_photo", false)
@@ -245,7 +240,7 @@ async function toolListTemplates(args: Record<string, unknown>): Promise<ToolRes
         name: row.name,
         category: row.category,
         tier: row.tier,
-        demo_url: normalizeDemoUrl(row.demo_url, String(row.code || ""), baseUrl),
+        demo_url: row.demo_url,
       })),
       inactive_matches: inactiveRows.slice(0, 3).map((row) => ({
         name: row.name,

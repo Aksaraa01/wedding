@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 import { headers } from "next/headers"
-import { KIDS_SITE, WEDDING_SITE } from "@/lib/eventType"
+import { KIDS_SITE } from "@/lib/eventType"
+import { isStagingSite, siteOrigin } from "@/lib/site"
 
 // Marketing surfaces only. Guest invitation, auth, and app routes are
 // noindex + robots-disallowed and stay out of the sitemap by design.
@@ -8,11 +9,17 @@ import { KIDS_SITE, WEDDING_SITE } from "@/lib/eventType"
 // Two brands share this app, so the sitemap is per-host: ceriavite.aksaraa.com
 // must never advertise wedding URLs (and vice versa). Reading the host makes the
 // route dynamic; it is a tiny payload and was being served with wedding URLs on
-// the Ceriavite host before this.
+// the Ceriavite host before this. Staging is non-indexed and returns no URLs.
 export const dynamic = "force-dynamic"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const host = (await headers()).get("host") || ""
+  const host = ((await headers()).get("host") || "").toLowerCase()
+  const staging =
+    isStagingSite() ||
+    host === "wedding-stg.aksaraa.com" ||
+    host === "www.wedding-stg.aksaraa.com"
+  if (staging) return []
+
   if (host.startsWith("ceriavite.")) {
     return [
       { url: KIDS_SITE, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
@@ -33,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   }
 
-  const base = WEDDING_SITE
+  const base = siteOrigin()
   const pages = [
     "/hero",
     "/premium-web-invitation",

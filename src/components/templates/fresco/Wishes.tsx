@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
-import { normalizeLanguage } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -56,11 +55,11 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso?: string, lang: "id" | "en" = "id"): string {
+function wishAgo(iso?: string): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return lang === "en" ? "Just now" : "Baru saja"
+  if (minutes < 1) return "Just now"
   if (minutes < 60) return `${minutes} min ago`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `${hours} h ago`
@@ -69,7 +68,6 @@ function wishAgo(iso?: string, lang: "id" | "en" = "id"): string {
 }
 
 export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy , language = "id"}: Props) {
-  const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -112,10 +110,9 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
   const send = useCallback(async () => {
     const text = message.trim()
     if (!text || status === "sending") return
-    const en = language === "en"
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(en ? "Preview mode — your wish was not saved." : "Mode pratinjau — ucapan tidak tersimpan.")
+      setFeedback("Preview mode — your wish was not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -132,19 +129,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || (en ? "Guest" : "Tamu Undangan"),
+          name: name.trim() || guestName || "Tamu Undangan",
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback(en ? "You have already sent a wish. Thank you for your kindness." : "Anda sudah mengirim ucapan. Terima kasih atas doa Anda.")
+        setFeedback("You have already sent a wish. Thank you for your kindness.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback(en ? "Thank you. Your wish appears once it has been reviewed." : "Terima kasih. Ucapan Anda akan tampil setelah ditinjau.")
+        setFeedback("Thank you. Your wish appears once it has been reviewed.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -153,12 +150,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback(en ? "Too many messages right now. Please try again in a moment." : "Terlalu banyak pesan saat ini. Coba lagi sebentar lagi.")
+      setFeedback("Too many messages right now. Please try again in a moment.")
     } catch {
       setStatus("error")
-      setFeedback(en ? "Your wish could not be sent. Please check your connection." : "Ucapan Anda gagal dikirim. Periksa koneksi Anda.")
+      setFeedback("Your wish could not be sent. Please check your connection.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status, language])
+  }, [weddingProfileId, guestId, guestName, name, message, status])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -208,7 +205,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
 
         <button type="submit" className="fr-submit" disabled={status === "sending" || !message.trim()}>
           {status === "sending" ? (
-            lang === "en" ? "Sending…" : "Mengirim…"
+            "Sending…"
           ) : (
             <>
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -239,8 +236,8 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
           <article className="fr-wish" key={wish.id}>
             <p className="fr-wish__text">{wish.message}</p>
             <p className="fr-wish__meta">
-              <span className="fr-wish__name">{wish.name || (language === "en" ? "Guest" : "Tamu Undangan")}</span>
-              <span>{wishAgo(wish.created_at, lang)}</span>
+              <span className="fr-wish__name">{wish.name || "Tamu Undangan"}</span>
+              <span>{wishAgo(wish.created_at)}</span>
             </p>
           </article>
         ))}

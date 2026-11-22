@@ -1,3 +1,7 @@
+import { siteOrigin } from "@/lib/site"
+
+const WEDDING_BASE = siteOrigin()
+
 // Knowledge base CS: fakta produk yang boleh dijawab agent tanpa tool.
 //
 // Aturan penulisan:
@@ -17,7 +21,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "cara-daftar",
     title: "Cara daftar undangan digital",
-    url: "https://wedding.aksaraa.com/register",
+    url: `${WEDDING_BASE}/register`,
     chunks: [
       {
         heading: "Alur pendaftaran",
@@ -34,7 +38,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "pilih-template",
     title: "Memilih dan mengganti template",
-    url: "https://wedding.aksaraa.com/templates",
+    url: `${WEDDING_BASE}/templates`,
     chunks: [
       {
         heading: "Ganti template",
@@ -51,7 +55,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "istilah-premium",
     title: "Arti filter Premium pada template",
-    url: "https://wedding.aksaraa.com/templates",
+    url: `${WEDDING_BASE}/templates`,
     chunks: [
       {
         heading: "Filter paket di galeri template: Basic dan Premium",
@@ -73,7 +77,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "isi-data",
     title: "Mengisi data undangan",
-    url: "https://wedding.aksaraa.com/fitur/undangan-digital",
+    url: `${WEDDING_BASE}/fitur/undangan-digital`,
     chunks: [
       {
         heading: "Isi sendiri atau dibantu tim",
@@ -90,7 +94,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "publish-link",
     title: "Menerbitkan undangan dan link tamu",
-    url: "https://wedding.aksaraa.com/fitur/link-unik",
+    url: `${WEDDING_BASE}/fitur/link-unik`,
     chunks: [
       {
         heading: "Alamat undangan",
@@ -107,7 +111,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "revisi",
     title: "Revisi undangan setelah terbit",
-    url: "https://wedding.aksaraa.com/fitur/undangan-digital",
+    url: `${WEDDING_BASE}/fitur/undangan-digital`,
     chunks: [
       {
         heading: "Edit kapan saja",
@@ -119,7 +123,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "rsvp",
     title: "RSVP dan konfirmasi kehadiran",
-    url: "https://wedding.aksaraa.com/fitur/rsvp-otomatis",
+    url: `${WEDDING_BASE}/fitur/rsvp-otomatis`,
     chunks: [
       {
         heading: "Cara kerja RSVP",
@@ -131,7 +135,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "buku-tamu-qr",
     title: "Buku tamu digital dengan QR",
-    url: "https://wedding.aksaraa.com/qr-digital-buku-tamu",
+    url: `${WEDDING_BASE}/qr-digital-buku-tamu`,
     chunks: [
       {
         heading: "Check-in tamu",
@@ -143,7 +147,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "galeri-tamu",
     title: "Galeri foto dari tamu",
-    url: "https://wedding.aksaraa.com/galeri-kenangan-tamu",
+    url: `${WEDDING_BASE}/galeri-kenangan-tamu`,
     chunks: [
       {
         heading: "Foto dan selfie tamu",
@@ -155,7 +159,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "wish-wall",
     title: "Doa dan harapan tamu",
-    url: "https://wedding.aksaraa.com/virtual-wish-wall",
+    url: `${WEDDING_BASE}/virtual-wish-wall`,
     chunks: [
       {
         heading: "Ucapan tamu",
@@ -167,7 +171,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "reminder-vip",
     title: "Reminder WhatsApp untuk tamu VIP",
-    url: "https://wedding.aksaraa.com/reminder-tamu-vip",
+    url: `${WEDDING_BASE}/reminder-tamu-vip`,
     chunks: [
       {
         heading: "Pengingat otomatis",
@@ -179,7 +183,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "amplop-digital",
     title: "Amplop digital dan hadiah",
-    url: "https://wedding.aksaraa.com/fitur/amplop-digital",
+    url: `${WEDDING_BASE}/fitur/amplop-digital`,
     chunks: [
       {
         heading: "Hadiah tanpa amplop fisik",
@@ -191,7 +195,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "wa-blast",
     title: "WA blast undangan",
-    url: "https://wedding.aksaraa.com/fitur/reminder-wa",
+    url: `${WEDDING_BASE}/fitur/reminder-wa`,
     chunks: [
       {
         heading: "Kirim undangan massal",
@@ -203,7 +207,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "express",
     title: "Pengerjaan express",
-    url: "https://wedding.aksaraa.com/premium-web-invitation",
+    url: `${WEDDING_BASE}/premium-web-invitation`,
     chunks: [
       {
         heading: "Pengerjaan dipercepat",
@@ -215,7 +219,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "undangan-cetak",
     title: "Undangan cetak atau fisik",
-    url: "https://wedding.aksaraa.com/fitur/undangan-digital",
+    url: `${WEDDING_BASE}/fitur/undangan-digital`,
     chunks: [
       {
         heading: "Hanya undangan digital",
@@ -227,7 +231,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "video-sinematik",
     title: "Video sinematik di undangan",
-    url: "https://wedding.aksaraa.com/premium-web-invitation",
+    url: `${WEDDING_BASE}/premium-web-invitation`,
     chunks: [
       {
         heading: "Apa itu video sinematik",
@@ -249,7 +253,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "musik",
     title: "Musik latar undangan",
-    url: "https://wedding.aksaraa.com/fitur/undangan-digital",
+    url: `${WEDDING_BASE}/fitur/undangan-digital`,
     chunks: [
       {
         heading: "Lagu latar",
@@ -261,7 +265,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "status",
     title: "Mengecek status undangan",
-    url: "https://wedding.aksaraa.com/dashboard",
+    url: `${WEDDING_BASE}/dashboard`,
     chunks: [
       {
         heading: "Progres pengerjaan",
@@ -295,7 +299,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "voucher",
     title: "Voucher dan kode promo",
-    url: "https://wedding.aksaraa.com/premium-web-invitation",
+    url: `${WEDDING_BASE}/premium-web-invitation`,
     chunks: [
       {
         heading: "Pemeriksaan voucher oleh tim",
@@ -307,7 +311,7 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   {
     key: "refund",
     title: "Pembatalan dan perubahan tanggal",
-    url: "https://wedding.aksaraa.com/premium-web-invitation",
+    url: `${WEDDING_BASE}/premium-web-invitation`,
     chunks: [
       {
         heading: "Wewenang tim",

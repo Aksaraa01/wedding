@@ -151,7 +151,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
             dateShort={coverDate}
             objectPosition={profile.template_demo ? "58% 50%" : "50% 50%"}
             onOpen={openInvitation}
-            language={profile.language}
+            language={lang}
           />
         )}
 
@@ -186,7 +186,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
             giftAddress={profile.gift_address}
             giftAddressName={profile.gift_address_name}
             onClose={() => setGiftOpen(false)}
-            language={profile.language}
+            language={lang}
           />
         )}
 
@@ -213,7 +213,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
           <button
             type="button"
             onClick={toggleMusic}
-            aria-label={t("playPauseMusic", lang)}
+            aria-label={lang === "en" ? "Play or pause music" : "Putar atau jeda musik"}
             className="fixed bottom-4 right-4 z-[95] flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-[#F2F1EE] text-[#1B1B18] shadow-lg transition-transform hover:scale-105 active:scale-95"
           >
             <span className={`material-symbols-outlined text-[22px] ${playing ? "" : "opacity-60"}`}>

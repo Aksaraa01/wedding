@@ -13,22 +13,22 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
   const calLink = gcalLink(sessions[0], profile.groom_name, profile.bride_name)
   const pad2 = (n: number) => String(n).padStart(2, "0")
   const cells = [
-    { v: String(days), l: t("days", lang) },
-    { v: pad2(hours), l: t("hours", lang) },
-    { v: pad2(minutes), l: t("minutes", lang) },
-    { v: pad2(seconds), l: t("seconds", lang) },
+    { v: String(days), l: "Hari" },
+    { v: pad2(hours), l: "Jam" },
+    { v: pad2(minutes), l: "Menit" },
+    { v: pad2(seconds), l: "Detik" },
   ]
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto flex flex-col items-center justify-start text-center px-6 pt-12 pb-8">
       <div className="relative w-full max-w-[360px] flex flex-col items-center justify-center p-8 text-center select-none">
       <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
         <h1 className="italic text-[28px] leading-tight mb-2 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-          {t("saveTheDate", lang)}
+          Save The Date
         </h1>
         <div className="flex items-center gap-2 mb-4">
           <span className="h-px w-6 bg-[#8E6B3D]/40" />
           <span className="text-[15px] font-bold tracking-wider" style={{ ...FONT_DISPLAY, color: "#2c221a" }}>
-            {formatLongDate(profile.estimated_wedding_date || sessions[0]?.date) || (lang === "en" ? "Coming Soon" : "Segera Hadir")}
+            {formatLongDate(profile.estimated_wedding_date || sessions[0]?.date) || "Segera Hadir"}
           </span>
           <span className="h-px w-6 bg-[#8E6B3D]/40" />
         </div>

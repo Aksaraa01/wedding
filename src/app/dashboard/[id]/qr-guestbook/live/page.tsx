@@ -7,6 +7,7 @@ import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import { coupleUrl } from "@/lib/coupleUrl"
+import { coupleUrlMode, isWeddingMainHost } from "@/lib/site"
 
 type Profile = {
   id: string
@@ -121,15 +122,14 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   useVisiblePoll(fetchAll, 10000, !loading)
 
   const buildScannerUrl = (slug: string) => {
-    // Prod couples use their subdomain — unless the slug is longer than a DNS
-    // label allows, in which case the /scanner/{slug} path on the main host is
-    // the only reachable form.
+    // Path-only environments (B1 staging) and the main app host always use the
+    // canonical path form. On a prod couple subdomain we keep the short form.
     if (typeof window !== "undefined") {
-      const host = window.location.hostname
-      if (host === "wedding.aksaraa.com" || host.endsWith(".wedding.aksaraa.com")) {
+      const host = window.location.hostname.toLowerCase()
+      if (coupleUrlMode() === "path" || isWeddingMainHost(host)) {
         return coupleUrl(slug, "/scanner")
       }
-      return `${window.location.origin}/scanner/${slug}`
+      return coupleUrl(slug, "/scanner")
     }
     return coupleUrl(slug, "/scanner")
   }

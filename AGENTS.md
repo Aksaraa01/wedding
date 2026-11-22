@@ -58,12 +58,12 @@ Two install/upgrade traps on this repo:
 ### Deployment
 - Server: `103.93.135.176` (Biznet VPS, Ubuntu 22.04)
 - **Prod** PM2: `aksara-wedding` on port 3002, dir `/var/www/aksara-wedding`, ecosystem `/var/www/aksara-wedding/ecosystem.config.js`
-- **Staging (Wedding, B1 path-based)**: host `https://wedding-stg.aksaraa.com`, PM2 `aksara-wedding-staging` on port 3003, dir `/var/www/aksara-wedding-staging`, ecosystem `/var/www/aksara-wedding-staging/ecosystem.config.js`. Staging is main-only (no couple subdomains) and uses path-form couple links (`/w/{slug}`, `/led/{slug}`, `/scanner/{slug}`, token routes on same host). It must serve its own static assets (no redirect to prod `cdn.aksaraa.com`).
-- Caddy reverse proxy: prod `wedding.aksaraa.com` + `*.wedding.aksaraa.com`; staging `wedding-stg.aksaraa.com` → `127.0.0.1:3003` (own assets). Snapshot: `scripts/ops/Caddyfile.prod`.
-- Prod subdomain pattern: `{slug}.wedding.aksaraa.com` → `/w/{slug}`. Staging B1 uses path mode; `coupleUrl()` handles this via env (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SITE_ENV`/`APP_ENV`, `NEXT_PUBLIC_COUPLE_URL_MODE`, optional `NEXT_PUBLIC_COUPLE_APEX_DOMAIN`).
+- **Staging (Wedding, B1 path-based)**: host `https://wedding-stg.aksaraa.com`, PM2 `aksara-wedding-staging` on port 3003, dir `/var/www/aksara-wedding-staging`, ecosystem `/var/www/aksara-wedding-staging/ecosystem.config.js` (repo template: `ecosystem.staging.config.cjs`). Staging is main-only (no couple subdomains) and uses path-form couple links (`/w/{slug}`, `/led/{slug}`, `/scanner/{slug}`, token routes on same host). It must serve its own static assets (no redirect to prod `cdn.aksaraa.com`).
+- Caddy reverse proxy: prod `wedding.aksaraa.com` + `*.wedding.aksaraa.com`; staging `wedding-stg.aksaraa.com` → `127.0.0.1:3003` (own assets). Snapshot: `scripts/ops/Caddyfile.prod`; preflight: `scripts/ops/cloudflare-preflight.sh`. Remove legacy `staging.aksaraa.com` in Cloudflare/DNS and on server Caddy when present.
+- Prod subdomain pattern: `{slug}.wedding.aksaraa.com` → `/w/{slug}`. Staging B1 uses path mode; `coupleUrl()` handles this via env (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SITE_ENV`/`APP_ENV`, `NEXT_PUBLIC_COUPLE_URL_MODE`, optional `NEXT_PUBLIC_COUPLE_APEX_DOMAIN`). Do not emit apex couple subdomains in path mode.
 - Node.js 22 via nvm (`/home/askaraa/.nvm/versions/node/v22.23.2/bin/node`)
 - Standalone output: `.next/standalone/server.js` + `.next/standalone/.next/static/` + `.next/standalone/public/`
-- PM2 env vars must be injected via ecosystem config (`.env.local` not loaded in standalone mode)
+- PM2 env vars must be injected via ecosystem config (`.env.local` not loaded in standalone mode). Staging runtime env must include Supabase staging keys/URL and B1 vars; keep outbound side-effects gated unless explicitly intended (`NOTIFY_GROUP_ENABLED=false` by default on staging). `wp.aksaraa.com` is shared/prod-risk — gate/avoid WP mutations from staging until a separate WP staging strategy is decided.
 
 ### Supabase Storage
 - Bucket: `media`, folder prefix: `seeded/`
@@ -416,6 +416,8 @@ npm run deploy
 lock → guard → snapshot → sync → prune → re-verify origin/main → pm2 → smoke → BUILD_ID check
 ```
 
+Staging target: `npm run deploy -- --target staging` (defaults: ref `jclolnjkjhyjilvymagr`, site URL `https://wedding-stg.aksaraa.com`, smoke base `https://wedding-stg.aksaraa.com`, remote `/var/www/aksara-wedding-staging`, PM2 `aksara-wedding-staging`). **Prod defaults unchanged** — `npm run deploy` still deploys prod. Guard/smoke accept `--ref/--site-url` and `--base`; non-prod smoke skips the prod-only CDN-origin probe.
+
 A typical deploy takes ~3 minutes and **does not take the site down** — the sync
 is additive, so whatever version is live keeps serving until the PM2 reload.
 
@@ -469,6 +471,16 @@ longer produces an outage, and **a failed deploy is a no-op — just re-run it.*
 A pre-deploy browser tab keeps its JS chunks (they survive 7 days), but a
 client-side navigation may still fetch a stale RSC payload — hard-reload
 (⌘⇧R) if a tab behaves oddly after a deploy.
+
+**Manual/emergency sync — avoid.** If a guarded deploy cannot be used, a manual
+sync must be integrity-verified before trusting it: run with `set -euo pipefail`;
+never judge success from a pipeline tail (`tar | ssh ... | tail` masks ssh/tar
+exit — check the ssh/PIPSTATUS exit); clean-replace the target
+(`rm -rf .next/standalone .next/static`) instead of overlaying; verify remote
+`BUILD_ID` matches local, chunk counts/key files match, known stale files are
+absent, PM2 restarted with `--update-env`, and smoke passes. A mixed/stale build
+can serve old JS and cause prod/staging URL regressions even when the server is
+"up".
 
 The deploy also deletes `.next/standalone/.next/server/route-cache` right before
 the PM2 reload. That cache outlives a deploy and is keyed by route, not by build,

@@ -8,6 +8,7 @@ import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
   flattenPhotos,
+  formatLongDate,
   gcalLink,
   groomPhoto as groomPhotoOf,
   bridePhoto as bridePhotoOf,
@@ -19,7 +20,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./traditional-bugis-pinishi.css"
-import { normalizeLanguage, t, formatDate } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ASSET = (name: string) => `/templates/traditional-bugis-pinishi/${name}`
 
@@ -38,20 +39,16 @@ const DEFAULT_WISHES_SUBTITLE =
 const EVENTS_INTRO =
   "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami:"
 
-function describePalette(colors: { hex?: string; name?: string }[] | undefined, lang: "id" | "en"): string {
+function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
   if (!names.length) return ""
   const list =
     names.length === 1
       ? names[0]
       : names.length === 2
-        ? lang === "en" ? `${names[0]} and ${names[1]}` : `${names[0]} dan ${names[1]}`
-        : lang === "en"
-          ? `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`
-          : `${names.slice(0, -1).join(", ")}, dan ${names[names.length - 1]}`
-  return lang === "en"
-    ? `We would be delighted if guests could join us in attire inspired by ${list}.`
-    : `Kami akan sangat berbahagia bila para tamu berkenan hadir dengan busana bernuansa ${list}. Motif floral vintage juga sangat kami sambut.`
+        ? `${names[0]} dan ${names[1]}`
+        : `${names.slice(0, -1).join(", ")}, dan ${names[names.length - 1]}`
+  return `Kami akan sangat berbahagia bila para tamu berkenan hadir dengan busana bernuansa ${list}.`
 }
 
 function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
@@ -203,9 +200,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   // The editor's "Singkatan Pasangan" wins over the derived first letters.
   const editorInitials = (profile.couple_initials || "").trim()
   const initialsList = initialsGlyphs(editorInitials)
-  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || (lang === "en" ? "Wedding" : "Pernikahan")
-  const guestName = profile.guest_name || t("honoredGuest", lang)
-  const dateLong = formatDate(profile.estimated_wedding_date, lang)
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "Pernikahan"
+  const guestName = profile.guest_name || "Tamu Undangan"
+  const dateLong = formatLongDate(profile.estimated_wedding_date)
   const dateDots = dottedDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const events = (profile.sessions || []).filter(Boolean)
@@ -246,17 +243,17 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const hasTrack = !!trackUrl
   const calendarUrl = gcalLink(events[0], groomShort, brideShort)
 
-  const quoteText = profile.quote_text || (lang === "en" ? "Bismillahirrahmanirrahim. May Allah SWT always bestow blessings, love, and harmony upon our journey." : DEFAULT_QUOTE)
-  const quoteSource = profile.quote_source || (lang === "en" ? "A Bugis Wedding Prayer" : DEFAULT_QUOTE_SOURCE)
+  const quoteText = profile.quote_text || DEFAULT_QUOTE
+  const quoteSource = profile.quote_source || DEFAULT_QUOTE_SOURCE
   const coverApology =
-    tc.cover_apology || (lang === "en" ? "We apologize for any errors in the spelling of names and titles." : "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.")
+    tc.cover_apology || "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar."
   const galleryIntro = tc.gallery_intro || ""
-  const galleryQuote = tc.gallery_quote || (lang === "en" ? "Love grows in prayer, family blessings, and every step we take together." : DEFAULT_GALLERY_QUOTE)
-  const giftIntroTitle = tc.gift_intro_title || (lang === "en" ? "Send your gift" : "Kirim Hadiah")
-  const giftIntroDescription = tc.gift_intro_description || (lang === "en" ? "Without diminishing our respect, for those who wish to share a token of love, you may do so through:" : DEFAULT_GIFT_DESCRIPTION)
-  const wishesSubtitle = tc.wishes_intro || (lang === "en" ? "With great joy, we invite you to share your presence and blessings." : DEFAULT_WISHES_SUBTITLE)
-  const closingMessage = tc.closing_message || (lang === "en" ? "Thank you for your presence and prayers. May Allah SWT bless us all." : DEFAULT_CLOSING)
-  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors, lang)
+  const galleryQuote = tc.gallery_quote || DEFAULT_GALLERY_QUOTE
+  const giftIntroTitle = tc.gift_intro_title || "Send your gift"
+  const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION
+  const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE
+  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const livestream = profile.livestream
 
   const rootOpen = opened || isDesktop
@@ -463,7 +460,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
       ref={rootRef}
       className={`traditional-bugis-pinishi-root${rootOpen ? " is-open" : " is-locked"}`}
     >
-      <a className="skip-link" href="#pinishi-invitation">{t("skipToInvitation", lang)}</a>
+      <a className="skip-link" href="#pinishi-invitation">
+        Lewati ke undangan
+      </a>
 
       {hasTrack && (
         <audio ref={audioRef} loop preload={connectionOk ? "auto" : "metadata"}>
@@ -475,7 +474,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
         <button
           className={`pinishi-music${rootOpen ? " is-visible" : ""}${playing ? "" : " is-paused"}`}
           type="button"
-          aria-label={t("playPauseMusic", lang)}
+          aria-label="Putar atau jeda musik"
           onClick={toggleMusic}
         >
           <span className="pinishi-vinyl">
@@ -500,7 +499,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
       )}
 
       {showGate && (
-        <section className="pinishi-gate" aria-label={lang === "en" ? "Invitation cover" : "Sampul undangan"}>
+        <section className="pinishi-gate" aria-label="Sampul undangan">
           <div className="pinishi-gate-bg" aria-hidden="true">
             <img src={ASSET("cover-bg.webp")} alt="" />
           </div>
@@ -514,7 +513,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </h1>
             {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
             <div className="pinishi-gate-guest">
-              <p className="pinishi-gate-guest-label">{t("toGuest", lang)}</p>
+              <p className="pinishi-gate-guest-label">Kepada Yth.</p>
               <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
                 {guestName}
               </p>
@@ -522,7 +521,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </div>
             <button className="pinishi-gate-btn" type="button" onClick={openInvitation}>
               <EnvelopeIcon />
-              {t("openInvitation", lang)}
+              Buka Undangan
             </button>
           </div>
         </section>
@@ -531,7 +530,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
       {showContent && (
         <main id="pinishi-invitation" className="pinishi-main">
           {isDesktop && (
-            <section className="pinishi-cover-inline" aria-label={lang === "en" ? "Invitation cover" : "Sampul undangan"}>
+            <section className="pinishi-cover-inline" aria-label="Sampul undangan">
               <div className="pinishi-gate-bg" aria-hidden="true">
                 <img src={ASSET("cover-bg.webp")} alt="" />
               </div>
@@ -545,7 +544,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 </h1>
                 {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
                 <div className="pinishi-gate-guest">
-                  <p className="pinishi-gate-guest-label">{t("toGuest", lang)}</p>
+                  <p className="pinishi-gate-guest-label">Kepada Yth.</p>
                   <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
                     {guestName}
                   </p>
@@ -563,7 +562,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="pinishi-hero" aria-label={t("secOpening", lang)}>
+          <section className="pinishi-hero" aria-label="Pembuka">
             <img className="pinishi-deco pinishi-hero-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" data-aos="zoom-in" />
             <img className="pinishi-deco pinishi-hero-tree" src={ASSET("decor-puunbugis.webp")} alt="" aria-hidden="true" data-aos="slide-left" />
             <img className="pinishi-deco pinishi-hero-flowerzero" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" data-aos="slide-left" data-aos-delay="120" />
@@ -596,7 +595,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="pinishi-quote" aria-label={t("secQuote", lang)}>
+          <section className="pinishi-quote" aria-label="Kutipan">
             <div className="pinishi-quote-inner" data-aos="fade-up">
               <p className="pinishi-quote-label">Allah&apos;s blessings message</p>
               <blockquote>
@@ -606,7 +605,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="pinishi-couple" aria-label={t("secCouple", lang)}>
+          <section className="pinishi-couple" aria-label="Mempelai">
             <div className="pinishi-couple-inner">
               {people.map((person, index) => (
                 <article
@@ -652,7 +651,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           </section>
 
           {hasStory && (
-            <section className="pinishi-story" aria-label={t("secStory", lang)}>
+            <section className="pinishi-story" aria-label="Our Love Story">
               <img className="pinishi-deco pinishi-story-flower-one" src={ASSET("decor-mitos-1.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-deco pinishi-story-flower-two" src={ASSET("decor-mitos-2.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-deco pinishi-story-flower-three" src={ASSET("decor-mitos-3.webp")} alt="" aria-hidden="true" />
@@ -684,7 +683,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           )}
 
           {hasGallery && (
-            <section className="pinishi-gallery" aria-label={t("secGallery", lang)}>
+            <section className="pinishi-gallery" aria-label="Galeri Foto">
               <div className="pinishi-gallery-inner">
                 <div className="pinishi-gallery-quoteblock" data-aos="fade-in">
                   <img className="pinishi-gallery-orn pinishi-gallery-orn--one" src={ASSET("decor-dup-1.webp")} alt="" aria-hidden="true" />
@@ -743,7 +742,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="pinishi-savedate" aria-label={t("saveTheDate", lang)}>
+          <section className="pinishi-savedate" aria-label="Save the Date">
             <div className="pinishi-savedate-inner">
               <h2 className="pinishi-title" data-aos="fade-up">
                 Save the Date
@@ -775,7 +774,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                   </a>
                 )}
                 <button type="button" onClick={() => void requestReminder()}>
-                  <BellIcon />{lang === "en" ? "Enable Reminder" : "Aktifkan Pengingat"}</button>
+                  <BellIcon />
+                  Aktifkan Pengingat
+                </button>
               </div>
             </div>
             <div className="pinishi-countdown-orn" aria-hidden="true">
@@ -792,9 +793,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <img className="pinishi-savedate-lily pinishi-savedate-lily--r" src={ASSET("decor-bungaQuote2.webp")} alt="" aria-hidden="true" />
           </section>
 
-          <section className="pinishi-events" aria-label={t("secEvent", lang)}>
+          <section className="pinishi-events" aria-label="Acara Pernikahan">
             <p className="pinishi-events-intro" data-aos="fade-up">
-              {tc.events_intro || (lang === "en" ? "By the grace of Allah SWT, we invite you to join us in celebrating our wedding:" : EVENTS_INTRO)}
+              {EVENTS_INTRO}
             </p>
             {events.map((event, index) => {
               const mapsUrl =
@@ -811,8 +812,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                   style={delay(index * 80)}
                 >
                   <div className="pinishi-event-frame">
-                    <h3>{event.name || (lang === "en" ? "Wedding Event" : "Acara Pernikahan")}</h3>
-                    <p className="pinishi-event-date">{formatDate(event.date || profile.estimated_wedding_date, lang)}</p>
+                    <h3>{event.name || "Acara Pernikahan"}</h3>
+                    <p className="pinishi-event-date">{formatLongDate(event.date || profile.estimated_wedding_date)}</p>
                     {event.time && (
                       <p className="pinishi-event-line">
                         <ClockIcon />
@@ -827,7 +828,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                     )}
                     {mapsUrl && (
                       <a className="pinishi-maps" href={mapsUrl} target="_blank" rel="noopener noreferrer">
-                        {t("viewLocation", lang)}
+                        Lihat Lokasi
                       </a>
                     )}
                   </div>
@@ -846,7 +847,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           </section>
 
           {primaryVenue && (
-            <section className="pinishi-address" aria-label={lang === "en" ? "Event Location" : "Lokasi Acara"}>
+            <section className="pinishi-address" aria-label="Lokasi Acara">
               <div className="pinishi-address-inner" data-aos="fade-up">
                 {(primaryVenue.address || primaryVenue.venue) && (
                   <p className="pinishi-address-text">
@@ -858,13 +859,15 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                   href={primaryVenue.maps_url || `https://maps.google.com/?q=${encodeURIComponent([primaryVenue.venue, primaryVenue.address].filter(Boolean).join(", "))}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                >{t("viewLocation", lang)}</a>
+                >
+                  Lihat Lokasi
+                </a>
               </div>
             </section>
           )}
 
           {honored.length > 0 && (
-            <section className="pinishi-inviting" aria-label={t("secInviting", lang)}>
+            <section className="pinishi-inviting" aria-label="Turut Mengundang">
               <img className="pinishi-inviting-decor pinishi-inviting-decor--peacock" src={ASSET("decor-merak.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-inviting-decor pinishi-inviting-decor--bngarsvp3" src={ASSET("decor-bngarsvp-3.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-inviting-decor pinishi-inviting-decor--bngarsvp1" src={ASSET("decor-bngarsvp-1.webp")} alt="" aria-hidden="true" />
@@ -881,25 +884,25 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           )}
 
           {hasLivestream && (
-            <section className="pinishi-livestream" aria-label={t("secLivestream", lang)}>
+            <section className="pinishi-livestream" aria-label="Live Streaming">
               <img className="pinishi-livestream-decor pinishi-livestream-decor--l" src={ASSET("decor-bnggg.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-livestream-decor pinishi-livestream-decor--r" src={ASSET("decor-bngarsvp-3.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-livestream-card" data-aos="fade-up">
-                <h2>{livestream?.title || t("secLivestream", lang)}</h2>
-                <p>{livestream?.description || (lang === "en" ? "Join us virtually to witness our wedding celebration." : "Temui kami secara virtual untuk menyaksikan acara pernikahan kami.")}</p>
+                <h2>{livestream?.title || "Live Streaming"}</h2>
+                <p>{livestream?.description || "Temui kami secara virtual untuk menyaksikan acara pernikahan kami."}</p>
                 <a href={livestream!.url} target="_blank" rel="noopener noreferrer">
                   <CameraIcon />
-                  {livestream?.buttonLabel || t("watch", lang)}
+                  {livestream?.buttonLabel || "Tonton Live Streaming"}
                 </a>
               </div>
             </section>
           )}
 
           {hasRundown && (
-            <section className="pinishi-rundown" aria-label={t("secRundown", lang)}>
+            <section className="pinishi-rundown" aria-label="Rundown Acara">
               <img className="pinishi-rundown-decor pinishi-rundown-decor--l" src={ASSET("decor-rundown-2.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-rundown-inner" data-aos="fade-up">
-                <h2 className="pinishi-title">{tc.rundown_title || t("secRundown", lang)}</h2>
+                <h2 className="pinishi-title">Rundown Acara</h2>
                 <div className="pinishi-rundown-list">
                   {rundownItems.map((item, index) => (
                     <article key={`${item.time || "rundown"}-${index}`}>
@@ -914,11 +917,11 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           )}
 
           {hasDresscode && (
-            <section className="pinishi-dresscode" aria-label={t("secDresscode", lang)}>
+            <section className="pinishi-dresscode" aria-label="Dress Code">
               <img className="pinishi-dresscode-decor pinishi-dresscode-decor--r" src={ASSET("decor-bungaBugis4.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-dresscode-decor pinishi-dresscode-decor--l" src={ASSET("decor-rundown-3.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-dresscode-inner" data-aos="fade-up">
-                <h2 className="pinishi-title">{profile.dresscode?.title || t("secDresscode", lang)}</h2>
+                <h2 className="pinishi-title">{profile.dresscode?.title || "Dress Code"}</h2>
                 {dressDescription && <p>{dressDescription}</p>}
                 <ul>
                   {dressColors.map((color, index) => (
@@ -933,7 +936,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           )}
 
           {hasGift && (
-            <section className="pinishi-gift" aria-label={t("secGift", lang)}>
+            <section className="pinishi-gift" aria-label="Hadiah">
               <img className="pinishi-gift-decor pinishi-gift-decor--l" src={ASSET("decor-img-0651.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-gift-decor pinishi-gift-decor--r" src={ASSET("decor-mitos-1.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-gift-card" data-aos="fade-up">
@@ -941,7 +944,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 <p>{giftIntroDescription}</p>
                 {!giftRevealed ? (
                   <button type="button" className="pinishi-gift-btn" onClick={() => setGiftRevealed(true)}>
-                    {t("openEnvelope", lang)}
+                    Buka Amplop
                   </button>
                 ) : (
                   <div className="pinishi-gift-body">
@@ -953,7 +956,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                             <p className="pinishi-gift-account-name">{account.account_name}</p>
                             <p className="pinishi-gift-account-number">{account.account_number}</p>
                             <button type="button" onClick={() => copy(account.account_number || "")}>
-                              {t("copyAccount", lang)}
+                              Salin Nomor Rekening
                             </button>
                           </div>
                         ))}
@@ -963,7 +966,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                       <div className="pinishi-gift-address">
                         <p className="pinishi-gift-address-label">{t("sendGift", lang)}</p>
                         <p className="pinishi-gift-address-text">{giftAddress}</p>
-                        <button type="button" onClick={() => copy(giftAddress)}>{t("copyAddress", lang)}</button>
+                        <button type="button" onClick={() => copy(giftAddress)}>
+                          Salin Alamat
+                        </button>
                       </div>
                     )}
                   </div>
@@ -972,7 +977,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="pinishi-wishes" aria-label={t("secWishes", lang)}>
+          <section className="pinishi-wishes" aria-label="Ucapan & Doa">
             <img className="pinishi-deco pinishi-deco--wishes-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-wishes-inner" data-aos="fade-in">
               <h2 className="pinishi-title" data-aos="fade-up">
@@ -1020,7 +1025,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="pinishi-closing" aria-label={t("secClosing", lang)}>
+          <section className="pinishi-closing" aria-label="Penutup">
             <img className="pinishi-deco pinishi-deco--closing-tree" src={ASSET("decor-tree-left.webp")} alt="" aria-hidden="true" />
             <img className="pinishi-deco pinishi-deco--closing-tree-r" src={ASSET("decor-tree-right.webp")} alt="" aria-hidden="true" />
             <img className="pinishi-deco pinishi-deco--closing-banana" src={ASSET("decor-banana.webp")} alt="" aria-hidden="true" />
@@ -1053,14 +1058,14 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
       )}
 
       {lightbox !== null && photos[lightbox] && (
-        <div className="pinishi-lightbox" role="dialog" aria-modal="true" aria-label={t("photoGallery", lang)}>
-          <button type="button" className="pinishi-lightbox-close" aria-label={t("closeGallery", lang)} onClick={() => setLightbox(null)}>
+        <div className="pinishi-lightbox" role="dialog" aria-modal="true" aria-label="Galeri foto">
+          <button type="button" className="pinishi-lightbox-close" aria-label="Tutup galeri" onClick={() => setLightbox(null)}>
             ×
           </button>
           <button
             type="button"
             className="pinishi-lightbox-nav pinishi-lightbox-nav--prev"
-            aria-label={t("prevPhoto", lang)}
+            aria-label="Foto sebelumnya"
             onClick={() => setLightbox((value) => (value === null ? value : (value - 1 + photos.length) % photos.length))}
           >
             ‹
@@ -1069,7 +1074,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           <button
             type="button"
             className="pinishi-lightbox-nav pinishi-lightbox-nav--next"
-            aria-label={t("nextPhoto", lang)}
+            aria-label="Foto berikutnya"
             onClick={() => setLightbox((value) => (value === null ? value : (value + 1) % photos.length))}
           >
             ›
@@ -1099,7 +1104,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={80}
-          language={lang}
         />
       )}
     </div>

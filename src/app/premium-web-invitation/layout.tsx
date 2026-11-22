@@ -1,10 +1,11 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Template Undangan Pernikahan Digital Premium",
   description:
     "Pilih dari 100+ template undangan pernikahan digital: adat, modern, floral, tanpa foto. Lengkap dengan RSVP, amplop digital, dan galeri foto.",
-  alternates: { canonical: "https://wedding.aksaraa.com/premium-web-invitation" },
+  alternates: { canonical: `${siteOrigin()}/premium-web-invitation` },
   openGraph: {
     title: "Template Undangan Pernikahan Digital Premium | Aksaraa",
     description:

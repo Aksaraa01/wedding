@@ -8,27 +8,20 @@ import { eventLabels } from "@/lib/eventType"
 import { childFullName, childFullNamesLine, childInitials, childNamesLine, resolveChildren } from "@/lib/children"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, formatDotDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
-import { formatDate } from "@/lib/formatDate"
+import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
 import { useWishes } from "../shared/kids/useWishes"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./ubin-ottoman.css"
-import { normalizeLanguage, t, type Language } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/ubin-ottoman/${name}.webp`
 
-const DEFAULTS = {
-  id: {
-    opening: "Dengan memohon rahmat dan rido Allah SWT, kami mengundang Bapak/Ibu/Saudara pada tasyakuran khitanan putra kami:",
-    closing: "Merupakan kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara.",
-    gift: "Doa dan kehadiran Anda sudah lebih dari cukup. Bila ingin memberi tanda kasih, dapat melalui:",
-  },
-  en: {
-    opening: "By the grace and mercy of Allah SWT, we invite you to the circumcision celebration of our beloved son:",
-    closing: "It is our honor and joy to have your presence and prayers.",
-    gift: "Your prayers and presence are more than enough. If you wish to send a token of love, you may do so below:",
-  },
-} satisfies Record<Language, Record<string, string>>
+const DEFAULT_OPENING =
+  "Dengan memohon rahmat dan rido Allah SWT, kami mengundang Bapak/Ibu/Saudara pada tasyakuran khitanan putra kami:"
+const DEFAULT_CLOSING =
+  "Merupakan kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara."
+const DEFAULT_GIFT =
+  "Doa dan kehadiran Anda sudah lebih dari cukup. Bila ingin memberi tanda kasih, dapat melalui:"
 
 const WISH_PAGE = 10
 
@@ -90,7 +83,6 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
 
 export default function UbinOttoman(profile: TemplateProps) {
   const lang = normalizeLanguage(profile.language)
-  const d = DEFAULTS[lang]
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -173,7 +165,7 @@ export default function UbinOttoman(profile: TemplateProps) {
         key,
         name: (session.name || "").trim() || labels.mainEventName,
         when: [
-          session.date && session.date !== eventDate ? formatDate(session.date, lang) : "",
+          session.date && session.date !== eventDate ? formatLongDate(session.date) : "",
           (session.time || "").trim(),
         ]
           .filter(Boolean)
@@ -192,51 +184,51 @@ export default function UbinOttoman(profile: TemplateProps) {
   const hasGift = accounts.length > 0 || !!giftAddress
 
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
-  const coverThanks = (tc.cover_syukur || "").trim() || (lang === "en" ? "with heartfelt gratitude" : "dengan penuh rasa syukur")
-  const coverGuestLabel = (tc.cover_guest_label || "").trim() || t("toGuest", lang)
+  const coverThanks = (tc.cover_syukur || "").trim() || "dengan penuh rasa syukur"
+  const coverGuestLabel = (tc.cover_guest_label || "").trim() || "kepada yang terhormat"
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
-  const salam = (tc.opening_salam || "").trim() || (lang === "en" ? "Peace be upon you" : "Assalamu'alaikum wr. wb.")
-  const openingText = (profile.opening_description || "").trim() || d.opening
-  const mempelaiTitle = (tc.mempelai_title || "").trim() || (lang === "en" ? "Our Beloved Child" : "Sang Buah Hati")
+  const salam = (tc.opening_salam || "").trim() || "Assalamu'alaikum wr. wb."
+  const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
+  const mempelaiTitle = (tc.mempelai_title || "").trim() || "Sang Buah Hati"
   const parentsLabel = (tc.parents_label || "").trim() || labels.subjectOf
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
-  const dateKicker = (tc.events_kicker || "").trim() || (lang === "en" ? "God willing, to be held on" : "Insya Allah dilaksanakan pada")
-  const dateTitle = (tc.events_title || "").trim() || (lang === "en" ? "The Celebration" : "Hari Bahagia")
+  const dateKicker = (tc.events_kicker || "").trim() || "Insya Allah dilaksanakan pada"
+  const dateTitle = (tc.events_title || "").trim() || "Hari Bahagia"
   const agendaKicker = (tc.agenda_kicker || "").trim() || t("secRundown", lang)
   const agendaTitle = (tc.agenda_title || "").trim() || t("secEvent", lang)
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
-  const calendarLabel = (tc.calendar_button || "").trim() || t("saveToCalendar", lang)
-  const galleryKicker = (tc.gallery_kicker || "").trim() || t("secGallery", lang)
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Happy Moments" : "Momen Bahagia")
+  const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
+  const galleryKicker = (tc.gallery_kicker || "").trim() || "Galeri"
+  const galleryTitle = (tc.gallery_title || "").trim() || "Momen Bahagia"
   const wishKicker = (tc.wishes_kicker || "").trim() || labels.wishesTitle
-  const wishTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Send prayers for our child" : "Titip doa untuk ananda")
+  const wishTitle = (tc.wishes_title || "").trim() || "Titip doa untuk ananda"
   const wishIntro = (tc.wishes_intro || "").trim()
-  const wishNameLabel = (tc.wishes_name_label || "").trim() || (lang === "en" ? "Your Name" : "Nama Anda")
-  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Enter your name" : "Tulis nama Anda")
-  const wishMessageLabel = (tc.wishes_message_label || "").trim() || (lang === "en" ? "Prayers & wishes" : "Doa dan ucapan")
-  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Write your prayers and wishes" : "Tulis doa dan ucapan")
-  const wishSubmit = (tc.wishes_submit || "").trim() || t("sendWishes", lang)
-  const wishEmpty = (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama.")
-  const wishLoading = (tc.wishes_loading || "").trim() || t("loading", lang)
+  const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
+  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Tulis nama Anda"
+  const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Doa dan ucapan"
+  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tulis doa dan ucapan"
+  const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
+  const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
+  const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
   const giftKicker = (tc.gift_kicker || "").trim() || labels.giftTitle
-  const giftTitle = (tc.gift_intro_title || "").trim() || (lang === "en" ? "With all our heart" : "Dengan sepenuh hati")
-  const giftLead = (tc.gift_intro_description || "").trim() || d.gift
-  const copyAccountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
-  const copyAddressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
-  const sendGiftLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
+  const giftTitle = (tc.gift_intro_title || "").trim() || "Dengan sepenuh hati"
+  const giftLead = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
+  const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
+  const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
+  const sendGiftLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
-  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
-  const closingKicker = (tc.closing_kicker || "").trim() || t("thankYou", lang)
-  const closingText = (tc.closing_message || "").trim() || d.closing
-  const closingSalam = (tc.closing_salam || "").trim() || (lang === "en" ? "Peace be upon you" : "Wassalamu'alaikum wr. wb.")
+  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
+  const closingKicker = (tc.closing_kicker || "").trim() || "Terima kasih atas doa & kehadiran Anda"
+  const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum wr. wb."
 
   const parsedDate = eventDate ? new Date(eventDate) : null
   const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null
   const dayNum = validDate ? String(validDate.getDate()).padStart(2, "0") : "--"
-  const monthName = validDate ? validDate.toLocaleDateString(lang === "en" ? "en-US" : "id-ID", { month: "long" }) : ""
+  const monthName = validDate ? validDate.toLocaleDateString("id-ID", { month: "long" }) : ""
   const yearNum = validDate ? String(validDate.getFullYear()) : ""
-  const weekday = validDate ? validDate.toLocaleDateString(lang === "en" ? "en-US" : "id-ID", { weekday: "long" }) : ""
+  const weekday = validDate ? validDate.toLocaleDateString("id-ID", { weekday: "long" }) : ""
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
   const wishes = useWishes(profile.wedding_profile_id, profile.guest_id)
@@ -371,7 +363,7 @@ export default function UbinOttoman(profile: TemplateProps) {
           <img className="uo-cover__crescent" src={ART("crescent")} alt="" aria-hidden="true" draggable={false} />
 
           <p className="uo-cover__thanks">{coverThanks}</p>
-          {validDate && <p className="uo-cover__date">{formatDate(eventDate, lang)}</p>}
+          {validDate && <p className="uo-cover__date">{formatLongDate(eventDate)}</p>}
           <p className="uo-cover__guest-label">{coverGuestLabel}</p>
           <div className="uo-cover__foot">
             <p ref={guestRef} className="uo-cover__guest">{guestName}</p>
@@ -491,10 +483,10 @@ export default function UbinOttoman(profile: TemplateProps) {
               {target && (() => {
                 const ms = now ? Math.max(0, target.getTime() - now) : 0
                 const cells = [
-                  { v: Math.floor(ms / 86400000), l: t("days", lang) },
-                  { v: Math.floor((ms % 86400000) / 3600000), l: t("hours", lang) },
-                  { v: Math.floor((ms % 3600000) / 60000), l: t("minutes", lang) },
-                  { v: Math.floor((ms % 60000) / 1000), l: t("seconds", lang) },
+                  { v: Math.floor(ms / 86400000), l: "Hari" },
+                  { v: Math.floor((ms % 86400000) / 3600000), l: "Jam" },
+                  { v: Math.floor((ms % 3600000) / 60000), l: "Menit" },
+                  { v: Math.floor((ms % 60000) / 1000), l: "Detik" },
                 ]
                 return (
                   <div className="uo-count" data-uo-reveal style={delay(0.1)}>
@@ -670,7 +662,7 @@ export default function UbinOttoman(profile: TemplateProps) {
                     <button
                       type="button"
                       className="uo-gift-card__copy"
-                      onClick={() => copyText(acc.account_number || "", lang === "en" ? "Account number copied" : "Nomor rekening disalin")}
+                      onClick={() => copyText(acc.account_number || "", "Nomor rekening disalin")}
                       aria-label={copyAccountButton}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>content_copy</span>
@@ -688,7 +680,7 @@ export default function UbinOttoman(profile: TemplateProps) {
                   <button
                     type="button"
                     className="uo-gift-copy"
-                    onClick={() => copyText(giftAddress, lang === "en" ? "Address copied" : "Alamat disalin")}
+                    onClick={() => copyText(giftAddress, "Alamat disalin")}
                   >
                     {copyAddressButton}
                   </button>
@@ -775,7 +767,6 @@ export default function UbinOttoman(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message}
           rsvpMaxPax={profile.rsvp_max_pax}
           qrEnabled={Boolean(gates.qr_code_book)}
-          language={lang}
         />
       )}
     </div>

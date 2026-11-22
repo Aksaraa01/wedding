@@ -99,7 +99,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setSlug(slug)
         setEstimatedDate(params.get("date") || "")
         setSessions(sessions)
-        const qrContent = `https://${slug}.wedding.aksaraa.com/welcome/preview`
+        const qrContent = coupleUrl(slug, "/welcome/preview")
         const url = await QRCode.toDataURL(qrContent, {
           width: 400,
           margin: 2,

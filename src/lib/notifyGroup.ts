@@ -1,6 +1,13 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { PACKAGE_LABELS } from "@/lib/packages"
 import { profileView } from "@/lib/profileView"
+import { siteOrigin, isStagingSite } from "@/lib/site"
+
+function outboundNotificationsEnabled(): boolean {
+  if (process.env.NOTIFY_GROUP_ENABLED === "true") return true
+  if (process.env.NOTIFY_GROUP_ENABLED === "false") return false
+  return !isStagingSite()
+}
 
 type NotifyPayload = {
   wedding_profile_id: string
@@ -57,6 +64,7 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
     : `Nama Couple: ${couple}`
   const now = formatDateWIB(new Date())
 
+  const opsUrl = `${siteOrigin()}/ops`
   const text = [
     nameLine,
     `Nomor Handphone: ${payload.whatsapp_number}`,
@@ -67,11 +75,23 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
     `Tanggal Buat: ${now}`,
     `Status Bayar: Belum Bayar (UNPAID)`,
     ``,
-    `Pastikan untuk menghubungi cust untuk follow-up dan update paket bila cust cetakundangan pada https://wedding.aksaraa.com/ops`,
+    `Pastikan untuk menghubungi cust untuk follow-up dan update paket bila cust cetakundangan pada ${opsUrl}`,
   ].join("\n")
 
   const apiUrl = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
   const body: any = targetJid.includes("@g.us") ? { phone: targetJid, message: text } : { phone: targetJid, message: text }
+
+  if (!outboundNotificationsEnabled()) {
+    console.info("[notifyGroup] outbound notifications disabled (staging/sandbox) — skipped WA send")
+    try {
+      await supabaseAdmin.from("notification_log").insert({
+        wedding_profile_id: payload.wedding_profile_id,
+        channel: "wa_group",
+        payload: { ...payload, text, skipped: true, reason: "outbound_disabled" },
+      })
+    } catch {}
+    return
+  }
 
   const maxAttempts = 3
   let lastError: unknown = null
@@ -148,6 +168,7 @@ export async function notifyFeedbackBaruGroup(payload: FeedbackPayload): Promise
   const roundLabel = payload.round_number > 0 ? `ke-${payload.round_number} ` : ""
   const now = formatDateWIB(new Date())
 
+  const opsUrl = `${siteOrigin()}/ops/antrian/${payload.queue_id}`
   const text = [
     `🔔 Feedback Baru Masuk`,
     `Couple: ${payload.couple}`,
@@ -162,10 +183,24 @@ export async function notifyFeedbackBaruGroup(payload: FeedbackPayload): Promise
     `Waktu Feedback : ${now}`,
     ``,
     ``,
-    `Tindak lanjut: https://wedding.aksaraa.com/ops/antrian/${payload.queue_id}`,
+    `Tindak lanjut: ${opsUrl}`,
   ].join("\n")
 
   const apiUrl = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
+
+  if (!outboundNotificationsEnabled()) {
+    console.info("[notifyGroup] outbound feedback notification disabled (staging/sandbox) — skipped WA send")
+    try {
+      await supabaseAdmin.from("notification_log").insert({
+        wedding_profile_id: payload.wedding_profile_id,
+        kind: "feedback",
+        ref_id: payload.feedback_id,
+        channel: "wa_group",
+        payload: { ...payload, text, skipped: true, reason: "outbound_disabled" },
+      })
+    } catch {}
+    return false
+  }
 
   const maxAttempts = 3
   let lastError: unknown = null

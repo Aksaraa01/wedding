@@ -228,7 +228,9 @@ export function shouldAttachPackageMedia(channel: "wa" | "web", intent: string):
   return channel === "wa" && WA_PACKAGE_PRICE_INTENTS.has(intent)
 }
 
+import { siteOrigin } from "@/lib/site"
+
 export function siteBaseUrl(): string {
   const fromEnv = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "").trim()
-  return fromEnv || "https://wedding.aksaraa.com"
+  return fromEnv || siteOrigin()
 }

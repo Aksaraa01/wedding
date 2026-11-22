@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Buku Tamu Digital QR: Check-in & E-Pass",
   description:
     "Buku tamu digital QR: check-in QR di pintu masuk, e-pass berisi nama & nomor meja, layar sapa, rekap kehadiran real-time.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/buku-tamu-qr" },
+  alternates: { canonical: `${siteOrigin()}/fitur/buku-tamu-qr` },
   openGraph: {
     title: "Buku Tamu Digital QR: Check-in & E-Pass | Aksaraa",
     description:

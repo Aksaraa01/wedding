@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Wish Wall Digital: Papan Ucapan Pernikahan",
   description:
     "Wish wall digital untuk pernikahan: tamu kirim doa dari HP, tampil live di layar venue dengan moderasi instan, download kenangan.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/wish-wall" },
+  alternates: { canonical: `${siteOrigin()}/fitur/wish-wall` },
   openGraph: {
     title: "Wish Wall Digital: Papan Ucapan Pernikahan | Aksaraa",
     description:

@@ -71,6 +71,7 @@ export default function PixelParadise(props: TemplateProps) {
               guest_name={props.guest_name}
               couple_initials={props.couple_initials}
               onOpen={openInvitation}
+              language={lang}
             />
           ) : (
             <PixelRoom
@@ -99,7 +100,7 @@ export default function PixelParadise(props: TemplateProps) {
           {opened && modal === "family" && (
             <FamilyModal families={Array.isArray(props.inviting_families) ? props.inviting_families : []} onClose={closeModal} />
           )}
-          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} language={props.language} />}
+          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} />}
         </div>
 
         {showGuestDock && (

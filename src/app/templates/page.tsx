@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { supabaseAdmin } from "@/lib/supabase"
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: "Galeri Template Undangan Pernikahan Digital",
   description:
     "Jelajahi galeri template undangan pernikahan digital: adat, modern, floral, elegansi dark, hingga tanpa foto. Pilih desain favorit dan buat undangan Anda.",
-  alternates: { canonical: "https://wedding.aksaraa.com/templates" },
+  alternates: { canonical: `${siteOrigin()}/templates` },
   openGraph: {
     title: "Galeri Template Undangan Pernikahan Digital | Aksaraa",
     description:

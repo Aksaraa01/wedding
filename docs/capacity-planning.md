@@ -80,7 +80,7 @@ Foto **tidak dikompresi**, max **5MB**, avg smartphone JPEG ≈ **2.5–3MB**.
 
 | Item | Jumlah | Estimasi |
 |---|---|---|
-| Foto galeri tamu (50%) | 250 | **±0.35–0.55GB** (avg ~1.3MB, maks 1.75MB/foto) |
+| Foto galeri tamu (50%) | 250 | **±0.6–1.25GB** (avg 2.5MB → ~0.75GB) |
 | Foto pasangan/editor (groom, bride, illustration, galeri, stories) | ~12 | ~30–60MB |
 | Audio | 0 (seeded/bukan upload) | 0 |
 
@@ -206,7 +206,7 @@ Bucket `media`/`template-media` **public** + `fileSizeLimit 20MB`, **RLS 0 polic
 ## 12. Kesimpulan
 
 1. **Naikkan Supabase Free → Pro ($25/bln)** sebagai langkah pertama — menyelesaikan storage, egress, backup, dan **Smart CDN** (performa naik, tanpa rework).
-2. **Kompresi terkontrol** — foto tamu dinormalisasi ke **2100px / ±1.75MB (q88, floor q78)** (cukup tajam untuk download/share dan cetak A5). Thumbnail WebP 400/800/1200w disajikan di grid/card; original hanya untuk download/share/buku.
+2. **Kompresi terkontrol** — foto tamu dinormalisasi ke **1800px / ±1.5MB q0.88** (cukup tajam untuk cetak A5). Thumbnail WebP 400/800/1200w disajikan di grid/card; original hanya untuk download/share/buku.
 3. **Retensi 3 bulan — SKIP hard-delete otomatis (keputusan user).** Upload foto ±15–25GB/bln → wajib **monitor manual** storage/egress (dashboard); rencana **cold storage/arsip** bila mendekati 100GB (terjadi ±5–6 bln tanpa clean-up).
 4. **Download galeri** → **DONE**: client-side zip (**`fflate`**, URL CDN, tanpa VPS-assemble) — menyelesaikan OOM & egress ganda (commit `45d4135`).
 5. **RLS/storage policy** → aktifkan minimal (RLS tabel sensitif + policy insert/delete bucket) untuk menutup eksposur bucket publik.

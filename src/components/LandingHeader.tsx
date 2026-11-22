@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import { waLink } from "@/lib/contact"
+import { siteOrigin } from "@/lib/site"
 
 const WA_MULAI = waLink("Halo Aksaraa Wedding, saya ingin membuat undangan pernikahan digital untuk momen saya.")
 
 const MOBILE_LINKS = [
-  { label: "Event", href: "https://wedding.aksaraa.com" },
+  { label: "Event", href: siteOrigin() },
   { label: "Harga", href: "/customize" },
   { label: "Template", href: "/templates" },
   { label: "Artikel", href: "/artikel" },
@@ -45,7 +46,7 @@ export default function LandingHeader() {
           <nav className="hidden flex-1 items-center justify-center gap-7 lg:flex">
             <a
               className="font-label-lg text-label-lg text-[#6E6A63] transition-colors duration-200 hover:text-[#1A1817]"
-              href="https://wedding.aksaraa.com"
+              href={siteOrigin()}
             >
               Event
             </a>

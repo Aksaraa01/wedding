@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `Pernikahan ${names}`,
     description: `Kisah dan galeri foto pernikahan ${names} di undangan digital Aksaraa.`,
-    alternates: { canonical: `https://wedding.aksaraa.com/portofolio/${entry.slug}` },
+    alternates: { canonical: `${siteOrigin()}/portofolio/${entry.slug}` },
     openGraph: {
       title: `Pernikahan ${names} | Aksaraa`,
       description: `Foto dan kisah bahagia ${names} dengan undangan digital Aksaraa.`,
@@ -37,7 +38,8 @@ export default async function PortofolioDetailPage({ params }: { params: Promise
   if (!entry) notFound()
 
   const names = `${entry.groom} & ${entry.bride}`
-  const url = `https://wedding.aksaraa.com/portofolio/${entry.slug}`
+  const base = siteOrigin()
+  const url = `${base}/portofolio/${entry.slug}`
   const hero = entry.covers[0] || entry.illustration || ""
   const gallery = entry.covers.slice(1)
   const jsonLd = {

@@ -1,15 +1,13 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_BODY, FONT_DISPLAY, FONT_PIXEL } from "../../shared/Skin"
 
-export function CloseButton({ onClick, className = "", language }: { onClick: () => void; className?: string; language?: string }) {
-  const lang = normalizeLanguage(language)
+export function CloseButton({ onClick, className = "" }: { onClick: () => void; className?: string }) {
   return (
     <button
       type="button"
-      aria-label={t("close", lang)}
+      aria-label="Tutup"
       onClick={onClick}
       className={`w-8 h-8 rounded-lg bg-[#161b2a] border-2 border-[#38bdf8]/60 text-[#7bd0ff] hover:text-white hover:border-[#f472b6] hover:shadow-[0_0_12px_rgba(244,114,182,0.5)] active:scale-95 transition-all duration-200 flex items-center justify-center ${className}`}
     >
@@ -27,7 +25,6 @@ type ModalShellProps = {
   onClose: () => void
   children: ReactNode
   maxH?: string
-  language?: string
 }
 
 // Shared retro-arcade modal frame for Pixel Paradise: 2px neon border, cyan→pink
@@ -41,7 +38,6 @@ export default function ModalShell({
   onClose,
   children,
   maxH = "max-h-[90%]",
-  language,
 }: ModalShellProps) {
   const accent = (color: "cyan" | "pink") => (color === "pink" ? pink : cyan)
   const cyan = {
@@ -84,7 +80,7 @@ export default function ModalShell({
               </h2>
             </div>
           </div>
-          <CloseButton onClick={onClose} language={language} />
+          <CloseButton onClick={onClose} />
         </div>
         {/* Scrollable body */}
         <div className="custom-scrollbar overflow-y-auto px-4 py-4 space-y-4 flex-1" style={FONT_BODY}>

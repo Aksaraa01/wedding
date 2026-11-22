@@ -88,6 +88,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
               guest_name={props.guest_name}
               couple_initials={props.couple_initials}
               onOpen={openInvitation}
+              language={lang}
             />
           ) : (
             <Room profile={props} musicPlaying={playing} onToggleMusic={toggleMusic} onOpenModal={setModal} modalActive={modal !== null} wishOpen={wishOpen} onWishOpenChange={setWishOpen} />
@@ -111,7 +112,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
               onClose={closeModal}
             />
           )}
-          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} language={props.language} />}
+          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} />}
         </div>
 
         {showGuestDock && (

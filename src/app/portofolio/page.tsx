@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { getPortfolioEntries, portfolioIndexEntries } from "@/lib/portfolio"
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   title: "Portofolio Pernikahan: Kisah Nyata Pasangan Aksaraa",
   description:
     "Lihat pernikahan nyata yang memakai undangan digital Aksaraa: galeri foto, jadwal acara, dan kisah bahagia para pasangan.",
-  alternates: { canonical: "https://wedding.aksaraa.com/portofolio" },
+  alternates: { canonical: `${siteOrigin()}/portofolio` },
   openGraph: {
     title: "Portofolio Pernikahan Pasangan Aksaraa",
     description:

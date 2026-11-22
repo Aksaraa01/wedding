@@ -15,6 +15,7 @@ import {
   isIsoDate,
 } from "@/lib/lifecycle"
 import { buildClearanceMessage, buildWaMeUrl } from "@/lib/clearanceMessage"
+import { siteOrigin } from "@/lib/site"
 
 const BASE_COLS =
   "id, bride_name, groom_name, bride_full_name, groom_full_name, slug, whatsapp_number, package_type, galeri_addon, galeri_tier, gallery_end_at, sessions, estimated_wedding_date, is_published, wa_blast_tier, express_service, invitation_disabled_at"
@@ -134,7 +135,7 @@ export async function GET(req: Request) {
           addons,
           activeUntil: invitationDate,
           photoDeletionDate: photoDate,
-          dashboardUrl: `https://wedding.aksaraa.com/dashboard/${p.id}`,
+          dashboardUrl: `${siteOrigin()}/dashboard/${p.id}`,
         })
         return {
           kind,

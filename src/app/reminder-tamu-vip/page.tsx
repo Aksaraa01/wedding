@@ -6,6 +6,7 @@ import PageTheme from "@/components/PageTheme"
 import CsWidget from "@/components/cs/CsWidget"
 import SeoFaq from "@/components/SeoFaq"
 import { ASSETS } from "@/lib/assets"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 export default function ReminderTamuVIPPage() {
   const router = useRouter()
@@ -30,8 +31,8 @@ export default function ReminderTamuVIPPage() {
     .replace("{Nama Tamu}", guestName.trim() || "Bpk. Robert J. Oppenheimer")
     .replace("{Tanggal}", "Sabtu, 14 Februari 2027")
     .replace("{Lokasi}", "The Ritz-Carlton Jakarta Ballroom")
-    .replace("{Tautan Unik}", `https://dela.wedding.aksaraa.com/?to=${guestSlug}`)
-    .replace("{QR Akses}", `https://dela.wedding.aksaraa.com/qr/${guestSlug}`)
+    .replace("{Tautan Unik}", coupleUrl("dela", `/?to=${guestSlug}`))
+    .replace("{QR Akses}", coupleUrl("dela", `/qr/${guestSlug}`))
     .replace("{Nomor Meja}", tableNo.trim() || "Emerald - 01")
     .replace("{Nama Pengantin}", "Aksaraa")
 

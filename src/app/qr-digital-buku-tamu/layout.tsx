@@ -1,10 +1,11 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Buku Tamu Digital QR untuk Resepsi Pernikahan",
   description:
     "Buku tamu digital dengan QR check-in, e-pass tamu, layar sapa, dan rekap kehadiran otomatis untuk resepsi pernikahan yang berkesan.",
-  alternates: { canonical: "https://wedding.aksaraa.com/qr-digital-buku-tamu" },
+  alternates: { canonical: `${siteOrigin()}/qr-digital-buku-tamu` },
   openGraph: {
     title: "Buku Tamu Digital QR untuk Resepsi | Aksaraa",
     description:

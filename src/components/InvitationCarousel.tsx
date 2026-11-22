@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { waLink } from "@/lib/contact"
+import { siteOrigin } from "@/lib/site"
 
 function eventWaLink(title: string) {
   return waLink(`Halo Aksaraa Wedding, saya tertarik dengan undangan digital untuk ${title}. Mohon informasi paket dan tema yang tersedia.`)
@@ -27,7 +28,7 @@ const SLIDES: Slide[] = [
     title: "Pernikahan & Ngunduh Mantu",
     desc: "Kisah cinta sinematik dalam format digital, alunan musik lossless, amplop QRIS, dan sistem meja VIP presisi.",
     cta: "Mulai Buat",
-    href: "https://wedding.aksaraa.com",
+    href: siteOrigin(),
   },
   {
     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDo8_f1wI3ZoAtJ9IDv8q-Wf5tBxhMMHr_KQ9imaRSQMNpnXD1FeThYO_eRK3eUJ2NgHAo0Hbb30YZ-fGySaJGoQDL4VVYKvKfjre2rc7IRkgBcij-ewztetgsq2jZ931UlhLrHm16Hhd_Mn2RDJbPu0Ak3xA8R4EU15H5h-5XLF72-Re5628cRJDkj0ZA2JwLLa5Wa45j5PCIwnp-BKXgN0HrAJ6ELtX2XSmGktZ8ulns7XNRq79lwFrHFs7U_lSICgvRGmvH1BCi5Iw",
@@ -186,8 +187,8 @@ export default function InvitationCarousel() {
                     <span className="material-symbols-outlined text-[12px] sm:text-[16px]">arrow_forward</span>
                   </a>
                   <a
-                    href={s.href === "https://wedding.aksaraa.com" ? s.href : "#"}
-                    target={s.href === "https://wedding.aksaraa.com" ? "_blank" : undefined}
+                    href={s.href === siteOrigin() ? s.href : "#"}
+                    target={s.href === siteOrigin() ? "_blank" : undefined}
                     rel="noopener noreferrer"
                     className="flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full border border-white/30 bg-white/10 px-3 py-2 text-[9px] font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:flex-none sm:gap-1.5 sm:px-6 sm:py-2.5 sm:text-label-lg"
                   >

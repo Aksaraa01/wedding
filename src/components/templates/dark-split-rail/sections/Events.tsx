@@ -1,12 +1,10 @@
 "use client"
 
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_BODY, FONT_BTN, FONT_DISPLAY } from "../fonts"
 import Section from "../Section"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 
-export default function Events({ sessions, language }: { sessions: SessionData[]; language?: string }) {
-  const lang = normalizeLanguage(language)
+export default function Events({ sessions }: { sessions: SessionData[] }) {
   const list = sessions.filter((s) => s && (s.name || s.date || s.venue))
   if (list.length === 0) return null
 
@@ -16,7 +14,7 @@ export default function Events({ sessions, language }: { sessions: SessionData[]
         {list.map((s, i) => (
           <div key={i}>
             <h3 className="text-[19px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "2.5px" }}>
-              {s.name || t("secEvent", lang)}
+              {s.name || "Acara"}
             </h3>
             {s.date && (
               <p className="mt-3 text-[14px] uppercase" style={{ ...FONT_BODY, letterSpacing: "1.5px" }}>
@@ -47,7 +45,7 @@ export default function Events({ sessions, language }: { sessions: SessionData[]
                 style={{ ...FONT_BTN, letterSpacing: "1px", borderColor: "rgba(255,255,255,0.5)", color: "#F2F1EE" }}
               >
                 <span className="material-symbols-outlined text-[16px]">location_on</span>
-                {t("viewLocation", lang)}
+                Lihat Lokasi
               </a>
             )}
           </div>

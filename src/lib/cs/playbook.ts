@@ -339,23 +339,26 @@ export function recommendPackage(
   }
 }
 
+import { siteOrigin } from "@/lib/site"
+
 export function ctaFor(facts: LeadFacts): { label: string; url: string } {
   const template = facts.template_interest ? encodeURIComponent(facts.template_interest) : ""
   const pkg = facts.package_interest ? encodeURIComponent(facts.package_interest) : ""
+  const base = siteOrigin()
 
   if (template) {
     return {
       label: "Pilih template ini",
-      url: `https://wedding.aksaraa.com/register?template=${template}${pkg ? `&package=${pkg}` : ""}`,
+      url: `${base}/register?template=${template}${pkg ? `&package=${pkg}` : ""}`,
     }
   }
   if (pkg) {
     return {
       label: "Daftar dengan paket ini",
-      url: `https://wedding.aksaraa.com/register?package=${pkg}`,
+      url: `${base}/register?package=${pkg}`,
     }
   }
-  return { label: "Lihat template dulu", url: "https://wedding.aksaraa.com/templates" }
+  return { label: "Lihat template dulu", url: `${base}/templates` }
 }
 
 export function nextStage(current: LeadStage, signals: {

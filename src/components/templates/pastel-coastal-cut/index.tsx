@@ -105,7 +105,7 @@ export default function PastelCoastal(props: TemplateProps) {
                   {initials}
                 </span>
                 <span className="text-[11px] uppercase font-medium" style={{ ...FONT_BODY, letterSpacing: "0.3em", color: "#5D4A3E", animation: "pcLoadPulse 1.6s ease-in-out infinite" }}>
-                  Menyiapkan Undangan
+                  {lang === "en" ? "Preparing Invitation" : "Menyiapkan Undangan"}
                 </span>
               </div>
             </div>
@@ -117,6 +117,7 @@ export default function PastelCoastal(props: TemplateProps) {
               guest_name={props.guest_name}
               estimated_wedding_date={props.estimated_wedding_date}
               onOpen={openInvitation}
+              language={lang}
             />
           ) : (
             <PastelPages profile={props} onWishOpenChange={onWishOpenChange} />
@@ -130,6 +131,7 @@ export default function PastelCoastal(props: TemplateProps) {
               guestId={props.guest_id}
               guestName={props.guest_name}
               hideTrigger
+              language={props.language}
             />
           )}
         </div>
@@ -157,8 +159,8 @@ export default function PastelCoastal(props: TemplateProps) {
           <button
             type="button"
             onClick={toggleMusic}
-            aria-label="Putar atau jeda musik"
-            title="Putar atau jeda musik"
+            aria-label={lang === "en" ? "Play or pause music" : "Putar atau jeda musik"}
+            title={lang === "en" ? "Play or pause music" : "Putar atau jeda musik"}
             className="fixed right-4 z-[95] w-11 h-11 rounded-full bg-white text-[#111827] shadow-lg border border-black/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
             style={{
               top: "50%",

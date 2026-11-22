@@ -49,11 +49,6 @@ export const I18N = {
   secEvent: { id: "Rangkaian Acara", en: "The Celebration" },
   secCountdown: { id: "Menuju Hari Bahagia", en: "Counting Down" },
   saveTheDate: { id: "Simpan Tanggal", en: "Save the Date" },
-  countdown: { id: "Hitung Mundur", en: "Countdown" },
-  days: { id: "Hari", en: "Days" },
-  hours: { id: "Jam", en: "Hours" },
-  minutes: { id: "Menit", en: "Minutes" },
-  seconds: { id: "Detik", en: "Seconds" },
   secRundown: { id: "Susunan Acara", en: "Order of Events" },
   secGallery: { id: "Momen Kami", en: "Our Moments" },
   secVideo: { id: "Film Kami", en: "Our Film" },
@@ -82,6 +77,10 @@ export const I18N = {
   copyAccount: { id: "Salin Rekening", en: "Copy Account" },
   close: { id: "Tutup", en: "Close" },
   loading: { id: "Memuat...", en: "Loading..." },
+  days: { id: "Hari", en: "Days" },
+  hours: { id: "Jam", en: "Hours" },
+  minutes: { id: "Menit", en: "Minutes" },
+  seconds: { id: "Detik", en: "Seconds" },
 
   // RSVP / attendance
   rsvpTitle: { id: "Konfirmasi Kehadiran", en: "Confirm Attendance" },
@@ -100,35 +99,6 @@ export const I18N = {
     id: "Ucapan gagal dikirim. Periksa koneksi Anda.",
     en: "Failed to send your wish. Please check your connection.",
   },
-  previewWishNotSaved: {
-    id: "Mode pratinjau, ucapan Anda tidak disimpan.",
-    en: "Preview mode — your wish was not saved.",
-  },
-  wishAlreadySent: {
-    id: "Anda sudah mengirim ucapan. Terima kasih atas doa dan kasihnya.",
-    en: "You have already sent a wish. Thank you for your love and prayers.",
-  },
-  tooManyMessages: {
-    id: "Terlalu banyak pesan saat ini. Silakan coba lagi sebentar.",
-    en: "Too many messages right now. Please try again in a moment.",
-  },
-  loadingWishes: { id: "Memuat ucapan…", en: "Loading wishes…" },
-  noWishesYet: { id: "Belum ada ucapan. Jadilah yang pertama.", en: "No wishes yet. Be the first." },
-  wishJustNow: { id: "Baru saja", en: "Just now" },
-  wishMinutesAgo: { id: "{n} menit lalu", en: "{n} min ago" },
-  wishHoursAgo: { id: "{n} jam lalu", en: "{n} hr ago" },
-  wishDaysAgo: { id: "{n} hari lalu", en: "{n} days ago" },
-  wishOneDayAgo: { id: "1 hari lalu", en: "Yesterday" },
-  previousPage: { id: "Halaman sebelumnya", en: "Previous page" },
-  nextPage: { id: "Halaman berikutnya", en: "Next page" },
-  playMusic: { id: "Putar musik", en: "Play music" },
-  pauseMusic: { id: "Jeda musik", en: "Pause music" },
-  photoViewer: { id: "Penampil foto", en: "Photo viewer" },
-  closeViewer: { id: "Tutup", en: "Close" },
-  previousPhoto: { id: "Foto sebelumnya", en: "Previous photo" },
-  nextPhoto: { id: "Foto berikutnya", en: "Next photo" },
-  openPhoto: { id: "Buka foto {n} dari {total}", en: "Open photograph {n} of {total}" },
-  guestHonored: { id: "Tamu Undangan", en: "Honored Guest" },
 
   // Couple labels
   sonOf: { id: "Putra dari", en: "Son of" },
@@ -137,27 +107,26 @@ export const I18N = {
 
   // Generic closing
   withLoveAndGratitude: { id: "Kami yang berbahagia", en: "With love and gratitude" },
-  withRespectAndGratitude: { id: "Dengan hormat dan rasa syukur", en: "With respect and gratitude" },
   thankYou: { id: "Terima Kasih", en: "Thank You" },
 
-  // Shared chrome / a11y
-  skipToInvitation: { id: "Langsung ke undangan", en: "Skip to invitation" },
-  playPauseMusic: { id: "Putar/jeda musik", en: "Play/pause music" },
-  loadingVideo: { id: "Memuat video...", en: "Loading video..." },
+  // Accessibility / chrome extras
+  skipToInvitation: { id: "Lewati ke undangan", en: "Skip to invitation" },
+  playPauseMusic: { id: "Putar atau jeda musik", en: "Play or pause music" },
+  loadingVideo: { id: "Memuat video", en: "Loading video" },
   photoGallery: { id: "Galeri foto", en: "Photo gallery" },
   closeGallery: { id: "Tutup galeri", en: "Close gallery" },
   prevPhoto: { id: "Foto sebelumnya", en: "Previous photo" },
+  nextPhoto: { id: "Foto berikutnya", en: "Next photo" },
   viewPhoto: { id: "Lihat foto {n}", en: "View photo {n}" },
-  dearGuest: { id: "Tamu Terhormat", en: "Dear Guest" },
+  dearGuest: { id: "Kepada Yth:", en: "Dear:" },
   weddingEventFallback: { id: "Acara Pernikahan", en: "Wedding Event" },
-  weddingInvitationByAksaraa: { id: "Undangan Pernikahan by Aksaraa", en: "Wedding Invitation by Aksaraa" },
+  watchLivestream: { id: "Tonton Live Streaming", en: "Watch Live Stream" },
+  rundownTitle: { id: "Rundown Acara", en: "Event Rundown" },
+  weddingInvitationByAksaraa: { id: "Undangan Pernikahan oleh Aksaraa", en: "Wedding Invitation by Aksaraa" },
   digitalWeddingInvitation: { id: "Undangan Pernikahan Digital", en: "Digital Wedding Invitation" },
-  watchLivestream: { id: "Tonton Siaran Langsung", en: "Watch Livestream" },
-  rundownTitle: { id: "Susunan Acara", en: "Order of Events" },
+  withRespectAndGratitude: { id: "Dengan penuh hormat dan syukur,", en: "With respect and gratitude," },
   storyPart: { id: "Bagian {n}", en: "Part {n}" },
   colorN: { id: "Warna {n}", en: "Color {n}" },
-
-  // Wishes extras
 } as const satisfies Record<string, Record<Language, string>>
 
 export type I18nKey = keyof typeof I18N
@@ -173,52 +142,4 @@ export function tf(key: I18nKey, lang: unknown, vars: Record<string, string | nu
   let s = t(key, lang)
   for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v))
   return s
-}
-
-/** Localized relative time for wish timestamps. */
-export function formatWishAgo(iso: string | undefined, lang: unknown): string {
-  if (!iso) return ""
-  const diff = Date.now() - new Date(iso).getTime()
-  const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return t("wishJustNow", lang)
-  if (minutes < 60) return tf("wishMinutesAgo", lang, { n: minutes })
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return tf("wishHoursAgo", lang, { n: hours })
-  const days = Math.floor(hours / 24)
-  return days === 1 ? t("wishOneDayAgo", lang) : tf("wishDaysAgo", lang, { n: days })
-}
-
-const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
-const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-const ID_MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
-const EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-
-function parseDateInput(value?: string | null): Date | null {
-  if (!value) return null
-  const d = new Date(value)
-  return isNaN(d.getTime()) ? null : d
-}
-
-/** Localized long date, e.g. "Rabu, 20 Juli 2026" / "Wednesday, 20 July 2026". */
-export function formatDate(value?: string | null, lang?: unknown): string {
-  const d = parseDateInput(value)
-  if (!d) return ""
-  const l = normalizeLanguage(lang)
-  const day = l === "en" ? EN_DAYS[d.getDay()] : ID_DAYS[d.getDay()]
-  const month = l === "en" ? EN_MONTHS[d.getMonth()] : ID_MONTHS[d.getMonth()]
-  return `${day}, ${d.getDate()} ${month} ${d.getFullYear()}`
-}
-
-/** Uppercase localized long date. */
-export function formatDateUpper(value?: string | null, lang?: unknown): string {
-  return formatDate(value, lang).toUpperCase()
-}
-
-/** Localized numeric-ish date: "20 Juli 2026" / "20 July 2026". */
-export function formatIdDate(value?: string | null, lang?: unknown): string {
-  const d = parseDateInput(value)
-  if (!d) return ""
-  const l = normalizeLanguage(lang)
-  const month = l === "en" ? EN_MONTHS[d.getMonth()] : ID_MONTHS[d.getMonth()]
-  return `${d.getDate()} ${month} ${d.getFullYear()}`
 }

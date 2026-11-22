@@ -40,9 +40,7 @@ const ATMO: Record<ImpastoPageKey, { doves: number; petals: boolean; motes: bool
   combined: { doves: 4, petals: false, motes: true },
   closing: { doves: 4, petals: false, motes: false },
 }
-import { normalizeLanguage } from "@/lib/i18n"
 export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
-  const lang = normalizeLanguage(profile.language)
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
   const sessions = Array.isArray(profile.sessions) ? profile.sessions : []
@@ -112,19 +110,19 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
       case "main":
         return <MainPage profile={profile} />
       case "groom":
-        return <PersonPage profile={profile} side="groom" language={profile.language} />
+        return <PersonPage profile={profile} side="groom" />
       case "bride":
-        return <PersonPage profile={profile} side="bride" language={profile.language} />
+        return <PersonPage profile={profile} side="bride" />
       case "gallery":
         return <GalleryPage photos={galleryPhotos} />
       case "story":
         return <StoryPage stories={stories} />
       case "events":
-        return <EventPage sessions={sessions as any} lang={lang} />
+        return <EventPage sessions={sessions as any} />
       case "countdown":
         return <CountdownPage profile={profile} sessions={sessions as any} />
       case "combined":
-        return <CombinedPage profile={profile} accounts={accounts} families={families} videoOn={videoOn} giftOn={giftOn} invitingOn={invitingOn} language={profile.language} />
+        return <CombinedPage profile={profile} accounts={accounts} families={families} videoOn={videoOn} giftOn={giftOn} invitingOn={invitingOn} />
       case "closing":
         return <ClosingPage profile={profile} onWishOpenChange={onWishOpenChange} />
     }

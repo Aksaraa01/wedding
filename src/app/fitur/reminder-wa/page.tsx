@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "Reminder WhatsApp Otomatis",
   description:
     "Reminder WA otomatis untuk undangan pernikahan: blast undangan, pengingat H-7/H-1, RSVP via WA, tautan unik & nomor meja per tamu.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/reminder-wa" },
+  alternates: { canonical: `${siteOrigin()}/fitur/reminder-wa` },
   openGraph: {
     title: "Reminder WhatsApp Otomatis untuk Tamu | Aksaraa",
     description:

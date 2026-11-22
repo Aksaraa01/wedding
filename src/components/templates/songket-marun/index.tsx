@@ -8,21 +8,60 @@ import { eventLabels } from "@/lib/eventType"
 import { childFullName, childFullNamesLine, childInitials, childNamesLine, resolveChildren } from "@/lib/children"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
+import { countdownTarget, formatDotDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
 import { useWishes } from "../shared/kids/useWishes"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./songket-marun.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { formatDate } from "@/lib/formatDate"
+import { normalizeLanguage, t, type Language } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/songket-marun/${name}.webp`
 
-const DEFAULT_BASMALAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+const DEFAULTS = {
+  id: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    doa: "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
+    salam: "Assalamu'alaikum Warahmatullahi Wabarakatuh",
+    opening:
+      "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan Walimatul Khitan putra kami tercinta. Merupakan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
+    blessing:
+      "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan senantiasa dalam lindungan Allah SWT.",
+    closing:
+      "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.",
+    gift:
+      "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui tombol berikut.",
+  },
+  en: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    doa: "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
+    salam: "Peace be upon you",
+    opening:
+      "By the grace and mercy of Allah SWT, we invite you to the circumcision celebration of our beloved son. It would be an honor to have you join us and share your prayers and blessings.",
+    blessing:
+      "May he grow to be a righteous child, devoted to his parents, and always under Allah's protection.",
+    closing:
+      "It would be our great honor and joy to have you present and to receive your prayers and blessings for our son.",
+    gift:
+      "Your prayers and presence are the greatest gift to us. If you wish to send a token of love, you may do so below.",
+  },
+} satisfies Record<Language, Record<string, string>>
 
 const WISH_PAGE = 10
-const MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
-const MONTHS_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"]
-const WEEKDAYS = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
-const WEEKDAYS_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+const MONTHS = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+]
+const WEEKDAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
 function reveal(delay = 0): CSSProperties {
   return { animationDelay: `${delay}s` }
@@ -72,32 +111,12 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.55) {
   )
 }
 
-const DEFAULTS = {
-  id: {
-    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-    doa: "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
-    salam: "Assalamu'alaikum Warahmatullahi Wabarakatuh",
-    opening: "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan Walimatul Khitan putra kami tercinta. Merupakan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
-    blessing: "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan senantiasa dalam lindungan Allah SWT.",
-    closing: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.",
-    gift: "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui tombol berikut.",
-  },
-  en: {
-    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-    doa: "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ",
-    salam: "Peace be upon you",
-    opening: "By the grace and mercy of Allah SWT, we invite you to the circumcision celebration of our beloved son. It would be an honor to have you join us and share your prayers and blessings.",
-    blessing: "May he grow to be a righteous child, devoted to his parents, and always under Allah's protection.",
-    closing: "It would be our great honor and joy to have you present and to receive your prayers and blessings for our son.",
-    gift: "Your prayers and presence are the greatest gift to us. If you wish to send a token of love, you may do so below.",
-  },
-} as const
-
-function timeLine(raw?: string): string {
+function timeLine(raw: string | undefined, lang: Language): string {
   const value = (raw || "").trim()
   if (!value) return ""
   const normalized = value.replace(/(\d)\s*[-–]\s*(\d)/g, "$1 – $2")
-  const withPrefix = /^pukul/i.test(normalized) ? normalized : `Pukul ${normalized}`
+  const hasPrefix = /^(pukul|at)\b/i.test(normalized)
+  const withPrefix = hasPrefix ? normalized : lang === "en" ? `At ${normalized}` : `Pukul ${normalized}`
   return /wib/i.test(withPrefix) ? withPrefix : `${withPrefix} WIB`
 }
 
@@ -183,57 +202,57 @@ export default function SongketMarun(profile: TemplateProps) {
   const hasGift = accounts.length > 0 || !!giftAddress
 
   const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
-  const coverGuestLabel = (tc.cover_guest_label || "").trim() || (lang === "en" ? "To Mr./Mrs./Ms." : "Kepada Yth. Bapak/Ibu/Saudara/i")
+  const coverGuestLabel = (tc.cover_guest_label || "").trim() || t("toGuest", lang)
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
   const salam = (tc.opening_salam || "").trim() || d.salam
   const basmalah = (tc.basmalah || "").trim() || d.basmalah
   const openingText = (profile.opening_description || "").trim() || d.opening
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
-  const doaTitle = (tc.doa_title || "").trim() || (lang === "en" ? "Prayer for the Child" : "Doa untuk Ananda")
+  const doaTitle = (tc.doa_title || "").trim() || "Doa untuk Ananda"
   const doaArabic = (tc.doa_arabic || "").trim() || d.doa
   const doaBlessing = (tc.doa_blessing || "").trim() || d.blessing
   const saveKicker = (tc.save_date_kicker || "").trim() || t("saveTheDate", lang)
   const saveTitle = (tc.save_date_title || "").trim() || t("secEvent", lang)
   const saveLabel = (tc.save_date_label || "").trim() || t("saveToCalendar", lang)
   const eventsKicker = (tc.events_kicker || "").trim() || t("secEvent", lang)
-  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Time & Venue" : "Waktu & Tempat")
+  const eventsTitle = (tc.events_title || "").trim() || lang === "en" ? "Time & Venue" : "Waktu & Tempat"
   const eventsLead = (tc.events_intro || "").trim() || (lang === "en" ? "God willing, the event will be held on:" : "Insya Allah acara akan diselenggarakan pada:")
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
   const galleryKicker = (tc.gallery_kicker || "").trim() || t("secGallery", lang)
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Happy Moments" : "Momen Bahagia")
+  const galleryTitle = (tc.gallery_title || "").trim() || lang === "en" ? "Happy Moments" : "Momen Bahagia"
   const galleryLead = (tc.gallery_intro || "").trim() || (lang === "en" ? "A glimpse of our child's moments before the special day." : "Sepenggal cerita ananda menjelang hari istimewanya.")
-  const giftKicker = (tc.gift_kicker || "").trim() || (lang === "en" ? "Digital Envelope" : "Amplop Digital")
-  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
+  const giftKicker = (tc.gift_kicker || "").trim() || "Amplop Digital"
+  const giftTitle = (tc.gift_intro_title || "").trim() || "Tanda Kasih"
   const giftLead = (tc.gift_intro_description || "").trim() || d.gift
-  const copyAccountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
-  const copyAddressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
-  const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
+  const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
+  const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
+  const giftSendLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
-  const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
-  const wishesKicker = (tc.wishes_kicker || "").trim() || t("secWishes", lang)
-  const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Send a Prayer" : "Titip Doa")
+  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
+  const wishesKicker = (tc.wishes_kicker || "").trim() || "Doa & Ucapan"
+  const wishesTitle = (tc.wishes_title || "").trim() || "Titip Doa"
   const wishesLead =
-    (tc.wishes_intro || "").trim() || (lang === "en" ? "Write your best prayers and wishes for our child on this special day." : "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya.")
-  const wishNameLabel = (tc.wishes_name_label || "").trim() || (lang === "en" ? "Your Name" : "Nama Anda")
-  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Enter your name" : "Tulis nama Anda")
-  const wishMessageLabel = (tc.wishes_message_label || "").trim() || (lang === "en" ? "Prayers & wishes" : "Doa dan ucapan")
-  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Write your prayers and wishes" : "Tulis doa dan ucapan")
-  const wishSubmit = (tc.wishes_submit || "").trim() || t("sendWishes", lang)
-  const wishEmpty = (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama.")
-  const wishLoading = (tc.wishes_loading || "").trim() || t("loading", lang)
+    (tc.wishes_intro || "").trim() || "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya."
+  const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
+  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Tulis nama Anda"
+  const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Doa dan ucapan"
+  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tulis doa dan ucapan"
+  const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
+  const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
+  const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
   const closingThanks = (tc.closing_thanks || "").trim() || t("secClosing", lang)
   const closingText = (tc.closing_message || "").trim() || d.closing
-  const closingSalam = (tc.closing_salam || "").trim() || (lang === "en" ? "Peace be upon you" : "Wassalamu'alaikum Warahmatullahi Wabarakatuh")
-  const closingKicker = (tc.closing_kicker || "").trim() || t("withLoveAndGratitude", lang)
-  const closingFamily = (tc.closing_family || "").trim() || (lang === "en" ? "The Family of" : "Keluarga Besar")
+  const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
+  const closingKicker = (tc.closing_kicker || "").trim() || "Kami yang berbahagia"
+  const closingFamily = (tc.closing_family || "").trim() || "Keluarga Besar"
 
   const parsedDate = eventDate ? new Date(eventDate) : null
   const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null
   const dayNum = validDate ? String(validDate.getDate()).padStart(2, "0") : "--"
-  const monthName = validDate ? (lang === "en" ? MONTHS_EN : MONTHS)[validDate.getMonth()] : ""
+  const monthName = validDate ? MONTHS[validDate.getMonth()] : ""
   const yearNum = validDate ? String(validDate.getFullYear()) : ""
-  const weekday = validDate ? (lang === "en" ? WEEKDAYS_EN : WEEKDAYS)[validDate.getDay()] : ""
+  const weekday = validDate ? WEEKDAYS[validDate.getDay()] : ""
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.kidsMusic : "")
   const wishes = useWishes(profile.wedding_profile_id, profile.guest_id)
@@ -250,8 +269,8 @@ export default function SongketMarun(profile: TemplateProps) {
 
   const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))
   const visibleWishes = wishes.wishes.slice(wishPage * WISH_PAGE, wishPage * WISH_PAGE + WISH_PAGE)
-  const pagerPrevLabel = lang === "en" ? `Previous ${wishesTitle}` : `${wishesTitle} sebelumnya`
-  const pagerNextLabel = lang === "en" ? `Next ${wishesTitle}` : `${wishesTitle} berikutnya`
+  const pagerPrevLabel = `${wishesTitle} sebelumnya`
+  const pagerNextLabel = `${wishesTitle} berikutnya`
 
   const showDock =
     !profile.preview_mode &&
@@ -352,10 +371,10 @@ export default function SongketMarun(profile: TemplateProps) {
   const countdownCells = (() => {
     const ms = target && now ? Math.max(0, target.getTime() - now) : 0
     return [
-      { value: Math.floor(ms / 86400000), label: "Hari" },
-      { value: Math.floor((ms % 86400000) / 3600000), label: "Jam" },
-      { value: Math.floor((ms % 3600000) / 60000), label: "Menit" },
-      { value: Math.floor((ms % 60000) / 1000), label: "Detik" },
+      { value: Math.floor(ms / 86400000), label: t("days", lang) },
+      { value: Math.floor((ms % 86400000) / 3600000), label: t("hours", lang) },
+      { value: Math.floor((ms % 3600000) / 60000), label: t("minutes", lang) },
+      { value: Math.floor((ms % 60000) / 1000), label: t("seconds", lang) },
     ]
   })()
 
@@ -380,7 +399,7 @@ export default function SongketMarun(profile: TemplateProps) {
             </div>
 
             <span className="skm-pita skm-cover__pita skm-anim-fade" style={reveal(0.3)} aria-hidden="true" />
-            <p className="skm-cover__date skm-anim-fade" style={reveal(0.35)}>{validDate ? formatLongDate(eventDate) : ""}</p>
+            <p className="skm-cover__date skm-anim-fade" style={reveal(0.35)}>{validDate ? formatDate(eventDate, lang) : ""}</p>
             <p className="skm-cover__guest skm-anim-fade" style={reveal(0.45)}>{coverGuestLabel}</p>
             {hasGuestName && (
               <p ref={guestRef} className="skm-cover__guestname skm-anim-fade" style={reveal(0.55)}>{guestName}</p>
@@ -564,9 +583,9 @@ export default function SongketMarun(profile: TemplateProps) {
                     <article className="skm-event" key={`${session.name || "acara"}-${index}`}>
                       <h3 className="skm-event__name">{session.name || labels.mainEventName}</h3>
                       {(session.date || validDate) && (
-                        <p className="skm-event__date">{session.date ? formatLongDate(session.date) : formatLongDate(eventDate)}</p>
+                        <p className="skm-event__date">{session.date ? formatDate(session.date, lang) : formatDate(eventDate, lang)}</p>
                       )}
-                      {session.time && <p className="skm-event__time">{timeLine(session.time)}</p>}
+                      {session.time && <p className="skm-event__time">{timeLine(session.time, lang)}</p>}
                       {session.venue && <p className="skm-event__venue">{session.venue}</p>}
                       {session.address && <p className="skm-event__address">{session.address}</p>}
                       {session.maps_url && (
@@ -626,7 +645,7 @@ export default function SongketMarun(profile: TemplateProps) {
                       <button
                         type="button"
                         className="skm-gift__copy"
-                        onClick={() => copyText(account.account_number || "", "Nomor rekening disalin")}
+                        onClick={() => copyText(account.account_number || "", lang === "en" ? "Account number copied" : "Nomor rekening disalin")}
                         aria-label={copyAccountButton}
                       >
                         {copyAccountButton}
@@ -641,7 +660,7 @@ export default function SongketMarun(profile: TemplateProps) {
                       <button
                         type="button"
                         className="skm-gift__copy"
-                        onClick={() => copyText(giftAddress, "Alamat disalin")}
+                        onClick={() => copyText(giftAddress, lang === "en" ? "Address copied" : "Alamat disalin")}
                         aria-label={copyAddressButton}
                       >
                         {copyAddressButton}
@@ -788,7 +807,7 @@ export default function SongketMarun(profile: TemplateProps) {
           type="button"
           className={`skm-music${playing ? " is-playing" : ""}`}
           onClick={toggleMusic}
-          aria-label={playing ? "Jeda musik" : "Putar musik"}
+          aria-label={playing ? (lang === "en" ? "Pause music" : "Jeda musik") : (lang === "en" ? "Play music" : "Putar musik")}
         >
           <span className="material-symbols-outlined" aria-hidden="true">music_note</span>
         </button>
@@ -810,6 +829,7 @@ export default function SongketMarun(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message}
           rsvpMaxPax={profile.rsvp_max_pax}
           qrEnabled={Boolean(gates.qr_code_book)}
+          language={lang}
         />
       )}
     </div>

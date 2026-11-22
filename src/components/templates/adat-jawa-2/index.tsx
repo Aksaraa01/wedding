@@ -28,8 +28,7 @@ import Gift from "./Gift"
 import layoutJson from "./layout.json"
 import gateJson from "./gate.json"
 import "./adat-jawa.css"
-import { normalizeLanguage, t, tf } from "@/lib/i18n"
-import { formatDate } from "@/lib/formatDate"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 type LayoutElement = {
   id: string
@@ -67,6 +66,70 @@ const gate = gateJson as unknown as { width: number; height: number; background:
 
 const A = (name: string) => `/templates/adat-jawa/assets/${name}`
 
+const COPY = {
+  EN: {
+    gateKicker: "The Wedding of",
+    open: "Open Invitation",
+    heroKicker: "The Wedding of",
+    groomTitle: "The Groom",
+    brideTitle: "The Bride",
+    and: "&",
+    countdownTitle: "Save The Date",
+    days: "Days",
+    hours: "Hours",
+    minutes: "Minutes",
+    seconds: "Seconds",
+    calendar: "Save to Calendar",
+    wishesTitle: "Words for Us",
+    giftTitle: "Wedding Gift",
+    galleryTitle: "Love in Frames",
+    videoTitle: "Moving Memories",
+    closingTitle: "Thank You",
+    storyTitle: "Our Story",
+    honoredTitle: "Also Inviting",
+    withLove: "With love,",
+    quoteTitle: "The Verse",
+    closingMessage:
+      "A beautiful day becomes even more meaningful because of your presence and prayers. Thank you for being part of our happiness.",
+    seeLocation: "See Location",
+    giftIntro:
+      "For those who wish to send a token of love, the details are available below.",
+    noVideo: "Our wedding film",
+    copied: "Copied to clipboard",
+    eventNames: ["Akad Nikah", "Resepsi"],
+  },
+  ID: {
+    gateKicker: "The Wedding of",
+    open: "Buka Undangan",
+    heroKicker: "The Wedding of",
+    groomTitle: "Mempelai Pria",
+    brideTitle: "Mempelai Wanita",
+    and: "&",
+    countdownTitle: "Hitung Mundur",
+    days: "Hari",
+    hours: "Jam",
+    minutes: "Menit",
+    seconds: "Detik",
+    calendar: "Simpan ke Kalender",
+    wishesTitle: "Kata untuk Kami",
+    giftTitle: "Wedding Gift",
+    galleryTitle: "Love in Frames",
+    videoTitle: "Moving Memories",
+    closingTitle: "Terima Kasih",
+    storyTitle: "Kisah Kami",
+    honoredTitle: "Turut Mengundang",
+    withLove: "Dengan cinta,",
+    quoteTitle: "Ayat",
+    closingMessage:
+      "Hari yang indah menjadi lebih bermakna karena kehadiran dan doa restu Anda. Terima kasih telah menjadi bagian dari kebahagiaan kami.",
+    seeLocation: "Lihat Lokasi",
+    giftIntro:
+      "Bagi Anda yang ingin memberikan tanda kasih, detailnya tersedia di bawah ini.",
+    noVideo: "Film pernikahan kami",
+    copied: "Tersalin ke clipboard",
+    eventNames: ["Akad Nikah", "Resepsi"],
+  },
+} as const
 
 const EN_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"]
 const ID_MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
@@ -80,11 +143,11 @@ function toDate(value?: string): Date | null {
   return isNaN(d.getTime()) ? null : d
 }
 
-function dateParts(value: string | undefined, lang: "id" | "en") {
+function dateParts(value: string | undefined, lang: "EN" | "ID") {
   const d = toDate(value)
   if (!d) return { day: "", weekday: "", date: "", month: "", year: "" }
-  const days = lang === "id" ? ID_DAYS : EN_DAYS
-  const months = lang === "id" ? ID_MONTHS : EN_MONTHS
+  const days = lang === "ID" ? ID_DAYS : EN_DAYS
+  const months = lang === "ID" ? ID_MONTHS : EN_MONTHS
   return {
     day: `${days[d.getDay()]}, ${d.getDate()}`,
     weekday: `${days[d.getDay()]},`,
@@ -161,7 +224,7 @@ function GalleryWidget({
   onOpen,
 }: {
   photos: string[]
-  lang: "id" | "en"
+  lang: "EN" | "ID"
   onOpen: (index: number) => void
 }) {
   const [index, setIndex] = useState(0)
@@ -173,20 +236,20 @@ function GalleryWidget({
   }, [list.length])
   return (
     <div className="aj-gallery">
-      <button type="button" className="aj-gallery__stage" onClick={() => onOpen(index % list.length)} aria-label={tf("viewPhoto", lang, { n: (index % list.length) + 1 })}>
+      <button type="button" className="aj-gallery__stage" onClick={() => onOpen(index % list.length)} aria-label="Open photo">
         <img src={list[index % list.length]} alt="" draggable={false} />
         <span className="aj-gallery__count">
           {String((index % list.length) + 1).padStart(2, "0")} / {String(list.length).padStart(2, "0")}
         </span>
       </button>
       <div className="aj-gallery__bar">
-        <button type="button" onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)} aria-label={t("prevPhoto", lang)}>‹</button>
+        <button type="button" onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)} aria-label={lang === "ID" ? "Sebelumnya" : "Previous"}>‹</button>
         <div className="aj-gallery__dots">
           {list.slice(0, 8).map((photo, i) => (
             <button key={`${photo}-${i}`} type="button" className={i === index % list.length ? "is-active" : ""} onClick={() => setIndex(i)} aria-label={`${i + 1}`} />
           ))}
         </div>
-        <button type="button" onClick={() => setIndex((i) => (i + 1) % list.length)} aria-label={t("nextPhoto", lang)}>›</button>
+        <button type="button" onClick={() => setIndex((i) => (i + 1) % list.length)} aria-label={lang === "ID" ? "Berikutnya" : "Next"}>›</button>
       </div>
     </div>
   )
@@ -196,7 +259,7 @@ export default function AdatJawa(profile: TemplateProps) {
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
   const [opened, setOpened] = useState(false)
-  const lang = normalizeLanguage(profile.language)
+  const [lang, setLang] = useState<"EN" | "ID">("ID")
   const [scale, setScale] = useState(1)
   const [playing, setPlaying] = useState(false)
   const [toast, setToast] = useState("")
@@ -207,12 +270,13 @@ export default function AdatJawa(profile: TemplateProps) {
   const heroVideoRef = useRef<HTMLVideoElement | null>(null)
   const toastTimer = useRef<number | null>(null)
 
-  const groomShort = (profile.groom_name || "").trim() || (lang === "en" ? "Groom" : "Mempelai Pria")
-  const brideShort = (profile.bride_name || "").trim() || (lang === "en" ? "Bride" : "Mempelai Wanita")
+  const c = COPY[lang]
+  const groomShort = (profile.groom_name || "").trim() || "Groom"
+  const brideShort = (profile.bride_name || "").trim() || "Bride"
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
-  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
-  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
+  const guestName = profile.guest_name || (lang === "ID" ? "Tamu Undangan" : "Our Beloved Guest")
   const initials = (profile.couple_initials || "").trim() || initialsOf(brideShort, groomShort)
   const cover = coverPhoto(profile)
   const groomImage = groomPhoto(profile.groom_photo_url)
@@ -240,7 +304,7 @@ export default function AdatJawa(profile: TemplateProps) {
   const gateDate = (() => {
     const d = toDate(event0?.date) || toDate(profile.estimated_wedding_date)
     if (!d) return ""
-    return formatDate(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`, lang)
+    return d.toLocaleDateString(lang === "ID" ? "id-ID" : "en-GB", { day: "numeric", month: "long", year: "numeric" })
   })()
   const calendarUrl = (() => {
     const d = toDate(event0?.date) || toDate(profile.estimated_wedding_date)
@@ -268,12 +332,12 @@ export default function AdatJawa(profile: TemplateProps) {
       if (!text) return
       try {
         await navigator.clipboard.writeText(text)
-        showToast(t("copiedToClipboard", lang))
+        showToast(c.copied)
       } catch {
-        showToast(t("failedToCopy", lang))
+        showToast(lang === "ID" ? t("failedToCopy", lang) : "Could not copy")
       }
     },
-    [lang, showToast]
+    [c.copied, lang, showToast]
   )
 
   const openInvitation = useCallback(() => {
@@ -350,7 +414,7 @@ export default function AdatJawa(profile: TemplateProps) {
 
   const roleNode = (role: string): ReactNode => {
     switch (role) {
-      case "hero-kicker": return tc.hero_kicker || t("theWeddingOf", lang)
+      case "hero-kicker": return c.heroKicker
       case "hero-name": return `${groomShort} & ${brideShort}`
       case "quote": return profile.quote_text || ""
       case "quote-mark": return "“"
@@ -362,31 +426,31 @@ export default function AdatJawa(profile: TemplateProps) {
       case "bride-title": return brideShort
       case "bride-full": return brideFull
       case "bride-parents": return profile.bride_parents || ""
-      case "couple-and": return "&"
+      case "couple-and": return c.and
       case "hashtag": return profile.display_name || ""
-      case "event-0-name": return event0?.name || (lang === "en" ? "Holy Matrimony" : "Akad Nikah")
+      case "event-0-name": return event0?.name || c.eventNames[0]
       case "event-0-day": return day0.weekday
       case "event-0-date": return day0.date
       case "event-0-month": return day0.month
       case "event-0-time": return event0?.time || ""
       case "event-0-venue": return event0?.venue || ""
       case "event-0-address": return event0?.address || ""
-      case "event-1-name": return event1?.name || (lang === "en" ? "Reception" : "Resepsi")
+      case "event-1-name": return event1?.name || c.eventNames[1]
       case "event-1-day": return day1.weekday
       case "event-1-date": return day1.date
       case "event-1-month": return day1.month
       case "event-1-time": return event1?.time || ""
       case "event-1-venue": return event1?.venue || ""
       case "event-1-address": return event1?.address || ""
-      case "wishes-title": return tc.wishes_title || t("secWishes", lang)
-      case "gift-title": return tc.gift_title || t("secGift", lang)
-      case "gallery-title": return tc.gallery_title || t("secGallery", lang)
-      case "video-title": return tc.video_title || t("secVideo", lang)
-      case "closing-title": return tc.closing_title || t("thankYou", lang)
-      case "closing-names": return `${t("withLoveAndGratitude", lang)}\n${coupleLabel}`
-      case "closing-message": return tc.closing_message || (lang === "en" ? "A beautiful day becomes even more meaningful because of your presence and prayers. Thank you for being part of our happiness." : "Hari yang indah menjadi lebih bermakna karena kehadiran dan doa restu Anda. Terima kasih telah menjadi bagian dari kebahagiaan kami.")
-      case "story-title": return tc.love_story_title || t("secStory", lang)
-      case "honored-title": return tc.inviting_title || t("secInviting", lang)
+      case "wishes-title": return c.wishesTitle
+      case "gift-title": return c.giftTitle
+      case "gallery-title": return c.galleryTitle
+      case "video-title": return c.videoTitle
+      case "closing-title": return c.closingTitle
+      case "closing-names": return `${c.withLove}\n${coupleLabel}`
+      case "closing-message": return tc.closing_message || c.closingMessage
+      case "story-title": return c.storyTitle
+      case "honored-title": return c.honoredTitle
       case "story-list":
         return (
           <ol className="aj-chapters">
@@ -418,10 +482,10 @@ export default function AdatJawa(profile: TemplateProps) {
         <div key={key} className="aj-el aj-countdown" style={style}>
           <div className="aj-countdown__grid">
             {[
-              [countdown?.d ?? "00", t("days", lang)],
-              [countdown?.h ?? "00", t("hours", lang)],
-              [countdown?.m ?? "00", t("minutes", lang)],
-              [countdown?.s ?? "00", t("seconds", lang)],
+              [countdown?.d ?? "00", c.days],
+              [countdown?.h ?? "00", c.hours],
+              [countdown?.m ?? "00", c.minutes],
+              [countdown?.s ?? "00", c.seconds],
             ].map(([value, label]) => (
               <div key={label} className="aj-countdown__cell">
                 <b>{value}</b>
@@ -432,7 +496,7 @@ export default function AdatJawa(profile: TemplateProps) {
           {calendarUrl && (
             <a className="aj-countdown__cta" href={calendarUrl} target="_blank" rel="noopener noreferrer">
               <CalendarIcon />
-              <span>{t("saveToCalendar", lang)}</span>
+              <span>{c.calendar}</span>
             </a>
           )}
         </div>
@@ -448,7 +512,7 @@ export default function AdatJawa(profile: TemplateProps) {
             guestName={profile.guest_name}
             guestLinkStrict={profile.guest_link_strict}
             coupleName={coupleLabel}
-            language={profile.language}
+            lang={lang} language={profile.language}
           />
         </div>
       )
@@ -458,7 +522,7 @@ export default function AdatJawa(profile: TemplateProps) {
       return (
         <div key={key} className="aj-el aj-widget" style={style}>
           {hasGift ? (
-            <Gift accounts={accounts} address={giftAddress} addressName={profile.gift_address_name} intro={tc.gift_intro_description || (lang === "en" ? "For those who wish to send a token of love, the details are available below." : "Bagi Anda yang ingin memberikan tanda kasih, detailnya tersedia di bawah ini.")} language={profile.language} onCopy={copy} />
+            <Gift accounts={accounts} address={giftAddress} addressName={profile.gift_address_name} intro={tc.gift_intro_description || c.giftIntro} lang={lang} onCopy={copy} />
           ) : null}
         </div>
       )
@@ -477,7 +541,7 @@ export default function AdatJawa(profile: TemplateProps) {
       if (!session || !session.maps_url) return null
       return (
         <a key={key} className="aj-el aj-map" style={style} href={session.maps_url} target="_blank" rel="noopener noreferrer">
-          {t("viewLocation", lang)}
+          {c.seeLocation}
         </a>
       )
     }
@@ -495,7 +559,7 @@ export default function AdatJawa(profile: TemplateProps) {
 
     if (e.role === "video") {
       if (!hasVideo) return null
-      return <div key={key} className="aj-el aj-video" style={style}><iframe src={videoEmbed} title={lang === "en" ? "Our wedding film" : "Film pernikahan kami"} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
+      return <div key={key} className="aj-el aj-video" style={style}><iframe src={videoEmbed} title={c.noVideo} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
     }
 
     if (e.role === "cover-photo") {
@@ -540,14 +604,17 @@ export default function AdatJawa(profile: TemplateProps) {
       <div className="aj-root aj-gate" style={{ backgroundImage: `url(${gate.background})` }}>
         {hasTrack && <audio src={trackUrl} loop preload="metadata" data-warm-audio="" />}
         <div className="aj-gate__scrim" aria-hidden="true" />
+        <div className="aj-gate__lang">
+          <button type="button" onClick={() => setLang((v) => (v === "EN" ? "ID" : "EN"))}>{lang}</button>
+        </div>
         <div className="aj-gate__content">
-          <p className="aj-gate__kicker">{tc.cover_kicker || t("theWeddingOf", lang)}</p>
+          <p className="aj-gate__kicker">{c.gateKicker}</p>
           <h1 className="aj-gate__names">{groomShort} <span>&amp;</span> {brideShort}</h1>
           <p className="aj-gate__date">{gateDate}</p>
         </div>
-        <p className="aj-gate__guest">{lang === "en" ? "Dear" : "Kepada"},<br /><b>{guestName}</b></p>
+        <p className="aj-gate__guest">{lang === "ID" ? "Kepada" : "Dear"},<br /><b>{guestName}</b></p>
         <button type="button" className="aj-gate__button" onClick={openInvitation}>
-          <span>{t("openInvitation", lang)}</span>
+          <span>{c.open}</span>
           <EnvelopeIcon />
         </button>
       </div>
@@ -563,6 +630,10 @@ export default function AdatJawa(profile: TemplateProps) {
       <div className="aj-desktop-cover" aria-hidden="true">
         <img src={A("cover-desktop.webp")} alt="" />
         <h1 className="aj-desktop-cover__names">{groomShort} &amp; {brideShort}</h1>
+      </div>
+
+      <div className="aj-lang">
+        <button type="button" onClick={() => setLang((v) => (v === "EN" ? "ID" : "EN"))}>{lang}</button>
       </div>
 
       <div className="aj-shell" ref={shellRef}>
@@ -595,16 +666,16 @@ export default function AdatJawa(profile: TemplateProps) {
         })}
 
         <footer className="aj-footer">
-          <a href={`https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`} target="_blank" rel="noopener noreferrer" aria-label={lang === "en" ? "Contact Aksaraa Wedding via WhatsApp" : "Hubungi Aksaraa Wedding via WhatsApp"} className="aj-footer__link">
+          <a href={`https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`} target="_blank" rel="noopener noreferrer" aria-label="Hubungi Aksaraa Wedding via WhatsApp" className="aj-footer__link">
             <span className="aj-footer__badge"><img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="aj-footer__logo" draggable={false} /></span>
-            <span className="aj-footer__cta">{t("weddingInvitationByAksaraa", lang)}</span>
+            <span className="aj-footer__cta">Wedding by Aksaraa</span>
           </a>
           <p className="aj-footer__text">© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
         </footer>
       </div>
 
       {hasTrack && (
-        <button type="button" className={`aj-music${playing ? " is-playing" : ""}`} onClick={toggleMusic} aria-label={t("playPauseMusic", lang)}>
+        <button type="button" className={`aj-music${playing ? " is-playing" : ""}`} onClick={toggleMusic} aria-label={playing ? "Pause music" : "Play music"}>
           <span className="aj-music__disc" />
           <span className="aj-music__note">{playing ? "❚❚" : "♪"}</span>
         </button>
@@ -614,14 +685,14 @@ export default function AdatJawa(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="aj-lightbox" onClick={() => setLightbox(null)}>
-          <button type="button" className="aj-lightbox__close" onClick={() => setLightbox(null)} aria-label={t("closeGallery", lang)}>×</button>
+          <button type="button" className="aj-lightbox__close" onClick={() => setLightbox(null)} aria-label="Close">×</button>
           <span className="aj-lightbox__count">{lightbox + 1} / {gallery.length}</span>
           {gallery.length > 1 && (
-            <button type="button" className="aj-lightbox__nav aj-lightbox__nav--prev" onClick={(ev) => { ev.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label={t("prevPhoto", lang)}>‹</button>
+            <button type="button" className="aj-lightbox__nav aj-lightbox__nav--prev" onClick={(ev) => { ev.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label="Previous">‹</button>
           )}
           <img src={gallery[lightbox]} alt="" onClick={(ev) => ev.stopPropagation()} />
           {gallery.length > 1 && (
-            <button type="button" className="aj-lightbox__nav aj-lightbox__nav--next" onClick={(ev) => { ev.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label={t("nextPhoto", lang)}>›</button>
+            <button type="button" className="aj-lightbox__nav aj-lightbox__nav--next" onClick={(ev) => { ev.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label="Next">›</button>
           )}
         </div>
       )}
@@ -634,7 +705,6 @@ export default function AdatJawa(profile: TemplateProps) {
           guestName={guestName}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
-          language={profile.language}
           guestQrUrl={profile.guest_qr_url}
           guestTableNumber={profile.guest_table_number}
           guestRsvpStatus={profile.guest_rsvp_status}

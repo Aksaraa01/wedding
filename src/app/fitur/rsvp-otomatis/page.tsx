@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/lib/site"
 import type { Metadata } from "next"
 import Navigation from "@/components/Navigation"
 import Link from "next/link"
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: "RSVP Otomatis: Konfirmasi Kehadiran Digital",
   description:
     "RSVP otomatis pernikahan: tamu konfirmasi lewat HP, rekap real-time di dashboard, export Excel untuk katering, notifikasi WA.",
-  alternates: { canonical: "https://wedding.aksaraa.com/fitur/rsvp-otomatis" },
+  alternates: { canonical: `${siteOrigin()}/fitur/rsvp-otomatis` },
   openGraph: {
     title: "RSVP Otomatis Pernikahan | Aksaraa",
     description:

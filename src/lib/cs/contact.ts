@@ -3,6 +3,9 @@
 // Satu sumber kebenaran: notifikasi internal dan balasan ke klien memakai nomor
 // yang sama. Guard memblokir nomor HP selain milik penerima, jadi balasan yang
 // menyebut nomor ini harus lewat jalur deterministik (bukan output model).
+
+import { siteOrigin } from "@/lib/site"
+
 export const CS_WHATSAPP = "6281161613071"
 
 export function csWhatsAppUrl(context?: string): string {
@@ -30,7 +33,7 @@ export function paymentInstructionsReply(options: PaymentReplyOptions = {}): str
   const registered = options.registered !== false
   const registerUrl = options.kids
     ? "https://ceriavite.aksaraa.com/daftar"
-    : "https://wedding.aksaraa.com/register"
+    : `${siteOrigin()}/register`
 
   const lines = [
     "Untuk pembayaran paket, silakan transfer ke salah satu rekening berikut:",
@@ -59,7 +62,7 @@ export function paymentInstructionsReply(options: PaymentReplyOptions = {}): str
   return lines.join("\n")
 }
 
-export function templateGalleryReply(kids: boolean, baseUrl = "https://wedding.aksaraa.com"): string {
+export function templateGalleryReply(kids: boolean): string {
   if (kids) {
     return [
       "Semua desain Ceriavite (khitanan, aqiqah, ulang tahun) bisa dilihat di:",
@@ -68,7 +71,7 @@ export function templateGalleryReply(kids: boolean, baseUrl = "https://wedding.a
       'Kalau mau, sebutkan acaranya (khitanan/aqiqah/ulang tahun) biar aku bantu pilihkan.',
     ].join("\n")
   }
-  const base = baseUrl.replace(/\/$/, "")
+  const base = siteOrigin()
   return [
     "Semua template undangan pernikahan bisa dilihat di galeri ini:",
     `${base}/templates`,
@@ -91,7 +94,7 @@ export function premiumTemplateReply(): string {
     'Kalau di dashboard ada label Premium di sudut desain, artinya desain itu belum termasuk paket Kakak.',
     '',
     'Buka galeri lalu pilih filter Premium:',
-    'https://wedding.aksaraa.com/templates',
+    `${siteOrigin()}/templates`,
   ].join("\n")
 }
 

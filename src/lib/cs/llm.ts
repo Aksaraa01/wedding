@@ -51,7 +51,7 @@ export async function chatCompletion(request: LlmRequest): Promise<LlmResult> {
     headers: {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://wedding.aksaraa.com",
+      "HTTP-Referer": (process.env.NEXT_PUBLIC_SITE_URL || "https://wedding.aksaraa.com").replace(/\/+$/, ""),
       "X-Title": "Aksaraa CS",
     },
     body: JSON.stringify({

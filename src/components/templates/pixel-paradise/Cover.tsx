@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import { FONT_PIXEL } from "../shared/Skin"
 import { initialsGlyphs, monogramFontSize } from "../shared/lib"
@@ -35,7 +34,6 @@ export default function PixelCover({
   couple_initials,
   onOpen,
   backgroundUrl,
-  language,
 }: {
   groom_name?: string
   bride_name?: string
@@ -43,9 +41,7 @@ export default function PixelCover({
   couple_initials?: string
   onOpen: () => void
   backgroundUrl?: string
-  language?: string
 }) {
-  const lang = normalizeLanguage(language)
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -86,7 +82,7 @@ export default function PixelCover({
           <CoinSeal initials={couple_initials || ""} />
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-[#38bdf8]/40 bg-[#38bdf8]/10 backdrop-blur-md mb-5 shadow-[0_0_12px_rgba(56,189,248,0.25)]">
             <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-[#8ed5ff]" style={{ ...PIXEL, textShadow: "0 0 8px rgba(56,189,248,0.8)" }}>
-              ✦ {t("theWeddingOf", lang).toUpperCase()} ✦
+              ✦ THE WEDDING OF ✦
             </span>
           </div>
           <h1 className="flex flex-col items-center gap-1 leading-tight">
@@ -94,7 +90,7 @@ export default function PixelCover({
               className="text-[24px] sm:text-[34px] md:text-[40px] font-bold text-white uppercase"
               style={{ ...PIXEL, textShadow: "0 0 12px #38bdf8, 0 0 24px #00668a" }}
             >
-              {groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")}
+              {groom_name || "Mempelai Pria"}
             </span>
             <div className="my-1 flex items-center gap-3">
               <span className="h-[2px] w-8 sm:w-16 bg-gradient-to-r from-transparent via-[#ffc640] to-transparent" />
@@ -107,7 +103,7 @@ export default function PixelCover({
               className="text-[24px] sm:text-[34px] md:text-[40px] font-bold text-white uppercase"
               style={{ ...PIXEL, textShadow: "0 0 12px #f472b6, 0 0 24px #db2777" }}
             >
-              {bride_name || (lang === "en" ? "The Bride" : "Mempelai Wanita")}
+              {bride_name || "Mempelai Wanita"}
             </span>
           </h1>
         </div>
@@ -116,10 +112,10 @@ export default function PixelCover({
         <div className="w-full max-w-md flex flex-col items-center gap-3 z-20 pb-4">
           <div className="w-full text-center mb-1 px-5 py-3 rounded-xl bg-[#090e1c]/80 border border-[#38bdf8]/40 backdrop-blur-md shadow-[0_0_20px_rgba(56,189,248,0.25)]">
             <p className="text-[9px] uppercase tracking-[0.2em] text-[#8ed5ff]/80 mb-1.5" style={PIXEL}>
-              {lang === "en" ? "Dear Mr./Mrs./Ms." : "Kepada Yth. Bapak/Ibu/Saudara/i"}
+              Kepada Yth. Bapak/Ibu/Saudara/i
             </p>
             <p className="text-[14px] font-semibold tracking-wide text-white" style={{ ...PIXEL, textShadow: "0 0 8px rgba(56,189,248,0.6)" }}>
-              {guest_name || t("honoredGuest", lang)}
+              {guest_name || "Tamu Undangan"}
             </p>
           </div>
           <button
@@ -131,7 +127,7 @@ export default function PixelCover({
               <span className="material-symbols-outlined text-[16px]">mail</span>
             </span>
             <span className="text-[11px] tracking-wider text-[#dee2f6] group-hover:text-[#c4e7ff] transition-colors font-semibold" style={PIXEL}>
-              {t("openInvitation", lang)}
+              Buka Undangan
             </span>
             <span className="material-symbols-outlined text-[#8ed5ff] text-[18px] group-hover:translate-x-1 transition-transform duration-300">arrow_forward</span>
           </button>

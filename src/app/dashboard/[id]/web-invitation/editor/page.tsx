@@ -271,7 +271,7 @@ function EditorInner({ id }: { id: string }) {
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
   const [syncError, setSyncError] = useState<string | null>(null)
   const [photoQuota, setPhotoQuota] = useState<number | null>(null)
-  const [activeSection, setActiveSection] = useState<string>("bahasa")
+  const [activeSection, setActiveSection] = useState<string>("sampul")
   const [openExtraGroup, setOpenExtraGroup] = useState<string | null>(null)
   const [colorEdit, setColorEdit] = useState<{ index: number; hex: string } | null>(null)
   const [openingCustomMode, setOpeningCustomMode] = useState(false)
@@ -1917,18 +1917,15 @@ function EditorInner({ id }: { id: string }) {
                 <div className="mt-6 space-y-4">
                   <div>
                     <label className="block font-label-md text-[10px] tracking-widest text-on-surface-variant mb-2">BAHASA UNDANGAN</label>
-                    <div className="relative">
-                      <select
-                        className="input-editorial w-full font-body-md text-[14px] cursor-pointer appearance-none pr-10 bg-white"
-                        value={data.language === "en" ? "en" : "id"}
-                        onChange={(e) => updateField("language", e.target.value === "en" ? "en" : "id")}
-                        disabled={isPublished || reviewMode}
-                      >
-                        <option value="id">Bahasa Indonesia</option>
-                        <option value="en">English</option>
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant pointer-events-none">expand_more</span>
-                    </div>
+                    <select
+                      className="input-editorial w-full font-body-md text-[14px]"
+                      value={data.language === "en" ? "en" : "id"}
+                      onChange={(e) => updateField("language", e.target.value === "en" ? "en" : "id")}
+                      disabled={isPublished || reviewMode}
+                    >
+                      <option value="id">Bahasa Indonesia</option>
+                      <option value="en">English</option>
+                    </select>
                   </div>
                   <p className="font-body-md text-[12px] text-on-surface-variant leading-relaxed">
                     Seluruh undangan akan tampil dalam bahasa ini untuk semua tamu.
