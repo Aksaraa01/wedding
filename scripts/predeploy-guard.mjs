@@ -224,14 +224,29 @@ ok(`bundle identity: ${manifest.env} @ ${String(manifest.commit).slice(0, 7)} ($
 // ---------- 2a. prod gate: only verified, non-rejected staging ancestry ----------
 const allowUnverified = args.includes("--allow-unverified")
 if (expectTarget === "prod") {
-  const ledgerPath = ".release-ledger.jsonl"
-  const ledgerPathAlt = "releases/ledger.jsonl"
-  const ledgerFile = existsSync(ledgerPath) ? ledgerPath : existsSync(ledgerPathAlt) ? ledgerPathAlt : null
-  if (!ledgerFile) {
-    if (allowUnverified) console.warn("! no release ledger found — skipping prod verification gate (--allow-unverified)")
-    else fail("no release ledger (releases/ledger.jsonl). Verify the commit on staging first, or pass --allow-unverified for an emergency.")
+  // The ledger lives on main, not in the build tree: a ledger commit on prod
+  // would move the tip after it was rehearsed, so the next build could never
+  // satisfy its own gate. Read it from a ref instead (default origin/main).
+  const ledgerRefIdx = args.indexOf("--ledger-ref")
+  const ledgerRef = ledgerRefIdx >= 0 ? args[ledgerRefIdx + 1] : "origin/main"
+  let ledgerText = null
+  try {
+    ledgerText = execSync(`git show ${ledgerRef}:releases/ledger.jsonl`, {
+      encoding: "utf8",
+      env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+  } catch {
+    /* ref or file missing */
+  }
+  if (ledgerText === null) {
+    try { ledgerText = readFileSync("releases/ledger.jsonl", "utf8") } catch { ledgerText = null }
+  }
+  if (ledgerText === null) {
+    if (allowUnverified) console.warn(`! no release ledger at ${ledgerRef}:releases/ledger.jsonl — skipping prod verification gate (--allow-unverified)`)
+    else fail(`no release ledger at ${ledgerRef}:releases/ledger.jsonl. Verify the commit on staging first, or pass --allow-unverified for an emergency.`)
   } else {
-    const entries = readFileSync(ledgerFile, "utf8").split("\n").filter(Boolean).flatMap((l) => { try { return [JSON.parse(l)] } catch { return [] } })
+    const entries = ledgerText.split("\n").filter(Boolean).flatMap((l) => { try { return [JSON.parse(l)] } catch { return [] } })
     const verifiedStaging = entries.filter((e) => e.env === "staging" && e.state === "verified")
     const tip = verifiedStaging[verifiedStaging.length - 1]
     if (!tip) {
