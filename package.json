@@ -17,6 +17,11 @@
     "deploy": "./scripts/deploy.sh",
     "build:env": "node scripts/build-env.mjs",
     "release:drain": "node scripts/release-drain.mjs",
+    "release:verify": "node scripts/release-verify.mjs",
+    "release:reject": "node scripts/release-reject.mjs",
+    "release:status": "node scripts/release-status.mjs",
+    "release:pick": "node scripts/release-pick.mjs",
+    "tree:doctor": "node scripts/tree-doctor.mjs",
     "test:cs:e2e": "node scripts/cs-e2e.mjs",
     "test:cs:coverage": "node --import ./scripts/register-ts-resolve.mjs --experimental-strip-types scripts/cs-widget-coverage.mjs",
     "audit:extras": "node --experimental-strip-types scripts/template-extras-check.mjs"
