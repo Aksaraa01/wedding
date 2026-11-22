@@ -134,6 +134,25 @@ secret that ever appeared in git is compromised: **rotate it**, then purge.
 - Never paste a PAT/token into chat or code; if one is exposed, revoke it in
   GitHub and let Keychain hold the replacement.
 
+### Known open security items (rotate before they expire)
+
+- **Supabase `service_role` JWT** was exposed in the pre-rewrite history and is
+  still the live key. The new `sb_secret_…` API keys are rejected by this project
+  (401 on REST and Auth), so the only path is rotating the **JWT secret** in the
+  dashboard (Project Settings → JWT Signing Keys / JWT secret). That also changes
+  the anon key, so afterwards: update `.env.local.prod`/`.env.build.prod`, the
+  server `.env.production`, `env/contract.mjs` (anon hash), then rebuild and
+  deploy staging and prod. Expect guest pages to need the new anon key.
+- **Cloudflare API token** for Caddy's DNS-01 is invalid (401). Certificates
+  expire 2027-01-27; renewal starts ~2026-12-28. Create a token with
+  `Zone:Read` + `DNS:Edit` on `aksaraa.com`, install it in
+  `/etc/systemd/system/caddy.service.d/override.conf`, then
+  `systemctl daemon-reload && systemctl restart caddy`.
+- Delete `../wedding-prerewrite-*.bundle` (pre-rewrite history with the old
+  secrets) once both rotations above are confirmed.
+- The GitHub PAT used for automation should be short-lived and revoked when the
+  task is done; it is stored in `~/.config/aksaraa/github-token` and Keychain.
+
 ### WordPress Integration (Live WP as Source of Truth)
 WP hosts the Elementor template masters. Each couple gets a **duplicate** of the master (post + linked popups) that is patched with their data via the mu-plugin REST API.
 
