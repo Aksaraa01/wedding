@@ -73,7 +73,8 @@ Two install/upgrade traps on this repo:
   `NODE_ENV`/`PORT`/`HOSTNAME`), and after editing `.env.production` do a one-time
   `pm2 delete <app> && pm2 start ecosystem.config.js --only <app> --update-env`
   so PM2 drops the stale snapshot. `startOrRestart` alone preserves stored values.
-  Verify with `/api/health/env` (it reports secret fingerprints, not values).
+  `npm run deploy` now does **delete + start** on every reload and then asserts
+  that PM2 stores 0 secret variables, so this cannot regress silently.
 
 ### Supabase Storage
 - Bucket: `media`, folder prefix: `seeded/`

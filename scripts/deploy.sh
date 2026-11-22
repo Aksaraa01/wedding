@@ -389,8 +389,22 @@ EOS
 }
 drain_wp_worker
 
-step "Reload PM2 (ecosystem, --update-env)"
-ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
+# delete + start, not startOrRestart: PM2 keeps the env snapshot from the first
+# start, and Node's --env-file never overrides an existing variable. A stale
+# snapshot (the old ecosystem injected secrets inline) makes the process run
+# values that differ from .env.production — the 2026-11-23 WP 401 incident.
+step "Reload PM2 (delete + start so .env.production is authoritative)"
+ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 delete '$PM2_APP' >/dev/null 2>&1 || true; pm2 start ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
+
+step "Assert PM2 stores no secret env (would shadow .env.production)"
+PM2_SECRET_COUNT="$(ssh "${SSH_OPTS[@]}" "$SERVER" "id=\$(pm2 id '$PM2_APP' 2>/dev/null | grep -o '[0-9]\+' | head -1); pm2 env \$id 2>/dev/null | grep -cE '^(SUPABASE_SERVICE_ROLE_KEY|WP_INTERNAL_SECRET|SCANNER_JWT_SECRET|AUTH_SESSION_SECRET|CRON_SECRET|HEALTH_TOKEN|WA_TARGET_GROUP_JID|OPENROUTER_API_KEY)[[:space:]]*[:=]' || true")"
+if [ "${PM2_SECRET_COUNT:-0}" != "0" ]; then
+  echo "✗ PM2 stores ${PM2_SECRET_COUNT} secret variable(s) for ${PM2_APP}; they shadow .env.production."
+  echo "  Run once: pm2 delete ${PM2_APP} && pm2 start ecosystem.config.js --only ${PM2_APP} --update-env"
+  rollback
+  exit 1
+fi
+echo "  PM2 env is clean (0 stored secrets)"
 
 # Prove the running process is the bundle we just reloaded. The bundle can be on
 # disk while the process is still on the old env/commit (bad reload, wrong env
