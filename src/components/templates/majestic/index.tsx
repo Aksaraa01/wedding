@@ -36,20 +36,8 @@ const BOUQUET = ART("flower-bouquet.webp")
 const CLOSING_ARCH = ART("closing-arch.webp")
 const RINGS = ART("rings.webp")
 
-const ID_MONTHS = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-]
+const ID_MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
+const EN_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"]
 
 const WISH_PAGE = 5
 const WISH_MAX = 500
@@ -117,21 +105,22 @@ function accountOwner(raw?: string): string {
   return /^(a\/n|atas nama)\b/i.test(name) ? name : `a/n ${name}`
 }
 
-function shortUpperDate(value?: string | null): string {
+function shortUpperDate(value?: string | null, lang: "id" | "en" = "id"): string {
   const raw = String(value || "").trim()
   if (!raw) return ""
   const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
   const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(raw)
   if (isNaN(d.getTime())) return ""
-  return `${d.getDate()} ${ID_MONTHS[d.getMonth()]} ${d.getFullYear()}`.toUpperCase()
+  const months = lang === "en" ? EN_MONTHS : ID_MONTHS
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`.toUpperCase()
 }
 
-function ago(iso?: string): string {
+function ago(iso?: string, lang: "id" | "en" = "id"): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "Baru saja"
-  if (minutes < 60) return `${minutes} menit lalu`
+  if (minutes < 1) return lang === "en" ? "Just now" : "Baru saja"
+  if (minutes < 60) return lang === "en" ? `${minutes}m ago` : `${minutes} menit lalu`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `${hours} jam lalu`
   const days = Math.floor(hours / 24)
@@ -590,7 +579,7 @@ export default function Majestic(profile: TemplateProps) {
   const visibleWishes = wishList.slice(wishPageSafe * WISH_PAGE, wishPageSafe * WISH_PAGE + WISH_PAGE)
   const pagerPrev = `${wishesTitle} sebelumnya`
   const pagerNext = `${wishesTitle} berikutnya`
-  const coverDate = shortUpperDate(eventDate)
+  const coverDate = shortUpperDate(eventDate, lang)
 
   const venueMaps = (session: SessionData): string =>
     session.maps_url ||
@@ -1093,7 +1082,7 @@ export default function Majestic(profile: TemplateProps) {
                 <article className="mj-wish" key={wish.id}>
                   <p className="mj-wish__name">{wish.name || guestName}</p>
                   <p className="mj-wish__text">{wish.message}</p>
-                  <span className="mj-wish__time">{ago(wish.created_at)}</span>
+                  <span className="mj-wish__time">{ago(wish.created_at, lang)}</span>
                 </article>
               ))}
               {wishesLoaded && wishPages > 1 && (

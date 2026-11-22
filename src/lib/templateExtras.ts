@@ -1968,6 +1968,82 @@ const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
   "Address copied": "Alamat disalin",
 }
 
+const EXTRA_LABEL_EN_RE: Array<[RegExp, string]> = [
+  [/^Judul Hitung Mundur$/i, "Countdown Title"],
+  [/^Label Hari$/i, "Days Label"],
+  [/^Label Jam$/i, "Hours Label"],
+  [/^Label Menit$/i, "Minutes Label"],
+  [/^Label Detik$/i, "Seconds Label"],
+  [/^Teks Tombol /i, "Button Text: "],
+  [/^Judul /i, "Title: "],
+  [/^Label /i, "Label: "],
+  [/^Pengantar /i, "Intro: "],
+  [/^Kalimat Pengantar /i, "Intro Text: "],
+  [/^Deskripsi /i, "Description: "],
+  [/^Keterangan /i, "Caption: "],
+  [/^Sapaan /i, "Greeting: "],
+  [/^Notifikasi /i, "Toast: "],
+  [/^Pesan /i, "Message: "],
+  [/^Placeholder /i, "Placeholder: "],
+  [/^Teks /i, "Text: "],
+  [/^Nama /i, "Name: "],
+]
+
+function translateExtraLabelToEn(label: string): string {
+  let out = label
+  const replacements: Array<[RegExp, string]> = [
+    [/\bHitung Mundur\b/gi, "Countdown"],
+    [/\bSimpan Tanggal\b/gi, "Save the Date"],
+    [/\bSiaran Langsung\b/gi, "Live Stream"],
+    [/\bTurut Mengundang\b/gi, "With the Blessing of"],
+    [/\bSusunan Acara\b/gi, "Order of Events"],
+    [/\bRangkaian Acara\b/gi, "Order of Events"],
+    [/\bCerita Cinta\b/gi, "Love Story"],
+    [/\bKisah Cinta\b/gi, "Love Story"],
+    [/\bUcapan & Doa\b/gi, "Wishes & Prayers"],
+    [/\bUcapan\b/gi, "Wishes"],
+    [/\bDoa\b/gi, "Prayer"],
+    [/\bHadiah\b/gi, "Gift"],
+    [/\bGaleri\b/gi, "Gallery"],
+    [/\bKutipan\b/gi, "Quote"],
+    [/\bPenutup\b/gi, "Closing"],
+    [/\bPembuka\b/gi, "Opening"],
+    [/\bMempelai\b/gi, "Couple"],
+    [/\bAcara\b/gi, "Event"],
+    [/\bSampul\b/gi, "Cover"],
+    [/\bKontak\b/gi, "Contact"],
+    [/\bAlamat\b/gi, "Address"],
+    [/\bRekening\b/gi, "Account"],
+    [/\bTombol\b/gi, "Button"],
+    [/\bKalender\b/gi, "Calendar"],
+    [/\bPeta\b/gi, "Map"],
+    [/\bLokasi\b/gi, "Location"],
+    [/\bKirim\b/gi, "Send"],
+    [/\bSalin\b/gi, "Copy"],
+    [/\bBuka\b/gi, "Open"],
+    [/\bTutup\b/gi, "Close"],
+    [/\bJudul\b/gi, "Title"],
+    [/\bLabel\b/gi, "Label"],
+    [/\bPengantar\b/gi, "Intro"],
+    [/\bDeskripsi\b/gi, "Description"],
+    [/\bKeterangan\b/gi, "Caption"],
+    [/\bSapaan\b/gi, "Greeting"],
+    [/\bNotifikasi\b/gi, "Toast"],
+    [/\bPesan\b/gi, "Message"],
+    [/\bTamu\b/gi, "Guest"],
+    [/\bWaktu\b/gi, "Time"],
+    [/\bTanggal\b/gi, "Date"],
+    [/\bFoto\b/gi, "Photo"],
+    [/\bVideo\b/gi, "Video"],
+    [/\bMusik\b/gi, "Music"],
+    [/\bLatar\b/gi, "Background"],
+    [/\bWarna\b/gi, "Color"],
+  ]
+  for (const [re, rep] of replacements) out = out.replace(re, rep)
+  out = out.replace(/\s+/g, " ").trim()
+  return out
+}
+
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
   const base = {
     ...field,
@@ -1982,9 +2058,10 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
     return base
   }
   const enPlaceholder = field.placeholdersEn?.[code] ?? field.placeholderEn ?? base.placeholder
+  const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
   return {
     ...base,
-    label: field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? base.label,
+    label: enLabel,
     placeholder: enPlaceholder,
   }
 }

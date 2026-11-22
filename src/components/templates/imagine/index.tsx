@@ -106,16 +106,17 @@ function pads(ms: number) {
   }
 }
 
-function formatDateParts(dateStr?: string | Date) {
+function formatDateParts(dateStr?: string | Date, lang: "id" | "en" = "id") {
   if (!dateStr) return null
   const d = dateStr instanceof Date ? dateStr : new Date(dateStr)
   if (Number.isNaN(d.getTime())) return null
+  const locale = lang === "en" ? "en-US" : "id-ID"
   return {
-    day: d.toLocaleDateString("en-US", { weekday: "long" }),
+    day: d.toLocaleDateString(locale, { weekday: "long" }),
     date: String(d.getDate()),
-    month: d.toLocaleDateString("en-US", { month: "long" }),
+    month: d.toLocaleDateString(locale, { month: "long" }),
     year: String(d.getFullYear()),
-    full: d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+    full: d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
   }
 }
 
@@ -333,7 +334,7 @@ export default function Imagine(props: TemplateProps) {
   // Countdown targets the wedding date only. Once it reaches zero it stays
   // visible as 00 : 00 : 00 : 00 instead of disappearing.
   const countTarget = useMemo(() => parseLocalDate(estimated_wedding_date), [estimated_wedding_date])
-  const dateParts = formatDateParts(estimated_wedding_date)
+  const dateParts = formatDateParts(estimated_wedding_date, lang)
   const remaining = useCountdown(countTarget)
   const count = remaining === null ? null : pads(remaining)
   const ytId = youTubeId(video_url)
@@ -763,7 +764,7 @@ export default function Imagine(props: TemplateProps) {
                       <div className="event-item" key={i}>
                         {(() => {
                           const d = new Date(s.date || estimated_wedding_date || "")
-                          const parts = formatDateParts(s.date || estimated_wedding_date)
+                          const parts = formatDateParts(s.date || estimated_wedding_date, lang)
                           if (!parts) return null
                           return (
                             <div className="event-head">
