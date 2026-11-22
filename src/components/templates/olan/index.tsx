@@ -381,7 +381,7 @@ export default function Olan(profile: TemplateProps) {
                   </h1>
                   {date ? (
                     <p className="date" data-aos="fade-up" data-aos-duration="3000" data-aos-delay="1000">
-                      {date.month} {date.day}{date.ord ? <sup>{date.ord}</sup> : null}, {date.year}
+                      {lang === "en" ? (<>{date.month} {date.day}{date.ord ? <sup>{date.ord}</sup> : null}, {date.year}</>) : (<>{date.day} {date.month} {date.year}</>)}
                     </p>
                   ) : null}
                 </div>
@@ -598,7 +598,7 @@ export default function Olan(profile: TemplateProps) {
                   <h1 className="photo-title" data-aos="fade-up" data-aos-duration="1000">
                     {content.gallery_title || (lang === "en" ? "Portraits of Us" : "Potret Kami")}
                   </h1>
-                  {content.gallery_intro ? <p className="photo-description">{content.gallery_intro}</p> : null}
+                  <p className="photo-description">{content.gallery_intro || (lang === "en" ? "A glimpse of our moments together." : "Sekilas momen kebersamaan kami.")}</p>
                 </div>
                 <div className="photo-body">
                   <div className="photo-box">
@@ -629,11 +629,9 @@ export default function Olan(profile: TemplateProps) {
                   <h1 data-aos="zoom-out-up" data-aos-duration="1000">
                     {content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")}
                   </h1>
-                  {content.video_caption ? (
-                    <p data-aos="fade-up" data-aos-duration="1000">
-                      {content.video_caption}
-                    </p>
-                  ) : null}
+                  <p data-aos="fade-up" data-aos-duration="1000">
+                    {content.video_caption || (lang === "en" ? "A short film of our story." : "Cuplikan singkat kisah kami.")}
+                  </p>
                 </div>
                 <div className="video-outer">
                   <div className="video autoplay-video-box">
@@ -807,11 +805,11 @@ export default function Olan(profile: TemplateProps) {
                   <h2 className="agenda-title" data-aos="zoom-in" data-aos-duration="1500">
                     {content.agenda_title || (lang === "en" ? "Wedding Day" : "Hari Pernikahan")}
                   </h2>
-                  {content.events_intro ? (
-                    <p className="agenda-description" data-aos="fade-up" data-aos-duration="1200">
-                      {content.events_intro}
-                    </p>
-                  ) : null}
+                  <p className="agenda-description" data-aos="fade-up" data-aos-duration="1200">
+                    {content.events_intro || (lang === "en"
+                      ? "With gratitude and joy, we invite you to celebrate our wedding day."
+                      : "Dengan rasa syukur dan bahagia, kami mengundang Anda untuk merayakan hari pernikahan kami.")}
+                  </p>
                 </div>
                 <div className="agenda-body">
                   {sessions.map((session, index) => {
@@ -824,7 +822,7 @@ export default function Olan(profile: TemplateProps) {
                               {sd.weekday}
                             </h3>
                             <h2 className="event-date" data-aos="fade-up" data-aos-duration="1000">
-                              {sd.month} {sd.day}{sd.ord ? <sup>{sd.ord}</sup> : null}, {sd.year}
+                              {lang === "en" ? (<>{sd.month} {sd.day}{sd.ord ? <sup>{sd.ord}</sup> : null}, {sd.year}</>) : (<>{sd.day} {sd.month} {sd.year}</>)}
                             </h2>
                           </div>
                         ) : null}
@@ -1240,7 +1238,7 @@ export default function Olan(profile: TemplateProps) {
                   <h1 className="wedding-wish-title" data-aos="fade-up" data-aos-duration="1200">
                     {content.wishes_title || t("secWishes", lang)}
                   </h1>
-                  {content.wishes_intro ? <p className="olan-wish-intro">{content.wishes_intro}</p> : null}
+                  <p className="olan-wish-intro">{content.wishes_intro || (lang === "en" ? "Leave your warm wishes and prayers for us." : "Tinggalkan ucapan dan doa terbaik untuk kami.")}</p>
                 </div>
                 <div className="wedding-wish-body">
                   <Wishes
@@ -1305,8 +1303,7 @@ export default function Olan(profile: TemplateProps) {
                 </h2>
                 {date ? (
                   <p className="date" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
-                    {date.month} {date.day}
-                    {date.ord ? <sup>{date.ord}</sup> : null}, {date.year}
+                    {lang === "en" ? (<>{date.month} {date.day}{date.ord ? <sup>{date.ord}</sup> : null}, {date.year}</>) : (<>{date.day} {date.month} {date.year}</>)}
                   </p>
                 ) : null}
                 {profile.display_name ? (
