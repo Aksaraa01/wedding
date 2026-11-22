@@ -36,7 +36,7 @@ TARGET="prod"
 SKIP_GUARD=0; NO_ROLLBACK=0
 GUARD_REF=""
 GUARD_SITE_URL=""
-GUARD_BRANCH="${GUARD_BRANCH:-main}"
+GUARD_BRANCH="${GUARD_BRANCH:-}"
 SMOKE_BASE=""
 
 args=("$@")
@@ -53,7 +53,7 @@ while [ $i -lt ${#args[@]} ]; do
     --site-url)
       i=$((i + 1)); GUARD_SITE_URL="${args[$i]:-}" ;;
     --branch)
-      i=$((i + 1)); GUARD_BRANCH="${args[$i]:-main}" ;;
+      i=$((i + 1)); GUARD_BRANCH="${args[$i]:-}" ;;
     --base)
       i=$((i + 1)); SMOKE_BASE="${args[$i]:-}" ;;
   esac
@@ -66,11 +66,15 @@ if [ "$TARGET" = "staging" ]; then
   : "${GUARD_REF:=jclolnjkjhyjilvymagr}"
   : "${GUARD_SITE_URL:=https://wedding-stg.aksaraa.com}"
   : "${SMOKE_BASE:=https://wedding-stg.aksaraa.com}"
+  # Staging normally deploys the main tip; a prod-branch rehearsal passes --branch prod.
+  : "${GUARD_BRANCH:=main}"
 else
   REMOTE="${REMOTE:-/var/www/aksara-wedding}"
   PM2_APP="aksara-wedding"
   : "${GUARD_REF:=ylmfgorryxzpdckkebnr}"
   : "${SMOKE_BASE:=https://wedding.aksaraa.com}"
+  # Prod is the release-train branch, never main.
+  : "${GUARD_BRANCH:=prod}"
 fi
 
 SNAP="$REMOTE/.next/.deploy-snapshot"

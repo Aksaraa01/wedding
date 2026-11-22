@@ -389,7 +389,7 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
    ```bash
    set -a; source .env.build.prod; set +a
    npm run build:env -- --env prod
-   npm run deploy -- --target prod
+   npm run deploy -- --target prod --branch prod
    ```
 
 ### Production testing policy
@@ -408,7 +408,7 @@ git push origin main
 git fetch origin && git status -sb        # HEAD must be exactly origin/main
 set -a; source .env.build.prod; set +a   # NEXT_PUBLIC_* only; never source .env.local
 npm run build:env -- --env prod
-npm run deploy -- --target prod
+npm run deploy -- --target prod --branch prod
 ```
 
 `npm run deploy` runs, in order:
@@ -440,7 +440,7 @@ is additive, so whatever version is live keeps serving until the PM2 reload.
 > git fetch origin && git worktree add --detach /tmp/build origin/main
 > cd /tmp/build && cp -Rc "$OLDPWD/node_modules" ./node_modules
 > set -a; source /path/to/repo/.env.build.prod; set +a
-> npm run build:env -- --env prod && npm run deploy -- --target prod
+> npm run build:env -- --env prod && npm run deploy -- --target prod --branch prod
 > ```
 > Never bypass the guard or the lock (`--allow-stale`, `--allow-dirty`,
 > `--skip-build-check`) unless the other agent is confirmed stopped. If the lock
