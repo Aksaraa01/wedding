@@ -147,13 +147,16 @@ secret that ever appeared in git is compromised: **rotate it**, then purge.
 
 ### Known open security items (rotate before they expire)
 
-- **Supabase `service_role` JWT** was exposed in the pre-rewrite history and is
-  still the live key. The new `sb_secret_…` API keys are rejected by this project
-  (401 on REST and Auth), so the only path is rotating the **JWT secret** in the
-  dashboard (Project Settings → JWT Signing Keys / JWT secret). That also changes
-  the anon key, so afterwards: update `.env.local.prod`/`.env.build.prod`, the
-  server `.env.production`, `env/contract.mjs` (anon hash), then rebuild and
-  deploy staging and prod. Expect guest pages to need the new anon key.
+- **Supabase `service_role` (prod) — RESOLVED 2026-11-23.** The leaked legacy JWT
+  was replaced with a **secret key** (`sb_secret_…`) in
+  `/var/www/aksara-wedding/.env.production`, `.env.runtime.prod` and
+  `.env.local.prod`, then the legacy keys were disabled for the project
+  (`PUT /api-keys/legacy {enabled:false}`). The leaked JWT now answers
+  `401 Legacy API keys are disabled`; the old legacy `anon` JWT also 401s. The
+  app never uses the anon key (0 client/server `supabase.from` calls outside
+  `supabaseAdmin`), which is why no rebuild was needed. **Staging is still on
+  legacy keys** — migrate it with the same procedure before Supabase's end-2026
+  deprecation.
 - **Cloudflare API token** for Caddy's DNS-01 is invalid (401). Certificates
   expire 2027-01-27; renewal starts ~2026-12-28. Create a token with
   `Zone:Read` + `DNS:Edit` on `aksaraa.com`, install it in
