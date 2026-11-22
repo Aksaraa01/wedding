@@ -64,6 +64,16 @@ Two install/upgrade traps on this repo:
 - Node.js 22 via nvm (`/home/askaraa/.nvm/versions/node/v22.23.2/bin/node`)
 - Standalone output: `.next/standalone/server.js` + `.next/standalone/.next/static/` + `.next/standalone/public/`
 - PM2 env: the server `.env.production` (chmod 600) is loaded with `node_args: ["--env-file=…/.env.production"]`; `.env.local` is NOT loaded in standalone mode. The versioned templates are `ecosystem.prod.config.cjs` / `ecosystem.staging.config.cjs`.
+- **PM2 env shadowing (2026-11-23 incident).** Node's `--env-file` does **not**
+  override variables already present in the process environment, and PM2 keeps
+  the env snapshot it captured when the app first started. The old ecosystem
+  injected secrets inline, so after rotating `WP_INTERNAL_SECRET` the process
+  kept the old value and every WP sync returned 401 while the file on disk was
+  correct. Fix: never put secrets in the ecosystem `env` block (only
+  `NODE_ENV`/`PORT`/`HOSTNAME`), and after editing `.env.production` do a one-time
+  `pm2 delete <app> && pm2 start ecosystem.config.js --only <app> --update-env`
+  so PM2 drops the stale snapshot. `startOrRestart` alone preserves stored values.
+  Verify with `/api/health/env` (it reports secret fingerprints, not values).
 
 ### Supabase Storage
 - Bucket: `media`, folder prefix: `seeded/`
