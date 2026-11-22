@@ -7,3 +7,9 @@ out
 supabase/.temp
 .env.*.local
 .env.*.prod
+# Split by purpose: buildPublic (baked by NEXT_PUBLIC_*), runtime secrets
+# (injected by PM2 --env-file), and ops management tokens (never sourced for a
+# build or a deploy).
+.env.build.*
+.env.runtime.*
+.env.ops

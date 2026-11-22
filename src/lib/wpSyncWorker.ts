@@ -474,18 +474,65 @@ async function processJob(job: NonNullable<Awaited<ReturnType<typeof claimNext>>
 
 let workerStarted = false
 let running = 0
+let paused = false
 
-export function startWpSyncWorker() {
+export function wpSyncWorkerState() {
+  return { started: workerStarted, paused, running, concurrency: CONCURRENCY }
+}
+
+// Used by the deploy drain: stop claiming new jobs, let the in-flight ones
+// finish, then reload. The flag is in-memory, so the reload clears it.
+export function pauseWpSyncWorker() {
+  if (!paused) console.log("[wpSync] paused (deploy drain)")
+  paused = true
+}
+
+export function resumeWpSyncWorker() {
+  if (paused) console.log("[wpSync] resumed")
+  paused = false
+}
+
+// A deploy kills this process; any row still in `processing` belongs to a
+// process that no longer exists. claimNext() reclaims those only after STALE_MS
+// (5 min), and hasOpenWpChain() refuses that couple's template change with a
+// 409 until then. Reclaim immediately on boot.
+//
+// Safe because the app runs a single instance (PM2 exec_mode: fork,
+// instances: 1). Set WP_RECLAIM_ON_BOOT=false before running more than one.
+async function reclaimStuckJobsOnBoot(): Promise<number> {
+  if (process.env.WP_RECLAIM_ON_BOOT === "false") return 0
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("wp_sync_jobs")
+      .update({ status: "queued", started_at: null, updated_at: new Date().toISOString() })
+      .eq("status", "processing")
+      .select("id")
+    if (error) {
+      console.warn("[wpSync] boot reclaim failed:", error.message)
+      return 0
+    }
+    const n = data?.length ?? 0
+    if (n > 0) console.log(`[wpSync] reclaimed ${n} job(s) stuck in processing`)
+    return n
+  } catch (err) {
+    console.warn("[wpSync] boot reclaim error:", err instanceof Error ? err.message : err)
+    return 0
+  }
+}
+
+export async function startWpSyncWorker() {
   if (workerStarted) return
   if (!WP_ORIGIN || !WP_SECRET) {
     console.warn("[wpSync] WP_ORIGIN / WP_INTERNAL_SECRET not configured — worker disabled")
     return
   }
   workerStarted = true
+  await reclaimStuckJobsOnBoot()
   console.log(`[wpSync] worker started (concurrency=${CONCURRENCY}, poll=${POLL_MS}ms)`)
 
   const tick = async () => {
     let claimed = 0
+    if (paused) return claimed
     while (running < CONCURRENCY) {
       const job = await claimNext()
       if (!job) break

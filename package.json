@@ -15,6 +15,8 @@
     "deploy:guard": "node scripts/predeploy-guard.mjs",
     "deploy:smoke": "node scripts/postdeploy-smoke.mjs",
     "deploy": "./scripts/deploy.sh",
+    "build:env": "node scripts/build-env.mjs",
+    "release:drain": "node scripts/release-drain.mjs",
     "test:cs:e2e": "node scripts/cs-e2e.mjs",
     "test:cs:coverage": "node --import ./scripts/register-ts-resolve.mjs --experimental-strip-types scripts/cs-widget-coverage.mjs",
     "audit:extras": "node --experimental-strip-types scripts/template-extras-check.mjs"

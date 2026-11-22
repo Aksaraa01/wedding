@@ -18,7 +18,9 @@
  *   node scripts/predeploy-guard.mjs --sync-only     # git checks only (post-rsync)
  */
 import { execSync } from "node:child_process"
+import { createHash } from "node:crypto"
 import { readFileSync, existsSync } from "node:fs"
+import { CONTRACT } from "../env/contract.mjs"
 
 const args = process.argv.slice(2)
 const allowStale = args.includes("--allow-stale")
@@ -27,10 +29,17 @@ const allowDirty = args.includes("--allow-dirty")
 // --sync-only re-runs just the git checks (used after the rsync to catch a push
 // that landed while the deploy was copying files).
 const syncOnly = args.includes("--sync-only")
+const targetIdx = args.indexOf("--target")
+const expectTarget = targetIdx >= 0 ? args[targetIdx + 1] : "prod"
 const refIdx = args.indexOf("--ref")
-const expectRef = refIdx >= 0 ? args[refIdx + 1] : "ylmfgorryxzpdckkebnr"
+const expectRef = refIdx >= 0 ? args[refIdx + 1] : CONTRACT[expectTarget]?.ref
 const siteIdx = args.indexOf("--site-url")
 const expectSiteUrl = siteIdx >= 0 ? args[siteIdx + 1] : null
+// Which branch prod/staging is supposed to be built from. `main` until the
+// release train introduces the `prod` branch (phase 5), then deploy passes
+// --branch prod.
+const branchIdx = args.indexOf("--branch")
+const expectBranch = branchIdx >= 0 ? args[branchIdx + 1] : "main"
 
 // Build noise + docs never affect the bundle or the served files.
 const DIRTY_ALLOWLIST = [
@@ -46,37 +55,38 @@ const fail = (msg) => {
 }
 const ok = (msg) => console.log(`✓ ${msg}`)
 
-// ---------- 1. git must not be behind origin/main ----------
+// ---------- 1. git must not be behind origin/<expectBranch> ----------
 if (!allowStale) {
   try {
     execSync("git fetch origin --quiet", { stdio: "ignore", env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" } })
-    const behind = execSync("git rev-list --count HEAD..origin/main", {
+    const upstream = `origin/${expectBranch}`
+    const behind = execSync(`git rev-list --count HEAD..${upstream}`, {
       encoding: "utf8",
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
     if (Number(behind) > 0) {
       fail(
-        `local HEAD is ${behind} commit(s) behind origin/main.\n` +
+        `local HEAD is ${behind} commit(s) behind ${upstream}.\n` +
           `  A deploy from this tree would overwrite newer work (this is what wiped adat-jawa-2).\n` +
-          `  Run: git pull --rebase origin main   (or pass --allow-stale if intentional)`,
+          `  Run: git pull --rebase origin ${expectBranch}   (or pass --allow-stale if intentional)`,
       )
     }
-    const ahead = execSync("git rev-list --count origin/main..HEAD", {
+    const ahead = execSync(`git rev-list --count ${upstream}..HEAD`, {
       encoding: "utf8",
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
     if (!allowAhead && Number(ahead) > 0) {
       fail(
-        `local HEAD is ${ahead} commit(s) ahead of origin/main.\n` +
+        `local HEAD is ${ahead} commit(s) ahead of ${upstream}.\n` +
           `  Push first so other agents cannot build/deploy a tree without your work.\n` +
-          `  Run: git push origin HEAD:main   (or pass --allow-ahead if intentional)`,
+          `  Run: git push origin HEAD:${expectBranch}   (or pass --allow-ahead if intentional)`,
       )
     }
     const head = execSync("git rev-parse --short HEAD", {
       encoding: "utf8",
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
-    ok(`tree in sync with origin/main (HEAD ${head})`)
+    ok(`tree in sync with ${upstream} (HEAD ${head})`)
   } catch (e) {
     if (String(e.message).includes("PREDEPLOY")) throw e
     console.warn("! could not verify git sync (git unavailable) — continuing")
@@ -121,7 +131,97 @@ if (!allowDirty && !syncOnly) {
 // push that landed while files were copying.
 if (syncOnly) process.exit(0)
 
-// ---------- 2. baked Supabase env ----------
+const GIT_ENV = { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" }
+
+// ---------- 2. the bundle must declare which env and which commit it is ----------
+// `next build` also loads `.env.local` (the staging project in this repo), so an
+// unset key silently bakes the wrong environment. The project-ref grep below
+// cannot catch that by itself: src/lib/assets.ts hardcodes the prod project URL
+// and src/components/templates/demoProps.ts hardcodes prod storage URLs, so a
+// staging bundle contains the prod ref too (proven on the Nov 21 build). The
+// manifest is written by scripts/build-env.mjs after validating the whole
+// environment, and its anon-key fingerprint cannot be satisfied by a source
+// literal.
+const buildEnvPath = ".next/build-env.json"
+if (!existsSync(buildEnvPath)) {
+  fail(
+    `no ${buildEnvPath} — this bundle was not built with \`npm run build:env\`.\n` +
+      `  Its environment and commit cannot be proven, so it must not be deployed.\n` +
+      `  Rebuild:\n` +
+      `    set -a; source .env.build.${expectTarget}; set +a\n` +
+      `    npm run build:env -- --env ${expectTarget}`,
+  )
+}
+
+let manifest
+try {
+  manifest = JSON.parse(readFileSync(buildEnvPath, "utf8"))
+} catch (e) {
+  fail(`${buildEnvPath} is not valid JSON: ${e.message}`)
+}
+
+const contract = CONTRACT[expectTarget]
+if (!contract) fail(`unknown target "${expectTarget}" (known: ${Object.keys(CONTRACT).join(", ")})`)
+
+if (manifest.env !== expectTarget) {
+  fail(
+    `bundle was built for "${manifest.env}" but you are deploying "${expectTarget}".\n` +
+      `  This is the failure mode that would bake staging credentials into prod. Rebuild for ${expectTarget}.`,
+  )
+}
+ok(`bundle env is ${manifest.env}`)
+
+if (manifest.dirty !== false) {
+  fail(`bundle was built from a dirty tree (dirty=${manifest.dirty}) — rebuild from a clean commit.`)
+}
+
+const headFull = execSync("git rev-parse HEAD", { encoding: "utf8", env: GIT_ENV }).trim()
+if (manifest.commit !== headFull) {
+  fail(
+    `bundle commit ${String(manifest.commit).slice(0, 7)} does not match HEAD ${headFull.slice(0, 7)}.\n` +
+      `  A build made before a rebase still passes the tree checks and would revert\n` +
+      `  whatever landed in between. Rebuild at HEAD.`,
+  )
+}
+if (manifest.branch !== expectBranch) {
+  fail(`bundle was built on branch "${manifest.branch}", expected "${expectBranch}" — build from ${expectBranch}.`)
+}
+ok(`bundle commit matches HEAD (${headFull.slice(0, 7)} on ${expectBranch})`)
+
+if (contract.anonKeySha256 && manifest.anonKeySha256 !== contract.anonKeySha256) {
+  fail(
+    `bundle anon-key fingerprint ${String(manifest.anonKeySha256).slice(0, 12)}… is not the ${expectTarget} key ` +
+      `(${contract.anonKeySha256.slice(0, 12)}…).\n` +
+      `  The wrong Supabase project was baked. Rebuild with .env.build.${expectTarget}.`,
+  )
+}
+
+const shellAnon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim()
+if (shellAnon) {
+  const shellHash = createHash("sha256").update(shellAnon).digest("hex")
+  if (shellHash !== manifest.anonKeySha256) {
+    fail(
+      "the anon key exported in this shell does not match the bundle's fingerprint.\n" +
+        "  The shell and the bundle are on different Supabase projects — do not deploy.",
+    )
+  }
+}
+ok(`anon-key fingerprint matches ${expectTarget}`)
+
+if (manifest.siteUrl !== contract.buildPublic.NEXT_PUBLIC_SITE_URL) {
+  fail(
+    `bundle site URL is "${manifest.siteUrl}", expected "${contract.buildPublic.NEXT_PUBLIC_SITE_URL}".\n` +
+      `  A staging URL in a prod bundle breaks every generated guest link.`,
+  )
+}
+if (manifest.coupleMode !== contract.buildPublic.NEXT_PUBLIC_COUPLE_URL_MODE) {
+  fail(
+    `bundle couple-link mode is "${manifest.coupleMode}", expected "${contract.buildPublic.NEXT_PUBLIC_COUPLE_URL_MODE}".`,
+  )
+}
+ok(`bundle identity: ${manifest.env} @ ${String(manifest.commit).slice(0, 7)} (${manifest.coupleMode})`)
+
+// ---------- 2b. baked Supabase env (defence in depth) ----------
 const chunkDir = ".next/standalone/.next/server/chunks"
 if (!existsSync(chunkDir)) fail("no .next/standalone build found — run `npm run build` first")
 

@@ -36,6 +36,7 @@ TARGET="prod"
 SKIP_GUARD=0; NO_ROLLBACK=0
 GUARD_REF=""
 GUARD_SITE_URL=""
+GUARD_BRANCH="${GUARD_BRANCH:-main}"
 SMOKE_BASE=""
 
 args=("$@")
@@ -51,6 +52,8 @@ while [ $i -lt ${#args[@]} ]; do
       i=$((i + 1)); GUARD_REF="${args[$i]:-}" ;;
     --site-url)
       i=$((i + 1)); GUARD_SITE_URL="${args[$i]:-}" ;;
+    --branch)
+      i=$((i + 1)); GUARD_BRANCH="${args[$i]:-main}" ;;
     --base)
       i=$((i + 1)); SMOKE_BASE="${args[$i]:-}" ;;
   esac
@@ -90,19 +93,25 @@ trap cleanup_lock EXIT
 
 if [ "$SKIP_GUARD" = "0" ]; then
   step "Pre-deploy guard"
-  guard_args=(--ref "$GUARD_REF")
+  guard_args=(--target "$TARGET" --branch "$GUARD_BRANCH" --ref "$GUARD_REF")
   [ -n "$GUARD_SITE_URL" ] && guard_args+=(--site-url "$GUARD_SITE_URL")
   node scripts/predeploy-guard.mjs "${guard_args[@]}"
 fi
 
 step "Snapshot current server build (for rollback)"
+# Keep three generations: an incident is often noticed only after the next deploy
+# has already replaced the single snapshot the old script kept.
 ssh "${SSH_OPTS[@]}" "$SERVER" "
   set -e
-  rm -rf '$SNAP'
-  mkdir -p '$SNAP'
-  if [ -d '$REMOTE/.next/standalone' ]; then cp -a '$REMOTE/.next/standalone' '$SNAP/standalone'; fi
-  if [ -d '$REMOTE/.next/static' ]; then cp -a '$REMOTE/.next/static' '$SNAP/static'; fi
-  echo \"snapshot: \$(cat '$SNAP/standalone/.next/BUILD_ID' 2>/dev/null || echo none)\"
+  cd '$REMOTE/.next'
+  rm -rf .deploy-snapshot.3
+  [ -d .deploy-snapshot.2 ] && mv .deploy-snapshot.2 .deploy-snapshot.3 || true
+  [ -d .deploy-snapshot.1 ] && mv .deploy-snapshot.1 .deploy-snapshot.2 || true
+  [ -d .deploy-snapshot ] && mv .deploy-snapshot .deploy-snapshot.1 || true
+  mkdir -p .deploy-snapshot
+  if [ -d '$REMOTE/.next/standalone' ]; then cp -a '$REMOTE/.next/standalone' .deploy-snapshot/standalone; fi
+  if [ -d '$REMOTE/.next/static' ]; then cp -a '$REMOTE/.next/static' .deploy-snapshot/static; fi
+  echo \"snapshot: \$(cat .deploy-snapshot/standalone/.next/BUILD_ID 2>/dev/null || echo none)\"
 "
 
 rollback() {
@@ -125,6 +134,7 @@ rollback() {
     pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null
     echo \"rolled back to \$(cat .next/standalone/.next/BUILD_ID 2>/dev/null || echo unknown)\"
   "
+  record_deploy rollback || true
 }
 
 # ---------- sync phase ----------
@@ -213,6 +223,49 @@ ssh "${SSH_OPTS[@]}" "$SERVER" "
   echo \"  .next is now \$(du -sh '$REMOTE/.next' 2>/dev/null | cut -f1)\"
 "
 
+# Deploy history lives next to the app and is append-only. It is the only record
+# of *who* deployed *what* and of rollbacks; RELEASE.json only describes the
+# bundle that happens to be on disk now.
+HIST="$REMOTE/.deploy-history.jsonl"
+record_deploy() { # $1=result
+  local tmp; tmp="$(mktemp)"
+  node -e '
+    const m = require("./.next/build-env.json")
+    console.log(JSON.stringify({
+      at: new Date().toISOString(),
+      env: process.argv[1],
+      result: process.argv[2],
+      commit: m.commit,
+      short: m.short,
+      branch: m.branch,
+      buildId: m.buildId,
+      anonKey: (m.anonKeySha256 || "").slice(0, 12),
+      operator: process.env.USER || process.env.LOGNAME || "unknown",
+    }))
+  ' "$TARGET" "$1" > "$tmp"
+  ssh "${SSH_OPTS[@]}" "$SERVER" "cat >> '$HIST'" < "$tmp" || echo "  ! could not append deploy history"
+  rm -f "$tmp"
+}
+
+LOCAL_COMMIT="$(node -e 'console.log(require("./.next/build-env.json").commit)')"
+LOCAL_BUILD_ENV="$(node -e 'console.log(require("./.next/build-env.json").env)')"
+
+step "Verify the synced bundle carries this commit"
+REMOTE_COMMIT="$(ssh "${SSH_OPTS[@]}" "$SERVER" "cat '$REMOTE/.next/standalone/RELEASE.json' 2>/dev/null" \
+  | tr -d ' \n' | sed -n 's/.*"commit":"\([0-9a-f]\{7,\}\)".*/\1/p')"
+if [ -z "$REMOTE_COMMIT" ]; then
+  echo "✗ $REMOTE/.next/standalone/RELEASE.json is missing or has no commit."
+  echo "  The sync did not land the bundle identity — refusing to reload."
+  rollback
+  exit 1
+fi
+if [ "$REMOTE_COMMIT" != "$LOCAL_COMMIT" ]; then
+  echo "✗ Server bundle is commit ${REMOTE_COMMIT:0:7}, local build is ${LOCAL_COMMIT:0:7}."
+  rollback
+  exit 1
+fi
+echo "  server bundle = ${LOCAL_COMMIT:0:7} (${LOCAL_BUILD_ENV})"
+
 # The pre-deploy guard ran before the copy. A push that lands during the sync
 # makes this build stale (it would leave the server running older code than
 # origin/main). Re-check under the lock before switching the server over.
@@ -231,6 +284,55 @@ fi
 step "Invalidate the persistent route cache"
 ssh "${SSH_OPTS[@]}" "$SERVER" "rm -rf '$REMOTE/.next/standalone/.next/server/route-cache'" || true
 
+# A reload kills the process mid-job. Any wp_sync_jobs row left in `processing`
+# then belongs to a process that no longer exists, and claimNext() only reclaims
+# it after 5 minutes — during which that couple's template change is refused with
+# a 409. Pause the worker and let in-flight jobs finish first; the new process
+# also reclaims stragglers on boot (WP_RECLAIM_ON_BOOT).
+step "Drain WP sync worker (pause, wait for in-flight jobs)"
+# Runs on the host: the secret is resolved there (env file, else PM2's process
+# env) and never crosses to this machine or into the log.
+LOCAL_PORT="$([ "$TARGET" = "staging" ] && echo 3003 || echo 3002)"
+drain_wp_worker() {
+  ssh "${SSH_OPTS[@]}" "$SERVER" "bash -s -- '$REMOTE' '$LOCAL_PORT' '$PM2_APP'" <<'EOS' || true
+set -u
+REMOTE_APP="$1"; PORT="$2"; APP="$3"
+BASE="http://127.0.0.1:${PORT}"
+secret="${WP_INTERNAL_SECRET:-}"
+if [ -z "$secret" ] && [ -f "$REMOTE_APP/.env.production" ]; then
+  secret="$(grep -m1 '^WP_INTERNAL_SECRET=' "$REMOTE_APP/.env.production" 2>/dev/null | cut -d= -f2- || true)"
+fi
+if [ -z "$secret" ]; then
+  id="$(pm2 id "$APP" 2>/dev/null | grep -o '[0-9]\+' | head -1 || true)"
+  if [ -n "$id" ]; then
+    secret="$(pm2 env "$id" 2>/dev/null | grep -m1 '^WP_INTERNAL_SECRET' \
+      | sed -E 's/^WP_INTERNAL_SECRET[[:space:]]*[:=][[:space:]]*//; s/^"//; s/",?[[:space:]]*$//; s/[[:space:]]*$//' || true)"
+  fi
+fi
+if [ -z "$secret" ]; then
+  echo "  ! no WP_INTERNAL_SECRET on the host — skipping pause (boot reclaim still applies)"
+  exit 0
+fi
+if ! curl -fsS --max-time 15 -X POST "$BASE/api/wp/worker" \
+    -H "X-Aksaraa-Secret: $secret" -H "Content-Type: application/json" \
+    -d '{"action":"pause"}' >/dev/null 2>&1; then
+  echo "  ! pause endpoint unavailable (running build predates it) — boot reclaim will handle stragglers"
+  exit 0
+fi
+n=0
+while [ "$n" -lt 30 ]; do
+  proc="$(curl -fsS --max-time 10 "$BASE/api/wp/worker" -H "X-Aksaraa-Secret: $secret" 2>/dev/null \
+    | sed -n 's/.*"processing":\([0-9][0-9]*\).*/\1/p' || true)"
+  if [ -z "$proc" ]; then echo "  ! could not read worker state — continuing"; exit 0; fi
+  if [ "$proc" -eq 0 ]; then echo "  worker idle — safe to reload"; exit 0; fi
+  echo "  waiting: ${proc} job(s) still processing"
+  n=$((n + 1)); sleep 2
+done
+echo "  ! worker still busy after 60s — reloading anyway; boot reclaim will requeue"
+EOS
+}
+drain_wp_worker
+
 step "Reload PM2 (ecosystem, --update-env)"
 ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
 
@@ -243,8 +345,10 @@ if node scripts/postdeploy-smoke.mjs --base "$SMOKE_BASE"; then
     echo "✗ Another deploy replaced this build (local=$LOCAL_BUILD remote=$REMOTE_BUILD)."
     exit 1
   fi
-  step "Deployed successfully — BUILD_ID $LOCAL_BUILD"
-  ssh "${SSH_OPTS[@]}" "$SERVER" "rm -rf '$SNAP'" >/dev/null 2>&1 || true
+  step "Deployed successfully — ${LOCAL_COMMIT:0:7} (BUILD_ID $LOCAL_BUILD)"
+  record_deploy success || true
+  # The snapshot is kept: it becomes .deploy-snapshot.1 on the next deploy, so a
+  # rollback target survives more than one release.
 else
   echo
   echo "✗ Smoke test failed."
