@@ -51,6 +51,5 @@ appendJsonl(ledgerPath, {
 })
 console.log(`✓ tagged ${tag} -> ${short(sha)}`)
 console.log(`\nDeploy it from the tag:\n  git worktree add --detach /tmp/build-${short(sha)} ${tag}`)
-console.log(`  set -a; source .env.build.${env}; set +a`)
-console.log(`  npm run build:env -- --env ${env}`)
+console.log(`  npm run build:env -- --env ${env}      # self-loads .env.build/.env.runtime`)
 console.log(`  npm run deploy -- --target ${env} --commit ${tag}`)
