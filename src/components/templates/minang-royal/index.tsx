@@ -15,21 +15,17 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./minang-royal.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 const A = (name: string) => `/templates/minang-royal/${name}`
 const DEMO_TRACK = "/templates/minang-royal/bergema.mp3"
 const DEFAULT_CLOSING =
   "Family & Friends. From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives."
 
-const DAYS = {
-  id: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
-  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-}
-const MONTHS = {
-  id: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
-  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-}
+const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+const ID_MONTHS = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+]
 
 type Session = NonNullable<TemplateProps["sessions"]>[number]
 
@@ -40,14 +36,14 @@ function parseEventDate(value?: string | null): Date | null {
   return isNaN(d.getTime()) ? null : d
 }
 
-function dayName(value: string | null | undefined, lang: "id" | "en"): string {
+function dayName(value?: string | null): string {
   const d = parseEventDate(value)
-  return d ? DAYS[lang][d.getDay()] : ""
+  return d ? ID_DAYS[d.getDay()] : ""
 }
 
-function longDate(value: string | null | undefined, lang: "id" | "en"): string {
+function longDate(value?: string | null): string {
   const d = parseEventDate(value)
-  return d ? `${d.getDate()} ${MONTHS[lang][d.getMonth()]} ${d.getFullYear()}` : ""
+  return d ? `${d.getDate()} ${ID_MONTHS[d.getMonth()]} ${d.getFullYear()}` : ""
 }
 
 function dotDate(value?: string | null): string {
@@ -118,7 +114,6 @@ function SectionSeparator() {
 }
 
 export default function MinangRoyal(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [opened, setOpened] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -151,8 +146,8 @@ export default function MinangRoyal(profile: TemplateProps) {
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!videoEmbed
   const trackUrl = profile.track_url || (profile.template_demo ? DEMO_TRACK : "")
   const hasTrack = !!trackUrl
-  const guestName = profile.guest_name || t("honoredGuest", lang)
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const guestName = profile.guest_name || "Our Beloved Guest"
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
   const groomFull = profile.groom_full_name || profile.groom_name || ""
   const brideFull = profile.bride_full_name || profile.bride_name || ""
@@ -166,8 +161,8 @@ export default function MinangRoyal(profile: TemplateProps) {
     .map((name) => (name || "").trim()[0] || "")
     .join("")).toUpperCase()
   const monogramCount = initialsGlyphs(monogram).length
-  const dressTitle = profile.dresscode?.title || (lang === "en" ? "Dress Code" : "Dress Code")
-  const dressDesc = profile.dresscode?.description || (lang === "en" ? "Formal Attire" : "Busana Formal")
+  const dressTitle = profile.dresscode?.title || "Dresscode"
+  const dressDesc = profile.dresscode?.description || "Formal Attire"
 
   const openInvitation = useCallback(() => {
     setOpened(true)
@@ -210,7 +205,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             type="button"
             className={`music-box${playing ? " playing" : ""}`}
             onClick={toggleMusic}
-            aria-label={playing ? (lang === "en" ? "Pause music" : "Jeda musik") : (lang === "en" ? "Play music" : "Putar musik")}
+            aria-label={playing ? "Jeda musik" : "Putar musik"}
             aria-pressed={playing}
           >
             <span className="music-vinyl">
@@ -234,7 +229,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             <Ornaments />
             <div className="details">
               <h1 className="prime-title">{coupleLabel}</h1>
-              <p>{lang === "en" ? "Hello" : "Hai"}<br />{guestName}</p>
+              <p>Hai<br />{guestName}</p>
             </div>
           </div>
         </section>
@@ -247,10 +242,10 @@ export default function MinangRoyal(profile: TemplateProps) {
             <div className="inner">
               <div className="details">
                 <h1 className="prime-title">{coupleLabel}</h1>
-                <p>{lang === "en" ? "Hello" : "Hai"}<br />{guestName}</p>
+                <p>Hai<br />{guestName}</p>
                 <div>
                   <a href="#invitation" className="link" onClick={(event) => { event.preventDefault(); openInvitation() }}>
-                    {t("openInvitation", lang)}
+                    Open Invitation
                   </a>
                 </div>
               </div>
@@ -311,11 +306,9 @@ export default function MinangRoyal(profile: TemplateProps) {
             <section className="couple-wrap">
               <div className="couple">
                 <div className="couple-head">
-                  <h1 className="couple-title">{t("theWeddingOf", lang)}</h1>
+                  <h1 className="couple-title">The Wedding Of</h1>
                   <p className="couple-description">
-                    {(profile.opening_description || (lang === "en"
-                      ? "In the name of Allah, the Most Gracious, the Most Merciful.\nAssalamu'alaikum Warahmatullahi Wabarakatuh\nGlory be to Allah who created His creatures in pairs."
-                      : "Bismillahirrahmanirrahim\nAssalamu'alaikum Warahmatullahi Wabarakatuh\nMaha Suci Allah yang telah menciptakan mahkluk-Nya berpasang-pasangan."))
+                    {(profile.opening_description || "Bismillahirrahmanirrahim\nAssalamu'alaikum Warahmatullahi Wabarakatuh\nMaha Suci Allah yang telah menciptakan mahkluk-Nya berpasang-pasangan.")
                       .split("\n")
                       .map((line, index) => (
                         <span key={`line-${index}`}>{index > 0 && <br />}{line}</span>
@@ -372,7 +365,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             <SectionSeparator />
             <section className="save-date-wrap">
               <div className="save-date">
-                <div className="save-date-head"><h1 className="save-date-title">{t("saveTheDate", lang)}</h1></div>
+                <div className="save-date-head"><h1 className="save-date-title">Save The Date</h1></div>
                 <div className="save-date-body">
                   <div className="countdown">
                     <div className="count-item"><h2 className="count-num count-day">{countdown?.d ?? "0"}</h2><small className="count-text">Days</small></div>
@@ -420,7 +413,7 @@ export default function MinangRoyal(profile: TemplateProps) {
               <div className="agenda-inner">
                 <div className="agenda-head">
                   <div className="orn-kupu-kupu-2"><div className="image-wrap"><img src={A("kupu-kupu-2.png")} alt="" /></div></div>
-                  <h1 className="agenda-title">{tc.events_title || t("secEvent", lang)}</h1>
+                  <h1 className="agenda-title">Wedding Day</h1>
                   <p className="agenda-description">
                     {tc.events_intro ||
                       "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:"}
@@ -442,11 +435,11 @@ export default function MinangRoyal(profile: TemplateProps) {
                             return (
                               <div className="activity-item" key={`${event.name || "activity"}-${index}`}>
                                 <div className="activity-head">
-                                  <h1 className="activity-title">{event.name || t("weddingEventFallback", lang)}</h1>
-                                  {(dayName(group.date, lang) || longDate(group.date, lang)) && (
+                                  <h1 className="activity-title">{event.name || "Wedding Ceremony"}</h1>
+                                  {(dayName(group.date) || longDate(group.date)) && (
                                     <p className="activity-date">
-                                      {dayName(group.date, lang) && <span className="activity-day">{dayName(group.date, lang)}</span>}
-                                      {(longDate(group.date, lang) || dateLong) && <span className="activity-date-text">{longDate(group.date, lang) || dateLong}</span>}
+                                      {dayName(group.date) && <span className="activity-day">{dayName(group.date)}</span>}
+                                      {(longDate(group.date) || dateLong) && <span className="activity-date-text">{longDate(group.date) || dateLong}</span>}
                                     </p>
                                   )}
                                   {event.time && <p className="activity-time">{event.time}</p>}
@@ -517,10 +510,10 @@ export default function MinangRoyal(profile: TemplateProps) {
           {rundown.length > 0 && (
             <section className="rundown-container" data-section-order="rundown">
               <div className="rundown-inner">
-                <h3 className="rundown-title">{tc.rundown_title || (lang === "en" ? "Rundown" : "Susunan Acara")}</h3>
+                <h3 className="rundown-title">Rundown</h3>
                 <div className="rundown-event-list">
                   <div className="rundown-event">
-                    <h5 className="rundown-event-title">{groups[0]?.items[0]?.name || (lang === "en" ? "Reception" : "Resepsi")}</h5>
+                    <h5 className="rundown-event-title">{groups[0]?.items[0]?.name || "Resepsi"}</h5>
                     <div className="rundown-agenda-list">
                       {rundown.map((item, index) => (
                         <div className="rundown-agenda" key={`${item.time || "rundown"}-${index}`}>
@@ -563,8 +556,8 @@ export default function MinangRoyal(profile: TemplateProps) {
             <section className="live-streaming" data-section-order="live_streaming">
               <div className="inner">
                 <div className="head">
-                  <h1>{profile.livestream?.title || t("secLivestream", lang)}</h1>
-                  <p>{profile.livestream?.description || (lang === "en" ? "Please join and watch us become husband & wife" : "Silakan bergabung dan saksikan momen kami menjadi pasangan suami istri")}</p>
+                  <h1>{profile.livestream?.title || "Live Streaming"}</h1>
+                  <p>{profile.livestream?.description || "Please join and watch us become husband & wife"}</p>
                 </div>
                 <div className="body">
                   <div className="streaming-info">
@@ -576,7 +569,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                           href={profile.livestream!.url}
                           target="_blank"
                           rel="noreferrer"
-                          aria-label={t("watchLivestream", lang)}
+                          aria-label="Tonton live streaming"
                         >
                           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                         </a>
@@ -614,12 +607,10 @@ export default function MinangRoyal(profile: TemplateProps) {
               <section className="wedding-gift-wrap">
                 <div className="wedding-gift-inner">
                   <div className="wedding-gift-head">
-                    <h1 className="wedding-gift-title">{tc.gift_intro_title || t("secGift", lang)}</h1>
+                    <h1 className="wedding-gift-title">{tc.gift_intro_title || "Love Gift"}</h1>
                     <p className="wedding-gift-description">
                       {tc.gift_intro_description ||
-                        (lang === "en"
-                          ? "Without diminishing our respect, for those who wish to send a gift, it can be sent through:"
-                          : "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:")}
+                        "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:"}
                     </p>
                   </div>
                   <div className="wedding-gift-body">
@@ -632,11 +623,11 @@ export default function MinangRoyal(profile: TemplateProps) {
                                 className="mr-bank-select"
                                 value={bankIndex}
                                 onChange={(event) => setBankIndex(Number(event.target.value))}
-                                aria-label={lang === "en" ? "Select account" : "Pilih rekening"}
+                                aria-label="Pilih rekening"
                               >
                                 {accounts.map((account, index) => (
                                   <option value={index} key={`${account.provider_name || "bank"}-${index}`}>
-                                    {account.provider_name || (lang === "en" ? "Account" : "Rekening")}
+                                    {account.provider_name || "Rekening"}
                                   </option>
                                 ))}
                               </select>
@@ -703,7 +694,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                 {tc.wishes_intro && <p className="wedding-wish-description">{tc.wishes_intro}</p>}
               </div>
               <div className="wedding-wish-body">
-                <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} language={profile.language} />
+                <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} />
               </div>
             </div>
           </section>
@@ -712,7 +703,7 @@ export default function MinangRoyal(profile: TemplateProps) {
             <section className="notes-container mr-inviting" data-section-order="inviting">
               <div className="note">
                 <div className="orn-kupu-kupu-2"><div className="image-wrap"><img src={A("kupu-kupu-2.png")} alt="" /></div></div>
-                <h4 className="note-title">{t("secInviting", lang)}</h4>
+                <h4 className="note-title">Turut Mengundang</h4>
                 <ul className="mr-inviting-list">
                   {honored.map((name, index) => (
                     <li key={`${name}-${index}`}>{name}</li>

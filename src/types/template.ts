@@ -139,9 +139,6 @@ export type TemplateProps = {
   // hard-coding "Mempelai" / "The Wedding of".
   event_type?: string
   subject_gender?: "putra" | "putri"
-  // Invitation language, couple-selected. Default "id". Drives static chrome
-  // and shipped defaults; couple-entered content is never auto-translated.
-  language?: "id" | "en"
   event_labels?: {
     brand: string
     site: string

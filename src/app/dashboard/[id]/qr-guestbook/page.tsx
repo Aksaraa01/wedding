@@ -14,7 +14,6 @@ import { paymentWaLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { normalizePhone } from "@/lib/packages"
 import { coupleUrl } from "@/lib/coupleUrl"
-import { isInvitedToAll, sessionDisplayLabel } from "@/lib/invitedSessions"
 
 type Guest = {
   id: string
@@ -30,7 +29,6 @@ type Guest = {
   added_manually?: boolean
   is_vip?: boolean
   wa_invite_clicked_at?: string | null
-  invited_session_indexes?: number[] | null
 }
 
 type Profile = {
@@ -51,7 +49,6 @@ type Profile = {
   total_project_cost?: number | null
   voucher_code?: string | null
   voucher_discount?: number | null
-  sessions?: any[] | null
 }
 
 type Stats = {
@@ -109,7 +106,7 @@ function MessagePreview({ text, guestName, coupleName, guestUrl }: { text: strin
   )
 }
 
-function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, onSendWa, copiedId, copiedKind, gated, isFirstGuest, onBlockedClick, isUnpaid, qrCodeBook, setShowLimitModal, sessions }: {
+function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, onSendWa, copiedId, copiedKind, gated, isFirstGuest, onBlockedClick, isUnpaid, qrCodeBook, setShowLimitModal }: {
   guest: Guest
   slug: string
   onCopyQr: (token: string, slug: string | null) => void
@@ -124,7 +121,6 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, onSen
   isUnpaid?: boolean
   qrCodeBook: boolean
   setShowLimitModal: (open: boolean) => void
-  sessions: any[]
 }) {
   const hasToken = !!guest.qr_token
   const hasLink = !!guest.qr_token || !!guest.slug
@@ -158,21 +154,6 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, onSen
             <span className="inline-flex items-center self-start px-2 py-0.5 bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] font-label-md text-[9px] uppercase tracking-wider rounded-full">
               Manual
             </span>
-          )}
-          {sessions.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 mt-1">
-              {isInvitedToAll(guest.invited_session_indexes ?? null, sessions.length) ? (
-                <span className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
-                  Semua acara
-                </span>
-              ) : (
-                (Array.isArray(guest.invited_session_indexes) ? guest.invited_session_indexes : []).map((idx) => (
-                  <span key={idx} className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
-                    {sessionDisplayLabel(sessions[idx], idx)}
-                  </span>
-                ))
-              )}
-            </div>
           )}
         </div>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -1026,7 +1007,6 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   isUnpaid={isUnpaid}
                   qrCodeBook={qrCodeBook}
                   setShowLimitModal={setShowLimitModal}
-                  sessions={Array.isArray(profile?.sessions) ? profile.sessions : []}
                 />
               ))
             )}
@@ -1061,7 +1041,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               </div>
               <button
                 onClick={() => setShowLinkInfo(false)}
-                className="w-full bg-[#B34E3F] text-white py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
+                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 Mengerti
               </button>
@@ -1094,17 +1074,17 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#B34E3F]/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#B34E3F] text-2xl">edit_calendar</span>
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-2xl">edit_calendar</span>
               </div>
-              <h3 className="font-headline-md text-lg font-medium text-[#2C2A29]">Lengkapi &amp; Konfirmasi Undangan Dulu</h3>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Lengkapi &amp; Konfirmasi Undangan Dulu</h3>
               <p className="text-sm text-on-surface-variant">
                 QR dan tautan undangan untuk tamu lainnya belum dapat diaktifkan sebelum undangan Anda
                 diisi lengkap dan dikonfirmasi. Selesaikan konten undangan di editor, lalu konfirmasi.
               </p>
               <button
                 onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
-                className="w-full bg-[#B34E3F] text-white py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
+                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 Lengkapi di Editor
               </button>

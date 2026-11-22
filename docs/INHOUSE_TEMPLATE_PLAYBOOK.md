@@ -877,44 +877,6 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
   `save-date-wrap`, `agenda-wrap`, `rundown-container`, `photo-wrap`, …) but
   drive content from `TemplateProps`; do not copy reference couple data.
 
-## 8.8 Bilingual (id/en) — mandatory for all in-house templates
-
-Every in-house template must render in Bahasa Indonesia (`id`) and English (`en`).
-Language is **couple-selected** in editor/ops (`wedding_profiles.language`, default `id`);
-every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect.
-
-### Rules
-
-- **Never hard-code guest-facing chrome.** Use `t(key, lang)` / `tf(key, lang, vars)` from
-  `src/lib/i18n.ts`. Add new keys to the glossary; do not invent ad-hoc strings.
-- **Normalize lang once:** `const lang = normalizeLanguage(profile.language)` (or
-  `props.language`). Pass `lang`/`language` to every child that renders text (Wishes,
-  shared sections, overlay children).
-- **Editable headings:** every guest-facing section heading must resolve as
-  `tc.<key> || t(<lockedKey>, lang)` and be registered in `src/lib/templateExtras.ts` for
-  that template code. Never render a heading as a literal only.
-- **Defaults bilingual, couple content never translated.** `template_content`/extras defaults
-  fall back to the active language; couple-typed values (names, quote/ayat, opening,
-  typed extras) render as-is in both languages. Arabic ayat defaults stay Arabic.
-- **Dates/numbers:** use `formatDate(date, lang)` / `formatDateUpper(date, lang)` /
-  `formatIdDate(iso, lang)` from `src/lib/formatDate.ts`.
-- **Wishes/RSVP/overlay:** `Wishes` components accept `language`; render them with
-  `language={profile.language}` (or `lang`). `InvitationOverlay` already accepts
-  `language` — pass it from the renderer/template.
-- **Editor/ops extras:** `getTemplateExtraFields(code, lang)`, `groupExtraFields(fields, lang)`,
-  `templateExtrasLabel(name, lang)` are lang-aware; pass current language.
-- **Guards:** `node scripts/check-i18n.mjs` must pass; `predeploy-guard.mjs` runs it.
-  Every `t()/tf()` key must exist in `src/lib/i18n.ts`.
-
-### Minimum wiring checklist for a new template
-
-1. `import { normalizeLanguage, t } from "@/lib/i18n"` and `const lang = normalizeLanguage(profile.language)`.
-2. Replace guest-facing literals with `t()`/`tc.* || t()`; keep couple data as-is.
-3. Pass `language={profile.language}` to `<Wishes ... />` and `<InvitationOverlay ... />`.
-4. Register heading/copy extras in `templateExtras.ts` for the template code, with section/order/placeholder.
-5. `npm run audit:copy -- <code>` and `node scripts/check-i18n.mjs` clean.
-6. Smoke in both `id` and `en` (editor language selector / profile.language).
-
 ## 9. Failure catalogue (symptom → cause → fix)
 
 | Symptom | Cause | Fix |
@@ -976,9 +938,6 @@ every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect
 | Owner still sees an old ornament/photo after a fix | asset replaced at the same URL and the browser served the cached bitmap | version the filename (`-v2`, `-v3`), delete the old file, verify the served `shasum` |
 | Two identical fields in the EKSTRA accordion | the same field key is registered twice for one template (usually from regex-patching `templateExtras.ts`) | de-duplicate the entries; `npm run audit:extras -- <code>` must pass |
 | Two EKSTRA fields with different keys but the same label | one key borrowed another's label (e.g. `countdown_intro` labelled "Judul Hitung Mundur" like `countdown_title`) | give the intro/field its own label — "Pengantar …", not the title's |
-| Template shows English/ID only regardless of profile.language | hard-coded literals; no `normalizeLanguage`/`t()` wiring; Wishes/Overlay missing `language` prop | use `t()/tf()` + `tc.* || t(...)`, pass `language` to Wishes/InvitationOverlay, run `node scripts/check-i18n.mjs` |
-| `t("key")` renders as undefined / build guard fails | key not in `src/lib/i18n.ts` | add key to `I18N` with both `id` and `en` values |
-| Couple-entered content gets translated/overwritten | auto-translation or fallback replaced user value | never translate couple-typed content; only default/fallback copy switches by language |
 | An editor field does nothing, or copy in the invitation cannot be edited | registered key never read, or read key never registered | `npm run audit:extras -- <code>` fails on both directions |
 | Preview still shows old copy after a rebase | the rebase left two `DEMO_PROPS_BY_CODE.<code> = {…}` assignments and the stale one wins | after every rebase `grep -c "DEMO_PROPS_BY_CODE.<code> ="` must be `1`; rebuild |
 | Deployed page still shows old copy although the build is new | stale prerender (`route-cache`, `.next/server/app/...`) or a bundle built before the rebase | delete `.next/cache` + `.next/server/app/templates*` + `standalone/.../route-cache`, rebuild, assert the served bytes |

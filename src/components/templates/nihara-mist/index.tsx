@@ -10,7 +10,6 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import { copyPlainText } from "@/lib/clipboard"
 import Wishes from "./Wishes"
 import "./nihara-mist.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 type SceneName = "cover" | "verse" | "couple" | "events" | "dresscode" | "finale"
 
@@ -124,9 +123,7 @@ function youtubeId(url?: string) {
   }
 }
 
-
 export default function NiharaMist(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const gates = profile.feature_gates || {}
   const dresscode = profile.dresscode
   const hasDresscode = profile.dresscode_visible !== false && !!dresscode && (dresscode.colors?.length ?? 0) > 0
@@ -172,7 +169,7 @@ export default function NiharaMist(profile: TemplateProps) {
 
   useEffect(() => { sceneRef.current = scene }, [scene])
 
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || t("theWeddingOf", lang)
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
   const groomShort = profile.groom_name || ""
   const brideShort = profile.bride_name || ""
   const groomFull = profile.groom_full_name || ""
@@ -193,7 +190,7 @@ export default function NiharaMist(profile: TemplateProps) {
   const honored = gates.inviting_families !== false && profile.inviting_families_visible !== false
     ? (profile.inviting_families || []).filter(Boolean)
     : []
-  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const guestName = profile.guest_name || "Our Beloved Guest"
   const dateLong = longDate(profile.estimated_wedding_date)
   const dateShort = shortDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date)
@@ -448,8 +445,8 @@ export default function NiharaMist(profile: TemplateProps) {
   }, [])
 
   const copy = useCallback(async (text: string) => {
-    showToast((await copyPlainText(text)) ? t("copiedToClipboard", lang) : t("failedToCopy", lang))
-  }, [showToast, lang])
+    showToast((await copyPlainText(text)) ? "Nomor berhasil disalin" : "Gagal menyalin nomor")
+  }, [showToast])
 
   const isActive = (name: SceneName) => scene === name
   const isLeaving = (name: SceneName) => leavingScene === name
@@ -490,7 +487,7 @@ export default function NiharaMist(profile: TemplateProps) {
         >
           <div className="tpl-preload-vignette" aria-hidden="true" />
           <div className="tpl-preload-stage">
-            <p className="tpl-preload-eyebrow">{t("theWeddingOf", lang)}</p>
+            <p className="tpl-preload-eyebrow">The Wedding Of</p>
             <p className="tpl-preload-names" style={{ "--names-len": Math.max(8, groomShort.length + brideShort.length + 3) } as React.CSSProperties}>
               <em>{groomShort}</em>
               <span className="tpl-preload-names__amp" aria-hidden="true">&amp;</span>
@@ -514,7 +511,7 @@ export default function NiharaMist(profile: TemplateProps) {
         <div className="deskcover__bg">{bgDesk && <img src={bgDesk} alt="" decoding="async" />}</div>
         <div className="deskcover__veil" />
         <div className="deskcover__names">
-          <p className="label">{t("theWeddingOf", lang)}</p>
+          <p className="label">The Wedding Of</p>
           <h2 className="deskcover-sig">{coupleLabel}</h2>
         </div>
       </aside>
@@ -526,7 +523,7 @@ export default function NiharaMist(profile: TemplateProps) {
           <div className="scene__veil" />
           <div className="scene__content cover">
             <header className="cover__top">
-              <p className="label reveal" style={{ "--d": ".2s" } as React.CSSProperties}>{t("theWeddingOf", lang)}</p>
+              <p className="label reveal" style={{ "--d": ".2s" } as React.CSSProperties}>The Wedding Of</p>
               <h1 className="cover__names display reveal" style={{ "--d": ".45s" } as React.CSSProperties}>
                 {groomShort} <em aria-hidden="true">&amp;</em><br />{brideShort}
               </h1>
@@ -755,7 +752,7 @@ export default function NiharaMist(profile: TemplateProps) {
 
               {gallery.length > 0 && (
                 <section className="sheet__section sheet__section--gallery" data-io>
-                  <h3 className="display gallery__title">{t("secGallery", lang)}</h3>
+                  <h3 className="display gallery__title">Our Moments</h3>
                   {hasVideo && (
                     <div className="nihara-video">
                       <AutoplayYouTube
@@ -803,7 +800,7 @@ export default function NiharaMist(profile: TemplateProps) {
                       <div className="tpl-gift__accounts">
                         {accounts.map((a, i) => (
                           <div key={i} className="tpl-gift__account">
-                            <p className="tpl-gift__heading">{a.provider_name || (lang === "en" ? "Bank" : "Bank")}</p>
+                            <p className="tpl-gift__heading">{a.provider_name || "Bank"}</p>
                             <p className="tpl-gift__account-number">{a.account_number}</p>
                             <p className="tpl-gift__account-name">{a.account_name}</p>
                             <button type="button" className="tpl-gift__copy-btn" onClick={() => copy(String(a.account_number || ""))}>
@@ -814,7 +811,7 @@ export default function NiharaMist(profile: TemplateProps) {
                       </div>
                       {giftAddress && (
                         <div className="tpl-gift__address">
-                          <p className="tpl-gift__address-label">{t("sendGift", lang)}</p>
+                          <p className="tpl-gift__address-label">Kirim Hadiah</p>
                           <p className="tpl-gift__address-text">{giftAddress}</p>
                           {profile.gift_address_name && <p className="tpl-gift__account-name">{profile.gift_address_name}</p>}
                         </div>
@@ -826,7 +823,7 @@ export default function NiharaMist(profile: TemplateProps) {
 
               {honored.length > 0 && (
                 <section className="sheet__section sheet__section--honored" data-io>
-                  <h3 className="display story__heading">{t("secInviting", lang)}</h3>
+                  <h3 className="display story__heading">Turut Mengundang</h3>
                   <div className="honored__grid">
                     <div className="honored__col">
                       <ul className="honored__names">
@@ -843,7 +840,7 @@ export default function NiharaMist(profile: TemplateProps) {
                 weddingProfileId={profile.wedding_profile_id}
                 guestId={profile.guest_id}
                 guestName={profile.guest_name}
-                guestLinkStrict={profile.guest_link_strict} language={profile.language}
+                guestLinkStrict={profile.guest_link_strict}
               />
 
               <section className="sheet__section sheet__closing" data-io>
@@ -918,7 +915,7 @@ export default function NiharaMist(profile: TemplateProps) {
             guestId={profile.guest_id}
             guestSlug={profile.guest_slug}
             allowFlexibleRsvp={profile.guest_link_strict === false}
-            guestName={profile.guest_name || t("honoredGuest", lang)}
+            guestName={profile.guest_name || "Tamu Undangan"}
             coupleName={coupleLabel}
             weddingProfileId={profile.wedding_profile_id!}
             guestQrUrl={profile.guest_qr_url}
@@ -928,7 +925,6 @@ export default function NiharaMist(profile: TemplateProps) {
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={profile.feature_gates?.qr_code_book === true}
             anchor="center"
-            language={lang}
           />
         )}
 
@@ -937,13 +933,13 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium tabular-nums text-white" onClick={(e) => e.stopPropagation()}>
               {lightbox + 1} / {gallery.length}
             </div>
-            <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label={t("close", lang)}>✕</button>
+            <button type="button" className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label="Tutup">✕</button>
             {gallery.length > 1 && (
-              <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label={lang === "en" ? "Previous" : "Sebelumnya"}>‹</button>
+              <button type="button" className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + gallery.length) % gallery.length) }} aria-label="Sebelumnya">‹</button>
             )}
             <img src={gallery[lightbox]} alt="" draggable={false} className="max-h-[90vh] max-w-[95vw] select-none rounded-md object-contain" onClick={(e) => e.stopPropagation()} />
             {gallery.length > 1 && (
-              <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label={lang === "en" ? "Next" : "Berikutnya"}>›</button>
+              <button type="button" className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % gallery.length) }} aria-label="Berikutnya">›</button>
             )}
           </div>
         )}
@@ -963,7 +959,7 @@ export default function NiharaMist(profile: TemplateProps) {
               type="button"
               className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
               onClick={() => setVideoModal(false)}
-              aria-label={t("close", lang)}
+              aria-label="Tutup"
             >✕</button>
           </div>
         )}

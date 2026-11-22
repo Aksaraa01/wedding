@@ -31,46 +31,13 @@ SSH_KEY="${SSH_KEY:-$HOME/.ssh/aksaraa_deploy}"
 # Keepalive matters: this link drops idle/lossy connections mid-transfer.
 SSH_OPTS=(-i "$SSH_KEY" -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o TCPKeepAlive=yes -o ConnectTimeout=30)
 SERVER="${SERVER:-askaraa@103.93.135.176}"
-
-TARGET="prod"
-SKIP_GUARD=0; NO_ROLLBACK=0
-GUARD_REF=""
-GUARD_SITE_URL=""
-SMOKE_BASE=""
-
-args=("$@")
-i=0
-while [ $i -lt ${#args[@]} ]; do
-  a="${args[$i]}"
-  case "$a" in
-    --skip-build-check) SKIP_GUARD=1 ;;
-    --no-rollback) NO_ROLLBACK=1 ;;
-    --target)
-      i=$((i + 1)); TARGET="${args[$i]:-prod}" ;;
-    --ref)
-      i=$((i + 1)); GUARD_REF="${args[$i]:-}" ;;
-    --site-url)
-      i=$((i + 1)); GUARD_SITE_URL="${args[$i]:-}" ;;
-    --base)
-      i=$((i + 1)); SMOKE_BASE="${args[$i]:-}" ;;
-  esac
-  i=$((i + 1))
-done
-
-if [ "$TARGET" = "staging" ]; then
-  REMOTE="${REMOTE:-/var/www/aksara-wedding-staging}"
-  PM2_APP="aksara-wedding-staging"
-  : "${GUARD_REF:=jclolnjkjhyjilvymagr}"
-  : "${GUARD_SITE_URL:=https://wedding-stg.aksaraa.com}"
-  : "${SMOKE_BASE:=https://wedding-stg.aksaraa.com}"
-else
-  REMOTE="${REMOTE:-/var/www/aksara-wedding}"
-  PM2_APP="aksara-wedding"
-  : "${GUARD_REF:=ylmfgorryxzpdckkebnr}"
-  : "${SMOKE_BASE:=https://wedding.aksaraa.com}"
-fi
-
+REMOTE="/var/www/aksara-wedding"
 SNAP="$REMOTE/.next/.deploy-snapshot"
+SKIP_GUARD=0; NO_ROLLBACK=0
+for a in "$@"; do
+  [ "$a" = "--skip-build-check" ] && SKIP_GUARD=1
+  [ "$a" = "--no-rollback" ] && NO_ROLLBACK=1
+done
 
 step() { printf "\n\033[1m▸ %s\033[0m\n" "$1"; }
 
@@ -90,9 +57,7 @@ trap cleanup_lock EXIT
 
 if [ "$SKIP_GUARD" = "0" ]; then
   step "Pre-deploy guard"
-  guard_args=(--ref "$GUARD_REF")
-  [ -n "$GUARD_SITE_URL" ] && guard_args+=(--site-url "$GUARD_SITE_URL")
-  node scripts/predeploy-guard.mjs "${guard_args[@]}"
+  node scripts/predeploy-guard.mjs
 fi
 
 step "Snapshot current server build (for rollback)"
@@ -100,9 +65,9 @@ ssh "${SSH_OPTS[@]}" "$SERVER" "
   set -e
   rm -rf '$SNAP'
   mkdir -p '$SNAP'
-  if [ -d '$REMOTE/.next/standalone' ]; then cp -a '$REMOTE/.next/standalone' '$SNAP/standalone'; fi
-  if [ -d '$REMOTE/.next/static' ]; then cp -a '$REMOTE/.next/static' '$SNAP/static'; fi
-  echo \"snapshot: \$(cat '$SNAP/standalone/.next/BUILD_ID' 2>/dev/null || echo none)\"
+  cp -a '$REMOTE/.next/standalone' '$SNAP/standalone'
+  cp -a '$REMOTE/.next/static' '$SNAP/static'
+  echo \"snapshot: \$(cat '$SNAP/standalone/.next/BUILD_ID' 2>/dev/null || echo unknown)\"
 "
 
 rollback() {
@@ -111,19 +76,12 @@ rollback() {
   ssh "${SSH_OPTS[@]}" "$SERVER" "
     set -e
     cd '$REMOTE'
-    if [ ! -d '$SNAP/standalone' ]; then echo 'no snapshot to roll back to'; exit 1; fi
     rm -rf .next/standalone .next/static
     cp -a '$SNAP/standalone' .next/standalone
-    if [ -d '$SNAP/static' ]; then
-      cp -a '$SNAP/static' .next/static
-      rm -rf .next/standalone/.next/static
-      cp -a '$SNAP/static' .next/standalone/.next/static
-    elif [ -d .next/standalone/.next/static ]; then
-      mkdir -p .next
-      cp -a .next/standalone/.next/static .next/static
-    fi
-    pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null
-    echo \"rolled back to \$(cat .next/standalone/.next/BUILD_ID 2>/dev/null || echo unknown)\"
+    cp -a '$SNAP/static' .next/static
+    cp -a '$SNAP/static' .next/standalone/.next/static
+    pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env >/dev/null
+    echo \"rolled back to \$(cat .next/standalone/.next/BUILD_ID)\"
   "
 }
 
@@ -232,10 +190,10 @@ step "Invalidate the persistent route cache"
 ssh "${SSH_OPTS[@]}" "$SERVER" "rm -rf '$REMOTE/.next/standalone/.next/server/route-cache'" || true
 
 step "Reload PM2 (ecosystem, --update-env)"
-ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
+ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env >/dev/null && sleep 4 && pm2 list | grep aksara-wedding"
 
 step "Post-deploy smoke test"
-if node scripts/postdeploy-smoke.mjs --base "$SMOKE_BASE"; then
+if node scripts/postdeploy-smoke.mjs; then
   LOCAL_BUILD="$(cat .next/standalone/.next/BUILD_ID)"
   sleep 2
   REMOTE_BUILD="$(ssh "${SSH_OPTS[@]}" "$SERVER" "cat '$REMOTE/.next/standalone/.next/BUILD_ID' 2>/dev/null || true")"

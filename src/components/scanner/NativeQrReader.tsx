@@ -6,13 +6,9 @@ import jsQR from "jsqr"
 interface NativeQrReaderProps {
   onScan: (decodedText: string) => void
   isPaused?: boolean
-  /** Stop and release the camera stream (e.g. while selfie modal is active).
-   *  Unlike isPaused, which only skips decoding, this frees camera ownership
-   *  so another component can use getUserMedia on the same device. */
-  releaseCamera?: boolean
 }
 
-export default function NativeQrReader({ onScan, isPaused = false, releaseCamera = false }: NativeQrReaderProps) {
+export default function NativeQrReader({ onScan, isPaused = false }: NativeQrReaderProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
@@ -67,13 +63,6 @@ export default function NativeQrReader({ onScan, isPaused = false, releaseCamera
   }
 
   useEffect(() => {
-    if (releaseCamera) {
-      setCamLoading(false)
-      if (videoRef.current) videoRef.current.srcObject = null
-      restartRef.current = () => {}
-      return
-    }
-
     let animationFrameId: number
     let stream: MediaStream | null = null
     let isMounted = true
@@ -112,11 +101,7 @@ export default function NativeQrReader({ onScan, isPaused = false, releaseCamera
           }
         }
         if (!stream) throw lastErr || new Error("Camera not available")
-        if (!isMounted || !videoRef.current) {
-          stream.getTracks().forEach((t) => t.stop())
-          stream = null
-          return
-        }
+        if (!isMounted || !videoRef.current) return
         videoRef.current.srcObject = stream
         await videoRef.current.play().catch(() => {})
         setCamLoading(false)
@@ -189,9 +174,8 @@ export default function NativeQrReader({ onScan, isPaused = false, releaseCamera
       document.removeEventListener("visibilitychange", onVis)
       if (animationFrameId) cancelAnimationFrame(animationFrameId)
       if (stream) stream.getTracks().forEach(t => t.stop())
-      if (videoRef.current) videoRef.current.srcObject = null
     }
-  }, [releaseCamera])
+  }, [])
 
   const retry = () => {
     setCamError(null)

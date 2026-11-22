@@ -1,14 +1,11 @@
 "use client"
 
-import { normalizeLanguage } from "@/lib/i18n";
-
 import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
 import { bridePhoto, groomPhoto, initialsOf } from "../../shared/lib"
 import CardShell from "./CardShell"
 
 export default function CoupleCard({ profile, onHide }: { profile: TemplateProps; onHide: () => void }) {
-  const lang = normalizeLanguage(profile.language);
   const groomPhotoUrl = groomPhoto(profile.groom_photo_url)
   const bridePhotoUrl = bridePhoto(profile.bride_photo_url)
   const groomTag = initialsOf(profile.groom_name)
@@ -45,7 +42,7 @@ export default function CoupleCard({ profile, onHide }: { profile: TemplateProps
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1">
             <h3 className="text-[10px] text-white truncate" style={FONT_PIXEL}>
-              {fullName || shortName || (lang === "en" ? "Bride/Groom" : "Mempelai")}
+              {fullName || shortName || "Mempelai"}
             </h3>
             <span className={`text-[8px] shrink-0 ${cyan ? "text-cyan-400" : "text-pink-400"}`}>
               {key === "groom" ? "P1 GROOM" : "P2 BRIDE"}

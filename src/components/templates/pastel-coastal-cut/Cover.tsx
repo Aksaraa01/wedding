@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../shared/Skin"
 import { formatLongDate } from "../shared/lib"
@@ -43,16 +42,13 @@ export default function PastelCover({
   guest_name,
   estimated_wedding_date,
   onOpen,
-  language,
 }: {
   groom_name?: string
   bride_name?: string
   guest_name?: string
   estimated_wedding_date?: string | null
   onOpen: () => void
-  language?: string
 }) {
-  const lang = normalizeLanguage(language)
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -84,25 +80,25 @@ export default function PastelCover({
         >
           <div className="relative flex flex-col items-center">
             <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3B32", textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}>
-              {t("theWeddingOf", lang).toUpperCase()}
+              THE WEDDING OF
             </h2>
             <h1 className="relative text-[3.8rem] leading-[1.08] py-0.5 px-2 font-normal" style={{ ...FONT_SCRIPT, color: "#FFFFFF", textShadow: "0 2px 6px rgba(74,52,39,0.45), 0 1px 2px rgba(74,52,39,0.35)" }}>
-              <span className="block">{groom_name || (lang === "en" ? "Groom" : "Mempelai")} &amp;</span>
-              <span className="block">{bride_name || (lang === "en" ? "Bride" : "Mempelai")}</span>
+              <span className="block">{groom_name || "Mempelai"} &amp;</span>
+              <span className="block">{bride_name || "Mempelai"}</span>
             </h1>
           </div>
           <p className="text-[0.82rem] tracking-[0.26em] font-semibold uppercase mt-1.5" style={{ ...FONT_BODY, color: "#5D4A3E", textShadow: "0 1px 2px rgba(255,255,255,0.9)" }}>
-            {formatLongDate(estimated_wedding_date) || (lang === "en" ? "Coming Soon" : "Segera Hadir")}
+            {formatLongDate(estimated_wedding_date) || "Segera Hadir"}
           </p>
         </div>
 
         <div className="w-full max-w-md flex flex-col items-center gap-3 z-20 pb-9 shrink-0">
           <div className="text-center">
             <p className="italic text-[#8B6343] text-[0.95rem] tracking-[0.04em] mb-1 font-medium" style={{ ...FONT_DISPLAY, textShadow: "0 1px 2px rgba(255,255,255,0.9)" }}>
-              {lang === "en" ? "Dear Mr./Mrs./Ms." : "Kepada Yth. Bapak/Ibu/Saudara/i"}
+              Kepada Yth. Bapak/Ibu/Saudara/i
             </p>
             <h3 className="font-semibold text-[#3B2C22] text-[1.3rem] tracking-[0.16em] uppercase" style={{ ...FONT_DISPLAY, textShadow: "0 1px 3px rgba(255,255,255,0.95)" }}>
-              {guest_name || t("honoredGuest", lang)}
+              {guest_name || "Tamu Undangan"}
             </h3>
           </div>
           <button
@@ -112,7 +108,7 @@ export default function PastelCover({
             style={{ ...FONT_BODY, letterSpacing: "0.18em", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}
           >
             <span className="material-symbols-outlined text-[18px] text-[#8B6343]">mail</span>
-            <span className="pt-0.5">{t("openInvitation", lang).toUpperCase()}</span>
+            <span className="pt-0.5">BUKA UNDANGAN</span>
           </button>
         </div>
       </div>

@@ -9,7 +9,6 @@ import { countdownTarget, flattenPhotos, formatDotDate, gcalLink, groomPhoto, br
 import Wishes from "./Wishes"
 import WishesHeart from "./WishesHeart"
 import "./lace.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 // Art shipped with the template. Decorative surfaces only — never couple data.
 const A = (name: string) => `/templates/lace/${name}`
@@ -106,7 +105,7 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 }
 
 // The ticking seconds are isolated so they never re-render the invitation.
-function CountdownClock({ iso, sessions, lang }: { iso?: string; sessions?: TemplateProps["sessions"]; lang: "id" | "en" }) {
+function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplateProps["sessions"] }) {
   const c = useCountdown(iso, sessions)
   const cells: Array<[string, string]> = [
     [c?.d ?? "00", "Days"],
@@ -115,7 +114,7 @@ function CountdownClock({ iso, sessions, lang }: { iso?: string; sessions?: Temp
     [c?.s ?? "00", "Seconds"],
   ]
   return (
-    <div className="lc-clock" aria-label={t("countdown", lang)}>
+    <div className="lc-clock" aria-label="Wedding countdown">
       {cells.map(([value, label]) => (
         <div className="lc-clock__cell" key={label}>
           <strong>{value}</strong>
@@ -217,7 +216,6 @@ function sealAt(time: number) {
 }
 
 export default function Lace(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const gateFilmRef = useRef<HTMLVideoElement | null>(null)
@@ -264,8 +262,8 @@ export default function Lace(profile: TemplateProps) {
     profile.gift_section_visible !== false && gates.gift_address !== false ? profile.gift_address || "" : ""
   const hasGift = accounts.length > 0 || !!giftAddress
 
-  const groom = profile.groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")
-  const bride = profile.bride_name || (lang === "en" ? "The Bride" : "Mempelai Wanita")
+  const groom = profile.groom_name || "The Groom"
+  const bride = profile.bride_name || "The Bride"
   // The mempelai block names the couple in full, the way the families wrote it.
   const groomFull = profile.groom_full_name || groom
   const brideFull = profile.bride_full_name || bride
@@ -281,13 +279,13 @@ export default function Lace(profile: TemplateProps) {
   const initials = initialsOf(profile.groom_name, profile.bride_name)
   const derivedSeal = initials.length === 2 ? `${initials[0]} & ${initials[1]}` : initials
   const sealText = (profile.couple_initials || "").trim() || derivedSeal || "A & E"
-  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const guestName = profile.guest_name || "Tamu Undangan"
   const dateDot = formatDotDate(profile.estimated_wedding_date || main?.date)
   // The welcome block is the couple's "kalimat pembuka": its title is the
   // heading, its description the body. `welcome_invite` / `welcome_message`
   // remain the fallback so invitations authored before this mapping keep copy.
   const welcomeTitle =
-    (profile.opening_title || "").trim() || tc.welcome_invite || (lang === "en" ? "Together with their families" : "Bersama keluarga kami")
+    (profile.opening_title || "").trim() || tc.welcome_invite || "Together with their families"
   const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
 
   // The lead tile spans both columns, so an even number of photos leaves the
@@ -626,7 +624,7 @@ export default function Lace(profile: TemplateProps) {
               aria-hidden="true"
             />
             <div className="lc-cover__body">
-              <p className="lc-kicker">{tc.cover_kicker || t("theWeddingOf", lang)}</p>
+              <p className="lc-kicker">{tc.cover_kicker || "The Wedding Of"}</p>
               <h1 className="lc-cover__names">
                 <span>{groom}</span>
                 <em>&amp;</em>
@@ -717,7 +715,7 @@ export default function Lace(profile: TemplateProps) {
             <span className="lc-bows" style={bandStyle(ART_BOWS)} aria-hidden="true" />
             <div className="lc-panel__body" data-lc-reveal>
               <h2 className="lc-display lc-panel__title">Countdown</h2>
-              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
+              <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} />
               {calendarUrl && (
                 <a className="lc-link lc-link--light" href={calendarUrl} target="_blank" rel="noreferrer">
                   Add to calendar
@@ -759,7 +757,7 @@ export default function Lace(profile: TemplateProps) {
 
                     <div className="lc-event__card">
                       <div className="lc-event__frame">
-                        <h3 className="lc-display lc-event__name">{event.name || t("weddingEventFallback", lang)}</h3>
+                        <h3 className="lc-display lc-event__name">{event.name || "Wedding Event"}</h3>
                         <p className="lc-event__when">
                           {longDate(event.date) && <span>{longDate(event.date)}</span>}
                           {event.time && <span>{event.time}</span>}
@@ -796,7 +794,7 @@ export default function Lace(profile: TemplateProps) {
               ))}
             </div>
             <div className="lc-wrap lc-day__head" data-lc-reveal>
-              <h2 className="lc-display lc-heading">{tc.rundown_title || t("rundownTitle", lang)}</h2>
+              <h2 className="lc-display lc-heading">{tc.rundown_title || "The Day"}</h2>
               {tc.rundown_intro && <p className="lc-body lc-day__intro">{tc.rundown_intro}</p>}
             </div>
             <ol className="lc-wrap lc-day__list">
@@ -825,13 +823,13 @@ export default function Lace(profile: TemplateProps) {
             <div className="lc-dress__frame" data-lc-reveal>
               <span className="lc-dress__art" style={bandStyle(ART_DRESS_FRAME)} aria-hidden="true" />
               <div className="lc-dress__inner">
-                <h2 className="lc-display lc-heading">{tc.dresscode_title || t("secDresscode", lang)}</h2>
-                <p className="lc-display lc-dress__title">{profile.dresscode?.title || (lang === "en" ? "Formal Attire" : "Busana Formal")}</p>
+                <h2 className="lc-display lc-heading">Dress Code</h2>
+                <p className="lc-display lc-dress__title">{profile.dresscode?.title || "Formal Attire"}</p>
                 <img className="lc-dress__couple" src={ART_DRESS_COUPLE} alt="" aria-hidden="true" loading="lazy" />
                 {profile.dresscode?.description && (
                   <p className="lc-body lc-dress__note">{profile.dresscode.description}</p>
                 )}
-                <div className="lc-swatches" aria-label={t("secDresscode", lang)}>
+                <div className="lc-swatches" aria-label="Dress code palette">
                   {dressColors.map((color, index) => (
                     <span className="lc-swatch" key={`${color.hex || color.name}-${index}`}>
                       <i style={{ ["--lc-swatch" as string]: color.hex || "#ccc" } as CSSProperties} aria-hidden="true" />
@@ -867,7 +865,7 @@ export default function Lace(profile: TemplateProps) {
         {stories.length > 0 && (
           <section className="lc-section lc-story" data-section="story">
             <div className="lc-wrap lc-story__head" data-lc-reveal>
-              <h2 className="lc-display lc-heading">{tc.love_story_title || (lang === "en" ? "How Our Story Began" : "Awal Kisah Kami")}</h2>
+              <h2 className="lc-display lc-heading">{tc.love_story_title || "How Our Story Began"}</h2>
               {tc.story_intro && <p className="lc-body lc-story__intro">{tc.story_intro}</p>}
             </div>
             <ol className="lc-wrap lc-story__list">
@@ -906,7 +904,7 @@ export default function Lace(profile: TemplateProps) {
           <section className="lc-section lc-gallery" data-section="gallery">
             <span className="lc-band lc-band--lead lc-gallery__band" style={bandStyle(ART_BAND)} aria-hidden="true" />
             <div className="lc-wrap lc-gallery__head" data-lc-reveal>
-              <h2 className="lc-display lc-heading">{tc.gallery_title || t("secGallery", lang)}</h2>
+              <h2 className="lc-display lc-heading">{tc.gallery_title || "Our Moments"}</h2>
               {tc.gallery_intro && <p className="lc-body lc-gallery__intro">{tc.gallery_intro}</p>}
             </div>
             <div className="lc-wrap lc-gallery__grid">
@@ -924,7 +922,7 @@ export default function Lace(profile: TemplateProps) {
           <section className="lc-panel lc-film" data-section="video">
             <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
             <div className="lc-panel__body lc-film__body" data-lc-reveal>
-              <h2 className="lc-display lc-panel__title">{tc.video_title || t("secVideo", lang)}</h2>
+              <h2 className="lc-display lc-panel__title">{tc.video_title || "Our Film"}</h2>
               {tc.video_intro && <p className="lc-body lc-film__intro">{tc.video_intro}</p>}
               <div className="lc-film__window">
                 {film!.kind === "file" ? (
@@ -940,7 +938,7 @@ export default function Lace(profile: TemplateProps) {
                 ) : (
                   <iframe
                     src={film!.src}
-                    title={tc.video_title || t("secVideo", lang)}
+                    title={tc.video_title || "Our Film"}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                     allowFullScreen
                     loading="lazy"
@@ -958,7 +956,7 @@ export default function Lace(profile: TemplateProps) {
           <section className="lc-section lc-gift" data-section="gift">
             <div className="lc-wrap lc-gift__body" data-lc-reveal>
               <h2 className="lc-display lc-heading lc-gift__heading">
-                {tc.gift_intro_title || t("secGift", lang)}
+                {tc.gift_intro_title || "Wedding Gift"}
               </h2>
               <div className="lc-gift__panel">
                 <span className="lc-gift__lace" style={bandStyle(ART_PANEL)} aria-hidden="true" />
@@ -981,7 +979,7 @@ export default function Lace(profile: TemplateProps) {
                               aria-expanded={open}
                               onClick={() => setOpenAccount(open ? -1 : index)}
                             >
-                              <span className="lc-account__bank">{account.provider_name || (lang === "en" ? "Bank Account" : "Rekening Bank")}</span>
+                              <span className="lc-account__bank">{account.provider_name || "Bank"}</span>
                               <svg className="lc-account__chev" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M6 9.5 12 15l6-5.5" />
                               </svg>
@@ -1039,7 +1037,7 @@ export default function Lace(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel} language={profile.language}
+              coupleName={coupleLabel}
             />
           </div>
         </section>
@@ -1103,7 +1101,7 @@ export default function Lace(profile: TemplateProps) {
         className={`lc-gate${opening ? " is-opening" : ""}${fading ? " is-fading" : ""}`}
         role="dialog"
         aria-modal="true"
-        aria-label={t("openInvitation", lang)}
+        aria-label="Open the invitation"
         onClick={openGate}
       >
         <div className="lc-gate__card">
@@ -1134,7 +1132,7 @@ export default function Lace(profile: TemplateProps) {
         {/* Same badge as the adat family's video spinner: a small circular
             indicator in the corner, so the gate never reads as a status bar. */}
         {buffering && (
-          <span className="lc-gate__buffer" role="status" aria-label={t("loadingVideo", lang)}>
+          <span className="lc-gate__buffer" role="status" aria-label="Memuat video">
             <span className="lc-gate__buffer-ring" aria-hidden="true" />
           </span>
         )}
@@ -1156,7 +1154,7 @@ export default function Lace(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || t("honoredGuest", lang)}
+          guestName={profile.guest_name || "Guest"}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -1167,7 +1165,6 @@ export default function Lace(profile: TemplateProps) {
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="bottom"
           bottom={88}
-                  language={profile.language}
         />
       )}
 

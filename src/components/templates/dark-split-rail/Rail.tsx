@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react"
 import type { TemplateProps } from "@/types/template"
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { resolveCoupleName } from "@/lib/coupleName"
 import {
   countdownTarget,
@@ -44,7 +43,6 @@ function dotShort(iso?: string): string {
 }
 
 export default function Rail({ profile, accounts, giftAddress, giftAddressName, onOpenGift, onActiveMedia }: Props) {
-  const lang = normalizeLanguage(profile.language)
   useTibraBlur()
 
   const coupleLabel = resolveCoupleName(profile)
@@ -113,18 +111,17 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   return (
     <div className="w-full bg-black/5 lg:w-[450px] lg:shrink-0">
       <Opening
+        eyebrow="The Wedding Of"
         coupleLabel={coupleLabel}
         hashtag={hashtag}
         dateShort={dotShort(profile.estimated_wedding_date)}
         quoteText={profile.quote_text}
         quoteSource={profile.quote_source}
-        language={lang}
       />
 
       <Person
         id="groom"
-        heading={lang === "en" ? "The Groom" : "Mempelai Pria"}
-        language={lang}
+        heading="Mempelai"
         shortName={profile.groom_name}
         fullName={profile.groom_full_name}
         parents={profile.groom_parents}
@@ -134,41 +131,38 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Person
         id="bride"
-        heading={lang === "en" ? "The Bride" : "Mempelai Wanita"}
         shortName={profile.bride_name}
         fullName={profile.bride_full_name}
         parents={profile.bride_parents}
         instagram={profile.bride_instagram}
         photos={bridePhotos}
-        language={lang}
       />
 
-      <Events sessions={sessions} language={lang} />
+      <Events sessions={sessions} />
 
-      <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} language={lang} />
+      <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} />
 
-      {giftOn && <GiftTeaser onOpen={onOpenGift} language={lang} />}
+      {giftOn && <GiftTeaser onOpen={onOpenGift} />}
 
-      {storyOn && <Story stories={stories} coupleLabel={coupleLabel} language={lang} />}
+      {storyOn && <Story stories={stories} coupleLabel={coupleLabel} />}
 
       {(videoOn || gallery.length > 0) && (
         <Portrait
           videoEmbed={videoOn ? videoEmbed : undefined}
           photos={gallery}
-          language={lang}
         />
       )}
 
-      {invitingOn && <Inviting families={inviting} language={lang} />}
+      {invitingOn && <Inviting families={inviting} />}
 
       <Wishes
         weddingProfileId={profile.wedding_profile_id}
         guestId={profile.guest_id}
         guestName={profile.guest_name}
-        guestLinkStrict={profile.guest_link_strict} language={profile.language}
+        guestLinkStrict={profile.guest_link_strict}
       />
 
-      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} language={lang} />
+      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} />
     </div>
   )
 }

@@ -280,8 +280,8 @@ function CsWidgetInner() {
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "Tutup chat CS" : "Buka chat CS"}
         aria-expanded={open}
-        className={`fixed bottom-24 right-5 z-[60] h-14 w-14 rounded-full text-white flex items-center justify-center shadow-[0_14px_34px_-12px_rgba(141,77,57,0.7)] transition-transform hover:scale-[1.03] active:scale-95 ${
-          open ? "" : "cs-halo"
+        className={`fixed bottom-24 right-5 z-[60] h-14 rounded-full text-white flex items-center gap-2 shadow-[0_14px_34px_-12px_rgba(141,77,57,0.7)] transition-transform hover:scale-[1.03] active:scale-95 ${
+          open ? "w-14 justify-center" : "pl-4 pr-5 cs-halo"
         }`}
         style={{ background: "linear-gradient(135deg, #C25A46 0%, #8D4D39 100%)" }}
       >
@@ -290,6 +290,7 @@ function CsWidgetInner() {
         ) : (
           <CsAvatar className="h-8 w-8" />
         )}
+        {!open && <span className="text-sm font-semibold whitespace-nowrap">Tanya CS</span>}
       </button>
       )}
 

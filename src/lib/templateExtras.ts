@@ -1,8 +1,6 @@
 export interface TemplateExtraField {
   key: string
   label: string
-  /** English label for editor/ops when language is en. Falls back to EXTRA_LABEL_EN/key map, then label. */
-  labelEn?: string
   // Section of the invitation this copy belongs to, for grouped rendering in
   // the editor/ops "EKSTRA" accordion. Resolved by getTemplateExtraFields.
   section?: string
@@ -12,13 +10,9 @@ export interface TemplateExtraField {
   multiline?: boolean
   rows?: number
   placeholder?: string
-  /** English placeholder when language is en. */
-  placeholderEn?: string
   // Per-template placeholder override. Resolved by getTemplateExtraFields so a
   // shared field (e.g. gallery_quote) hints the copy of the active template.
   placeholders?: Record<string, string>
-  /** Per-template English placeholder overrides when language is en. */
-  placeholdersEn?: Record<string, string>
   templates: string[]
 }
 
@@ -89,7 +83,6 @@ export const TEMPLATE_EXTRA_SECTION_OF: Record<string, string> = {
   video_intro: "video",
   video_caption: "video",
   video_kicker: "video",
-  livestream_title: "video",
   livestream_cta: "video",
   dresscode_title: "dresscode",
   dresscode_intro: "dresscode",
@@ -198,7 +191,6 @@ export const TEMPLATE_EXTRA_ORDER_OF: Record<string, number> = {
   copy_account_toast: 66,
   copy_address_toast: 67,
   copy_account_button: 67.5,
-  livestream_title: 79.5,
   livestream_cta: 80,
   copy_address_button: 68,
   welcome_arc: 69,
@@ -244,7 +236,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     section: "acara",
     order: 71,
     placeholder: "Hari",
-    templates: ["majestic", "sandhya", "piano-garden", "altar-garden", "evermore"],
+    templates: ["majestic"],
   },
   {
     key: "countdown_hours",
@@ -252,7 +244,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     section: "acara",
     order: 72,
     placeholder: "Jam",
-    templates: ["majestic", "sandhya", "piano-garden", "altar-garden", "evermore"],
+    templates: ["majestic"],
   },
   {
     key: "countdown_minutes",
@@ -260,7 +252,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     section: "acara",
     order: 73,
     placeholder: "Menit",
-    templates: ["majestic", "sandhya", "piano-garden", "altar-garden", "evermore"],
+    templates: ["majestic"],
   },
   {
     key: "countdown_seconds",
@@ -268,7 +260,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     section: "acara",
     order: 74,
     placeholder: "Detik",
-    templates: ["majestic", "sandhya", "piano-garden", "altar-garden", "evermore"],
+    templates: ["majestic"],
   },
   {
     key: "welcome_invite",
@@ -309,7 +301,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa": "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Jawa kami:",
       "adat-bali": "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Bali kami:",
     },
-    templates: ["silver-gelatin", "lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "adat-melayu", "adat-batak", "adat-bugis", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "film-roll", "love-line", "piano-garden", "altar-garden", "minang-royal", "evermore"],
+    templates: ["silver-gelatin", "lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "adat-melayu", "adat-batak", "adat-bugis", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "film-roll", "love-line"],
   },
   {
     key: "cover_kicker",
@@ -321,7 +313,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "silver-gelatin": "Dear",
       teatro: "The Wedding of",
       "cinnabar-seal": "The Wedding Of", "ivory-lace": "The Wedding Of", lace: "The Wedding Of", "n-film": "#AlbarnFayeForever" , "boarding-pass": "#AlbarnFayeForever" },
-    templates: ["silver-gelatin", "evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "love-line", "ubin-ottoman", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "love-line", "ubin-ottoman"],
   },
   {
     key: "cover_title",
@@ -383,7 +375,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Tunjukkan tiket ini dengan senyuman.",
     },
-    templates: ["silver-gelatin", "sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "nihara-mist"],
+    templates: ["silver-gelatin", "sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "quote_title",
@@ -466,7 +458,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Oleh-oleh dari perjalanan kami, bingkai yang paling kami simpan.",
     },
-    templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "nihara-mist", "sandhya", "dark-split-rail"],
+    templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
   },
   {
     key: "gallery_quote",
@@ -572,7 +564,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Tanda Kasih",
     },
-    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "embroidered-garden", "nihara-mist", "minang-royal", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "embroidered-garden"],
   },
   {
     key: "hero_tagline",
@@ -656,7 +648,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Doa restu Anda adalah bekal terbaik untuk perjalanan kami. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
     },
-    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "nihara-mist", "minang-royal", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
     key: "wishes_intro",
@@ -693,15 +685,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.",
     },
-    templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "nihara-mist", "sandhya", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
-  },
-  {
-    key: "contacts_title",
-    label: "Judul Kontak",
-    section: "kontak",
-    order: 1,
-    placeholder: "Hubungi Kami",
-    templates: ["adat-bali","adat-banjar","adat-batak","adat-betawi","adat-bugis","adat-dayak","adat-jawa","adat-jawa-2","adat-melayu","adat-minang","adat-palembang","minang-royal","traditional-bugis-pinishi","love-line","film-roll","teatro","cinnabar-seal","ivory-lace","embroidered-garden","lace","silver-gelatin","iris","n-film","boarding-pass","evermore","imagine","still-ever","manjari","sandhya","piano-garden","altar-garden","fresco","olan","majestic","lunar-blossom","lentera-zamrud","songket-marun","ubin-ottoman","nihara-mist","emerald-heirloom","swan-garden","skyline-penthouse","pastel-coastal-cut","pastel-dream-cathedral","impasto-mosque","dark-split-rail"],
+    templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
     key: "closing_message",
@@ -742,7 +726,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
     },
-    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "nihara-mist", "minang-royal", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
     key: "couple_description",
@@ -796,8 +780,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "film-roll": "Order of the Day",
       "silver-gelatin": "Order of the Day",
       teatro: "Order of the Day",
-      "cinnabar-seal": "Rangkaian Acara", "ivory-lace": "Wedding Time Line", "embroidered-garden": "Order of the Day", lace: "The Day", "adat-melayu": "Rundown Acara", "adat-batak": "Rundown Acara", "adat-bugis": "Rundown Acara", "traditional-bugis-pinishi": "Rundown Acara", },
-    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-bali", "manjari", "minang-royal",],
+      "cinnabar-seal": "Rangkaian Acara", "ivory-lace": "Wedding Time Line", "embroidered-garden": "Order of the Day", lace: "The Day" },
+    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "rundown_intro",
@@ -822,8 +806,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "film-roll": "Our Story",
       "silver-gelatin": "Our Story",
       teatro: "Our Story",
-      "cinnabar-seal": "Love Story", "ivory-lace": "Our Love Story", lace: "How Our Story Began", manjari: "A Love Written in Time", "still-ever": "How Our Story Began", imagine: "Our Love Story", "embroidered-garden": "Our Story", "adat-melayu": "Love Story", "adat-batak": "Love Story", "adat-bugis": "Love Story", sandhya: "Love Story", evermore: "Love Story", },
-    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "adat-melayu", "adat-batak", "adat-bugis", "sandhya", "evermore", "nihara-mist", "piano-garden", "altar-garden", "adat-bali", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+      "cinnabar-seal": "Love Story", "ivory-lace": "Our Love Story", lace: "How Our Story Began", manjari: "A Love Written in Time", "still-ever": "How Our Story Began", imagine: "Our Love Story", "embroidered-garden": "Our Story" },
+    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "gallery_title",
@@ -838,23 +822,23 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "still-ever": "The Days We Kept",
       imagine: "Gallery Of Us",
       "embroidered-garden": "Our Moments",
-      lace: "Our Moments", "adat-melayu": "Our Gallery", "adat-batak": "Our Gallery", "adat-bugis": "Our Gallery", evermore: "Captured Moments",
+      lace: "Our Moments",
     },
-    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "adat-melayu", "adat-batak", "adat-bugis", "evermore", "nihara-mist", "sandhya", "piano-garden", "altar-garden", "adat-bali", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
     key: "opening_kicker",
     label: "Label Bagian Pembuka",
     placeholders: { "love-line": "with grateful hearts", "film-roll": "Prologue", teatro: "Prologue", "emerald-heirloom": "A Word of Welcome" },
     placeholder: "With Blessings",
-    templates: ["cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "emerald-heirloom", "sandhya", "piano-garden", "altar-garden", "dark-split-rail"],
+    templates: ["cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "emerald-heirloom"],
   },
   {
     key: "mempelai_kicker",
     label: "Label Mempelai",
-    placeholders: { "love-line": "two people, one story", teatro: "The Cast" , "silver-gelatin": "The Couple", evermore: "Bride & Groom", },
+    placeholders: { "love-line": "two people, one story", teatro: "The Cast" , "silver-gelatin": "The Couple" },
     placeholder: "Mempelai",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line", "evermore"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line"],
   },
   {
     key: "parents_label",
@@ -882,7 +866,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Judul Acara",
     placeholders: { "ubin-ottoman": "Hari Bahagia", "love-line": "Date & Venue", "film-roll": "The Celebration", teatro: "The Venue" , "silver-gelatin": "Venue" },
     placeholder: "The Celebration",
-    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line", "ubin-ottoman", "piano-garden", "altar-garden", "manjari", "minang-royal", "evermore", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
     key: "maps_label",
@@ -896,14 +880,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Label Turut Mengundang (opsional)",
     placeholders: { "ubin-ottoman": "Turut Mengundang", "love-line": "with honour", "film-roll": "Also inviting", teatro: "With the blessing of" , "silver-gelatin": "With the blessing of" },
     placeholder: "Turut Mengundang",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "piano-garden", "altar-garden"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
     key: "inviting_title",
     label: "Judul Turut Mengundang",
-    placeholders: { "ubin-ottoman": "Keluarga & Kerabat", "love-line": "Turut Mengundang", teatro: "Our Families" , "silver-gelatin": "Our Families", "adat-melayu": "Turut Mengundang", "adat-batak": "Turut Mengundang", "adat-bugis": "Turut Mengundang", sandhya: "With Honour", },
+    placeholders: { "ubin-ottoman": "Keluarga & Kerabat", "love-line": "Turut Mengundang", teatro: "Our Families" , "silver-gelatin": "Our Families" },
     placeholder: "Keluarga & Sahabat",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line", "ubin-ottoman", "adat-melayu", "adat-batak", "adat-bugis", "sandhya", "piano-garden", "altar-garden", "adat-bali", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line", "ubin-ottoman"],
   },
   {
     key: "rundown_kicker",
@@ -950,9 +934,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "wishes_title",
     label: "Judul Ucapan",
-    placeholders: { "ubin-ottoman": "Titip doa untuk ananda", "love-line": "Prayers & Wishes", "film-roll": "Wishes", teatro: "Curtain Call" , "silver-gelatin": "Wishes", "adat-melayu": "Wishes", "adat-batak": "Wishes", "adat-bugis": "Wishes", evermore: "Wishes & Prayers", },
+    placeholders: { "ubin-ottoman": "Titip doa untuk ananda", "love-line": "Prayers & Wishes", "film-roll": "Wishes", teatro: "Curtain Call" , "silver-gelatin": "Wishes" },
     placeholder: "Wishes",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "adat-melayu", "adat-batak", "adat-bugis", "evermore", "nihara-mist", "sandhya", "piano-garden", "altar-garden", "adat-bali", "manjari", "embroidered-garden", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },
   {
     key: "closing_kicker",
@@ -1027,9 +1011,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "save_date_label",
     label: "Teks Save the Date",
-    placeholders: { "film-roll": "Save the Date", teatro: "Save the Date", "adat-melayu": "Save The Date", "adat-batak": "Save The Date", "adat-bugis": "Save The Date", },
+    placeholders: { "film-roll": "Save the Date", teatro: "Save the Date" },
     placeholder: "Save the Date",
-    templates: ["cinnabar-seal", "iris", "teatro", "film-roll", "adat-melayu", "adat-batak", "adat-bugis", "nihara-mist", "sandhya", "piano-garden", "altar-garden", "evermore", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
+    templates: ["cinnabar-seal", "iris", "teatro", "film-roll"],
   },
   {
     key: "copy_address_button",
@@ -1209,8 +1193,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "countdown_title",
     label: "Judul Hitung Mundur",
-    templates: ["sandhya", "evermore", "nihara-mist", "piano-garden", "altar-garden", "adat-bali", "manjari",],
-    placeholders: { sandhya: "Counting the Days", evermore: "Counting Down To Forever", },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "countdown_intro",
@@ -1389,8 +1373,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "dresscode_title",
     label: "Label Dress Code",
-    templates: ["adat-melayu", "adat-batak", "adat-bugis", "sandhya", "evermore", "nihara-mist", "piano-garden", "altar-garden", "adat-bali", "manjari", "embroidered-garden", "lace", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
-    placeholders: { "adat-melayu": "Dress Code", "adat-batak": "Dress Code", "adat-bugis": "Dress Code", sandhya: "Dress Code", evermore: "Dress Code",},
+    templates: [],
+    placeholders: {},
   },
   {
     key: "dresscode_intro",
@@ -1827,6 +1811,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["fresco"],
     placeholders: { fresco: "No wishes yet. Be the first." },
   },
+
   {
     key: "closing_message",
     label: "Pesan Penutup",
@@ -1860,12 +1845,6 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   },
 
   {
-    key: "livestream_title",
-    label: "Judul Live Streaming",
-    templates: ["evermore", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
-    placeholders: { evermore: "Join Us Online" },
-  },
-  {
     key: "livestream_cta",
     label: "Teks Tombol Live Streaming",
     templates: ["emerald-heirloom"],
@@ -1873,210 +1852,18 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   },
 ]
 
-const EXTRA_SECTION_LABEL_EN: Record<string, string> = {
-  sampul: "COVER",
-  pembuka: "OPENING",
-  mempelai: "COUPLE",
-  cerita: "LOVE STORY",
-  acara: "EVENT / SAVE THE DATE",
-  inviting: "WITH THE BLESSING OF",
-  rundown: "ORDER OF EVENTS",
-  galeri: "GALLERY",
-  kutipan: "QUOTE / VERSE",
-  video: "VIDEO",
-  dresscode: "DRESS CODE",
-  gift: "GIFT",
-  wishes: "WISHES & PRAYERS",
-  closing: "CLOSING",
-  kontak: "CONTACT",
-}
-
-const EXTRA_SECTION_LABEL_ID: Record<string, string> = {
-  sampul: "SAMPUL",
-  pembuka: "PEMBUKA",
-  mempelai: "MEMPELAI",
-  cerita: "CERITA CINTA",
-  acara: "ACARA",
-  inviting: "TURUT MENGUNDANG",
-  rundown: "SUSUNAN ACARA",
-  galeri: "GALERI",
-  kutipan: "KUTIPAN",
-  video: "VIDEO",
-  dresscode: "DRESS CODE",
-  gift: "HADIAH",
-  wishes: "UCAPAN & DOA",
-  closing: "PENUTUP",
-  kontak: "KONTAK",
-}
-
-const EXTRA_LABEL_EN: Record<string, string> = {
-  inviting_intro: "Inviting Introduction",
-  inviting_title: "Inviting Title",
-  contacts_title: "Contact Title",
-  closing_message: "Closing Message",
-  wishes_intro: "Wishes Introduction",
-  gallery_intro: "Gallery Introduction",
-  gallery_quote: "Gallery Quote",
-  gift_intro_title: "Gift Section Title",
-  gift_intro_description: "Gift Section Description",
-  opening_kicker: "Opening Kicker",
-  cover_kicker: "Cover Kicker",
-  open_button: "Open Button Text",
-  viewLocation: "View Location Button",
-}
-
-const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
-  "Countdown": "Hitung Mundur",
-  "Save the Date": "Simpan Tanggal",
-  "Days": "Hari",
-  "Hours": "Jam",
-  "Minutes": "Menit",
-  "Seconds": "Detik",
-  "Open Invitation": "Buka Undangan",
-  "View Location": "Lihat Lokasi",
-  "View Maps": "Lihat Lokasi",
-  "View Map": "Lihat Lokasi",
-  "Add to Calendar": "Simpan ke Kalender",
-  "Save to Calendar": "Simpan ke Kalender",
-  "Send Gift": "Kirim Hadiah",
-  "Our Story": "Kisah Kami",
-  "Love Story": "Kisah Cinta",
-  "Wedding Gift": "Hadiah Pernikahan",
-  "Wishes & Prayers": "Ucapan & Doa",
-  "RSVP": "RSVP",
-  "Dress Code": "Busana",
-  "Live Streaming": "Siaran Langsung",
-  "Order of Events": "Susunan Acara",
-  "With Love": "Dengan Cinta",
-  "Thank You": "Terima Kasih",
-  "Contact Us": "Hubungi Kami",
-  "The Wedding of": "Pernikahan",
-  "Join Live": "Tonton Siaran",
-  "Watch Live": "Tonton Langsung",
-  "Send Wishes": "Kirim Ucapan",
-  "Write a Wish": "Tulis Ucapan",
-  "Dear": "Kepada Yth.",
-  "With Honor": "Dengan Hormat",
-  "Wedding Day": "Hari Pernikahan",
-  "Wedding Invitation": "Undangan Pernikahan",
-  "Portraits of Us": "Potret Kami",
-  "Our Footage": "Cuplikan Kami",
-  "Rundown": "Susunan Acara",
-  "Send a Gift": "Kirim Hadiah",
-  "Copy Address": "Salin Alamat",
-  "Account Number": "Nomor Rekening",
-  "Account Name": "Nama Pemilik Rekening",
-  "Account number copied": "Nomor rekening disalin",
-  "Address copied": "Alamat disalin",
-  "We also present the families who extend this invitation alongside us.": "Dengan hormat, kami turut mengundang keluarga besar yang telah mendampingi perjalanan kami.",
-  "Together with the families who make this day possible.": "Bersama keluarga yang membuat hari ini terwujud.",
-}
-
-const EXTRA_LABEL_EN_RE: Array<[RegExp, string]> = [
-  [/^Judul Hitung Mundur$/i, "Countdown Title"],
-  [/^Label Hari$/i, "Days Label"],
-  [/^Label Jam$/i, "Hours Label"],
-  [/^Label Menit$/i, "Minutes Label"],
-  [/^Label Detik$/i, "Seconds Label"],
-  [/^Teks Tombol /i, "Button Text: "],
-  [/^Judul /i, "Title: "],
-  [/^Label /i, "Label: "],
-  [/^Pengantar /i, "Intro: "],
-  [/^Kalimat Pengantar /i, "Intro Text: "],
-  [/^Deskripsi /i, "Description: "],
-  [/^Keterangan /i, "Caption: "],
-  [/^Sapaan /i, "Greeting: "],
-  [/^Notifikasi /i, "Toast: "],
-  [/^Pesan /i, "Message: "],
-  [/^Placeholder /i, "Placeholder: "],
-  [/^Teks /i, "Text: "],
-  [/^Nama /i, "Name: "],
-]
-
-function translateExtraLabelToEn(label: string): string {
-  let out = label
-  const replacements: Array<[RegExp, string]> = [
-    [/\bHitung Mundur\b/gi, "Countdown"],
-    [/\bSimpan Tanggal\b/gi, "Save the Date"],
-    [/\bSiaran Langsung\b/gi, "Live Stream"],
-    [/\bTurut Mengundang\b/gi, "With the Blessing of"],
-    [/\bSusunan Acara\b/gi, "Order of Events"],
-    [/\bRangkaian Acara\b/gi, "Order of Events"],
-    [/\bCerita Cinta\b/gi, "Love Story"],
-    [/\bKisah Cinta\b/gi, "Love Story"],
-    [/\bUcapan & Doa\b/gi, "Wishes & Prayers"],
-    [/\bUcapan\b/gi, "Wishes"],
-    [/\bDoa\b/gi, "Prayer"],
-    [/\bHadiah\b/gi, "Gift"],
-    [/\bGaleri\b/gi, "Gallery"],
-    [/\bKutipan\b/gi, "Quote"],
-    [/\bPenutup\b/gi, "Closing"],
-    [/\bPembuka\b/gi, "Opening"],
-    [/\bMempelai\b/gi, "Couple"],
-    [/\bAcara\b/gi, "Event"],
-    [/\bSampul\b/gi, "Cover"],
-    [/\bKontak\b/gi, "Contact"],
-    [/\bAlamat\b/gi, "Address"],
-    [/\bRekening\b/gi, "Account"],
-    [/\bTombol\b/gi, "Button"],
-    [/\bKalender\b/gi, "Calendar"],
-    [/\bPeta\b/gi, "Map"],
-    [/\bLokasi\b/gi, "Location"],
-    [/\bKirim\b/gi, "Send"],
-    [/\bSalin\b/gi, "Copy"],
-    [/\bBuka\b/gi, "Open"],
-    [/\bTutup\b/gi, "Close"],
-    [/\bJudul\b/gi, "Title"],
-    [/\bLabel\b/gi, "Label"],
-    [/\bPengantar\b/gi, "Intro"],
-    [/\bDeskripsi\b/gi, "Description"],
-    [/\bKeterangan\b/gi, "Caption"],
-    [/\bSapaan\b/gi, "Greeting"],
-    [/\bNotifikasi\b/gi, "Toast"],
-    [/\bPesan\b/gi, "Message"],
-    [/\bTamu\b/gi, "Guest"],
-    [/\bWaktu\b/gi, "Time"],
-    [/\bTanggal\b/gi, "Date"],
-    [/\bFoto\b/gi, "Photo"],
-    [/\bVideo\b/gi, "Video"],
-    [/\bMusik\b/gi, "Music"],
-    [/\bLatar\b/gi, "Background"],
-    [/\bWarna\b/gi, "Color"],
-  ]
-  for (const [re, rep] of replacements) out = out.replace(re, rep)
-  out = out.replace(/\s+/g, " ").trim()
-  return out
-}
-
-function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
-  const base = {
-    ...field,
-    section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
-    order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
-    placeholder: field.placeholders?.[code] ?? field.placeholder,
-  }
-  if (lang !== "en") {
-    if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
-      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
-    }
-    return base
-  }
-  const enPlaceholder = field.placeholdersEn?.[code] ?? field.placeholderEn ?? base.placeholder
-  const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
-  return {
-    ...base,
-    label: enLabel,
-    placeholder: enPlaceholder,
-  }
-}
-
-export function getTemplateExtraFields(templateCode: string | null | undefined, lang: "id" | "en" = "id"): TemplateExtraField[] {
+export function getTemplateExtraFields(templateCode: string | null | undefined): TemplateExtraField[] {
   if (!templateCode) return []
   const code = templateCode.toLowerCase()
   const sectionOrder = new Map(TEMPLATE_EXTRA_SECTIONS.map((s, i) => [s.key, i]))
   return TEMPLATE_EXTRA_FIELDS
     .filter((field) => field.templates.includes(code))
-    .map((field) => localizeExtraField(field, code, lang))
+    .map((field) => ({
+      ...field,
+      section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
+      order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
+      placeholder: field.placeholders?.[code] ?? field.placeholder,
+    }))
     .sort((a, b) => {
       const ai = sectionOrder.get(a.section ?? "") ?? Number.MAX_SAFE_INTEGER
       const bi = sectionOrder.get(b.section ?? "") ?? Number.MAX_SAFE_INTEGER
@@ -2094,7 +1881,7 @@ export interface TemplateExtraGroup {
   fields: TemplateExtraField[]
 }
 
-export function groupExtraFields(fields: TemplateExtraField[], lang: "id" | "en" = "id"): TemplateExtraGroup[] {
+export function groupExtraFields(fields: TemplateExtraField[]): TemplateExtraGroup[] {
   const bySection = new Map<string, TemplateExtraField[]>()
   for (const f of fields) {
     const key = f.section ?? "lainnya"
@@ -2111,19 +1898,14 @@ export function groupExtraFields(fields: TemplateExtraField[], lang: "id" | "en"
       if (ao !== bo) return ao - bo
       return a.key.localeCompare(b.key)
     })
-    const defaultLabel = sec?.label ?? key.toUpperCase()
-    const label = lang === "en"
-      ? (EXTRA_SECTION_LABEL_EN[key] ?? defaultLabel)
-      : (EXTRA_SECTION_LABEL_ID[key] ?? defaultLabel)
-    groups.push({ section: key, label, fields: sorted })
+    groups.push({ section: key, label: sec?.label ?? key.toUpperCase(), fields: sorted })
   }
   groups.sort((a, b) => (order.get(a.section) ?? 999) - (order.get(b.section) ?? 999))
   return groups
 }
 
-export function templateExtrasLabel(templateName: string | null | undefined, lang: "id" | "en" = "id"): string {
+export function templateExtrasLabel(templateName: string | null | undefined): string {
   const name = templateName?.trim()
-  if (lang === "en") return name ? `${name.toUpperCase()} EXTRAS` : "TEMPLATE EXTRAS"
   return name ? `EKSTRA ${name.toUpperCase()}` : "EKSTRA TEMPLATE"
 }
 
@@ -2954,7 +2736,7 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "open_button", label: "Teks Tombol Buka", section: "sampul", order: 12, templates: ["swan-garden"], placeholders: { "swan-garden": "Open Invitation" } },
   { key: "mempelai_title", label: "Judul Mempelai", section: "mempelai", order: 10, templates: ["swan-garden"], placeholders: { "swan-garden": "The Wedding Of" } },
   { key: "mempelai_intro", label: "Kalimat Pengantar Mempelai", section: "mempelai", order: 20, multiline: true, rows: 2, templates: ["swan-garden"], placeholders: { "swan-garden": "We cordially invite you to celebrate our wedding" } },
-  { key: "story_title", label: "Judul Cerita Cinta", section: "cerita", order: 10, templates: ["swan-garden", "dark-split-rail"], placeholders: { "swan-garden": "Our Story" } },
+  { key: "story_title", label: "Judul Cerita Cinta", section: "cerita", order: 10, templates: ["swan-garden"], placeholders: { "swan-garden": "Our Story" } },
   { key: "countdown_title", label: "Judul Hitung Mundur", section: "acara", order: 10, templates: ["swan-garden"], placeholders: { "swan-garden": "Save the Date" } },
   { key: "save_date_label", label: "Teks Tombol Kalender", section: "acara", order: 20, templates: ["swan-garden"], placeholders: { "swan-garden": "Add to Calendar" } },
   { key: "events_title", label: "Judul Acara", section: "acara", order: 30, templates: ["swan-garden"], placeholders: { "swan-garden": "The Wedding Day" } },

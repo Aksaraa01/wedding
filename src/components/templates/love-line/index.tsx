@@ -9,7 +9,6 @@ import { countdownTarget, formatDotDate, gcalLink } from "../shared/lib"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./love-line.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ART = (name: string) => `/templates/love-line/${name}.webp`
 
@@ -92,7 +91,6 @@ function InstagramIcon() {
 }
 
 export default function LoveLine(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -135,8 +133,8 @@ export default function LoveLine(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
-  const guestName = (profile.guest_name || "").trim() || (lang === "en" ? "Dear Guest" : "Tamu Undangan")
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
+  const guestName = (profile.guest_name || "").trim() || "Dear Guest"
 
   // Instagram hashtag from the editor only. No derived fallback: empty means
   // hidden. This template does not print a couple-initials monogram.
@@ -153,52 +151,52 @@ export default function LoveLine(profile: TemplateProps) {
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
 
   const coverKicker = (tc.cover_kicker || "").trim() || "you're invited to our wedding"
-  const coverGuestLabel = (tc.cover_guest_label || "").trim() || (lang === "en" ? "Dear honoured guest" : "Tamu yang terhormat")
-  const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
+  const coverGuestLabel = (tc.cover_guest_label || "").trim() || "Dear honoured guest"
+  const openLabel = (tc.open_button || "").trim() || "Open Invitation"
   const apology = (tc.cover_apology || "").trim() || DEFAULT_APOLOGY
   const openingKicker = (tc.opening_kicker || "").trim() || "with grateful hearts"
   const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "two people, one story"
-  const mempelaiTitle = (tc.mempelai_title || "").trim() || (lang === "en" ? "The Couple" : "Mempelai")
+  const mempelaiTitle = (tc.mempelai_title || "").trim() || "The Couple"
   const personOneLabel = (tc.person_one_label || "").trim() || "the one"
   const personTwoLabel = (tc.person_two_label || "").trim() || "the beauty"
   const parentsLabelMale = (tc.parents_label_male || "").trim() || "son of"
   const parentsLabelFemale = (tc.parents_label_female || "").trim() || "daughter of"
   const storyKicker = (tc.story_kicker || "").trim() || "our journey"
-  const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Story" : "Kisah")
-  const storyIntro = (tc.story_intro || "").trim() || (lang === "en" ? "The small chapters that brought us here." : "Bab-bab kecil yang membawa kami ke sini.")
+  const storyTitle = (tc.love_story_title || "").trim() || "Story"
+  const storyIntro = (tc.story_intro || "").trim() || "The small chapters that brought us here."
   const eventsKicker = (tc.events_kicker || "").trim() || "details of our big day"
-  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Date & Venue" : "Tanggal & Tempat")
-  const eventsIntro = (tc.events_intro || "").trim() || (lang === "en" ? "We would be honoured to have you with us." : "Merupakan kehormatan bagi kami jika Anda dapat hadir.")
-  const mapsLabel = (tc.maps_label || "").trim() || (lang === "en" ? "Open Map" : "Buka Peta")
-  const calendarLabel = (tc.events_note || "").trim() || t("saveToCalendar", lang)
+  const eventsTitle = (tc.events_title || "").trim() || "Date & Venue"
+  const eventsIntro = (tc.events_intro || "").trim() || "We would be honoured to have you with us."
+  const mapsLabel = (tc.maps_label || "").trim() || "Open Map"
+  const calendarLabel = (tc.events_note || "").trim() || "Add to Calendar"
   const countdownIntro = (tc.countdown_intro || "").trim() || "counting down"
   const invitingKicker = (tc.inviting_kicker || "").trim() || "with honour"
-  const invitingTitle = (tc.inviting_title || "").trim() || t("secInviting", lang)
-  const invitingIntro = (tc.inviting_intro || "").trim() || (lang === "en" ? "With gratitude, we also invite our families and friends." : "Dengan rasa syukur, kami juga mengundang keluarga dan sahabat kami.")
+  const invitingTitle = (tc.inviting_title || "").trim() || "Turut Mengundang"
+  const invitingIntro = (tc.inviting_intro || "").trim() || "With gratitude, we also invite our families and friends."
   const rundownKicker = (tc.rundown_kicker || "").trim() || "programme"
-  const rundownTitle = (tc.rundown_title || "").trim() || (lang === "en" ? "Schedule" : "Jadwal")
-  const rundownIntro = (tc.rundown_intro || "").trim() || (lang === "en" ? "How the day will unfold." : "Bagaimana hari akan berlangsung.")
+  const rundownTitle = (tc.rundown_title || "").trim() || "Schedule"
+  const rundownIntro = (tc.rundown_intro || "").trim() || "How the day will unfold."
   const galleryKicker = (tc.gallery_kicker || "").trim() || "our moments"
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Gallery" : "Galeri")
-  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
+  const galleryTitle = (tc.gallery_title || "").trim() || "Gallery"
+  const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
   const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT_INTRO
-  const giftTransferLabel = (tc.gift_button || "").trim() || (lang === "en" ? "Direct Transfer" : "Transfer Langsung")
-  const giftAddressLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
-  const transferNote = (tc.gift_transfer_note || "").trim() || (lang === "en" ? "Transfer directly to the account below:" : "Transfer langsung ke rekening di bawah ini:")
-  const addressNote = (tc.gift_address_note || "").trim() || (lang === "en" ? "Send your gift to the address below:" : "Kirim hadiah Anda ke alamat di bawah ini:")
-  const dressKicker = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dress Code" : "Busana")
-  const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Prayers & Wishes" : "Doa & Ucapan")
-  const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Leave your best prayers and wishes for us." : "Tinggalkan doa dan ucapan terbaik Anda untuk kami.")
-  const accountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening tersalin")
-  const addressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat tersalin")
+  const giftTransferLabel = (tc.gift_button || "").trim() || "Direct Transfer"
+  const giftAddressLabel = (tc.gift_send_label || "").trim() || "Send Gift"
+  const transferNote = (tc.gift_transfer_note || "").trim() || "Transfer directly to the account below:"
+  const addressNote = (tc.gift_address_note || "").trim() || "Send your gift to the address below:"
+  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
+  const wishesTitle = (tc.wishes_title || "").trim() || "Prayers & Wishes"
+  const wishesIntro = (tc.wishes_intro || "").trim() || "Leave your best prayers and wishes for us."
+  const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
+  const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
 
   const wishCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Your name" : "Nama Anda"),
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Full name" : "Nama lengkap"),
-    messageLabel: (tc.wishes_message_label || "").trim() || (lang === "en" ? "Your wish" : "Ucapan Anda"),
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave your best prayers and wishes" : "Tinggalkan doa dan ucapan terbaik Anda"),
-    submit: (tc.wishes_submit || "").trim() || (lang === "en" ? "Submit now" : "Kirim sekarang"),
-    empty: (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama."),
+    nameLabel: (tc.wishes_name_label || "").trim() || "Your name",
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Full name",
+    messageLabel: (tc.wishes_message_label || "").trim() || "Your wish",
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Leave your best prayers and wishes",
+    submit: (tc.wishes_submit || "").trim() || "Submit now",
+    empty: (tc.wishes_empty || "").trim() || "No wishes yet. Be the first.",
   }
 
   const target = useMemo(
@@ -316,7 +314,7 @@ export default function LoveLine(profile: TemplateProps) {
           <div className="ll-cover__inner">
             <p className="ll-cover__kicker" {...ON_LOAD("fade")}>{coverKicker}</p>
             <h1 className="ll-cover__names" {...ON_LOAD("up", 0.08)}>
-              <span className="ll-cover__name ll-cover__name--one">{groomName || (lang === "en" ? "The Groom" : "Mempelai Pria")}</span>
+              <span className="ll-cover__name ll-cover__name--one">{groomName || "The Groom"}</span>
               {brideName && (
                 <>
                   <span className="ll-cover__amp" aria-hidden="true">&amp;</span>
@@ -661,7 +659,7 @@ export default function LoveLine(profile: TemplateProps) {
                 guestLinkStrict={profile.guest_link_strict}
                 coupleName={coupleLabel}
                 copy={wishCopy}
-               language={profile.language} />
+              />
             </div>
           </section>
 
@@ -713,7 +711,7 @@ export default function LoveLine(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || (lang === "en" ? "Dear Guest" : "Tamu Undangan")}
+          guestName={profile.guest_name || "Dear Guest"}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -722,7 +720,6 @@ export default function LoveLine(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
-          language={profile.language}
           anchor="center"
         />
       )}

@@ -21,18 +21,13 @@ import Wishes from "./Wishes"
 import { OLAN } from "./assets"
 import "./olan.css"
 import "./olan-extra.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
-const GUEST_FALLBACK_ID = "Tamu Undangan"
-const GUEST_FALLBACK_EN = "Guest"
+const GUEST_FALLBACK = "Tamu Undangan"
 const DRESSCODE_DEFAULT_INTRO = "Elegant attire in warm earth tones — please reserve white for the couple."
 
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 const EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-const ID_MONTHS = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
 const EN_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-const ID_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
@@ -49,29 +44,27 @@ function ordinal(n: number): string {
   return n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th"
 }
 
-// EN: "January 04th, 2025" (reference). ID: "04 Januari 2025" (no ordinal).
-function longDate(value?: string | null, lang: "id" | "en" = "id"): { day: string; month: string; year: string; ord: string } | null {
+// "January 04th, 2025" — the reference's cover date.
+function longDate(value?: string | null): { day: string; month: string; year: string; ord: string } | null {
   const d = parseDate(value)
   if (!d) return null
-  const isEn = lang === "en"
   return {
     day: pad2(d.getDate()),
-    month: (isEn ? EN_MONTHS : ID_MONTHS)[d.getMonth()],
+    month: EN_MONTHS[d.getMonth()],
     year: String(d.getFullYear()),
-    ord: isEn ? ordinal(d.getDate()) : "",
+    ord: ordinal(d.getDate()),
   }
 }
 
-function shortDate(value?: string | null, lang: "id" | "en" = "id"): { day: string; month: string; year: string; ord: string; weekday: string } | null {
+function shortDate(value?: string | null): { day: string; month: string; year: string; ord: string; weekday: string } | null {
   const d = parseDate(value)
   if (!d) return null
-  const isEn = lang === "en"
   return {
     day: pad2(d.getDate()),
-    month: (isEn ? EN_MONTHS_SHORT : ID_MONTHS_SHORT)[d.getMonth()],
+    month: EN_MONTHS_SHORT[d.getMonth()],
     year: String(d.getFullYear()),
-    ord: isEn ? ordinal(d.getDate()) : "",
-    weekday: (isEn ? EN_DAYS : ID_DAYS)[d.getDay()],
+    ord: ordinal(d.getDate()),
+    weekday: EN_DAYS[d.getDay()],
   }
 }
 
@@ -95,13 +88,12 @@ function youtubeId(url?: string | null): string {
 type SessionEntry = NonNullable<TemplateProps["sessions"]>[number]
 
 export default function Olan(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const gates = profile.feature_gates || {}
   const content = profile.template_content || {}
 
   const groomShort = (profile.groom_name || "").trim()
   const brideShort = (profile.bride_name || "").trim()
-  const coupleShort = [groomShort, brideShort].filter(Boolean).join(" & ") || resolveCoupleName(profile) || (lang === "en" ? "The Couple" : "Mempelai")
+  const coupleShort = [groomShort, brideShort].filter(Boolean).join(" & ") || resolveCoupleName(profile) || "The Couple"
   const coupleFull = resolveCoupleName(profile) || coupleShort
   const groomName = (profile.groom_full_name || groomShort).trim()
   const brideName = (profile.bride_full_name || brideShort).trim()
@@ -148,7 +140,7 @@ export default function Olan(profile: TemplateProps) {
   const dresscodeOn = profile.dresscode_visible !== false
   const dresscode = dresscodeOn ? profile.dresscode : undefined
   const dresscodeColors = (dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
-  const dresscodeTitle = content.dresscode_title || dresscode?.title || t("secDresscode", lang)
+  const dresscodeTitle = content.dresscode_title || dresscode?.title || "Dress Code"
   // Couples who only pick colours get the template's house line instead of a
   // bare swatch row; EKSTRA's "Pengantar Dress Code" replaces it.
   const dresscodeIntro =
@@ -164,7 +156,7 @@ export default function Olan(profile: TemplateProps) {
   // watch-with-sound copy of the same clip.
   const gateFilm = gates.video !== false && profile.video_section_visible !== false ? videoSource(profile.video_url) : null
 
-  const date = longDate(profile.estimated_wedding_date || sessions[0]?.date, lang)
+  const date = longDate(profile.estimated_wedding_date || sessions[0]?.date)
   const target = useMemo(() => countdownTarget(sessions, profile.estimated_wedding_date), [sessions, profile.estimated_wedding_date])
   const calendar = gcalLink(sessions[0], groomName, brideName)
 
@@ -358,9 +350,9 @@ export default function Olan(profile: TemplateProps) {
             <div className="details">
               <h1>{coupleShort}</h1>
               <p>
-                {content.cover_guest_label || (lang === "en" ? "Dear" : "Kepada Yth.")}
+                {content.cover_guest_label || "Dear"}
                 <br />
-                {guestName || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)}
+                {guestName || GUEST_FALLBACK}
               </p>
             </div>
           </div>
@@ -374,14 +366,15 @@ export default function Olan(profile: TemplateProps) {
               <div className="inner">
                 <div className="head" data-aos="fade-down" data-aos-duration="1000">
                   <p data-aos="fade-down" data-aos-duration="3000" data-aos-delay="1000">
-                    {content.cover_kicker || t("weddingInvitation", lang)}
+                    {content.cover_kicker || "Wedding Invitation"}
                   </p>
                   <h1 data-aos="zoom-in" data-aos-duration="3200" data-aos-delay="1200">
                     {coupleShort}
                   </h1>
                   {date ? (
                     <p className="date" data-aos="fade-up" data-aos-duration="3000" data-aos-delay="1000">
-                      {date.month} {date.day}{date.ord ? <sup>{date.ord}</sup> : null}, {date.year}
+                      {date.month} {date.day}
+                      <sup>{date.ord}</sup>, {date.year}
                     </p>
                   ) : null}
                 </div>
@@ -437,7 +430,7 @@ export default function Olan(profile: TemplateProps) {
             <div className="couple">
               <div className="couple-head">
                 <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">
-                  {profile.opening_title || t("theWeddingOf", lang)}
+                  {profile.opening_title || "The Wedding Of"}
                 </h1>
                 {profile.opening_description ? (
                   <p className="couple-description" data-aos="fade-up" data-aos-duration="1000">
@@ -596,7 +589,7 @@ export default function Olan(profile: TemplateProps) {
               <div className="photo-inner">
                 <div className="photo-head">
                   <h1 className="photo-title" data-aos="fade-up" data-aos-duration="1000">
-                    {content.gallery_title || (lang === "en" ? "Portraits of Us" : "Potret Kami")}
+                    {content.gallery_title || "Portraits of Us"}
                   </h1>
                   {content.gallery_intro ? <p className="photo-description">{content.gallery_intro}</p> : null}
                 </div>
@@ -610,7 +603,7 @@ export default function Olan(profile: TemplateProps) {
                           e.preventDefault()
                           setLightbox(i)
                         }}
-                        aria-label={`${content.gallery_title || (lang === "en" ? "Portraits of Us" : "Potret Kami")} ${i + 1}`}
+                        aria-label={`${content.gallery_title || "Portraits of Us"} ${i + 1}`}
                       >
                         <img src={src} alt="" loading="lazy" />
                       </a>
@@ -627,7 +620,7 @@ export default function Olan(profile: TemplateProps) {
               <div className="inner">
                 <div className="title">
                   <h1 data-aos="zoom-out-up" data-aos-duration="1000">
-                    {content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")}
+                    {content.video_title || "Our Footage"}
                   </h1>
                   {content.video_caption ? (
                     <p data-aos="fade-up" data-aos-duration="1000">
@@ -654,12 +647,12 @@ export default function Olan(profile: TemplateProps) {
                             preload="auto"
                           />
                         ) : youtubeId(video.src) ? (
-                          <AutoplayYouTube videoId={youtubeId(video.src)} title={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")} />
+                          <AutoplayYouTube videoId={youtubeId(video.src)} title={content.video_title || "Our Footage"} />
                         ) : (
-                          <iframe src={video.src} title={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")} allow="autoplay; encrypted-media" />
+                          <iframe src={video.src} title={content.video_title || "Our Footage"} allow="autoplay; encrypted-media" />
                         )}
                       </div>
-                      <button type="button" className="play-btn" onClick={() => setVideoLive(video)} aria-label={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")}>
+                      <button type="button" className="play-btn" onClick={() => setVideoLive(video)} aria-label={content.video_title || "Our Footage"}>
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
                           <path d="M8 5v14l11-7z" />
                         </svg>
@@ -761,18 +754,18 @@ export default function Olan(profile: TemplateProps) {
 
                 <div className="save-date-head">
                   <h1 className="save-date-title" data-aos="zoom-in" data-aos-duration="1000">
-                    {content.countdown_title || t("countdown", lang)}
+                    {content.countdown_title || "Countdown"}
                   </h1>
                 </div>
                 <div className="save-date-body">
                   <div className="countdown">
                     <div className="count-item" data-aos="fade-down-right" data-aos-duration="1000" data-aos-delay="200">
                       <h2 className="count-num count-day">{countdown.days}</h2>
-                      <small className="count-text">{content.countdown_days || t("days", lang)}</small>
+                      <small className="count-text">{content.countdown_days || "Days"}</small>
                     </div>
                     <div className="count-item" data-aos="fade-down-left" data-aos-duration="1000" data-aos-delay="300">
                       <h2 className="count-num count-hour">{countdown.hours}</h2>
-                      <small className="count-text">{content.countdown_hours || t("hours", lang)}</small>
+                      <small className="count-text">{content.countdown_hours || "Hours"}</small>
                     </div>
                   </div>
                 </div>
@@ -780,18 +773,18 @@ export default function Olan(profile: TemplateProps) {
                   <div className="countdown">
                     <div className="count-item" data-aos="fade-up-right" data-aos-duration="1000" data-aos-delay="400">
                       <h2 className="count-num count-minute">{countdown.minutes}</h2>
-                      <small className="count-text">{content.countdown_minutes || t("minutes", lang)}</small>
+                      <small className="count-text">{content.countdown_minutes || "Minutes"}</small>
                     </div>
                     <div className="count-item" data-aos="fade-up-left" data-aos-duration="1000" data-aos-delay="500">
                       <h2 className="count-num count-second">{countdown.seconds}</h2>
-                      <small className="count-text">{content.countdown_seconds || t("seconds", lang)}</small>
+                      <small className="count-text">{content.countdown_seconds || "Seconds"}</small>
                     </div>
                   </div>
                 </div>
                 {calendar ? (
                   <div className="add-to-calendar-wrap" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="500">
                     <a className="add-to-calendar" href={calendar} target="_blank" rel="nofollow noreferrer noopener">
-                      {content.calendar_button || t("saveToCalendar", lang)}
+                      {content.calendar_button || "Add to Calendar"}
                     </a>
                   </div>
                 ) : null}
@@ -805,7 +798,7 @@ export default function Olan(profile: TemplateProps) {
               <div className="agenda-inner">
                 <div className="agenda-head">
                   <h2 className="agenda-title" data-aos="zoom-in" data-aos-duration="1500">
-                    {content.agenda_title || (lang === "en" ? "Wedding Day" : "Hari Pernikahan")}
+                    {content.agenda_title || "Wedding Day"}
                   </h2>
                   {content.events_intro ? (
                     <p className="agenda-description" data-aos="fade-up" data-aos-duration="1200">
@@ -815,7 +808,7 @@ export default function Olan(profile: TemplateProps) {
                 </div>
                 <div className="agenda-body">
                   {sessions.map((session, index) => {
-                    const sd = shortDate(session.date, lang)
+                    const sd = shortDate(session.date)
                     return (
                       <div className="event-item" key={`${session.name || "event"}-${index}`}>
                         {sd ? (
@@ -824,7 +817,8 @@ export default function Olan(profile: TemplateProps) {
                               {sd.weekday}
                             </h3>
                             <h2 className="event-date" data-aos="fade-up" data-aos-duration="1000">
-                              {sd.month} {sd.day}{sd.ord ? <sup>{sd.ord}</sup> : null}, {sd.year}
+                              {sd.month} {sd.day}
+                              <sup>{sd.ord}</sup>, {sd.year}
                             </h2>
                           </div>
                         ) : null}
@@ -842,7 +836,7 @@ export default function Olan(profile: TemplateProps) {
                                     {isCeremony(session.name) ? <RingsIcon /> : <WineIcon />}
                                   </div>
                                   <h3 className="activity-title" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
-                                    {session.name || content.agenda_title || (lang === "en" ? "Wedding Day" : "Hari Pernikahan")}
+                                    {session.name || content.agenda_title || "Wedding Day"}
                                   </h3>
                                   {timeLabel(session.time) ? (
                                     <p className="activity-time" data-aos="fade-up" data-aos-duration="1000">
@@ -864,7 +858,7 @@ export default function Olan(profile: TemplateProps) {
                                   {session.maps_url ? (
                                     <div className="activity-link-wrap" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
                                       <a className="activity-link" href={session.maps_url} target="_blank" rel="nofollow noreferrer noopener">
-                                        {content.maps_label || t("viewLocation", lang)}
+                                        {content.maps_label || "View Maps"}
                                       </a>
                                     </div>
                                   ) : null}
@@ -908,13 +902,13 @@ export default function Olan(profile: TemplateProps) {
           {honored.length > 0 ? (
             <section className="olan-inviting">
               <h2 className="olan-inviting__title" data-aos="zoom-in" data-aos-duration="1200">
-                {content.inviting_title || t("secInviting", lang)}
+                {content.inviting_title || "Turut Mengundang"}
               </h2>
-              <p className="olan-inviting__intro" data-aos="fade-up" data-aos-duration="1000">
-                {content.inviting_intro || (lang === "en"
-                  ? "We also present the families who extend this invitation alongside us."
-                  : "Dengan hormat, kami turut mengundang keluarga besar yang telah mendampingi perjalanan kami.")}
-              </p>
+              {content.inviting_intro ? (
+                <p className="olan-inviting__intro" data-aos="fade-up" data-aos-duration="1000">
+                  {content.inviting_intro}
+                </p>
+              ) : null}
               <ul className="olan-inviting__list">
                 {honored.map((family, i) => (
                   <li key={`${family}-${i}`} data-aos="fade-up" data-aos-duration="1000" data-aos-delay={i * 60}>
@@ -940,7 +934,7 @@ export default function Olan(profile: TemplateProps) {
           {rundown.length > 0 ? (
             <section className="rundown-container">
               <div className="rundown-inner">
-                <h3 className="rundown-title">{content.rundown_title || t("rundownTitle", lang)}</h3>
+                <h3 className="rundown-title">{content.rundown_title || "Rundown"}</h3>
                 <div className="rundown-event-list">
                   <div className="rundown-event">
                     {sessions[0]?.name ? <h5 className="rundown-event-title">{sessions[0].name}</h5> : null}
@@ -970,7 +964,7 @@ export default function Olan(profile: TemplateProps) {
               <div className="streaming-inner">
                 <div className="streaming-head">
                   <h2 className="streaming-title" data-aos="zoom-in" data-aos-duration="1200">
-                    {livestream?.title || t("secLivestream", lang)}
+                    {livestream?.title || "Live Streaming"}
                   </h2>
                 </div>
                 <div className="streaming-body">
@@ -981,7 +975,7 @@ export default function Olan(profile: TemplateProps) {
                       </div>
                       <div className="streaming-link-wrap" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="600">
                         <a className="streaming-link" href={livestreamUrl} target="_blank" rel="nofollow noreferrer noopener">
-                          {livestream?.buttonLabel || t("watchLivestream", lang)}
+                          {livestream?.buttonLabel || "Watch Here"}
                         </a>
                       </div>
                     </div>
@@ -1008,7 +1002,7 @@ export default function Olan(profile: TemplateProps) {
                   </div>
                 </div>
                 <div className="love-story-head">
-                  <h1 className="love-story-title">{content.love_story_title || t("secStory", lang)}</h1>
+                  <h1 className="love-story-title">{content.love_story_title || "Our Story"}</h1>
                 </div>
                 <div className="love-story-body">
                   <div className="story-chitra__slider-wrap">
@@ -1060,7 +1054,7 @@ export default function Olan(profile: TemplateProps) {
                         <button
                           type="button"
                           className="story-chitra__arrow-btn prev"
-                          aria-label={lang === "en" ? "Previous story" : "Cerita sebelumnya"}
+                          aria-label="Previous story"
                           onClick={() => setStoryIndex((i) => (i - 1 + stories.length) % stories.length)}
                         >
                           <svg viewBox="0 0 108 198" width="26" height="48" fill="none" aria-hidden>
@@ -1070,7 +1064,7 @@ export default function Olan(profile: TemplateProps) {
                         <button
                           type="button"
                           className="story-chitra__arrow-btn next"
-                          aria-label={lang === "en" ? "Next story" : "Cerita berikutnya"}
+                          aria-label="Next story"
                           onClick={() => setStoryIndex((i) => (i + 1) % stories.length)}
                         >
                           <svg viewBox="0 0 108 198" width="26" height="48" fill="none" aria-hidden>
@@ -1104,7 +1098,7 @@ export default function Olan(profile: TemplateProps) {
                 <div className="wedding-gift-inner">
                   <div className="wedding-gift-head">
                     <h1 className="wedding-gift-title" data-aos="zoom-in" data-aos-duration="1500">
-                      {content.gift_intro_title || t("secGift", lang)}
+                      {content.gift_intro_title || "Wedding Gift"}
                     </h1>
                     {content.gift_intro_description ? (
                       <p className="wedding-gift-description" data-aos="fade-up" data-aos-duration="1000">
@@ -1154,19 +1148,19 @@ export default function Olan(profile: TemplateProps) {
                               <div className="bank-detail">
                                 <h3 className="bank-name">{selectedAccount.provider_name || ""}</h3>
                                 <div>
-                                  <small className="bank-account-number-label">{content.gift_account_label || (lang === "en" ? "Account Number" : "Nomor Rekening")}</small>
+                                  <small className="bank-account-number-label">{content.gift_account_label || "Account Number"}</small>
                                   <h4
                                     className="bank-account-number"
                                     role="button"
                                     tabIndex={0}
                                     onClick={() =>
-                                      copyValue(selectedAccount.account_number || "", content.copy_account_toast || t("copiedToClipboard", lang))
+                                      copyValue(selectedAccount.account_number || "", content.copy_account_toast || "Account number copied")
                                     }
                                     onKeyDown={(e) => {
                                       if (e.key === "Enter" || e.key === " ")
                                         copyValue(
                                           selectedAccount.account_number || "",
-                                          content.copy_account_toast || t("copiedToClipboard", lang)
+                                          content.copy_account_toast || "Account number copied"
                                         )
                                     }}
                                   >
@@ -1178,7 +1172,7 @@ export default function Olan(profile: TemplateProps) {
                                   </h4>
                                 </div>
                                 <div>
-                                  <small className="bank-account-name-label">{content.gift_name_label || (lang === "en" ? "Account Name" : "Nama Pemilik Rekening")}</small>
+                                  <small className="bank-account-name-label">{content.gift_name_label || "Account Name"}</small>
                                   <h4 className="bank-account-name">{selectedAccount.account_name || ""}</h4>
                                 </div>
                               </div>
@@ -1189,15 +1183,15 @@ export default function Olan(profile: TemplateProps) {
 
                       {giftAddress ? (
                         <div className="olan-gift-address">
-                          <h3 className="olan-gift-address__title">{content.gift_address_title || t("sendGift", lang)}</h3>
+                          <h3 className="olan-gift-address__title">{content.gift_address_title || "Send a Gift"}</h3>
                           {giftAddressName ? <p className="olan-gift-address__name">{giftAddressName}</p> : null}
                           <p className="olan-gift-address__lines">{giftAddress}</p>
                           <button
                             type="button"
                             className="olan-gift-address__copy"
-                            onClick={() => copyValue(giftAddress, content.copy_address_toast || t("copiedToClipboard", lang))}
+                            onClick={() => copyValue(giftAddress, content.copy_address_toast || "Address copied")}
                           >
-                            {content.copy_address_button || t("copyAddress", lang)}
+                            {content.copy_address_button || "Copy Address"}
                           </button>
                         </div>
                       ) : null}
@@ -1238,7 +1232,7 @@ export default function Olan(profile: TemplateProps) {
               <div className="wedding-wish-inner">
                 <div className="wedding-wish-head">
                   <h1 className="wedding-wish-title" data-aos="fade-up" data-aos-duration="1200">
-                    {content.wishes_title || t("secWishes", lang)}
+                    {content.wishes_title || "Wedding Wish"}
                   </h1>
                   {content.wishes_intro ? <p className="olan-wish-intro">{content.wishes_intro}</p> : null}
                 </div>
@@ -1248,17 +1242,17 @@ export default function Olan(profile: TemplateProps) {
                     guestId={profile.guest_id}
                     guestName={guestName}
                     guestLinkStrict={profile.guest_link_strict}
-                    nameFallback={lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID}
+                    nameFallback={GUEST_FALLBACK}
                     copy={{
-                      nameLabel: content.wishes_name_label || (lang === "en" ? "Name" : "Nama"),
-                      namePlaceholder: content.wishes_name_placeholder || (lang === "en" ? "Your name" : "Nama Anda"),
-                      messageLabel: content.wishes_message_label || (lang === "en" ? "Message" : "Pesan"),
-                      messagePlaceholder: content.wishes_message_placeholder || (lang === "en" ? "Give your wish..." : "Tulis ucapan Anda..."),
-                      submit: content.wishes_submit || t("send", lang),
-                      empty: content.wishes_empty || t("noWishesYet", lang),
-                      more: content.wishes_more || (lang === "en" ? "Show more comments" : "Lihat ucapan lainnya"),
-                      loading: content.wishes_loading || t("loadingWishes", lang),
-                    }} language={lang}
+                      nameLabel: content.wishes_name_label || "Name",
+                      namePlaceholder: content.wishes_name_placeholder || "Your name",
+                      messageLabel: content.wishes_message_label || "Message",
+                      messagePlaceholder: content.wishes_message_placeholder || "Give your wish...",
+                      submit: content.wishes_submit || "Send",
+                      empty: content.wishes_empty || "Be the first to leave a wish.",
+                      more: content.wishes_more || "Show more comments",
+                      loading: content.wishes_loading || "Loading",
+                    }}
                   />
                 </div>
               </div>
@@ -1268,7 +1262,7 @@ export default function Olan(profile: TemplateProps) {
           {/* ───── closing note + quote ───── */}
           <section className="notes-container">
             <div className="note">
-              <h4 className="note-title">{content.closing_title || t("thankYou", lang)}</h4>
+              <h4 className="note-title">{content.closing_title || "Thank You"}</h4>
               <p className="note-description">
                 {content.closing_message ||
                   "From the bottom of our hearts we thank you for being part of our big day. We are beyond lucky to have each of you in our lives."}
@@ -1298,7 +1292,7 @@ export default function Olan(profile: TemplateProps) {
             <div className="footnote-inner">
               <div className="footnote-head">
                 <p className="top-text" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="100">
-                  {content.cover_kicker || t("weddingInvitation", lang)}
+                  {content.cover_kicker || "Wedding Invitation"}
                 </p>
                 <h2 className="footnote-title" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200">
                   {coupleShort}
@@ -1306,7 +1300,7 @@ export default function Olan(profile: TemplateProps) {
                 {date ? (
                   <p className="date" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
                     {date.month} {date.day}
-                    {date.ord ? <sup>{date.ord}</sup> : null}, {date.year}
+                    <sup>{date.ord}</sup>, {date.year}
                   </p>
                 ) : null}
                 {profile.display_name ? (
@@ -1419,9 +1413,9 @@ export default function Olan(profile: TemplateProps) {
                 {coupleShort}
               </h1>
               <p data-aos="fade-up" data-aos-duration="2000" data-aos-delay="1100">
-                {content.cover_guest_label || (lang === "en" ? "Dear" : "Kepada Yth.")}
+                {content.cover_guest_label || "Dear"}
                 <br />
-                {guestName || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)}
+                {guestName || GUEST_FALLBACK}
               </p>
               <div data-aos="fade-up" data-aos-duration="2600" data-aos-delay="1500">
                 <a
@@ -1432,7 +1426,7 @@ export default function Olan(profile: TemplateProps) {
                     openInvitation()
                   }}
                 >
-                  {content.open_button || t("openInvitation", lang)}
+                  {content.open_button || "Open Invitation"}
                 </a>
               </div>
             </div>
@@ -1449,7 +1443,7 @@ export default function Olan(profile: TemplateProps) {
           <button
             type="button"
             className={`olan-music${playing ? "" : " paused"}`}
-            aria-label={playing ? t("pauseMusic", lang) : t("playMusic", lang)}
+            aria-label={playing ? "Pause music" : "Play music"}
             onClick={toggleMusic}
           >
             <span className="tpl-vinyl">
@@ -1470,7 +1464,7 @@ export default function Olan(profile: TemplateProps) {
       {/* ───────── lightbox ───────── */}
       {lightbox !== null && gallery[lightbox] ? (
         <div className="olan-lightbox" role="dialog" aria-modal="true" onClick={closeLightbox}>
-          <button type="button" className="olan-lightbox__close" onClick={closeLightbox} aria-label={lang === "en" ? "Close" : "Tutup"}>
+          <button type="button" className="olan-lightbox__close" onClick={closeLightbox} aria-label="Close">
             ×
           </button>
           <img src={gallery[lightbox]} alt="" onClick={(e) => e.stopPropagation()} />
@@ -1479,7 +1473,7 @@ export default function Olan(profile: TemplateProps) {
               <button
                 type="button"
                 className="olan-lightbox__nav prev"
-                aria-label={lang === "en" ? "Previous photo" : "Foto sebelumnya"}
+                aria-label="Previous photo"
                 onClick={(e) => {
                   e.stopPropagation()
                   setLightbox((i) => (i === null ? i : (i - 1 + gallery.length) % gallery.length))
@@ -1490,7 +1484,7 @@ export default function Olan(profile: TemplateProps) {
               <button
                 type="button"
                 className="olan-lightbox__nav next"
-                aria-label={lang === "en" ? "Next photo" : "Foto berikutnya"}
+                aria-label="Next photo"
                 onClick={(e) => {
                   e.stopPropagation()
                   setLightbox((i) => (i === null ? i : (i + 1) % gallery.length))
@@ -1506,14 +1500,14 @@ export default function Olan(profile: TemplateProps) {
       {/* ───────── film modal ───────── */}
       {videoLive ? (
         <div className="olan-video-modal" role="dialog" aria-modal="true" onClick={closeVideo}>
-          <button type="button" className="olan-lightbox__close" onClick={closeVideo} aria-label={lang === "en" ? "Close" : "Tutup"}>
+          <button type="button" className="olan-lightbox__close" onClick={closeVideo} aria-label="Close">
             ×
           </button>
           <div className="olan-video-modal__frame" onClick={(e) => e.stopPropagation()}>
             {videoLive.kind === "file" ? (
               <video src={videoLive.src} controls autoPlay playsInline />
             ) : (
-              <iframe src={videoLive.src} title={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+              <iframe src={videoLive.src} title={content.video_title || "Our Footage"} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
             )}
           </div>
         </div>
@@ -1530,7 +1524,7 @@ export default function Olan(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={guestName || (lang === "en" ? GUEST_FALLBACK_EN : GUEST_FALLBACK_ID)}
+          guestName={guestName || GUEST_FALLBACK}
           coupleName={coupleShort}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -1540,7 +1534,6 @@ export default function Olan(profile: TemplateProps) {
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="center"
-          language={lang}
         />
       )}
     </div>

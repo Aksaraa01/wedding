@@ -34,11 +34,6 @@ export default function SelfieModal({
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState("")
-  const [camError, setCamError] = useState<string | null>(null)
-  const [camLoading, setCamLoading] = useState(false)
-  const [hasCamera, setHasCamera] = useState(true)
-
-  const restartRef = useRef<((mode?: "user" | "environment") => void) | null>(null)
 
   // Start the selfie camera whenever the modal opens.
   useEffect(() => {
@@ -47,18 +42,9 @@ export default function SelfieModal({
     setCapturedSrc(null)
     setCapturedBlob(null)
     setUploadError("")
-    setCamError(null)
-    setHasCamera(true)
 
     const start = async (mode: "user" | "environment") => {
-      setCamLoading(true)
-      setCamError(null)
       try {
-        if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-          setCamError("Kamera tidak didukung di browser ini.")
-          setHasCamera(false)
-          return
-        }
         if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop())
         const stream = await navigator.mediaDevices.getUserMedia({
           // HD ideals (see PhotoboothCamera): no constraint = 640x480 feed
@@ -69,54 +55,18 @@ export default function SelfieModal({
         streamRef.current = stream
         if (videoRef.current) {
           videoRef.current.srcObject = stream
-          await videoRef.current.play().catch(() => {})
+          await videoRef.current.play()
         }
-        setHasCamera(true)
-      } catch (err: any) {
-        const name = err?.name || ""
-        if (name === "NotAllowedError") {
-          setCamError("Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser, lalu tap Coba Lagi.")
-        } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-          setCamError("Kamera tidak ditemukan di perangkat ini.")
-          setHasCamera(false)
-        } else if (name === "NotReadableError") {
-          setCamError("Kamera sedang dipakai aplikasi lain. Tutup aplikasi lain lalu Coba Lagi.")
-        } else if (name === "OverconstrainedError") {
-          setCamError("Kamera tidak mendukung mode ini. Coba Lagi.")
-        } else if (name === "SecurityError") {
-          setCamError("Kamera butuh HTTPS. Buka via https://")
-        } else {
-          setCamError(err?.message || "Gagal mengakses kamera. Coba lagi.")
-        }
-        console.error("Selfie camera error:", err)
-      } finally {
-        setCamLoading(false)
-      }
+      } catch {}
     }
-
-    restartRef.current = (mode) => { void start(mode ?? facing) }
-    void start(facing)
+    start(facing)
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
       if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop())
       streamRef.current = null
-      restartRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, facing])
-
-  // Reopen race: if getUserMedia resolved before the re-render that mounts the
-  // <video> (common when permission is already granted), attach the stream once
-  // the video element is available.
-  useEffect(() => {
-    if (!open || capturedSrc || camError) return
-    const video = videoRef.current
-    const stream = streamRef.current
-    if (video && stream && video.srcObject !== stream) {
-      video.srcObject = stream
-      void video.play().catch(() => {})
-    }
-  }, [open, capturedSrc, camError, camLoading])
 
   const capture = () => {
     const video = videoRef.current
@@ -240,57 +190,30 @@ export default function SelfieModal({
           <img src={capturedSrc} alt="Foto check-in" className="absolute inset-0 w-full h-full object-contain" />
         )}
         {/* Viewfinder frame corners */}
-        {!camError && !camLoading && (
-          <div className="absolute inset-0 pointer-events-none z-10">
-            <div className="absolute top-[max(16px,env(safe-area-inset-top))] left-4 w-10 h-10 border-t-2 border-l-2 border-white/60 rounded-tl-lg" />
-            <div className="absolute top-[max(16px,env(safe-area-inset-top))] right-4 w-10 h-10 border-t-2 border-r-2 border-white/60 rounded-tr-lg" />
-            <div className="absolute bottom-[max(120px,calc(env(safe-area-inset-bottom)+96px))] left-4 w-10 h-10 border-b-2 border-l-2 border-white/60 rounded-bl-lg" />
-            <div className="absolute bottom-[max(120px,calc(env(safe-area-inset-bottom)+96px))] right-4 w-10 h-10 border-b-2 border-r-2 border-white/60 rounded-br-lg" />
-          </div>
-        )}
+        <div className="absolute inset-0 pointer-events-none z-10">
+          <div className="absolute top-[max(16px,env(safe-area-inset-top))] left-4 w-10 h-10 border-t-2 border-l-2 border-white/60 rounded-tl-lg" />
+          <div className="absolute top-[max(16px,env(safe-area-inset-top))] right-4 w-10 h-10 border-t-2 border-r-2 border-white/60 rounded-tr-lg" />
+          <div className="absolute bottom-[max(120px,calc(env(safe-area-inset-bottom)+96px))] left-4 w-10 h-10 border-b-2 border-l-2 border-white/60 rounded-bl-lg" />
+          <div className="absolute bottom-[max(120px,calc(env(safe-area-inset-bottom)+96px))] right-4 w-10 h-10 border-b-2 border-r-2 border-white/60 rounded-br-lg" />
+        </div>
         {/* Countdown overlay */}
         {countdown !== null && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/55 z-20">
             <span className="text-8xl font-serif text-white font-bold animate-pulse">{countdown}</span>
           </div>
         )}
-        {!capturedSrc && !camError && !camLoading && countdown === null && (
+        {!capturedSrc && countdown === null && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <span className="material-symbols-outlined text-6xl text-white/50 animate-pulse">face</span>
           </div>
         )}
-        {camLoading && !capturedSrc && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm gap-3 z-20">
-            <span className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-white/80">Meminta izin kamera...</span>
-          </div>
-        )}
-        {camError && !capturedSrc && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-6 text-center gap-3 z-20">
-            <span className="material-symbols-outlined text-white text-4xl">videocam_off</span>
-            <p className="text-sm text-white font-medium leading-relaxed max-w-sm">{camError}</p>
-            {hasCamera && (
-              <button
-                onClick={() => restartRef.current?.(facing)}
-                className="mt-1 px-6 py-2.5 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white/90"
-              >
-                Coba Lagi
-              </button>
-            )}
-            <p className="text-[11px] text-white/60 mt-1 max-w-sm">
-              Jika izin kamera ditolak, buka pengaturan browser untuk situs ini lalu izinkan kamera.
-            </p>
-          </div>
-        )}
         {/* Couple name/date band (preview) */}
-        {!camError && (
-          <div className="absolute bottom-[max(96px,calc(env(safe-area-inset-bottom)+72px))] left-0 right-0 bg-black/45 backdrop-blur-sm px-4 py-2.5 flex flex-col items-center gap-0.5 z-10">
-            <span className="font-serif text-white text-sm tracking-widest" style={{ fontFamily: "Playfair Display" }}>
-              {coupleName || "Aksaraa"}
-            </span>
-            <span className="text-white/70 text-[10px] tracking-widest">{endDate}</span>
-          </div>
-        )}
+        <div className="absolute bottom-[max(96px,calc(env(safe-area-inset-bottom)+72px))] left-0 right-0 bg-black/45 backdrop-blur-sm px-4 py-2.5 flex flex-col items-center gap-0.5 z-10">
+          <span className="font-serif text-white text-sm tracking-widest" style={{ fontFamily: "Playfair Display" }}>
+            {coupleName || "Aksaraa"}
+          </span>
+          <span className="text-white/70 text-[10px] tracking-widest">{endDate}</span>
+        </div>
       </div>
 
       {/* Header overlay */}
@@ -312,9 +235,8 @@ export default function SelfieModal({
         </div>
         <button
           onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
-          className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/25 transition-colors disabled:opacity-40"
+          className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/25 transition-colors"
           aria-label="Ganti kamera"
-          disabled={!!camError || camLoading}
         >
           <span className="material-symbols-outlined text-lg">cameraswitch</span>
         </button>
@@ -324,30 +246,21 @@ export default function SelfieModal({
       <footer className="absolute bottom-0 inset-x-0 z-30 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-4 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col gap-2">
         {uploadError && <p className="text-red-400 text-xs text-center font-medium bg-black/50 rounded-full px-3 py-1 mx-auto">{uploadError}</p>}
         {!capturedSrc ? (
-          camError ? (
+          <>
+            <button
+              onClick={beginCountdown}
+              disabled={countdown !== null}
+              className="w-full max-w-md mx-auto bg-white text-black py-4 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold flex justify-center items-center gap-2 disabled:opacity-50 shadow-xl"
+            >
+              <span className="material-symbols-outlined text-sm">photo_camera</span> Ambil Foto
+            </button>
             <button
               onClick={() => onDone(false)}
               className="w-full max-w-md mx-auto bg-white/15 backdrop-blur-md text-white border border-white/20 py-3 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold hover:bg-white/25 transition-colors"
             >
               Lewati Langkah Ini
             </button>
-          ) : (
-            <>
-              <button
-                onClick={beginCountdown}
-                disabled={countdown !== null || camLoading}
-                className="w-full max-w-md mx-auto bg-white text-black py-4 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold flex justify-center items-center gap-2 disabled:opacity-50 shadow-xl"
-              >
-                <span className="material-symbols-outlined text-sm">photo_camera</span> Ambil Foto
-              </button>
-              <button
-                onClick={() => onDone(false)}
-                className="w-full max-w-md mx-auto bg-white/15 backdrop-blur-md text-white border border-white/20 py-3 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold hover:bg-white/25 transition-colors"
-              >
-                Lewati Langkah Ini
-              </button>
-            </>
-          )
+          </>
         ) : (
           <>
             <button

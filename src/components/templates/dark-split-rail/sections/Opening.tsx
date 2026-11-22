@@ -2,7 +2,6 @@
 
 import { FONT_BODY, FONT_DISPLAY, FONT_VERSE } from "../fonts"
 import Section from "../Section"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 type Props = {
   eyebrow?: string
@@ -12,16 +11,14 @@ type Props = {
   description?: string
   quoteText?: string
   quoteSource?: string
-  language?: "id" | "en"
 }
 
-export default function Opening({ eyebrow, coupleLabel, hashtag, dateShort, description, quoteText, quoteSource, language = "id" }: Props) {
-  const lang = normalizeLanguage(language)
+export default function Opening({ eyebrow, coupleLabel, hashtag, dateShort, description, quoteText, quoteSource }: Props) {
   return (
     <Section id="opening" className="bg-black/[0.06]">
       <div className="text-center text-white">
         <p className="text-[13px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-          {eyebrow || t("theWeddingOf", lang)}
+          {eyebrow || "The Wedding Of"}
         </p>
         <h1 className="mt-4 text-[30px] leading-tight" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
           {coupleLabel}

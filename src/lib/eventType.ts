@@ -1,13 +1,9 @@
 // Event families. 'wedding' is the original Aksaraa product; the rest are the
 // Ceriavite (kids) family served from ceriavite.aksaraa.com while every
-// invitation keeps its canonical address (apex subdomain in prod, path-form on
-// staging/B1 — see coupleUrl).
+// invitation keeps its canonical `{slug}.aksaraa.com` address.
 //
 // Pure and client-safe: templates, the registration form, the dashboard and the
 // ops console all import from here, so no server-only modules may creep in.
-
-import { siteOrigin } from "./site"
-import { normalizeLanguage, type Language } from "./i18n"
 
 export type EventType = "wedding" | "khitanan" | "aqiqah" | "birthday"
 
@@ -15,15 +11,8 @@ export const EVENT_TYPES: EventType[] = ["wedding", "khitanan", "aqiqah", "birth
 
 export const KIDS_EVENT_TYPES: EventType[] = ["khitanan", "aqiqah", "birthday"]
 
+export const WEDDING_SITE = "https://wedding.aksaraa.com"
 export const KIDS_SITE = "https://ceriavite.aksaraa.com"
-
-// Site origin for the wedding app (prod: wedding.aksaraa.com, staging: e.g.
-// wedding-stg.aksaraa.com). Env-driven; defaults preserve prod.
-export function weddingSite(): string {
-  return siteOrigin()
-}
-
-export const WEDDING_SITE = weddingSite()
 
 export function isEventType(value: unknown): value is EventType {
   return typeof value === "string" && (EVENT_TYPES as string[]).includes(value)
@@ -58,7 +47,7 @@ export function templateMatchesEvent(templateFamily: unknown, profileEvent: unkn
 }
 
 export function eventSite(value: unknown): string {
-  return isKidsEvent(value) ? KIDS_SITE : weddingSite()
+  return isKidsEvent(value) ? KIDS_SITE : WEDDING_SITE
 }
 
 export const KIDS_EVENT_OPTIONS: { value: EventType; label: string; ceremony: string }[] = [
@@ -89,100 +78,65 @@ export type EventLabels = {
   coupleSeparator: string
 }
 
-function weddingLabels(lang: Language): EventLabels {
-  if (lang === "en") {
-    return {
-      brand: "Aksaraa Wedding",
-      site: weddingSite(),
-      eventNoun: "Wedding",
-      eventKicker: "The Wedding of",
-      coverKicker: "Wedding Invitation",
-      subjectLabel: "The Couple",
-      subjectPossessive: "The Couple",
-      subjectOf: "Child of",
-      mainEventName: "Wedding Ceremony",
-      secondaryEventName: "Reception",
-      countdownLabel: "Counting Down",
-      giftTitle: "Wedding Gift",
-      wishesTitle: "Wishes & Prayers",
-      closingHeadline: "With love and gratitude",
-      guestFallback: "Honored Guest",
-      coupleSeparator: "&",
-    }
-  }
-  return {
-    brand: "Aksaraa Wedding",
-    site: weddingSite(),
-    eventNoun: "Pernikahan",
-    eventKicker: "Pernikahan",
-    coverKicker: "Undangan Pernikahan",
-    subjectLabel: "Mempelai",
-    subjectPossessive: "Mempelai",
-    subjectOf: "Putra/Putri dari",
-    mainEventName: "Akad Nikah",
-    secondaryEventName: "Resepsi",
-    countdownLabel: "Menuju Hari Bahagia",
-    giftTitle: "Tanda Kasih",
-    wishesTitle: "Ucapan & Doa",
-    closingHeadline: "Kami yang berbahagia",
-    guestFallback: "Tamu Undangan",
-    coupleSeparator: "&",
-  }
+const WEDDING_LABELS: EventLabels = {
+  brand: "Aksaraa Wedding",
+  site: WEDDING_SITE,
+  eventNoun: "Pernikahan",
+  eventKicker: "The Wedding of",
+  coverKicker: "Undangan Pernikahan",
+  subjectLabel: "Mempelai",
+  subjectPossessive: "Mempelai",
+  subjectOf: "Putra/Putri dari",
+  mainEventName: "Akad Nikah",
+  secondaryEventName: "Resepsi",
+  countdownLabel: "Menuju Hari Bahagia",
+  giftTitle: "Wedding Gift",
+  wishesTitle: "Doa & Ucapan",
+  closingHeadline: "Kami yang berbahagia",
+  guestFallback: "Tamu Undangan",
+  coupleSeparator: "&",
 }
 
-function kidsBase(lang: Language): EventLabels {
-  if (lang === "en") {
-    return {
-      brand: "Ceriavite",
-      site: KIDS_SITE,
-      eventNoun: "Celebration",
-      eventKicker: "Walimatul Khitan",
-      coverKicker: "Khitanan Invitation",
-      subjectLabel: "Our Child",
-      subjectPossessive: "Our Son",
-      subjectOf: "Son of",
-      mainEventName: "Walimatul Khitan",
-      secondaryEventName: "Celebration",
-      countdownLabel: "Counting Down",
-      giftTitle: "Gift",
-      wishesTitle: "Wishes & Prayers",
-      closingHeadline: "With love and gratitude",
-      guestFallback: "Honored Guest",
-      coupleSeparator: "",
-    }
-  }
-  return {
-    brand: "Ceriavite",
-    site: KIDS_SITE,
-    eventNoun: "Acara",
+const KIDS_BASE: EventLabels = {
+  brand: "Ceriavite",
+  site: KIDS_SITE,
+  eventNoun: "Acara",
+  eventKicker: "Walimatul Khitan",
+  coverKicker: "Undangan Khitanan",
+  subjectLabel: "Ananda",
+  subjectPossessive: "Putra Kami",
+  subjectOf: "Putra dari",
+  mainEventName: "Walimatul Khitan",
+  secondaryEventName: "Syukuran",
+  countdownLabel: "Menuju Hari Bahagia",
+  giftTitle: "Tanda Kasih",
+  wishesTitle: "Doa & Ucapan",
+  closingHeadline: "Kami yang berbahagia",
+  guestFallback: "Tamu Undangan",
+  coupleSeparator: "",
+}
+
+const KIDS_BY_TYPE: Record<string, Partial<EventLabels>> = {
+  khitanan: {
+    eventNoun: "Khitanan",
     eventKicker: "Walimatul Khitan",
     coverKicker: "Undangan Khitanan",
-    subjectLabel: "Ananda",
-    subjectPossessive: "Putra Kami",
-    subjectOf: "Putra dari",
     mainEventName: "Walimatul Khitan",
     secondaryEventName: "Syukuran",
-    countdownLabel: "Menuju Hari Bahagia",
-    giftTitle: "Tanda Kasih",
-    wishesTitle: "Ucapan & Doa",
-    closingHeadline: "Kami yang berbahagia",
-    guestFallback: "Tamu Undangan",
-    coupleSeparator: "",
-  }
-}
-
-const KIDS_BY_TYPE: Record<string, { id: Partial<EventLabels>; en: Partial<EventLabels> }> = {
-  khitanan: {
-    id: { eventNoun: "Khitanan", eventKicker: "Walimatul Khitan", coverKicker: "Undangan Khitanan", mainEventName: "Walimatul Khitan", secondaryEventName: "Syukuran" },
-    en: { eventNoun: "Khitanan", eventKicker: "Walimatul Khitan", coverKicker: "Khitanan Invitation", mainEventName: "Walimatul Khitan", secondaryEventName: "Celebration" },
   },
   aqiqah: {
-    id: { eventNoun: "Aqiqah", eventKicker: "Walimatul Aqiqah", coverKicker: "Undangan Aqiqah", mainEventName: "Walimatul Aqiqah", secondaryEventName: "Syukuran" },
-    en: { eventNoun: "Aqiqah", eventKicker: "Walimatul Aqiqah", coverKicker: "Aqiqah Invitation", mainEventName: "Walimatul Aqiqah", secondaryEventName: "Celebration" },
+    eventNoun: "Aqiqah",
+    eventKicker: "Walimatul Aqiqah",
+    coverKicker: "Undangan Aqiqah",
+    mainEventName: "Walimatul Aqiqah",
+    secondaryEventName: "Syukuran",
   },
   birthday: {
-    id: { eventNoun: "Ulang Tahun", eventKicker: "Ulang Tahun", coverKicker: "Undangan Ulang Tahun", mainEventName: "Ulang Tahun", secondaryEventName: "Syukuran" },
-    en: { eventNoun: "Birthday", eventKicker: "Birthday Celebration", coverKicker: "Birthday Invitation", mainEventName: "Birthday Celebration", secondaryEventName: "Celebration" },
+    eventNoun: "Ulang Tahun",
+    eventKicker: "Ulang Tahun",
+    coverKicker: "Undangan Ulang Tahun",
+    mainEventName: "Ulang Tahun",
+    secondaryEventName: "Syukuran",
   },
 }
 
@@ -195,19 +149,15 @@ export function normalizeSubjectGender(value: unknown): SubjectGender | null {
 /**
  * Labels for one profile. `gender` only changes the words used about the child
  * ("Putra Kami" / "Putri Kami"); it never changes which column holds the data.
- * `lang` defaults to "id" so existing callers keep Bahasa behavior.
  */
-export function eventLabels(event: unknown, gender?: unknown, lang?: unknown): EventLabels {
+export function eventLabels(event: unknown, gender?: unknown): EventLabels {
   const type = normalizeEventType(event)
-  const l = normalizeLanguage(lang)
-  if (type === "wedding") return weddingLabels(l)
+  if (type === "wedding") return WEDDING_LABELS
 
-  const merged: EventLabels = { ...kidsBase(l), ...(KIDS_BY_TYPE[type]?.[l] || {}) }
+  const merged: EventLabels = { ...KIDS_BASE, ...(KIDS_BY_TYPE[type] || {}) }
   const g = normalizeSubjectGender(gender)
   if (g === "putri") {
-    return l === "en"
-      ? { ...merged, subjectPossessive: "Our Daughter", subjectOf: "Daughter of" }
-      : { ...merged, subjectPossessive: "Putri Kami", subjectOf: "Putri dari" }
+    return { ...merged, subjectPossessive: "Putri Kami", subjectOf: "Putri dari" }
   }
   return merged
 }
@@ -217,6 +167,7 @@ export function subjectDisplayName(
   event: unknown,
   names: { groom?: string | null; bride?: string | null; groomFull?: string | null; brideFull?: string | null },
 ): string {
+  const labels = eventLabels(event)
   if (normalizeEventType(event) === "wedding") {
     return [names.groom, names.bride].filter(Boolean).join(" & ")
   }

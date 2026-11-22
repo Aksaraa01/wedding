@@ -237,29 +237,18 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
               Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
             </p>
           </div>
-          <div className="shrink-0 flex flex-col items-start sm:items-end gap-2 sm:gap-1.5">
-            <div className="flex flex-row flex-wrap items-center gap-2">
-              <button
-                onClick={() => window.open(`/dashboard/${id}/wish-wall/buku`, "_blank", "noopener")}
-                disabled={approvedWishes.length === 0}
-                title={approvedWishes.length === 0 ? "Belum ada doa yang disetujui" : "Buka buku doa & harapan (HTML)"}
-                className="inline-flex items-center justify-center gap-1.5 bg-white text-[#B34E3F] border border-[#B34E3F]/30 rounded-full px-3 py-1.5 sm:px-5 sm:py-3 font-label-md text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-[#B34E3F]/5 active:scale-95 transition-all shadow-sm whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <span className="material-symbols-outlined text-[14px] sm:text-[16px]">menu_book</span>
-                Buku Doa &amp; Harapan
-              </button>
-              <button
-                onClick={downloadPdf}
-                disabled={downloading || approvedWishes.length === 0}
-                title={approvedWishes.length === 0 ? "Belum ada doa yang disetujui" : "Unduh doa yang disetujui sebagai PDF"}
-                className="inline-flex items-center justify-center gap-1.5 bg-[#B34E3F] text-white rounded-full px-3 py-1.5 sm:px-6 sm:py-3 font-label-md text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <span className={`material-symbols-outlined text-[14px] sm:text-[16px] ${downloading ? "animate-spin" : ""}`}>
-                  {downloading ? "progress_activity" : "picture_as_pdf"}
-                </span>
-                {downloading ? "Menyiapkan PDF…" : "Download PDF"}
-              </button>
-            </div>
+          <div className="shrink-0 flex flex-row items-center justify-between sm:flex-col sm:items-end gap-2 sm:gap-1.5">
+            <button
+              onClick={downloadPdf}
+              disabled={downloading || approvedWishes.length === 0}
+              title={approvedWishes.length === 0 ? "Belum ada doa yang disetujui" : "Unduh doa yang disetujui sebagai PDF"}
+              className="inline-flex items-center justify-center gap-1.5 bg-[#B34E3F] text-white rounded-full px-3 py-1.5 sm:px-6 sm:py-3 font-label-md text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span className={`material-symbols-outlined text-[14px] sm:text-[16px] ${downloading ? "animate-spin" : ""}`}>
+                {downloading ? "progress_activity" : "picture_as_pdf"}
+              </span>
+              {downloading ? "Menyiapkan PDF…" : "Download PDF"}
+            </button>
             <span className="text-[11px] text-on-surface-variant text-right sm:text-right">
               {approvedWishes.length > 0 ? `${approvedWishes.length} doa disetujui` : "Belum ada doa disetujui"}
             </span>

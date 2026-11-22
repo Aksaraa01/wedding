@@ -11,7 +11,7 @@ export async function GET(
 
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, bride_full_name, groom_full_name, display_name, scanner_pin, sessions, estimated_wedding_date, cover_photos, couple_illustration_url, selected_template_id")
+      .select("id, bride_name, groom_name, bride_full_name, groom_full_name, display_name, scanner_pin, sessions, estimated_wedding_date, cover_photos, couple_illustration_url")
       .eq("slug", slug)
       .single()
 
@@ -19,16 +19,10 @@ export async function GET(
       return NextResponse.json({ error: "Acara tidak ditemukan" }, { status: 404 })
     }
 
-    const [{ count: guestCount }, templateRes] = await Promise.all([
-      supabaseAdmin
-        .from("guests")
-        .select("id", { count: "exact", head: true })
-        .eq("wedding_profile_id", profile.id),
-      (profile as any).selected_template_id
-        ? supabaseAdmin.from("web_templates").select("source_type").eq("id", (profile as any).selected_template_id).maybeSingle()
-        : Promise.resolve({ data: null as any }),
-    ])
-    const acaraSupported = templateRes?.data?.source_type === "inhouse"
+    const { count: guestCount } = await supabaseAdmin
+      .from("guests")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", profile.id)
 
     return NextResponse.json({
       wedding_profile_id: profile.id,
@@ -45,8 +39,6 @@ export async function GET(
         const first = covers.find((c: unknown) => typeof c === "string" && (c as string).trim()) as string | undefined
         return (first as string) || (profile as any).couple_illustration_url || null
       })(),
-      sessions: Array.isArray((profile as any).sessions) ? (profile as any).sessions : [],
-      acara_supported: acaraSupported,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

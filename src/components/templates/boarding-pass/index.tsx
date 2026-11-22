@@ -17,17 +17,12 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./boarding-pass.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
-const DEFAULT_OPENING_TITLE = { id: "Salam Hangat", en: "Warm Greetings" } as const
-const DEFAULT_OPENING_DESCRIPTION = {
-  id: "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk ikut serta dalam perjalanan paling berarti bagi kami: hari pernikahan kami.",
-  en: "With gratitude and blessings, we invite you to be part of the most meaningful journey of our lives: our wedding day.",
-} as const
-const DEFAULT_CLOSING = {
-  id: "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
-  en: "It would be our joy to have you with us and to receive your prayers and blessings. Thank you for being part of our journey.",
-} as const
+const DEFAULT_OPENING_TITLE = "Salam Hangat"
+const DEFAULT_OPENING_DESCRIPTION =
+  "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk ikut serta dalam perjalanan paling berarti bagi kami: hari pernikahan kami."
+const DEFAULT_CLOSING =
+  "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami."
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
@@ -91,7 +86,7 @@ type Reveal = "fade" | "up" | "zoom"
 const IN = (kind: Reveal, delay = 0): Record<string, string> =>
   delay > 0 ? { "data-bp-reveal": kind, "data-bp-delay": `${delay}s` } : { "data-bp-reveal": kind }
 
-function Clock({ target, reveal, lang = "id" as "id" | "en" }: { target: Date | null; reveal?: Record<string, string>; lang?: "id" | "en" }) {
+function Clock({ target, reveal }: { target: Date | null; reveal?: Record<string, string> }) {
   const [now, setNow] = useState<number | null>(null)
   useEffect(() => {
     if (!target) return
@@ -102,14 +97,14 @@ function Clock({ target, reveal, lang = "id" as "id" | "en" }: { target: Date | 
 
   const diff = target && now !== null ? Math.max(0, target.getTime() - now) : 0
   const units = [
-    { value: pad2(Math.floor(diff / 86400000)), label: t("days", lang) },
-    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: t("hours", lang) },
-    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: t("minutes", lang) },
-    { value: pad2(Math.floor((diff % 60000) / 1000)), label: t("seconds", lang) },
+    { value: pad2(Math.floor(diff / 86400000)), label: "Days" },
+    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: "Hours" },
+    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: "Minutes" },
+    { value: pad2(Math.floor((diff % 60000) / 1000)), label: "Seconds" },
   ]
 
   return (
-    <div className="bp-flaps" aria-label={t("countdown", lang)} {...reveal}>
+    <div className="bp-flaps" aria-label="Hitung mundur menuju hari bahagia" {...reveal}>
       {units.map((unit) => (
         <div className="bp-flap" key={unit.label}>
           <span className="bp-flap__digits">{target ? unit.value : "--"}</span>
@@ -121,7 +116,6 @@ function Clock({ target, reveal, lang = "id" as "id" | "en" }: { target: Date | 
 }
 
 export default function BoardingPass(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -186,8 +180,8 @@ export default function BoardingPass(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
-  const guestName = (profile.guest_name || "").trim() || t("guestHonored", lang)
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
+  const guestName = (profile.guest_name || "").trim() || "Tamu Undangan"
   const dateShort = shortDate(profile.estimated_wedding_date)
   const dateLong = longDate(profile.estimated_wedding_date)
   const firstSession = events[0]
@@ -195,27 +189,27 @@ export default function BoardingPass(profile: TemplateProps) {
   const yearShort = String(parseDate(profile.estimated_wedding_date)?.getFullYear() || "").slice(-2)
   const ticketCode = (tc.cover_kicker || "").trim() || `${initials} ${yearShort} · 01A`.trim()
 
-  const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE[lang]
+  const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE
   // The reference prints a kicker ("Salam Hangat") and then the couple's own
   // greeting. When the couple has not set one, the default would repeat the
   // kicker, so it is skipped instead of printed twice.
-  const greetingLine = openingTitle && openingTitle !== DEFAULT_OPENING_TITLE[lang] ? openingTitle : ""
-  const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION[lang]
+  const greetingLine = openingTitle && openingTitle !== "Salam Hangat" ? openingTitle : ""
+  const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION
   const hasQuote = !!((profile.quote_text || "").trim())
-  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING[lang]
+  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
   const galleryIntro = (tc.gallery_intro || "").trim() || "oleh-oleh dari perjalanan kami"
-  const giftIntroTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
+  const giftIntroTitle = (tc.gift_intro_title || "").trim() || "Tanda Kasih"
   const giftIntro = (tc.gift_intro_description || "").trim()
   // Dress-code prose lives in template_content because the editor exposes no
   // description field for that section.
   const dressIntro = (tc.dresscode_intro || "").trim() || (profile.dresscode?.description || "").trim()
   const heroTagline = (tc.hero_tagline || "").trim() || "tujuan akhir: hari bahagia kami"
   const boardFooter = (tc.board_footer || "").trim() || "sampai jumpa di gerbang keberangkatan"
-  const eventsNote = (tc.events_note || "").trim() || (lang === "en" ? "Please arrive 30 minutes before boarding." : "Mohon hadir 30 menit sebelum boarding.")
+  const eventsNote = (tc.events_note || "").trim() || "Mohon hadir 30 menit sebelum boarding."
   const seatClass = (tc.seat_class || "").trim() || "VIP"
-  const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Leave your best wishes and prayers for our new journey." : "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.")
+  const wishesIntro = (tc.wishes_intro || "").trim() || "Titipkan pesan dan doa terbaik untuk perjalanan baru kami."
   const invitingIntro = (tc.inviting_intro || "").trim()
-  const apology = (tc.cover_apology || "").trim() || (lang === "en" ? "Please show this ticket with a smile." : "Tunjukkan tiket ini dengan senyuman.")
+  const apology = (tc.cover_apology || "").trim() || "Tunjukkan tiket ini dengan senyuman."
 
   const gateOrSeat = (profile.guest_table_number || "").trim()
   const boardingTime = (firstSession?.time || "").trim()
@@ -326,14 +320,14 @@ export default function BoardingPass(profile: TemplateProps) {
 
   const copy = useCallback(
     (value: string, label: string) => {
-      const done = () => showToast(lang === "en" ? `${label} copied` : `${label} disalin`)
+      const done = () => showToast(`${label} disalin`)
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(done, () => showToast(t("failedToCopy", lang)))
+        navigator.clipboard.writeText(value).then(done, () => showToast("Gagal menyalin. Silakan salin manual."))
         return
       }
-      showToast(t("failedToCopy", lang))
+      showToast("Penyalinan tidak tersedia di peramban ini")
     },
-    [showToast, lang]
+    [showToast]
   )
 
   const rootStyle = {
@@ -373,7 +367,7 @@ export default function BoardingPass(profile: TemplateProps) {
       <div className="bp-col">
       {/* 1 — cover: the couple's photograph, a wash, and one boarding pass. */}
       {!opened && (
-        <section className="bp-cover" data-section="sampul" aria-label={t("openInvitation", lang)}>
+        <section className="bp-cover" data-section="sampul" aria-label="Buka undangan">
           {coverStill && <img className="bp-cover__photo" src={coverStill} alt="" aria-hidden="true" />}
           <span className="bp-cover__wash" aria-hidden="true" />
 
@@ -385,34 +379,34 @@ export default function BoardingPass(profile: TemplateProps) {
             <span className="bp-pass__rule" aria-hidden="true" {...IN("fade")} />
 
             <div className="bp-pass__duo">
-              <span className="bp-micro" {...IN("fade")}>{lang === "en" ? "From" : "Dari"}</span>
-              <span className="bp-micro bp-pass__right" {...IN("fade")}>{lang === "en" ? "To" : "Tujuan"}</span>
+              <span className="bp-micro" {...IN("fade")}>Dari</span>
+              <span className="bp-micro bp-pass__right" {...IN("fade")}>Tujuan</span>
             </div>
             <div className="bp-pass__names">
-              <span className="bp-pass__name" {...IN("up")}>{groomName || (lang === "en" ? "Groom" : "Mempelai Pria")}</span>
-              <span className="bp-pass__name bp-pass__right" {...IN("up")}>{brideName || (lang === "en" ? "Bride" : "Mempelai Wanita")}</span>
+              <span className="bp-pass__name" {...IN("up")}>{groomName || "Mempelai"}</span>
+              <span className="bp-pass__name bp-pass__right" {...IN("up")}>{brideName || "Mempelai"}</span>
             </div>
             <div className="bp-route" aria-hidden="true" {...IN("fade")}>
               <span className="bp-route__amp">&amp;</span>
             </div>
 
             <div className="bp-pass__duo" style={{ marginTop: "3.4cqw" }}>
-              <span className="bp-micro" {...IN("fade")}>{lang === "en" ? "Passenger" : "Penumpang"}</span>
+              <span className="bp-micro" {...IN("fade")}>Penumpang</span>
             </div>
             <p className="bp-pass__guest" {...IN("fade")}>{guestName}</p>
 
             <div className="bp-pass__duo">
-              <span className="bp-micro" {...IN("fade")}>{lang === "en" ? "Date" : "Tanggal"}</span>
-              <span className="bp-micro bp-pass__right" {...IN("fade")}>{lang === "en" ? "Gate" : "Gerbang"}</span>
+              <span className="bp-micro" {...IN("fade")}>Tanggal</span>
+              <span className="bp-micro bp-pass__right" {...IN("fade")}>Gerbang</span>
             </div>
             <div className="bp-pass__row">
               <span className="bp-pass__value" {...IN("fade")}>{dateShort}</span>
-              <span className="bp-pass__script bp-pass__right" {...IN("fade")}>{gateOrSeat || (lang === "en" ? "Venue" : "Pelaminan")}</span>
+              <span className="bp-pass__script bp-pass__right" {...IN("fade")}>{gateOrSeat || "Pelaminan"}</span>
             </div>
 
             <div className="bp-pass__duo">
-              <span className="bp-micro" {...IN("fade")}>{lang === "en" ? "Boarding" : "Boarding"}</span>
-              <span className="bp-micro bp-pass__right" {...IN("fade")}>{lang === "en" ? "To" : "Tujuan"}</span>
+              <span className="bp-micro" {...IN("fade")}>Boarding</span>
+              <span className="bp-micro bp-pass__right" {...IN("fade")}>Tujuan</span>
             </div>
             <div className="bp-pass__row">
               <span className="bp-pass__value" {...IN("fade")}>{boardingTime || "08.00 WIB"}</span>
@@ -438,11 +432,11 @@ export default function BoardingPass(profile: TemplateProps) {
           {heroStill && <img className="bp-hero__photo" src={heroStill} alt="" aria-hidden="true" />}
           <div className="bp-hero__wash" aria-hidden="true" />
           <div className="bp-hero__body">
-            <p className="bp-hero__kicker" {...IN("fade")}>{lang === "en" ? "Wedding" : "Pernikahan"}</p>
+            <p className="bp-hero__kicker" {...IN("fade")}>Pernikahan</p>
             <h1 className="bp-hero__names">
-              <span className="bp-hero__name" {...IN("up", 0.1)}>{groomName || (lang === "en" ? "Groom" : "Mempelai Pria")}</span>
+              <span className="bp-hero__name" {...IN("up", 0.1)}>{groomName || "Mempelai"}</span>
               <span className="bp-hero__amp" {...IN("fade", 0.22)}>&amp;</span>
-              <span className="bp-hero__name" {...IN("up", 0.3)}>{brideName || (lang === "en" ? "Bride" : "Mempelai Wanita")}</span>
+              <span className="bp-hero__name" {...IN("up", 0.3)}>{brideName || "Mempelai"}</span>
             </h1>
             {dateShort && <p className="bp-hero__date" {...IN("fade", 0.42)}>{dateShort}</p>}
             <p className="bp-hero__script" {...IN("fade", 0.52)}>{heroTagline}</p>
@@ -475,7 +469,7 @@ export default function BoardingPass(profile: TemplateProps) {
             <div className="bp-manifest" style={{ aspectRatio: passengers.length > 1 ? "390 / 840" : "390 / 480" }}>
               <div className="bp-manifest__head">
                 <p className="bp-mono bp-mono--teal" {...IN("fade")}>Daftar Penumpang</p>
-                <h2 className="bp-title" {...IN("up", 0.08)}>{t("secCouple", lang)}</h2>
+                <h2 className="bp-title" {...IN("up", 0.08)}>Kedua Mempelai</h2>
               </div>
 
               {passengers.map((person, index) => (
@@ -550,14 +544,14 @@ export default function BoardingPass(profile: TemplateProps) {
                       </span>
                     </div>
                     <div className={`bp-story__copy bp-story__copy--${slot}`}>
-                      <h3 className="bp-story__title" {...IN("up", 0.12)}>{title || (lang === "en" ? "Our Journey" : "Perjalanan Kami")}</h3>
+                      <h3 className="bp-story__title" {...IN("up", 0.12)}>{title || "Perjalanan Kami"}</h3>
                       {story.description && <p className="bp-story__text" {...IN("fade", 0.18)}>{story.description}</p>}
                     </div>
                   </div>
                 )
               })}
 
-              <p className="bp-storylist__end" {...IN("fade")}>{lang === "en" ? "…and our journey has just begun." : "…dan perjalanan kami baru saja dimulai."}</p>
+              <p className="bp-storylist__end" {...IN("fade")}>…dan perjalanan kami baru saja dimulai.</p>
             </div>
           </section>
         )}
@@ -581,8 +575,8 @@ export default function BoardingPass(profile: TemplateProps) {
                   {...IN("up")}
                 >
                   <div className="bp-flight__main">
-                    <p className="bp-flight__no" {...IN("fade", 0.08)}>{lang === "en" ? "Flight" : "Penerbangan"} {pad2(index + 1)}</p>
-                    <h3 className="bp-flight__name" {...IN("up", 0.12)}>{event.name || t("weddingEventFallback", lang)}</h3>
+                    <p className="bp-flight__no" {...IN("fade", 0.08)}>Penerbangan {pad2(index + 1)}</p>
+                    <h3 className="bp-flight__name" {...IN("up", 0.12)}>{event.name || "Acara"}</h3>
                     {event.date && <p className="bp-flight__date" {...IN("fade", 0.16)}>{longDate(event.date) || event.date}</p>}
                     {event.time && <p className="bp-flight__time" {...IN("fade", 0.18)}>{event.time}</p>}
                     {event.venue && <p className="bp-flight__venue" {...IN("fade", 0.2)}>{event.venue}</p>}
@@ -590,13 +584,13 @@ export default function BoardingPass(profile: TemplateProps) {
                     <div className="bp-flight__actions">
                       {event.maps_url && (
                         <a className="bp-btn bp-btn--solid" href={event.maps_url} target="_blank" rel="noopener noreferrer" {...IN("up", 0.24)}>
-                          {t("viewLocation", lang)}
+                          Lihat Peta
                         </a>
                       )}
                       <a
                         className="bp-btn"
                         href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-                          (event.name || (lang === "en" ? "Wedding" : "Pernikahan")) + ", " + coupleLabel
+                          (event.name || "Wedding") + ", " + coupleLabel
                         )}${event.date ? `&dates=${event.date.replace(/-/g, "")}/${event.date.replace(/-/g, "")}` : ""}${
                           event.venue ? `&location=${encodeURIComponent(event.venue)}` : ""
                         }`}
@@ -604,7 +598,7 @@ export default function BoardingPass(profile: TemplateProps) {
                         rel="noopener noreferrer"
                         {...IN("up", 0.26)}
                       >
-                        {t("saveToCalendar", lang)}
+                        Simpan
                       </a>
                     </div>
                   </div>
@@ -636,11 +630,11 @@ export default function BoardingPass(profile: TemplateProps) {
           <div className="bp-countdown">
             <div className="bp-board" {...IN("up")}>
               <p className="bp-board__label" {...IN("fade", 0.08)}>Papan Keberangkatan</p>
-              <h2 className="bp-board__title" {...IN("up", 0.12)}>{t("secCountdown", lang)}</h2>
-              <Clock target={countdown} reveal={IN("up", 0.18)} lang={lang} />
+              <h2 className="bp-board__title" {...IN("up", 0.12)}>Menuju Hari Bahagia</h2>
+              <Clock target={countdown} reveal={IN("up", 0.18)} />
               <div className="bp-board__meta">
                 <div>
-                  <p className="bp-board__metaLabel" {...IN("fade", 0.22)}>{lang === "en" ? "Destination" : "Tujuan"}</p>
+                  <p className="bp-board__metaLabel" {...IN("fade", 0.22)}>Tujuan</p>
                   <p className="bp-board__metaValue" {...IN("fade", 0.26)}>Hari Bahagia</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
@@ -663,7 +657,7 @@ export default function BoardingPass(profile: TemplateProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {t("saveToCalendar", lang)}
+                  Simpan ke Kalender
                 </a>
               </div>
               <p className="bp-board__foot" {...IN("fade", 0.36)}>{boardFooter}</p>
@@ -676,7 +670,7 @@ export default function BoardingPass(profile: TemplateProps) {
         {honored.length > 0 && (
           <section className="bp-section bp-inviting" data-section="inviting" aria-label="Turut mengundang">
             <div className="bp-card" {...IN("up")}>
-              <p className="bp-mono bp-mono--teal" {...IN("fade")}>{t("secInviting", lang)}</p>
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Turut Mengundang</p>
               {invitingIntro && <p className="bp-body" style={{ marginTop: 10 }} {...IN("fade", 0.08)}>{invitingIntro}</p>}
               <ul className="bp-inviting__list">
                 {honored.map((family, index) => (
@@ -757,7 +751,7 @@ export default function BoardingPass(profile: TemplateProps) {
               <h2 className="bp-title" {...IN("up", 0.06)}>Film Kami</h2>
             </div>
             <div className="bp-film" {...IN("up", 0.18)}>
-              <button type="button" className="bp-film__plate" onClick={() => setVideoOpen(true)} aria-label={lang === "en" ? "Play film" : "Putar film"}>
+              <button type="button" className="bp-film__plate" onClick={() => setVideoOpen(true)} aria-label="Putar film">
                 {heroStill && <img src={heroStill} alt="" loading="lazy" />}
                 <span className="bp-film__stamp" aria-hidden="true">
                   <svg viewBox="0 0 16 16" fill="currentColor">
@@ -814,7 +808,7 @@ export default function BoardingPass(profile: TemplateProps) {
                     <p className="bp-account__no">
                       <span>{account.account_number}</span>
                       {account.account_number && (
-                        <button type="button" className="bp-copy" onClick={() => copy(account.account_number || "", lang === "en" ? "Account number" : "Nomor rekening")}>
+                        <button type="button" className="bp-copy" onClick={() => copy(account.account_number || "", "Nomor rekening")}>
                           Salin
                         </button>
                       )}
@@ -829,7 +823,7 @@ export default function BoardingPass(profile: TemplateProps) {
               <div className="bp-address" {...IN("fade", 0.22)}>
                 {profile.gift_address_name && <p className="bp-address__name">{profile.gift_address_name}</p>}
                 <p className="bp-address__text">{giftAddress}</p>
-                <button type="button" className="bp-copy" style={{ marginTop: 10 }} onClick={() => copy(giftAddress, lang === "en" ? "Address" : "Alamat")}>
+                <button type="button" className="bp-copy" style={{ marginTop: 10 }} onClick={() => copy(giftAddress, "Alamat")}>
                   Salin alamat
                 </button>
               </div>
@@ -849,7 +843,7 @@ export default function BoardingPass(profile: TemplateProps) {
               <span className="bp-dress__string" aria-hidden="true" {...IN("fade", 0.16)} />
 
               <div className="bp-tag" {...IN("up", 0.2)}>
-                <p className="bp-tag__title" {...IN("fade", 0.24)}>{(profile.dresscode?.title || "").trim() || t("secDresscode", lang)}</p>
+                <p className="bp-tag__title" {...IN("fade", 0.24)}>{(profile.dresscode?.title || "").trim() || "Dress Code"}</p>
                 {dressIntro && <p className="bp-tag__body" {...IN("fade", 0.26)}>{dressIntro}</p>}
                 <div className="bp-swatches" {...IN("fade", 0.3)}>
                   {dressColors.map((color, index) => (
@@ -881,7 +875,7 @@ export default function BoardingPass(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              intro={wishesIntro} language={profile.language}
+              intro={wishesIntro}
             />
           </div>
         </section>
@@ -945,7 +939,7 @@ export default function BoardingPass(profile: TemplateProps) {
           type="button"
           className={`bp-music ${playing ? "is-on" : "is-off"}`}
           onClick={toggleMusic}
-          aria-label={playing ? t("pauseMusic", lang) : t("playMusic", lang)}
+          aria-label={playing ? "Jeda musik" : "Putar musik"}
           aria-pressed={playing}
         >
           <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -955,15 +949,15 @@ export default function BoardingPass(profile: TemplateProps) {
       )}
 
       {lightbox !== null && gallery[lightbox] && (
-        <div className="bp-lightbox" role="dialog" aria-modal="true" aria-label={t("photoViewer", lang)} onClick={() => setLightbox(null)}>
-          <button type="button" className="bp-close" aria-label={t("closeViewer", lang)} onClick={() => setLightbox(null)}>
+        <div className="bp-lightbox" role="dialog" aria-modal="true" aria-label="Penampil foto" onClick={() => setLightbox(null)}>
+          <button type="button" className="bp-close" aria-label="Tutup" onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
             <button
               type="button"
               className="bp-nav bp-nav--prev"
-              aria-label={t("previousPhoto", lang)}
+              aria-label="Foto sebelumnya"
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(-1)
@@ -977,7 +971,7 @@ export default function BoardingPass(profile: TemplateProps) {
             <button
               type="button"
               className="bp-nav bp-nav--next"
-              aria-label={t("nextPhoto", lang)}
+              aria-label="Foto berikutnya"
               onClick={(event) => {
                 event.stopPropagation()
                 stepLightbox(1)
@@ -990,8 +984,8 @@ export default function BoardingPass(profile: TemplateProps) {
       )}
 
       {videoOpen && film && (
-        <div className="bp-modal" role="dialog" aria-modal="true" aria-label={lang === "en" ? "Our film" : "Film kami"} onClick={() => setVideoOpen(false)}>
-          <button type="button" className="bp-close" aria-label={t("closeViewer", lang)} onClick={() => setVideoOpen(false)}>
+        <div className="bp-modal" role="dialog" aria-modal="true" aria-label="Film kami" onClick={() => setVideoOpen(false)}>
+          <button type="button" className="bp-close" aria-label="Tutup" onClick={() => setVideoOpen(false)}>
             ×
           </button>
           <div className="bp-modal__box" onClick={(event) => event.stopPropagation()}>
@@ -1000,7 +994,7 @@ export default function BoardingPass(profile: TemplateProps) {
             ) : (
               <iframe
                 src={film.src}
-                title={lang === "en" ? "Wedding film" : "Film pernikahan"}
+                title="Film pernikahan"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
@@ -1020,7 +1014,7 @@ export default function BoardingPass(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || t("honoredGuest", lang)}
+          guestName={profile.guest_name || "Tamu Undangan"}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -1029,7 +1023,6 @@ export default function BoardingPass(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
-          language={profile.language}
           anchor="center"
         />
       )}

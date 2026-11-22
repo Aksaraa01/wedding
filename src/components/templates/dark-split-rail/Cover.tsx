@@ -1,7 +1,6 @@
 "use client"
 
 import { FONT_BODY, FONT_BTN, FONT_DISPLAY } from "./fonts"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 type Props = {
   coverUrl: string
@@ -10,11 +9,9 @@ type Props = {
   dateShort?: string
   objectPosition?: string
   onOpen: () => void
-  language?: string
 }
 
-export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, objectPosition = "50% 50%", onOpen, language = "id" }: Props) {
-  const lang = normalizeLanguage(language)
+export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, objectPosition = "50% 50%", onOpen }: Props) {
   return (
     <div className="fixed inset-0 z-[900] overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -29,7 +26,7 @@ export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, obj
 
       <div className="relative flex h-full flex-col items-center justify-center px-8 text-center text-white">
         <p className="text-[13px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-          {t("theWeddingOf", lang)}
+          The Wedding Of
         </p>
         <h1 className="mt-4 text-[34px] leading-tight" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
           {coupleLabel}
@@ -42,10 +39,10 @@ export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, obj
 
         <div className="mt-10">
           <p className="text-[13px] text-white/80" style={{ ...FONT_BODY, letterSpacing: "1.5px" }}>
-            {lang === "en" ? "Dear," : "Kepada Yth."}
+            Kepada Yth.
           </p>
           <p className="mt-1 text-[17px]" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
-            {guestName || t("honoredGuest", lang)}
+            {guestName || "Tamu Undangan"}
           </p>
         </div>
 
@@ -55,7 +52,7 @@ export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, obj
           className="mt-10 inline-flex items-center gap-2 rounded-full px-7 py-3 text-[12px] uppercase transition-transform duration-300 hover:scale-105 active:scale-95"
           style={{ ...FONT_BTN, letterSpacing: "1.5px", backgroundColor: "#1B1B18", color: "#F2F1EE" }}
         >
-          <span>{t("openInvitation", lang)}</span>
+          <span>Buka Undangan</span>
           <span className="material-symbols-outlined text-[18px]">arrow_circle_right</span>
         </button>
       </div>

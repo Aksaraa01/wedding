@@ -57,11 +57,11 @@ Two install/upgrade traps on this repo:
 
 ### Deployment
 - Server: `103.93.135.176` (Biznet VPS, Ubuntu 22.04)
-- **Prod** PM2: `aksara-wedding` on port 3002, dir `/var/www/aksara-wedding`, ecosystem `/var/www/aksara-wedding/ecosystem.config.js`
-- **Staging (Wedding, B1 path-based)**: host `https://wedding-stg.aksaraa.com`, PM2 `aksara-wedding-staging` on port 3003, dir `/var/www/aksara-wedding-staging`, ecosystem `/var/www/aksara-wedding-staging/ecosystem.config.js`. Staging is main-only (no couple subdomains) and uses path-form couple links (`/w/{slug}`, `/led/{slug}`, `/scanner/{slug}`, token routes on same host). It must serve its own static assets (no redirect to prod `cdn.aksaraa.com`).
-- Caddy reverse proxy: prod `wedding.aksaraa.com` + `*.wedding.aksaraa.com`; staging `wedding-stg.aksaraa.com` → `127.0.0.1:3003` (own assets). Snapshot: `scripts/ops/Caddyfile.prod`.
-- Prod subdomain pattern: `{slug}.wedding.aksaraa.com` → `/w/{slug}`. Staging B1 uses path mode; `coupleUrl()` handles this via env (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SITE_ENV`/`APP_ENV`, `NEXT_PUBLIC_COUPLE_URL_MODE`, optional `NEXT_PUBLIC_COUPLE_APEX_DOMAIN`).
+- PM2 process: `aksara-wedding` on port 3002
+- Caddy reverse proxy: `wedding.aksaraa.com` + `*.wedding.aksaraa.com`
+- Subdomain pattern: `{slug}.wedding.aksaraa.com` → `/w/{slug}`
 - Node.js 22 via nvm (`/home/askaraa/.nvm/versions/node/v22.23.2/bin/node`)
+- Ecosystem config at `/var/www/aksara-wedding/ecosystem.config.js`
 - Standalone output: `.next/standalone/server.js` + `.next/standalone/.next/static/` + `.next/standalone/public/`
 - PM2 env vars must be injected via ecosystem config (`.env.local` not loaded in standalone mode)
 
@@ -368,7 +368,7 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
    export SUPABASE_ACCESS_TOKEN=...
    npx supabase link --project-ref jclolnjkjhyjilvymagr && npx supabase db push
    ```
-2. Build with the staging env (B1 staging should bake `NEXT_PUBLIC_SITE_URL=https://wedding-stg.aksaraa.com`, `NEXT_PUBLIC_SITE_ENV=staging`, `NEXT_PUBLIC_COUPLE_URL_MODE=path`, and keep outbound side-effects gated, e.g. `NOTIFY_GROUP_ENABLED=false`):
+2. Build with the staging env:
    ```bash
    set -a; source .env.staging; set +a; npm run build
    cp -r .next/static .next/standalone/.next/static
@@ -378,16 +378,10 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
    ```bash
    set -a; source .env.staging; set +a; PORT=3100 HOSTNAME=127.0.0.1 node .next/standalone/server.js
    ```
-4. Smoke test against `http://127.0.0.1:3100` (APIs + key pages). Verify core B1 flows on path-form host: `/w/{slug}?to=`, `/q/{token}`, QR/print, welcome/buku tamu/check-in/scanner, RSVP/wishes/uploads, dashboard/LED as applicable; confirm no prod-domain leakage and no real external side-effects. If anything fails, fix and re-run.
-5. Deploy to staging (separate target; prod defaults unchanged):
-   ```bash
-   npm run deploy -- --target staging
-   ```
-   Staging target defaults: ref `jclolnjkjhyjilvymagr`, site URL `https://wedding-stg.aksaraa.com`, smoke base `https://wedding-stg.aksaraa.com`, remote `/var/www/aksara-wedding-staging`, PM2 `aksara-wedding-staging`.
-6. After staging passes, rebuild with the prod env and deploy prod with the **unchanged default flow** (see Deploy below):
+4. Smoke test against `http://127.0.0.1:3100` (APIs + key pages). If anything fails, fix and re-run.
+5. After smoke passes, rebuild with the prod env and deploy (see Deploy below):
    ```bash
    set -a; source .env.local.prod; set +a; npm run build
-   npm run deploy
    ```
 
 ### Production testing policy
@@ -547,7 +541,7 @@ Note: `tsconfig.tsbuildinfo` is local build noise — leave it uncommitted.
 
 ### Cloudflare (DNS, CDN, edge certificates)
 - **DNS `aksaraa.com` lives at Cloudflare** (NS `elinore`/`martin.ns.cloudflare.com`, zone id `d5a2cc0c9e27fe48db14f1c5c6930e46`). Hostinger is only the registrar now; its DNS API is no longer authoritative.
-- **Proxied (orange cloud):** `aksaraa.com`, `www`, `wedding.aksaraa.com`, `cdn.aksaraa.com`, `wp.aksaraa.com`, `education.aksaraa.com`, `wedding-stg.aksaraa.com`.
+- **Proxied (orange cloud):** `aksaraa.com`, `www`, `wedding.aksaraa.com`, `cdn.aksaraa.com`, `wp.aksaraa.com`, `education.aksaraa.com`, `staging.aksaraa.com`.
 - **DNS-only (grey cloud) BY DESIGN:** `*.wedding.aksaraa.com` (couple invitations) and `stg.education.aksaraa.com`. Cloudflare Universal SSL covers **one** level (`aksaraa.com` + `*.aksaraa.com`); a two-level host (`slug.wedding.aksaraa.com`) fails the TLS handshake at the edge. Proxying it requires Advanced Certificate Manager ($10/mo, Total TLS / advanced cert) — that is a product decision, not a config tweak. Invitations render straight from the origin.
 - **Never cache preview HTML at the edge.** Next answers RSC requests with a `307 ...?_rsc`; Cloudflare stores that redirect under the plain URL and serves it to normal navigation (this broke 4 previews on 2026-11-02). Cache rules: (1) bypass `/api|scanner|qr|led/`, `/w/`, any `?to=`; (2) bypass `wp` `/wp-json|/wp-admin|/wp-login`; (3) `/templates/*` **except** paths containing `/preview` → edge 30 d; (4) `/_next/static|/fonts|/images|/media|/defaults` → 1 y; (5) `wp` `/wp-content/*` → 30 d. Rule order matters (first match wins).
 - **`cdn.aksaraa.com`** is a static-only host: Caddy `file_server` over `.next/standalone/public` (no Node), `Access-Control-Allow-Origin: *` (fonts need it), 7-day `Cache-Control`. The couple-host blocks `redir /templates/*`, `/fonts/*`, `/images/*` → `https://cdn.aksaraa.com{uri}` (**302**, so rollback is instant: delete the three lines). This is how guest art reaches the edge without proxying the invitation host.

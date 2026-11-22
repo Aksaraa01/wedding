@@ -14,10 +14,8 @@ import { thumbUrl, thumbStoryImages } from "@/lib/storageUrl"
 import { childFullNamesLine, resolveChildren, thumbChildren } from "@/lib/children"
 import { toOgImageUrl } from "@/lib/storage"
 import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromParams } from "@/lib/guest-link"
-import { filterSessionsByScope } from "@/lib/invitedSessions"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { profileView } from "@/lib/profileView"
-import { normalizeLanguage } from "@/lib/i18n"
 import InvitationExpired from "@/components/InvitationExpired"
 import { coupleUrl } from "@/lib/coupleUrl"
 
@@ -34,7 +32,6 @@ type GuestContext = {
   rsvp_pax_count: number | null
   rsvp_message: string | null
   invitation_opened_at: string | null
-  invited_session_indexes: number[] | null
 }
 
 // Extract the first public image URL from a field that may be: a URL string, a
@@ -261,7 +258,7 @@ export default async function WeddingInvitation({
   // case-insensitively (the stored slug is camel: "RafiNamu-NoviKamu").
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, guest_link_strict, invitation_disabled_at, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender, children, language")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, guest_link_strict, invitation_disabled_at, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender, children")
     .ilike("slug", slug)
     .single()
 
@@ -285,7 +282,7 @@ export default async function WeddingInvitation({
   ])
 
   const guestContext = await (async () => {
-    const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, invitation_opened_at, invited_session_indexes"
+    const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, invitation_opened_at"
     if (to) {
       const hit = await findGuestForTo<GuestContext>(profile.id, to, fields)
       if (hit.guest) {
@@ -332,10 +329,6 @@ export default async function WeddingInvitation({
   }
 
   const guestName = guestContext?.name || prettifyGuestSlug(to) || (linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
-  const visibleSessions = filterSessionsByScope(
-    (profile.sessions as any[] | null) || [],
-    guestContext?.invited_session_indexes ?? null,
-  )
 
   const [giftAcctsRes, giftAddrRes, trackRes] = await Promise.all([
     supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id),
@@ -431,7 +424,6 @@ export default async function WeddingInvitation({
             guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
-            language={normalizeLanguage(profile.language)}
           />
         )}
       </>
@@ -465,7 +457,6 @@ export default async function WeddingInvitation({
             guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
-            language={normalizeLanguage(profile.language)}
           />
         )}
       </>
@@ -509,7 +500,7 @@ export default async function WeddingInvitation({
         contacts={(profile as any).contacts || undefined}
         rundown_visible={(profile as any).rundown_visible !== false}
         contacts_visible={(profile as any).contacts_visible !== false}
-        sessions={visibleSessions.length > 0 ? visibleSessions : (profile.sessions || undefined)}
+        sessions={profile.sessions || undefined}
         quote_text={profile.quote_text || undefined}
         quote_source={profile.quote_source || undefined}
         stories={rowGates.story.included ? (thumbStoryImages(profile.stories) as typeof profile.stories) || undefined : undefined}
@@ -526,7 +517,6 @@ export default async function WeddingInvitation({
         wedding_profile_id={profile.id}
         event_type={profile.event_type || "wedding"}
         subject_gender={profile.subject_gender || undefined}
-        language={normalizeLanguage(profile.language)}
         event_labels={profileView(profile).labels}
         guest_id={guestContext?.id}
         guest_link_strict={linkStrict}

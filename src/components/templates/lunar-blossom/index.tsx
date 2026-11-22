@@ -29,8 +29,6 @@ import Gift from "./Gift"
 import layoutJson from "./layout.json"
 import gateJson from "./gate.json"
 import "./lunar-blossom.css"
-import { normalizeLanguage, t, tf } from "@/lib/i18n"
-import { formatDate } from "@/lib/formatDate"
 
 type LayoutElement = {
   id: string
@@ -137,6 +135,25 @@ const COPY = {
   },
 } as const
 
+const DEFAULT_EVENTS = [
+  {
+    name: "Holy Matrimony",
+    date: "2026-09-22",
+    time: "09.00 - 11.00 WIB",
+    venue: "Bride House",
+    address: "Jakarta",
+    maps_url: "",
+  },
+  {
+    name: "Reception",
+    date: "2026-09-22",
+    time: "12.00 - 14.00 WIB",
+    venue: "Reception Hall",
+    address: "Jakarta",
+    maps_url: "",
+  },
+]
+
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 const EN_MONTHS = [
   "January",
@@ -177,11 +194,11 @@ function toDate(value?: string): Date | null {
   return isNaN(d.getTime()) ? null : d
 }
 
-function dateParts(value: string | undefined, lang: "id" | "en") {
+function dateParts(value: string | undefined, lang: "EN" | "ID") {
   const d = toDate(value)
   if (!d) return { day: "", month: "" }
-  const days = lang === "id" ? ID_DAYS : EN_DAYS
-  const months = lang === "id" ? ID_MONTHS : EN_MONTHS
+  const days = lang === "ID" ? ID_DAYS : EN_DAYS
+  const months = lang === "ID" ? ID_MONTHS : EN_MONTHS
   return {
     day: `${days[d.getDay()]}, ${d.getDate()}`,
     month: `${months[d.getMonth()]} ${d.getFullYear()}`,
@@ -273,7 +290,7 @@ function GalleryWidget({
   onOpen,
 }: {
   photos: string[]
-  lang: "id" | "en"
+  lang: "EN" | "ID"
   onOpen: (index: number) => void
 }) {
   const [index, setIndex] = useState(0)
@@ -297,7 +314,7 @@ function GalleryWidget({
         <button
           type="button"
           onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
-          aria-label={t("prevPhoto", lang)}
+          aria-label={lang === "ID" ? "Foto sebelumnya" : "Previous photo"}
         >
           ‹
         </button>
@@ -308,14 +325,14 @@ function GalleryWidget({
               type="button"
               className={i === index % list.length ? "is-active" : ""}
               onClick={() => setIndex(i)}
-              aria-label={tf("viewPhoto", lang, { n: i + 1 })}
+              aria-label={`${lang === "ID" ? "Foto" : "Photo"} ${i + 1}`}
             />
           ))}
         </div>
         <button
           type="button"
           onClick={() => setIndex((i) => (i + 1) % list.length)}
-          aria-label={t("nextPhoto", lang)}
+          aria-label={lang === "ID" ? "Foto berikutnya" : "Next photo"}
         >
           ›
         </button>
@@ -328,7 +345,7 @@ export default function LunarBlossom(profile: TemplateProps) {
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
   const [opened, setOpened] = useState(false)
-  const lang = normalizeLanguage(profile.language)
+  const [lang, setLang] = useState<"EN" | "ID">("EN")
   const [scale, setScale] = useState(1)
   const [playing, setPlaying] = useState(false)
   const [toast, setToast] = useState("")
@@ -338,15 +355,16 @@ export default function LunarBlossom(profile: TemplateProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
 
-  const groomShort = (profile.groom_name || "").trim() || (lang === "en" ? "Groom" : "Mempelai Pria")
-  const brideShort = (profile.bride_name || "").trim() || (lang === "en" ? "Bride" : "Mempelai Wanita")
+  const c = COPY[lang]
+  const groomShort = (profile.groom_name || "").trim() || "Groom"
+  const brideShort = (profile.bride_name || "").trim() || "Bride"
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
   const groomIg = instagramHandle(profile.groom_instagram)
   const brideIg = instagramHandle(profile.bride_instagram)
   const coupleLabel =
-    profile.display_name?.trim() || [groomShort, brideShort].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
-  const guestName = profile.guest_name || t("honoredGuest", lang)
+    profile.display_name?.trim() || [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
+  const guestName = profile.guest_name || (lang === "ID" ? "Tamu Undangan" : "Our Beloved Guest")
   const initials = (profile.couple_initials || "").trim() || initialsOf(brideShort, groomShort)
   const initialsList = initialsGlyphs(initials)
   // The reference stacks two glyphs; a longer abbreviation prints as one line
@@ -358,7 +376,7 @@ export default function LunarBlossom(profile: TemplateProps) {
   const photos = flattenPhotos(profile.gallery_photos)
   const gallery = photos.length > 0 ? photos : [cover]
   const events = (profile.sessions || []).filter(Boolean)
-  const event0 = events[0] || { name: lang === "en" ? "Holy Matrimony" : "Pemberkatan", date: "", time: "", venue: "", address: "", maps_url: "" }
+  const event0 = events[0] || DEFAULT_EVENTS[0]
   const event1 = events[1]
   const hasSecondEvent = events.length > 1
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
@@ -384,12 +402,12 @@ export default function LunarBlossom(profile: TemplateProps) {
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
-  const quoteSource = profile.quote_source || (lang === "en" ? "Colossians 3:14" : "Kolose 3:14")
-  const quoteText = profile.quote_text || (lang === "en" ? "Love binds them all together in perfect unity." : "Kasih adalah pengikat yang mempersatukan dan menyempurnakan.")
-  const giftIntro = tc.gift_intro_description || (lang === "en" ? "Your presence is the greatest gift. If you wish to send a token of love, the details are available below." : "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.")
-  const closingText = tc.closing_message || (lang === "en" ? "Thanks for your presence, participation and blessing. It is our honor and joy to share this special moment with you." : "Terima kasih atas kehadiran, partisipasi, dan doa restu Anda. Merupakan kehormatan dan kebahagiaan bagi kami dapat berbagi momen istimewa ini.")
-  const eventsIntro = tc.events_intro || (lang === "en" ? "By the grace of God, we cordially request the honour of your presence at the marriage of our beloved children" : "Dengan kasih karunia Tuhan, kami dengan hormat memohon kehadiran Anda pada pernikahan anak-anak kami tercinta")
-  const welcomeInvite = tc.welcome_invite || (lang === "en" ? "You are invited to celebrate the wedding of" : "Anda diundang untuk merayakan pernikahan")
+  const quoteSource = profile.quote_source || c.quoteSource
+  const quoteText = profile.quote_text || c.quoteText
+  const giftIntro = tc.gift_intro_description || c.giftIntro
+  const closingText = tc.closing_message || c.closingText
+  const eventsIntro = tc.events_intro || c.eventsIntro
+  const welcomeInvite = tc.welcome_invite || c.invite
   const honored =
     gates.inviting_families !== false && profile.inviting_families_visible !== false
       ? (profile.inviting_families || []).filter(Boolean)
@@ -402,7 +420,11 @@ export default function LunarBlossom(profile: TemplateProps) {
   const gateDateLabel = (() => {
     const d = toDate(event0.date)
     return d
-      ? formatDate(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`, lang)
+      ? d.toLocaleDateString(lang === "ID" ? "id-ID" : "en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
       : ""
   })()
 
@@ -428,12 +450,12 @@ export default function LunarBlossom(profile: TemplateProps) {
       if (!text) return
       try {
         await navigator.clipboard.writeText(text)
-        showToast(t("copiedToClipboard", lang))
+        showToast(c.copied)
       } catch {
-        showToast(t("failedToCopy", lang))
+        showToast(lang === "ID" ? "Gagal menyalin" : "Could not copy")
       }
     },
-    [lang, showToast]
+    [c.copied, lang, showToast]
   )
 
   const openInvitation = useCallback(() => {
@@ -518,7 +540,7 @@ export default function LunarBlossom(profile: TemplateProps) {
           </>
         )
       case "hero-subtitle":
-        return tc.hero_kicker || (lang === "en" ? "We are getting married" : "Kami akan menikah")
+        return c.heroSub
       case "quote":
         return (
           <>
@@ -531,7 +553,7 @@ export default function LunarBlossom(profile: TemplateProps) {
       case "initial-2":
         return longInitials ? null : (initialsList[1] || initialsList[0] || "")
       case "couple-title":
-        return tc.couple_title || (lang === "en" ? "Bride & Groom" : "Mempelai")
+        return c.coupleTitle
       case "bride-name":
         return (
           <>
@@ -571,15 +593,15 @@ export default function LunarBlossom(profile: TemplateProps) {
           </>
         )
       case "countdown-title":
-        return tc.countdown_title || t("saveTheDate", lang)
+        return c.countdownTitle
       case "events-title":
-        return tc.events_title || t("secEvent", lang)
+        return c.eventsTitle
       case "events-intro":
         return eventsIntro
       case "honored-title":
-        return tc.inviting_title || t("secInviting", lang)
+        return c.honoredTitle
       case "story-title":
-        return tc.love_story_title || t("secStory", lang)
+        return c.storyTitle
       case "story-list":
         return (
           <ol className="lb-chapters">
@@ -605,7 +627,7 @@ export default function LunarBlossom(profile: TemplateProps) {
           </ul>
         )
       case "event-0-name":
-        return event0.name || (lang === "en" ? "Holy Matrimony" : "Pemberkatan")
+        return event0.name || c.holyMatrimony
       case "event-0-day":
         return day0.day
       case "event-0-month":
@@ -617,7 +639,7 @@ export default function LunarBlossom(profile: TemplateProps) {
       case "event-0-address":
         return event0.address || ""
       case "event-1-name":
-        return event1?.name || (lang === "en" ? "Reception" : "Resepsi")
+        return event1?.name || c.reception
       case "event-1-day":
         return day1.day
       case "event-1-month":
@@ -629,24 +651,22 @@ export default function LunarBlossom(profile: TemplateProps) {
       case "event-1-address":
         return event1?.address || ""
       case "rsvp-title":
-        return tc.rsvp_title || t("rsvpTitle", lang)
+        return c.rsvpTitle
       case "wishes-title":
-        return tc.wishes_title || t("secWishes", lang)
+        return c.wishesTitle
       case "gift-title":
-        return tc.gift_title || t("secGift", lang)
+        return c.giftTitle
       case "gallery-title":
-        return tc.gallery_title || t("secGallery", lang)
-      case "gallery-caption": {
-        const cap = tc.gallery_caption || (lang === "en" ? "Captured in Love" : "Terkabadikan dalam Cinta");
+        return c.galleryTitle
+      case "gallery-caption":
         return (
           <>
-            <span>{cap.split(" ")[0]}</span>
-            <span>{cap.split(" ").slice(1).join(" ")}</span>
+            <span>{c.galleryCaption.split(" ")[0]}</span>
+            <span>{c.galleryCaption.split(" ").slice(1).join(" ")}</span>
           </>
         )
-      }
       case "closing-title":
-        return tc.closing_title || t("thankYou", lang)
+        return c.closingTitle
       case "closing-text":
         return closingText
       default:
@@ -663,10 +683,10 @@ export default function LunarBlossom(profile: TemplateProps) {
         <div key={key} className="lb-el lb-countdown" style={style}>
           <div className="lb-countdown__grid">
             {[
-              [countdown?.d ?? "00", t("days", lang)],
-              [countdown?.h ?? "00", t("hours", lang)],
-              [countdown?.m ?? "00", t("minutes", lang)],
-              [countdown?.s ?? "00", t("seconds", lang)],
+              [countdown?.d ?? "00", lang === "ID" ? "Hari" : "Days"],
+              [countdown?.h ?? "00", lang === "ID" ? "Jam" : "Hours"],
+              [countdown?.m ?? "00", lang === "ID" ? "Menit" : "Minutes"],
+              [countdown?.s ?? "00", lang === "ID" ? "Detik" : "Seconds"],
             ].map(([value, label]) => (
               <div key={label} className="lb-countdown__cell">
                 <b>{value}</b>
@@ -677,7 +697,7 @@ export default function LunarBlossom(profile: TemplateProps) {
           {calendarUrl && (
             <a className="lb-countdown__cta" href={calendarUrl} target="_blank" rel="noopener noreferrer">
               <CalendarIcon />
-              <span>{tc.countdown_title || t("saveTheDate", lang)}</span>
+              <span>{c.countdownTitle}</span>
             </a>
           )}
         </div>
@@ -693,7 +713,7 @@ export default function LunarBlossom(profile: TemplateProps) {
             guestName={profile.guest_name}
             guestLinkStrict={profile.guest_link_strict}
             coupleName={coupleLabel}
-            language={profile.language}
+            lang={lang}
           />
         </div>
       )
@@ -708,12 +728,12 @@ export default function LunarBlossom(profile: TemplateProps) {
               address={giftAddress}
               addressName={profile.gift_address_name}
               intro={giftIntro}
-              language={profile.language}
+              lang={lang}
               onCopy={copy}
             />
           ) : (
             <p className="lb-widget__empty">
-              {lang === "en" ? "Gift details are not available yet." : "Detail hadiah belum tersedia."}
+              {lang === "ID" ? "Detail hadiah belum tersedia." : "Gift details are not available yet."}
             </p>
           )}
         </div>
@@ -734,7 +754,7 @@ export default function LunarBlossom(profile: TemplateProps) {
         <div key={key} className="lb-el lb-video" style={style}>
           <iframe
             src={videoEmbed}
-            title={lang === "en" ? "Our wedding film" : "Film pernikahan kami"}
+            title={c.noVideo}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
@@ -754,7 +774,7 @@ export default function LunarBlossom(profile: TemplateProps) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {t("viewLocation", lang)}
+          {c.seeLocation}
         </a>
       )
     }
@@ -846,10 +866,16 @@ export default function LunarBlossom(profile: TemplateProps) {
       <div className="lb-root lb-gate" style={{ backgroundImage: `url(${gate.background})` }}>
         {hasTrack && <audio src={trackUrl} loop preload="metadata" data-warm-audio="" />}
         <div className="lb-gate__scrim" aria-hidden="true" />
+        <div className="lb-gate__lang">
+          <button type="button" onClick={() => setLang((v) => (v === "EN" ? "ID" : "EN"))}>
+            {lang}
+          </button>
+        </div>
         <div className="lb-gate__content">
           <p className="lb-gate__guest">
             <span className="lb-gate__guest-label">
-              {lang === "en" ? "Dear," : "Kepada"}
+              {c.guest}
+              {lang === "EN" ? "," : ""}
             </span>
             <b className="lb-gate__guest-name">{guestName}</b>
           </p>
@@ -860,7 +886,7 @@ export default function LunarBlossom(profile: TemplateProps) {
           <p className="lb-gate__date">{gateDateLabel}</p>
         </div>
         <button type="button" className="lb-gate__button" onClick={openInvitation}>
-          <span>{t("openInvitation", lang)}</span>
+          <span>{c.open}</span>
           <GateEnvelopeIcon />
         </button>
       </div>
@@ -878,6 +904,12 @@ export default function LunarBlossom(profile: TemplateProps) {
         <h1 className="lb-desktop-cover__names">
           {groomShort} &amp; {brideShort}
         </h1>
+      </div>
+
+      <div className="lb-lang">
+        <button type="button" onClick={() => setLang((v) => (v === "EN" ? "ID" : "EN"))}>
+          {lang}
+        </button>
       </div>
 
       <div className="lb-shell" ref={shellRef}>
@@ -927,13 +959,13 @@ export default function LunarBlossom(profile: TemplateProps) {
             href={`https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={lang === "en" ? "Contact Aksaraa Wedding via WhatsApp" : "Hubungi Aksaraa Wedding via WhatsApp"}
+            aria-label="Hubungi Aksaraa Wedding via WhatsApp"
             className="lb-footer__link"
           >
             <span className="lb-footer__badge">
               <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="lb-footer__logo" draggable={false} />
             </span>
-            <span className="lb-footer__cta">{t("weddingInvitationByAksaraa", lang)}</span>
+            <span className="lb-footer__cta">Wedding by Aksaraa</span>
           </a>
           <p className="lb-footer__text">© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
         </footer>
@@ -944,7 +976,7 @@ export default function LunarBlossom(profile: TemplateProps) {
           type="button"
           className={`lb-music${playing ? " is-playing" : ""}`}
           onClick={toggleMusic}
-          aria-label={t("playPauseMusic", lang)}
+          aria-label={playing ? "Pause music" : "Play music"}
         >
           <span className="lb-music__disc" />
           <span className="lb-music__note">{playing ? "❚❚" : "♪"}</span>
@@ -955,7 +987,7 @@ export default function LunarBlossom(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="lb-lightbox" onClick={() => setLightbox(null)}>
-          <button type="button" className="lb-lightbox__close" onClick={() => setLightbox(null)} aria-label={t("closeGallery", lang)}>
+          <button type="button" className="lb-lightbox__close" onClick={() => setLightbox(null)} aria-label="Close">
             ×
           </button>
           <span className="lb-lightbox__count">
@@ -969,7 +1001,7 @@ export default function LunarBlossom(profile: TemplateProps) {
                 e.stopPropagation()
                 setLightbox((lightbox - 1 + gallery.length) % gallery.length)
               }}
-              aria-label={t("prevPhoto", lang)}
+              aria-label="Previous"
             >
               ‹
             </button>
@@ -987,7 +1019,7 @@ export default function LunarBlossom(profile: TemplateProps) {
                 e.stopPropagation()
                 setLightbox((lightbox + 1) % gallery.length)
               }}
-              aria-label={t("nextPhoto", lang)}
+              aria-label="Next"
             >
               ›
             </button>
@@ -1003,7 +1035,6 @@ export default function LunarBlossom(profile: TemplateProps) {
           guestName={guestName}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
-          language={profile.language}
           guestQrUrl={profile.guest_qr_url}
           guestTableNumber={profile.guest_table_number}
           guestRsvpStatus={profile.guest_rsvp_status}

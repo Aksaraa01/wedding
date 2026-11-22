@@ -8,10 +8,8 @@ import { ASSETS } from "@/lib/assets"
 import Skin from "../shared/Skin"
 import PixelCover from "../pixel-paradise/Cover"
 import Quest from "./Quest"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function PixelQuest(props: TemplateProps) {
-  const lang = normalizeLanguage(props.language)
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
@@ -85,7 +83,7 @@ export default function PixelQuest(props: TemplateProps) {
             guestId={props.guest_id}
             guestSlug={props.guest_slug}
             allowFlexibleRsvp={props.guest_link_strict === false}
-            guestName={props.guest_name || t("honoredGuest", lang)}
+            guestName={props.guest_name || "Tamu Undangan"}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
             guestQrUrl={props.guest_qr_url}
@@ -96,7 +94,6 @@ export default function PixelQuest(props: TemplateProps) {
             qrEnabled={props.feature_gates?.qr_code_book === true}
             anchor="bottom"
             bottom={110}
-            language={lang}
           />
         )}
 

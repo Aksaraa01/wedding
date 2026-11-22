@@ -10,7 +10,6 @@ import Skin, { FONT_BODY, FONT_SCRIPT } from "../shared/Skin"
 import LiveWishes from "../shared/LiveWishes"
 import PastelCover from "./Cover"
 import PastelPages from "./Pages"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 function usePastelReady(profile: TemplateProps) {
   const [ready, setReady] = useState(false)
@@ -52,7 +51,6 @@ function usePastelReady(profile: TemplateProps) {
 }
 
 export default function PastelCoastal(props: TemplateProps) {
-  const lang = normalizeLanguage(props.language)
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -139,7 +137,7 @@ export default function PastelCoastal(props: TemplateProps) {
             guestId={props.guest_id}
             guestSlug={props.guest_slug}
             allowFlexibleRsvp={props.guest_link_strict === false}
-            guestName={props.guest_name || t("honoredGuest", lang)}
+            guestName={props.guest_name || "Tamu Undangan"}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
             guestQrUrl={props.guest_qr_url}
@@ -149,7 +147,6 @@ export default function PastelCoastal(props: TemplateProps) {
             rsvpMaxPax={props.rsvp_max_pax ?? 2}
             qrEnabled={props.feature_gates?.qr_code_book === true}
             anchor="center"
-            language={lang}
           />
         )}
 

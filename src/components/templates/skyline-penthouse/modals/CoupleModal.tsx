@@ -1,7 +1,5 @@
 "use client"
 
-import { normalizeLanguage, t } from "@/lib/i18n";
-
 import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
 import { bridePhoto, groomPhoto } from "../lib"
@@ -15,14 +13,12 @@ function PersonCard({
   shortName,
   parents,
   instagram,
-  lang = "id",
 }: {
   photo?: string
   name?: string
   shortName?: string
   parents?: string
   instagram?: string
-  lang?: "id" | "en"
 }) {
   // Instagram handle, tolerating "@user", bare username, or a full profile URL.
   const raw = (instagram || "").trim()
@@ -54,7 +50,7 @@ function PersonCard({
         )}
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <h3 className="text-lg font-bold text-white truncate" style={DISPLAY}>
-            {name || shortName || (lang === "en" ? "Bride/Groom" : "Mempelai")}
+            {name || shortName || "Mempelai"}
           </h3>
           {parents && (
             <p className="text-[11px] text-slate-400 leading-snug mt-1">
@@ -90,13 +86,12 @@ function PersonCard({
 }
 
 export default function CoupleModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
-  const lang = normalizeLanguage(profile.language)
   const groomPhotoUrl = groomPhoto(profile.groom_photo_url)
   const bridePhotoUrl = bridePhoto(profile.bride_photo_url)
   const hasQuote = profile.quote_text
 
   return (
-    <ModalShell icon="favorite" iconFill title={t("secCouple", lang).toUpperCase()} serifTitle onClose={onClose}>
+    <ModalShell icon="favorite" iconFill title="THE BRIDE & GROOM" serifTitle onClose={onClose}>
       <PersonCard
         photo={groomPhotoUrl}
         name={profile.groom_full_name || profile.groom_name}

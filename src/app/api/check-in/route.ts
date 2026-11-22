@@ -130,7 +130,7 @@ export async function GET(req: NextRequest) {
     if (qrToken) {
       const { data, error: guestErr } = await supabaseAdmin
         .from("guests")
-        .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually, is_vip, invited_session_indexes")
+        .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually, is_vip")
         .eq("qr_token", qrToken)
         .maybeSingle()
       if (guestErr) {
@@ -148,7 +148,7 @@ export async function GET(req: NextRequest) {
       if (profile) {
         const { data: g } = await supabaseAdmin
           .from("guests")
-          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually, is_vip, invited_session_indexes")
+          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually, is_vip")
           .eq("wedding_profile_id", profile.id)
           .ilike("slug", (slug as string) || "")
           .maybeSingle()
@@ -157,7 +157,7 @@ export async function GET(req: NextRequest) {
       if (!guest) {
         const { data: g } = await supabaseAdmin
           .from("guests")
-          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually, is_vip, invited_session_indexes")
+          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually, is_vip")
           .ilike("slug", (slug as string) || "")
           .maybeSingle()
         guest = g
@@ -183,16 +183,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Masa aktif undangan telah berakhir.", expired: true }, { status: 410 })
     }
 
-    // Scope profile.sessions to the guest's invited sessions (server-side, authoritative).
-    const { filterSessionsByScope } = await import("@/lib/invitedSessions")
-    const scopedProfile = {
-      ...profile,
-      sessions: filterSessionsByScope(
-        Array.isArray((profile as any).sessions) ? (profile as any).sessions : [],
-        (guest as any).invited_session_indexes ?? null,
-      ),
-    }
-
     const features = await getFeatureIncluded(profile.package_type || "signature")
     const gates = {
       wish_wall: features.has("wish_wall"),
@@ -200,7 +190,7 @@ export async function GET(req: NextRequest) {
     }
     const photoQuota = await getGuestPhotoQuota(profile.package_type || "signature")
 
-    return NextResponse.json({ guest, profile: scopedProfile, gates, photoQuota })
+    return NextResponse.json({ guest, profile, gates, photoQuota })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

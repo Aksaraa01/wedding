@@ -3,11 +3,9 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import "./imagine.css"
 import type { TemplateProps } from "@/types/template"
-import { siteOrigin } from "@/lib/site"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { initialsOf, photoList } from "@/components/templates/shared/lib"
 import ImagineWishes from "./ImagineWishes"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 type Session = NonNullable<TemplateProps["sessions"]>[number]
 
@@ -106,21 +104,20 @@ function pads(ms: number) {
   }
 }
 
-function formatDateParts(dateStr?: string | Date, lang: "id" | "en" = "id") {
+function formatDateParts(dateStr?: string | Date) {
   if (!dateStr) return null
   const d = dateStr instanceof Date ? dateStr : new Date(dateStr)
   if (Number.isNaN(d.getTime())) return null
-  const locale = lang === "en" ? "en-US" : "id-ID"
   return {
-    day: d.toLocaleDateString(locale, { weekday: "long" }),
+    day: d.toLocaleDateString("en-US", { weekday: "long" }),
     date: String(d.getDate()),
-    month: d.toLocaleDateString(locale, { month: "long" }),
+    month: d.toLocaleDateString("en-US", { month: "long" }),
     year: String(d.getFullYear()),
-    full: d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+    full: d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
   }
 }
 
-function calendarLink(dateStr?: string, title?: string, venue?: string, hours?: { start: string; end?: string }, lang: "id" | "en" = "id") {
+function calendarLink(dateStr?: string, title?: string, venue?: string, hours?: { start: string; end?: string }) {
   if (!dateStr) return null
   const d = new Date(dateStr)
   if (Number.isNaN(d.getTime())) return null
@@ -137,7 +134,7 @@ function calendarLink(dateStr?: string, title?: string, venue?: string, hours?: 
   const range = `${stamp(hours?.start) || d.toISOString().replace(/[-:]|\.\d{3}/g, "")}/${stamp(hours?.end)}`
   const params = new URLSearchParams()
   params.set("action", "TEMPLATE")
-  params.set("text", title || (lang === "en" ? "Wedding" : "Pernikahan"))
+  params.set("text", title || "Wedding")
   params.set("dates", range)
   if (venue) params.set("location", venue)
   return `https://www.google.com/calendar/render?${params.toString()}`
@@ -166,7 +163,6 @@ function youTubeThumb(url?: string, quality: "maxres" | "hq" = "maxres"): string
 }
 
 export default function Imagine(props: TemplateProps) {
-  const lang = normalizeLanguage(props.language)
   const {
     groom_name, bride_name, estimated_wedding_date, cover_photos,
     couple_initials,
@@ -334,7 +330,7 @@ export default function Imagine(props: TemplateProps) {
   // Countdown targets the wedding date only. Once it reaches zero it stays
   // visible as 00 : 00 : 00 : 00 instead of disappearing.
   const countTarget = useMemo(() => parseLocalDate(estimated_wedding_date), [estimated_wedding_date])
-  const dateParts = formatDateParts(estimated_wedding_date, lang)
+  const dateParts = formatDateParts(estimated_wedding_date)
   const remaining = useCountdown(countTarget)
   const count = remaining === null ? null : pads(remaining)
   const ytId = youTubeId(video_url)
@@ -356,7 +352,7 @@ export default function Imagine(props: TemplateProps) {
 
   const firstSession = sessions?.[0]
   const calHref = useMemo(
-    () => calendarLink(estimated_wedding_date, `${coupleLabel} Wedding`, firstSession?.venue, undefined, lang),
+    () => calendarLink(estimated_wedding_date, `${coupleLabel} Wedding`, firstSession?.venue),
     [estimated_wedding_date, coupleLabel, firstSession?.venue]
   )
 
@@ -409,12 +405,12 @@ export default function Imagine(props: TemplateProps) {
             <div className="top-cover-details">
               <div className="top-cover-details--content">
                 <h1 className="top-cover-title" data-aos="zoom-out" data-aos-duration="1200" data-aos-delay="3000">
-                  {coupleLabel || (lang === "en" ? "The Wedding" : "Pernikahan")}
+                  {coupleLabel || "The Wedding"}
                 </h1>
                 <div className="link-wrap" data-aos="zoom-out" data-aos-duration="1200" data-aos-delay="3000">
-                  <p>{guest_name ? (lang === "en" ? `Hi ${guest_name}` : `Hai ${guest_name}`) : (lang === "en" ? "You Are Invited" : "Anda Diundang")}</p>
+                  <p>{guest_name ? `Hai ${guest_name}` : "You Are Invited"}</p>
                   <button type="button" className="link" onClick={openInvitation}>
-                    {t("openInvitation", lang)}
+                    Open Invitation
                   </button>
                 </div>
               </div>
@@ -449,10 +445,10 @@ export default function Imagine(props: TemplateProps) {
               <div className="primary-pane-details">
                 <div className="primary-pane-details--content">
                   <h1 className="primary-pane-title" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="700">
-                    {coupleLabel || (lang === "en" ? "The Wedding" : "Pernikahan")}
+                    {coupleLabel || "The Wedding"}
                   </h1>
                   <div className="link-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="1200">
-                    <p>{guest_name ? (lang === "en" ? `Hi ${guest_name}` : `Hai ${guest_name}`) : (lang === "en" ? "You Are Invited" : "Anda Diundang")}</p>
+                    <p>{guest_name ? `Hai ${guest_name}` : "You Are Invited"}</p>
                     {slug && <p className="primary-pane-hint">w/{slug}</p>}
                   </div>
                 </div>
@@ -563,9 +559,9 @@ export default function Imagine(props: TemplateProps) {
             </div>
             <div className="couple">
               <div className="couple-head">
-                <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">{t("theWeddingOf", lang)}</h1>
+                <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">The Wedding Of</h1>
                 <p className="couple-description" data-aos="fade-up" data-aos-duration="1000">
-                  {tc.couple_description || (lang === "en" ? "With the blessing of our families, we cordially invite you to the wedding of" : "Dengan restu keluarga kami, kami mengundang Anda ke pernikahan")}
+                  {tc.couple_description || "With the blessing of our families, we cordially invite you to the wedding of"}
                 </p>
               </div>
               <div className="couple-body show-picture">
@@ -587,7 +583,7 @@ export default function Imagine(props: TemplateProps) {
                       <div className="couple-picture-wrap">
                         <div className="couple-picture" data-aos="zoom-out" data-aos-duration="1000">
                           <div className="img-wrap">
-                            {groomPhoto && <img className="img" src={groomPhoto} alt={groom_name || (lang === "en" ? "Groom" : "Mempelai Pria")} />}
+                            {groomPhoto && <img className="img" src={groomPhoto} alt={groom_name || "Groom"} />}
                           </div>
                         </div>
                       </div>
@@ -598,7 +594,7 @@ export default function Imagine(props: TemplateProps) {
                   </div>
                   <div className="couple-details">
                     <h2 className="couple-name" data-aos="fade-up" data-aos-duration="1000">
-                      {groom_full_name || groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")}
+                      {groom_full_name || groom_name || "The Groom"}
                     </h2>
                     {groom_parents && (
                       <p className="couple-parents" data-aos="fade-up" data-aos-duration="1000">{groom_parents}</p>
@@ -644,7 +640,7 @@ export default function Imagine(props: TemplateProps) {
                       <div className="couple-picture-wrap">
                         <div className="couple-picture" data-aos="zoom-out" data-aos-duration="1000">
                           <div className="img-wrap">
-                            {bridePhoto && <img className="img" src={bridePhoto} alt={bride_name || (lang === "en" ? "Bride" : "Mempelai Wanita")} />}
+                            {bridePhoto && <img className="img" src={bridePhoto} alt={bride_name || "Bride"} />}
                           </div>
                         </div>
                       </div>
@@ -655,7 +651,7 @@ export default function Imagine(props: TemplateProps) {
                   </div>
                   <div className="couple-details">
                     <h2 className="couple-name" data-aos="fade-up" data-aos-duration="1000">
-                      {bride_full_name || bride_name || (lang === "en" ? "The Bride" : "Mempelai Wanita")}
+                      {bride_full_name || bride_name || "The Bride"}
                     </h2>
                     {bride_parents && (
                       <p className="couple-parents" data-aos="fade-up" data-aos-duration="1000">{bride_parents}</p>
@@ -681,7 +677,7 @@ export default function Imagine(props: TemplateProps) {
           {families.length > 0 && (
             <section className="invite-wrap" data-section-order="inviting">
               <div className="invite-inner">
-                <div className="invite-title" data-aos="zoom-in" data-aos-duration="1000">{t("secInviting", lang)}</div>
+                <div className="invite-title" data-aos="zoom-in" data-aos-duration="1000">Turut Mengundang</div>
                 <ul className="invite-list" data-aos="fade-up" data-aos-duration="1000">
                   {families.map((f, i) => (
                     <li key={i}>{f}</li>
@@ -695,7 +691,7 @@ export default function Imagine(props: TemplateProps) {
           <section className="savedate-agenda-wrapper" data-section-order="save_the_date">
             <section className="save-date-wrap">
               <div className="save-date-head">
-                <h1 className="save-date-title" data-aos="zoom-in" data-aos-duration="1000">{t("saveTheDate", lang)}</h1>
+                <h1 className="save-date-title" data-aos="zoom-in" data-aos-duration="1000">Save The Date</h1>
               </div>
               <div className="save-date-frame">
                 <div className="image-wrap" data-aos="zoom-in" data-aos-duration="1000">
@@ -764,7 +760,7 @@ export default function Imagine(props: TemplateProps) {
                       <div className="event-item" key={i}>
                         {(() => {
                           const d = new Date(s.date || estimated_wedding_date || "")
-                          const parts = formatDateParts(s.date || estimated_wedding_date, lang)
+                          const parts = formatDateParts(s.date || estimated_wedding_date)
                           if (!parts) return null
                           return (
                             <div className="event-head">
@@ -849,7 +845,7 @@ export default function Imagine(props: TemplateProps) {
                 <div className="dress-wrapper">
                   <div className="dress-inner">
                     <div className="dress-header" data-aos="fade-up" data-aos-duration="1000">
-                      <h2 className="dress-title">{dresscode?.title || (lang === "en" ? "Dress Code" : "Busana")}</h2>
+                      <h2 className="dress-title">{dresscode?.title || "Dresscode"}</h2>
                       {dresscode?.description && <p className="dress-desc">{dresscode.description}</p>}
                     </div>
                     {dresscode?.colors && dresscode.colors.length > 0 && (
@@ -874,7 +870,7 @@ export default function Imagine(props: TemplateProps) {
 
           {/* RUNDOWN (adat-melayu timeline, imagine tokens) */}
           {hasRundown && (
-            <section className="tpl-rundown" data-section-order="rundown" aria-label={t("rundownTitle", lang)}>
+            <section className="tpl-rundown" data-section-order="rundown" aria-label="Rundown Acara">
               <div className="tpl-rundown__card" data-aos="fade-up" data-aos-duration="1000">
                 <h2 className="tpl-rundown__title" data-aos="zoom-in" data-aos-duration="1000">Rundown Acara</h2>
                 <div className="tpl-rundown__list">
@@ -899,7 +895,7 @@ export default function Imagine(props: TemplateProps) {
             <section className="live-streaming" data-section-order="livestream">
               <div className="inner">
                 <div className="head">
-                  <h1 data-aos="zoom-in" data-aos-duration="1000">{livestream?.title || t("secLivestream", lang)}</h1>
+                  <h1 data-aos="zoom-in" data-aos-duration="1000">{livestream?.title || "Live Streaming"}</h1>
                   {livestream?.description && (
                     <p data-aos="fade-up" data-aos-duration="1000">{livestream.description}</p>
                   )}
@@ -924,7 +920,7 @@ export default function Imagine(props: TemplateProps) {
                           target="_blank"
                           rel="noreferrer"
                           className="play-btn"
-                          aria-label={livestream?.buttonLabel || t("watchLivestream", lang)}
+                          aria-label={livestream?.buttonLabel || "Watch Live"}
                         />
                       </div>
                     </div>
@@ -949,7 +945,7 @@ export default function Imagine(props: TemplateProps) {
               <div className="photo-inner">
                 <div className="photo-head">
                   <h1 className="photo-title" data-aos="fade-up" data-aos-duration="1000">
-                    {tc.gallery_title || (lang === "en" ? "Gallery Of Us" : "Galeri Kami")}
+                    {tc.gallery_title || "Gallery Of Us"}
                   </h1>
                   {tc.gallery_quote && (
                     <p className="photo-quote" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">{tc.gallery_quote}</p>
@@ -1022,7 +1018,7 @@ export default function Imagine(props: TemplateProps) {
               <div className="story-inner">
                 <div className="story-head">
                   <h1 className="story-title" data-aos="zoom-in" data-aos-duration="1000">
-                    {tc.love_story_title || t("secStory", lang)}
+                    {tc.love_story_title || "Our Love Story"}
                   </h1>
                 </div>
                 <div className="story-body">
@@ -1070,7 +1066,7 @@ export default function Imagine(props: TemplateProps) {
                 <div className="wedding-gift-inner">
                   <div className="wedding-gift-head">
                     <h1 className="wedding-gift-title" data-aos="zoom-in" data-aos-duration="1500">
-                      {tc.gift_intro_title || t("secGift", lang)}
+                      {tc.gift_intro_title || "Wedding Gift"}
                     </h1>
                     <p className="wedding-gift-description" data-aos="fade-up" data-aos-duration="1000">
                       {tc.gift_intro_description ||
@@ -1188,14 +1184,14 @@ export default function Imagine(props: TemplateProps) {
                 </div>
                 <div className="footnote-details">
                   <div className="footnote-details--content">
-                    <p className="top-text" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="600">{t("weddingInvitation", lang)}</p>
+                    <p className="top-text" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="600">Wedding Invitation</p>
                     {coupleInitials && (
                       <p className="footnote-initials" data-aos="zoom-in" data-aos-duration="1200" data-aos-delay="700">
                         {coupleInitials}
                       </p>
                     )}
                     <h2 className="footnote-title" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="800">
-                      {coupleLabel || (lang === "en" ? "The Wedding" : "Pernikahan")}
+                      {coupleLabel || "The Wedding"}
                     </h2>
                     {display_name && (
                       <p className="bottom-text" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="1000">{display_name}</p>
@@ -1216,7 +1212,7 @@ export default function Imagine(props: TemplateProps) {
         <div className="footer-inner">
           <a
             className="tpl-footer__link"
-            href={siteOrigin()}
+            href="https://wedding.aksaraa.com"
             target="_blank"
             rel="noreferrer"
           >
@@ -1256,7 +1252,7 @@ export default function Imagine(props: TemplateProps) {
           guestId={guest_id}
           guestSlug={guest_slug}
           allowFlexibleRsvp={guest_link_strict === false}
-          guestName={guest_name || t("honoredGuest", lang)}
+          guestName={guest_name || "Tamu Undangan"}
           coupleName={coupleLabel}
           weddingProfileId={wedding_profile_id!}
           guestQrUrl={guest_qr_url}
@@ -1267,7 +1263,6 @@ export default function Imagine(props: TemplateProps) {
           qrEnabled={gates.qr_code_book === true}
           anchor="bottom"
           bottom={80}
-                  language={lang}
         />
       )}
     </div>

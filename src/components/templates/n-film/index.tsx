@@ -15,7 +15,6 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./n-film.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
@@ -85,7 +84,6 @@ function Clock({ target }: { target: Date | null }) {
 }
 
 export default function NFilm(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -140,25 +138,25 @@ export default function NFilm(profile: TemplateProps) {
 
   const texts = {
     kicker: (tc.cover_kicker || "").trim(),
-    coverTitle: (tc.cover_title || "").trim() || (lang === "en" ? "Now Showing" : "Sedang Tayang"),
-    openLabel: (tc.open_button || "").trim() || (lang === "en" ? "Start the Film" : "Mulai Film"),
+    coverTitle: (tc.cover_title || "").trim() || "Now Showing",
+    openLabel: (tc.open_button || "").trim() || "Start the Film",
     apology: (tc.cover_apology || "").trim(),
     badge: (tc.hero_badge || "").trim() || "#1",
     meta: (tc.hero_meta || "").trim(),
     openingTitle: (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE,
     openingDescription: (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION,
     galleryIntro: (tc.gallery_intro || "").trim() || "click to preview",
-    giftIntroTitle: (tc.gift_intro_title || "").trim() || t("secGift", lang),
+    giftIntroTitle: (tc.gift_intro_title || "").trim() || "Wedding Gift",
     giftIntro: (tc.gift_intro_description || "").trim(),
     wishesIntro: (tc.wishes_intro || "").trim(),
     closing: (tc.closing_message || "").trim() || DEFAULT_CLOSING,
     invitingIntro: (tc.inviting_intro || "").trim(),
   }
 
-  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const guestName = (profile.guest_name || "").trim() || t("honoredGuest", lang)
+  const guestName = (profile.guest_name || "").trim() || "Beloved Guest"
   const dateLock = dotDate(profile.estimated_wedding_date)
   const year = yearOf(profile.estimated_wedding_date)
   // The editor/ops field "Hashtag Instagram Post" is `display_name`. It is the
@@ -349,15 +347,15 @@ export default function NFilm(profile: TemplateProps) {
             <div className="nf-profiles">
               <button type="button" className="nf-profile" onClick={openInvitation}>
                 <span className="nf-profile__shot">
-                  {groomShot && <img src={groomShot} alt={groomName || (lang === "en" ? "Groom" : "Mempelai Pria")} draggable={false} />}
+                  {groomShot && <img src={groomShot} alt={groomName || "Groom"} draggable={false} />}
                 </span>
-                <span className="nf-profile__name">{(groomName || (lang === "en" ? "The Couple" : "Mempelai")).toUpperCase()}</span>
+                <span className="nf-profile__name">{(groomName || "The Couple").toUpperCase()}</span>
               </button>
               <button type="button" className="nf-profile" onClick={openInvitation}>
                 <span className="nf-profile__shot">
-                  {brideShot && <img src={brideShot} alt={brideName || (lang === "en" ? "Bride" : "Mempelai Wanita")} draggable={false} />}
+                  {brideShot && <img src={brideShot} alt={brideName || "Bride"} draggable={false} />}
                 </span>
-                <span className="nf-profile__name">{(brideName || (lang === "en" ? "The Couple" : "Mempelai")).toUpperCase()}</span>
+                <span className="nf-profile__name">{(brideName || "The Couple").toUpperCase()}</span>
               </button>
             </div>
 
@@ -489,7 +487,7 @@ export default function NFilm(profile: TemplateProps) {
                   <article className="nf-ep" key={`${story.title || "story"}-${index}`} data-nf-reveal>
                     <div className="nf-ep__head">
                       <span className="nf-ep__thumb">{thumb && <img src={thumb} alt="" loading="lazy" />}</span>
-                      <p className="nf-ep__title">{story.title || (lang === "en" ? "Our Story" : "Kisah Kami")}</p>
+                      <p className="nf-ep__title">{story.title || "Our Story"}</p>
                     </div>
                     {story.description && <p className="nf-ep__text">{story.description}</p>}
                   </article>
@@ -690,7 +688,7 @@ export default function NFilm(profile: TemplateProps) {
           <section className="nf-section" data-section="dresscode" aria-label="Dress code">
             <div className="nf-head nf-head--center" data-nf-reveal>
               <p className="nf-eyebrow">Costume</p>
-              <h2 className="nf-title">{[profile.dresscode?.title].filter(Boolean).join("") || t("secDresscode", lang)}</h2>
+              <h2 className="nf-title">{[profile.dresscode?.title].filter(Boolean).join("") || "Dress Code"}</h2>
               {profile.dresscode?.description && <p className="nf-body">{profile.dresscode.description}</p>}
             </div>
             <div className="nf-swatches">
@@ -717,7 +715,7 @@ export default function NFilm(profile: TemplateProps) {
             guestName={profile.guest_name}
             guestLinkStrict={profile.guest_link_strict}
             coupleName={coupleLabel}
-            intro={texts.wishesIntro} language={profile.language}
+            intro={texts.wishesIntro}
           />
         </section>
 
@@ -773,7 +771,7 @@ export default function NFilm(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="nf-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightbox(null)}>
-          <button type="button" className="nf-close" aria-label={t("close", lang)} onClick={() => setLightbox(null)}>
+          <button type="button" className="nf-close" aria-label="Close" onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
@@ -808,7 +806,7 @@ export default function NFilm(profile: TemplateProps) {
 
       {videoOpen && film && (
         <div className="nf-modal" role="dialog" aria-modal="true" aria-label="The film" onClick={() => setVideoOpen(false)}>
-          <button type="button" className="nf-close" aria-label={t("close", lang)} onClick={() => setVideoOpen(false)}>
+          <button type="button" className="nf-close" aria-label="Close" onClick={() => setVideoOpen(false)}>
             ×
           </button>
           <div className="nf-modal__box" onClick={(event) => event.stopPropagation()}>
@@ -837,7 +835,7 @@ export default function NFilm(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || t("honoredGuest", lang)}
+          guestName={profile.guest_name || "Tamu Undangan"}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -847,7 +845,6 @@ export default function NFilm(profile: TemplateProps) {
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="center"
-                  language={profile.language}
         />
       )}
     </div>

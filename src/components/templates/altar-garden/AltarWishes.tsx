@@ -1,8 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
-import { normalizeLanguage, t, type Language } from "@/lib/i18n"
-import { timeAgo } from "../shared/lib"
 import { wishNameState } from "../shared/wishName"
 
 type Wish = {
@@ -18,7 +16,6 @@ type Props = {
   guestName?: string
   guestLinkStrict?: boolean
   coupleName?: string
-  language?: Language | string
 }
 
 const PAGE_SIZE = 5
@@ -58,21 +55,19 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso: string | undefined, lang: Language): string {
+function wishAgo(iso?: string): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return lang === "en" ? "Just now" : "Baru saja"
-  if (minutes < 60) return lang === "en" ? `${minutes}m ago` : `${minutes} menit lalu`
+  if (minutes < 1) return "Just now"
+  if (minutes < 60) return `${minutes}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return lang === "en" ? `${hours}h ago` : `${hours} jam lalu`
+  if (hours < 24) return `${hours}h ago`
   const days = Math.floor(hours / 24)
-  if (lang === "en") return days === 1 ? "1 day ago" : `${days} days ago`
-  return `${days} hari lalu`
+  return days === 1 ? "1 day ago" : `${days} days ago`
 }
 
-export default function AltarWishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, language }: Props) {
-  const lang = normalizeLanguage(language)
+export default function AltarWishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -113,7 +108,7 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(lang === "en" ? "Preview mode, your wishes are not saved." : "Mode pratinjau, ucapan Anda tidak disimpan.")
+      setFeedback("Preview mode, your wishes are not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -130,19 +125,19 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || (lang === "en" ? "Our Beloved Guest" : "Tamu Undangan"),
+          name: name.trim() || guestName || "Our Beloved Guest",
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback(lang === "en" ? "You have already sent your wishes. Thank you for your love and prayers." : "Anda sudah mengirim ucapan. Terima kasih atas cinta dan doanya.")
+        setFeedback("You have already sent your wishes. Thank you for your love and prayers.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback(t("thanksForWish", lang))
+        setFeedback("Thank you! Your wishes will appear after moderation.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -151,12 +146,12 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
         return
       }
       setStatus("error")
-      setFeedback(lang === "en" ? "Too many messages right now. Please try again in a moment." : "Terlalu banyak pesan saat ini. Silakan coba lagi sebentar lagi.")
+      setFeedback("Too many messages right now. Please try again in a moment.")
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback("Could not send your wishes. Please check your connection.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
+  }, [weddingProfileId, guestId, guestName, name, message, status])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -175,14 +170,14 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
         }}
       >
         <div className="tpl-rsvp__field">
-          <label htmlFor="altar-garden-rsvp-name">{lang === "en" ? "Name" : "Nama"}</label>
+          <label htmlFor="altar-garden-rsvp-name">Name</label>
           <input
             id="altar-garden-rsvp-name"
             className="tpl-rsvp__input"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder={lang === "en" ? "Your name" : "Nama Anda"}
+            placeholder="Your name"
             maxLength={80}
             autoComplete="name"
             readOnly={nameLocked}
@@ -191,13 +186,13 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
         </div>
 
         <div className="tpl-rsvp__field">
-          <label htmlFor="altar-garden-rsvp-message">{lang === "en" ? "Wishes & Prayers" : "Doa & Ucapan"}</label>
+          <label htmlFor="altar-garden-rsvp-message">Wishes &amp; Prayers</label>
           <textarea
             id="altar-garden-rsvp-message"
             className="tpl-rsvp__textarea"
             value={message}
             onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
-            placeholder={lang === "en" ? "Write your wishes" : "Tulis ucapan Anda"}
+            placeholder="Write your wishes"
             rows={4}
             maxLength={MAX_CHARS}
           />
@@ -205,7 +200,7 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
         </div>
 
         <button type="submit" className="tpl-rsvp__submit" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? t("sending", lang) : t("sendWishes", lang)}
+          {status === "sending" ? "Sending..." : "Send Wishes"}
         </button>
 
         {feedback && (
@@ -216,12 +211,10 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
       </form>
 
       <div className="tpl-rsvp__wishes">
-        {!loaded && <p className="altar-rsvp__empty">{lang === "en" ? "Loading wishes…" : "Memuat ucapan…"}</p>}
+        {!loaded && <p className="altar-rsvp__empty">Loading wishes…</p>}
         {loaded && wishes.length === 0 && (
           <p className="altar-rsvp__empty">
-            {lang === "en"
-              ? `No wishes yet. Be the first to leave one for ${coupleName || "the couple"}.`
-              : `Belum ada ucapan. Jadilah yang pertama mengirim ucapan untuk ${coupleName || "kedua mempelai"}.`}
+            No wishes yet. Be the first to leave one for {coupleName || "the couple"}.
           </p>
         )}
 
@@ -231,8 +224,8 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
               {pagedWishes.map((wish) => (
                 <div className="tpl-rsvp__wish" key={wish.id}>
                   <div className="tpl-rsvp__wish-header">
-                    <div className="tpl-rsvp__wish-name">{wish.name || (lang === "en" ? "Our Beloved Guest" : "Tamu Undangan")}</div>
-                    <div className="tpl-rsvp__wish-date">{wishAgo(wish.created_at, lang)}</div>
+                    <div className="tpl-rsvp__wish-name">{wish.name || "Our Beloved Guest"}</div>
+                    <div className="tpl-rsvp__wish-date">{wishAgo(wish.created_at)}</div>
                   </div>
                   <div className="tpl-rsvp__wish-message">{wish.message}</div>
                 </div>
@@ -244,7 +237,7 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
                 <button
                   type="button"
                   className="tpl-rsvp__wishes-pg-btn"
-                  aria-label={lang === "en" ? "Previous page" : "Halaman sebelumnya"}
+                  aria-label="Previous page"
                   disabled={currentPage === 0}
                   onClick={() => setPage((value) => Math.max(0, value - 1))}
                 >
@@ -254,7 +247,7 @@ export default function AltarWishes({ weddingProfileId, guestId, guestName, gues
                 <button
                   type="button"
                   className="tpl-rsvp__wishes-pg-btn"
-                  aria-label={lang === "en" ? "Next page" : "Halaman berikutnya"}
+                  aria-label="Next page"
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
                 >

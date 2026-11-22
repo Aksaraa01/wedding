@@ -16,7 +16,6 @@ import {
   optOutReply,
   refuseReply,
   safeFallbackReply,
-  unknownWebReply,
   verifyRequiredReply,
 } from "@/lib/cs/replies"
 import { ensureLead, leadMissing, leadPromptLine, recordObjection, saveLeadFact, updateLead } from "@/lib/cs/leads"
@@ -39,9 +38,6 @@ import {
   siteBaseUrl,
   type CsMedia,
 } from "@/lib/cs/productKnowledge"
-import { formatTemplateReply } from "./templateListReply"
-import { detectTemplateCategory, wantsAllTemplates } from "./templateFilter"
-import { templateGalleryReply } from "./contact"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -49,7 +45,6 @@ export interface AgentDeps {
 }
 
 const DEFAULT_DEPS: AgentDeps = { chat: chatCompletion, runTool }
-
 
 export interface InboundInput {
   contactId: string
@@ -161,7 +156,7 @@ function directiveFor(decision: Decision): string {
           : decision.tool === "product_details"
             ? " Jelaskan fitur/isi produk dan perbedaan paket dari DATA SISTEM dengan bahasa sederhana dan mudah dimengerti (hindari istilah teknis). Kalau membahas Galeri Tamu, tegaskan bahwa Galeri Tamu khusus foto dan belum termasuk video sinematik."
           : decision.tool === "list_templates"
-            ? ' Sebutkan maksimal 3 template dari DATA SISTEM sesuai urutan yang diberikan. Setiap template WAJIB disertai link demo dari field demo_url (URL lengkap). Tulis satu template per baris dengan format: • Nama Template (Kategori) — demo_url. Jangan memilih acak, jangan mengarang nama atau link. Kalau templates kosong tetapi ada inactive_matches, sebut nama yang belum aktif, bilang belum tersedia, dan tawarkan cek tim tanpa memberi link.'
+            ? ' Sebutkan 2-3 nama template dan sertakan link demo lengkap (awali dengan https://wedding.aksaraa.com). Jangan mengarang nama template. Kalau templates kosong tetapi ada inactive_matches, sebut nama yang belum aktif, bilang belum tersedia, dan tawarkan cek tim tanpa memberi link.'
             : decision.tool === "list_vouchers"
               ? " Jangan sebut kode voucher sama sekali. Tulis narasi singkat yang mengalir (2-4 kalimat): potongan apa, untuk paket apa, dan bahwa voucher bisa dipilih saat registrasi. Jangan meminta kode ke klien. Kalau tidak ada voucher aktif, bilang belum ada dan tawarkan sambungkan ke tim."
               : decision.tool === "check_voucher"
@@ -266,13 +261,6 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     return { replies: [{ text }], guarded: true, toolNames: [] }
   }
 
-  const channel = input.channel || "wa"
-  if (channel === "web" && intent === "unknown" && decision.action === "answer") {
-    const text = unknownWebReply()
-    await persistOutbound(input.conversationId, text, { intent, model: null })
-    return { replies: [{ text }], guarded: true, toolNames: [] }
-  }
-
   let directive = directiveFor(decision)
 
   if (decision.action === "playbook") {
@@ -371,10 +359,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
                     ? "get_draft_state"
                     : null
         if (prefetchTool) {
-          const args =
-            prefetchTool === "list_templates"
-              ? { limit: 8, ...(detectTemplateCategory(input.text) ? { category: detectTemplateCategory(input.text) } : {}) }
-              : {}
+          const args = prefetchTool === "list_templates" ? { limit: 8 } : {}
           const data = await deps.runTool(prefetchTool, args, ctx)
           prefetched.push({ name: prefetchTool, data: data.data })
         }
@@ -448,18 +433,9 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     await updateLead(refreshed.id, { stage })
   }
 
+  const channel = input.channel || "wa"
   const attachMedia = shouldAttachPackageMedia(channel, intent)
-  const templateData = prefetched.find((p) => p.name === "list_templates")?.data
-  const wantsAll = intent === "template" && wantsAllTemplates(input.text)
-  const deterministicTemplate =
-    intent === "template" && decision.action === "tool" && decision.tool === "list_templates"
-      ? wantsAll
-        ? templateGalleryReply(false, siteBaseUrl())
-        : formatTemplateReply(templateData)
-      : null
-  const outboundText = attachMedia
-    ? shortPackageIntro()
-    : deterministicTemplate || result.text
+  const outboundText = attachMedia ? shortPackageIntro() : result.text
   const media = attachMedia ? packageMedia(siteBaseUrl()) : undefined
 
   await persistOutbound(input.conversationId, outboundText, {

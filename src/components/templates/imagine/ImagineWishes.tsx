@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
-import { formatWishAgo, normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -17,60 +16,45 @@ type Props = {
   guestName?: string
   guestLinkStrict?: boolean
   coupleName?: string
-  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 10
 const MAX_CHARS = 500
 const DEMO_ID = "demo-wedding-profile-id"
 
-function demoWishes(lang: "id" | "en"): Wish[] {
-  return lang === "en"
-    ? [
+const DEMO_WISHES: Wish[] = [
   {
     id: "demo-1",
     name: "The Leonardo Family",
     message: "Wishing you a lifetime of love, laughter, and togetherness. Congratulations!",
-    created_at: new Date(Date.now() - 86400000).toISOString(),
+    created_at: new Date(Date.now() - 86_400_000).toISOString(),
   },
   {
     id: "demo-2",
     name: "Faye's University Friends",
     message: "Finally! Wishing you both all the happiness in the world.",
-    created_at: new Date(Date.now() - 172800000).toISOString(),
+    created_at: new Date(Date.now() - 172_800_000).toISOString(),
   },
   {
     id: "demo-3",
     name: "Albarn's Colleagues",
     message: "May your marriage be filled with blessings and endless joy. Congratulations!",
-    created_at: new Date(Date.now() - 259200000).toISOString(),
+    created_at: new Date(Date.now() - 259_200_000).toISOString(),
   },
-    ]
-    : [
-  {
-    id: "demo-1",
-    name: "Keluarga Leonardo",
-    message: "Semoga kalian selalu dipenuhi cinta, tawa, dan kebersamaan. Selamat!",
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: "demo-2",
-    name: "Teman Kuliah Faye",
-    message: "Akhirnya! Semoga kalian berdua mendapatkan semua kebahagiaan di dunia.",
-    created_at: new Date(Date.now() - 172800000).toISOString(),
-  },
-  {
-    id: "demo-3",
-    name: "Rekan Kerja Albarn",
-    message: "Semoga pernikahan kalian dipenuhi keberkahan dan sukacita tanpa akhir. Selamat!",
-    created_at: new Date(Date.now() - 259200000).toISOString(),
-  },
-    ]
+]
+
+function wishAgo(iso?: string): string {
+  if (!iso) return ""
+  const diff = Date.now() - new Date(iso).getTime()
+  const minutes = Math.floor(diff / 60_000)
+  if (minutes < 1) return "Just now"
+  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`
+  const days = Math.floor(minutes / 1440)
+  return days === 1 ? "1 day ago" : `${days} days ago`
 }
 
-
-export default function ImagineWishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, language = "id" }: Props) {
-  const lang = normalizeLanguage(language)
+export default function ImagineWishes({ weddingProfileId, guestId, guestName, guestLinkStrict }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -83,7 +67,7 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
   useEffect(() => {
     if (!weddingProfileId) return
     if (weddingProfileId === DEMO_ID) {
-      setWishes(demoWishes(lang))
+      setWishes(DEMO_WISHES)
       setLoaded(true)
       return
     }
@@ -99,14 +83,14 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
         if (!cancelled) setLoaded(true)
       })
     return () => { cancelled = true }
-  }, [weddingProfileId, lang])
+  }, [weddingProfileId])
 
   const send = useCallback(async () => {
     const text = message.trim()
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(t("previewWishNotSaved", lang))
+      setFeedback("Preview mode, your wishes are not saved.")
       setMessage("")
       window.setTimeout(() => { setStatus("idle"); setFeedback("") }, 4000)
       return
@@ -120,30 +104,30 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || t("honoredGuest", lang),
+          name: name.trim() || guestName || "Our Beloved Guest",
           message: text,
           source: "invitation",
         }),
       })
       if (res.status === 409) {
         setStatus("error")
-        setFeedback(t("wishAlreadySent", lang))
+        setFeedback("You have already sent your wishes. Thank you for your love and prayers.")
         return
       }
       if (res.ok) {
         setStatus("done")
-        setFeedback(t("thanksForWish", lang))
+        setFeedback("Thank you! Your wishes will appear after moderation.")
         setMessage("")
         window.setTimeout(() => { setStatus("idle"); setFeedback("") }, 5000)
         return
       }
       setStatus("error")
-      setFeedback(t("tooManyMessages", lang))
+      setFeedback("Could not send your wishes. Please try again in a moment.")
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback("Could not send your wishes. Please check your connection.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
+  }, [weddingProfileId, guestId, guestName, name, message, status])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -166,7 +150,7 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
             type="text"
             name="name"
             className="form-control guest-name"
-            placeholder={lang === "en" ? "Name" : "Nama"}
+            placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={80}
@@ -179,7 +163,7 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
           <textarea
             className="form-control guest-comment"
             rows={1}
-            placeholder={t("writeWish", lang)}
+            placeholder="Give your wish"
             value={message}
             onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
             maxLength={MAX_CHARS}
@@ -188,7 +172,7 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
         <p className="wish-counter">{message.length} / {MAX_CHARS}</p>
         <div className="submit-comment-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="400">
           <button type="submit" className="submit submit-comment" disabled={status === "sending" || !message.trim()}>
-            {status === "sending" ? t("sending", lang) : (t("sendWishes", lang))}
+            {status === "sending" ? "Sending…" : "Send"}
           </button>
         </div>
         {feedback && (
@@ -197,9 +181,9 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
       </form>
 
       <div className="comment-wrap">
-        {!loaded && weddingProfileId && <p className="wish-empty">{t("loadingWishes", lang)}</p>}
+        {!loaded && weddingProfileId && <p className="wish-empty">Loading wishes…</p>}
         {loaded && wishes.length === 0 && (
-          <p className="wish-empty">{t("noWishesYet", lang)}</p>
+          <p className="wish-empty">No wishes yet. Be the first to leave one.</p>
         )}
         {wishes.length > 0 && (
           <>
@@ -207,8 +191,8 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
               {pagedWishes.map((w) => (
                 <li key={w.id} className="wish-item">
                   <div className="comment-head">
-                    <span className="wish-name">{w.name || t("honoredGuest", lang)}</span>
-                    <span className="wish-date">{formatWishAgo(w.created_at, lang)}</span>
+                    <span className="wish-name">{w.name || "Our Beloved Guest"}</span>
+                    <span className="wish-date">{wishAgo(w.created_at)}</span>
                   </div>
                   <p className="comment-body">{w.message}</p>
                 </li>
@@ -221,7 +205,7 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
                   className="wish-pg-btn"
                   disabled={currentPage === 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  aria-label={t("previousPage", lang)}
+                  aria-label="Previous page"
                 >
                   ‹
                 </button>
@@ -231,7 +215,7 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
                   className="wish-pg-btn"
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                  aria-label={t("nextPage", lang)}
+                  aria-label="Next page"
                 >
                   ›
                 </button>

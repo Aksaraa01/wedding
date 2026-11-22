@@ -401,7 +401,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
               </p>
               <button
                 onClick={() => router.push(`/customize?edit=true&tab=dgbook&profile_id=${id}`)}
-                className="w-full bg-[#B34E3F] text-white min-h-[44px] md:min-h-0 py-4 md:py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
+                className="w-full bg-primary text-on-primary min-h-[44px] md:min-h-0 py-4 md:py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 Ubah Paket
               </button>

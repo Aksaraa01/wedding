@@ -59,7 +59,7 @@ export function paymentInstructionsReply(options: PaymentReplyOptions = {}): str
   return lines.join("\n")
 }
 
-export function templateGalleryReply(kids: boolean, baseUrl = "https://wedding.aksaraa.com"): string {
+export function templateGalleryReply(kids: boolean): string {
   if (kids) {
     return [
       "Semua desain Ceriavite (khitanan, aqiqah, ulang tahun) bisa dilihat di:",
@@ -68,10 +68,9 @@ export function templateGalleryReply(kids: boolean, baseUrl = "https://wedding.a
       'Kalau mau, sebutkan acaranya (khitanan/aqiqah/ulang tahun) biar aku bantu pilihkan.',
     ].join("\n")
   }
-  const base = baseUrl.replace(/\/$/, "")
   return [
     "Semua template undangan pernikahan bisa dilihat di galeri ini:",
-    `${base}/templates`,
+    "https://wedding.aksaraa.com/templates",
     "",
     "Di sana bisa disaring per kategori (adat, modern, elegan, floral) dan ada filter dengan/tanpa foto.",
     'Kalau mau, sebutkan tema atau acaranya biar aku bantu pilihkan.',

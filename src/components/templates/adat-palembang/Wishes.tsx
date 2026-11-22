@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
-import { normalizeLanguage, t, tf, formatWishAgo } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -17,7 +16,6 @@ type Props = {
   guestName?: string
   guestLinkStrict?: boolean
   coupleName?: string
-  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 5
@@ -57,20 +55,19 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-function wishAgo(iso: string | undefined, lang: "id" | "en"): string {
+function wishAgo(iso?: string): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return lang === "en" ? "Just now" : "Baru saja"
-  if (minutes < 60) return lang === "en" ? `${minutes} min ago` : `${minutes} menit lalu`
+  if (minutes < 1) return "Baru saja"
+  if (minutes < 60) return `${minutes} menit lalu`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return lang === "en" ? `${hours} hr ago` : `${hours} jam lalu`
+  if (hours < 24) return `${hours} jam lalu`
   const days = Math.floor(hours / 24)
-  return lang === "en" ? `${days} day${days === 1 ? "" : "s"} ago` : days === 1 ? "1 hari lalu" : `${days} hari lalu`
+  return days === 1 ? "1 hari lalu" : `${days} hari lalu`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, language = "id" }: Props) {
-  const lang = normalizeLanguage(language)
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -111,7 +108,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(t("previewWishNotSaved", lang))
+      setFeedback("Mode pratinjau, ucapan tidak disimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -128,19 +125,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || t("honoredGuest", lang),
+          name: name.trim() || guestName || "Tamu Undangan",
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback(t("wishAlreadySent", lang))
+        setFeedback("Anda sudah mengirim ucapan. Terima kasih atas cinta dan doanya.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback(t("thanksForWish", lang))
+        setFeedback("Terima kasih! Ucapan Anda akan tampil setelah moderasi.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -149,10 +146,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback(t("tooManyMessages", lang))
+      setFeedback("Terlalu banyak pesan saat ini. Silakan coba lagi sebentar lagi.")
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback("Gagal mengirim ucapan. Periksa koneksi Anda.")
     }
   }, [weddingProfileId, guestId, guestName, name, message, status])
 
@@ -173,14 +170,14 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         }}
       >
         <div className="tpl-rsvp__field">
-          <label htmlFor="adat-palembang-rsvp-name">Nama</label>
+          <label htmlFor="adat-melayu-rsvp-name">Nama</label>
           <input
-            id="adat-palembang-rsvp-name"
+            id="adat-melayu-rsvp-name"
             className="tpl-rsvp__input"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder={lang === "en" ? "Your name" : "Nama Anda"}
+            placeholder="Nama Anda"
             maxLength={80}
             autoComplete="name"
             readOnly={nameLocked}
@@ -189,13 +186,13 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <div className="tpl-rsvp__field">
-          <label htmlFor="adat-palembang-rsvp-message">{language === "en" ? "Wishes & Prayers" : "Doa & Ucapan"}</label>
+          <label htmlFor="adat-melayu-rsvp-message">Doa &amp; Ucapan</label>
           <textarea
-            id="adat-palembang-rsvp-message"
+            id="adat-melayu-rsvp-message"
             className="tpl-rsvp__textarea"
             value={message}
             onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
-            placeholder={lang === "en" ? "Write your wishes and prayers" : "Tulis doa dan ucapan"}
+            placeholder="Tulis doa dan ucapan"
             rows={4}
             maxLength={MAX_CHARS}
           />
@@ -203,7 +200,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <button type="submit" className="tpl-rsvp__submit" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? t("sending", lang) : (lang === "en" ? "Send RSVP & Wish" : "Kirim RSVP & Ucapan")}
+          {status === "sending" ? "Mengirim..." : "Kirim RSVP & Ucapan"}
         </button>
 
         {feedback && (
@@ -214,10 +211,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       </form>
 
       <div className="tpl-rsvp__wishes">
-        {!loaded && <p className="adat-rsvp__empty">{t("loadingWishes", lang)}</p>}
+        {!loaded && <p className="adat-rsvp__empty">Memuat ucapan…</p>}
         {loaded && wishes.length === 0 && (
           <p className="adat-rsvp__empty">
-            {lang === "en" ? `No wishes yet. Be the first for ${coupleName || "the couple"}.` : `Belum ada ucapan. Jadilah yang pertama untuk ${coupleName || "kedua mempelai"}.`}
+            Belum ada ucapan. Jadilah yang pertama untuk {coupleName || "kedua mempelai"}.
           </p>
         )}
 
@@ -227,8 +224,8 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
               {pagedWishes.map((wish) => (
                 <div className="tpl-rsvp__wish" key={wish.id}>
                   <div className="tpl-rsvp__wish-header">
-                    <div className="tpl-rsvp__wish-name">{wish.name || t("honoredGuest", lang)}</div>
-                    <div className="tpl-rsvp__wish-date">{wishAgo(wish.created_at, lang)}</div>
+                    <div className="tpl-rsvp__wish-name">{wish.name || "Tamu Undangan"}</div>
+                    <div className="tpl-rsvp__wish-date">{wishAgo(wish.created_at)}</div>
                   </div>
                   <div className="tpl-rsvp__wish-message">{wish.message}</div>
                 </div>
@@ -240,7 +237,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="tpl-rsvp__wishes-pg-btn"
-                  aria-label={t("previousPage", lang)}
+                  aria-label="Halaman sebelumnya"
                   disabled={currentPage === 0}
                   onClick={() => setPage((value) => Math.max(0, value - 1))}
                 >
@@ -250,7 +247,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
                 <button
                   type="button"
                   className="tpl-rsvp__wishes-pg-btn"
-                  aria-label={t("nextPage", lang)}
+                  aria-label="Halaman berikutnya"
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
                 >

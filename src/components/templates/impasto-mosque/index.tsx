@@ -10,7 +10,6 @@ import Skin, { FONT_BODY, FONT_SCRIPT } from "../shared/Skin"
 import LiveWishes from "../shared/LiveWishes"
 import ImpastoCover from "./Cover"
 import ImpastoPages from "./Pages"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 // Preload the template-critical imagery (painted backdrop, brush, photos)
 // behind a splash so guests never see lazy pop-in. Fails safe after 9s.
@@ -54,7 +53,6 @@ function useImpastoReady(profile: TemplateProps) {
 }
 
 export default function ImpastoMosque(props: TemplateProps) {
-  const lang = normalizeLanguage(props.language)
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -143,7 +141,7 @@ export default function ImpastoMosque(props: TemplateProps) {
             guestId={props.guest_id}
             guestSlug={props.guest_slug}
             allowFlexibleRsvp={props.guest_link_strict === false}
-            guestName={props.guest_name || t("honoredGuest", lang)}
+            guestName={props.guest_name || "Tamu Undangan"}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
             guestQrUrl={props.guest_qr_url}
@@ -153,7 +151,6 @@ export default function ImpastoMosque(props: TemplateProps) {
             rsvpMaxPax={props.rsvp_max_pax ?? 2}
             qrEnabled={props.feature_gates?.qr_code_book === true}
             anchor="center"
-            language={lang}
           />
         )}
 

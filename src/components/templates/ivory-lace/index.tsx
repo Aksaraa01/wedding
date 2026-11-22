@@ -19,7 +19,6 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./ivory-lace.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 // ── Static art (authored for this template) ────────────────────────────────
 // Everything decorative here is our own SVG: the reference's lace, seals,
@@ -151,7 +150,6 @@ function HeartRule({ className }: { className?: string }) {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function IvoryLace(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const toastTimer = useRef<number | null>(null)
@@ -169,8 +167,8 @@ export default function IvoryLace(profile: TemplateProps) {
   const main = sessions[0]
   const events = sessions.filter((s) => !!(s.name || s.venue || s.date || s.address))
 
-  const groom = profile.groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")
-  const bride = profile.bride_name || (lang === "en" ? "The Bride" : "Mempelai Wanita")
+  const groom = profile.groom_name || "The Groom"
+  const bride = profile.bride_name || "The Bride"
   const groomFull = profile.groom_full_name || groom
   const brideFull = profile.bride_full_name || bride
   const coupleLabel = [groom, bride].join(" & ")
@@ -219,7 +217,7 @@ export default function IvoryLace(profile: TemplateProps) {
 
   const eventDay = useMemo(() => eventDate(profile), [profile])
   const dateDot = formatDotDate(profile.estimated_wedding_date || main?.date)
-  const guestName = profile.guest_name || t("honoredGuest", lang)
+  const guestName = profile.guest_name || "Tamu Undangan"
   const calendarUrl = gcalLink(main, profile.groom_name || "", profile.bride_name || "")
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -232,7 +230,7 @@ export default function IvoryLace(profile: TemplateProps) {
     ? rawHashtag
     : `#${`${groom}${bride}`.replace(/[^A-Za-z0-9]/g, "")}`
 
-  const welcomeTitle = (profile.opening_title || "").trim() || tc.welcome_invite || (lang === "en" ? "Dear Family & Friends" : "Keluarga & Sahabat Tercinta")
+  const welcomeTitle = (profile.opening_title || "").trim() || tc.welcome_invite || "Dear Family & Friends"
   const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
 
   const showGuestDock =
@@ -368,7 +366,7 @@ export default function IvoryLace(profile: TemplateProps) {
           <span className="il-cover__veil" aria-hidden="true" />
           <div className="il-cover__body" data-il-reveal>
             <Monogram text={monogram} />
-            <p className="il-kicker">{tc.cover_kicker || t("theWeddingOf", lang)}</p>
+            <p className="il-kicker">{tc.cover_kicker || "The Wedding Of"}</p>
             <h1 className="il-cover__names">
               <span>{groom}</span>
               <em>&amp;</em>
@@ -450,7 +448,7 @@ export default function IvoryLace(profile: TemplateProps) {
             {storyImage && <span className="il-story__photo" style={bg(storyImage)} aria-hidden="true" />}
             <span className="il-story__veil" aria-hidden="true" />
             <div className="il-wrap il-story__body" data-il-reveal>
-              <h2 className="il-script il-story__title">{tc.love_story_title || t("secStory", lang)}</h2>
+              <h2 className="il-script il-story__title">{tc.love_story_title || "Our Love Story"}</h2>
               {tc.story_intro && <p className="il-story__intro">{tc.story_intro}</p>}
               {stories.map((story, index) => (
                 <div className="il-story__chapter" key={`${story.title || "chapter"}-${index}`}>
@@ -489,7 +487,7 @@ export default function IvoryLace(profile: TemplateProps) {
                     </figure>
                   )}
                   <div className="il-event__body">
-                    <h3 className="il-display il-event__name">{event.name || t("weddingEventFallback", lang)}</h3>
+                    <h3 className="il-display il-event__name">{event.name || "Wedding Event"}</h3>
                     <p className="il-script il-event__venue">{event.venue || ""}</p>
                     {(event.address || event.time) && (
                       <p className="il-body il-event__meta">
@@ -516,7 +514,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {eventDay && (
           <section className="il-section il-countdown" data-section="countdown">
             <div className="il-wrap il-countdown__head" data-il-reveal>
-              <h2 className="il-display il-heading">{t("saveTheDate", lang)}</h2>
+              <h2 className="il-display il-heading">Save the Date</h2>
             </div>
 
             <div className="il-calendar" data-il-reveal>
@@ -590,7 +588,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {rundown.length > 0 && (
           <section className="il-section il-rundown" data-section="rundown">
             <div className="il-wrap il-rundown__head" data-il-reveal>
-              <h2 className="il-display il-heading">{tc.rundown_title || t("rundownTitle", lang)}</h2>
+              <h2 className="il-display il-heading">{tc.rundown_title || "Wedding Time Line"}</h2>
               {tc.rundown_intro && <p className="il-body il-rundown__intro">{tc.rundown_intro}</p>}
             </div>
             <ol className="il-wrap il-rundown__list">
@@ -616,7 +614,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {galleryPhotos.length > 0 && (
           <section className="il-section il-gallery" data-section="gallery">
             <div className="il-wrap il-gallery__head" data-il-reveal>
-              <h2 className="il-display il-heading">{tc.gallery_title || t("secGallery", lang)}</h2>
+              <h2 className="il-display il-heading">{tc.gallery_title || "Our Moments"}</h2>
               {tc.gallery_intro && <p className="il-body il-gallery__intro">{tc.gallery_intro}</p>}
             </div>
             <div className="il-wrap il-gallery__grid">
@@ -641,7 +639,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {hasVideo && (
           <section className="il-section il-film" data-section="video">
             <div className="il-wrap il-film__body" data-il-reveal>
-              <h2 className="il-display il-heading">{tc.video_title || t("secVideo", lang)}</h2>
+              <h2 className="il-display il-heading">{tc.video_title || "Our Film"}</h2>
               {tc.video_intro && <p className="il-body il-film__intro">{tc.video_intro}</p>}
 
               <div className="il-film__player">
@@ -652,7 +650,7 @@ export default function IvoryLace(profile: TemplateProps) {
                   ) : (
                     <iframe
                       src={film!.src}
-                      title={tc.video_title || t("secVideo", lang)}
+                      title={tc.video_title || "Our Film"}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                       allowFullScreen
                     />
@@ -669,7 +667,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {hasGift && (
           <section className="il-section il-gift" data-section="gift">
             <div className="il-wrap il-gift__body" data-il-reveal>
-              <h2 className="il-display il-heading il-gift__heading">{tc.gift_intro_title || t("secGift", lang)}</h2>
+              <h2 className="il-display il-heading il-gift__heading">{tc.gift_intro_title || "Wedding Gift"}</h2>
               <p className="il-body il-gift__intro">
                 {tc.gift_intro_description ||
                   "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
@@ -687,7 +685,7 @@ export default function IvoryLace(profile: TemplateProps) {
                           aria-expanded={open}
                           onClick={() => setOpenAccount(open ? -1 : index)}
                         >
-                          <span>{account.provider_name || (lang === "en" ? "Bank Account" : "Rekening Bank")}</span>
+                          <span>{account.provider_name || "Bank"}</span>
                           <svg className="il-account__chev" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M6 9.5 12 15l6-5.5" />
                           </svg>
@@ -758,7 +756,7 @@ export default function IvoryLace(profile: TemplateProps) {
               guestId={profile.guest_id}
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
-              coupleName={coupleLabel} language={profile.language}
+              coupleName={coupleLabel}
             />
           </div>
         </section>
@@ -776,7 +774,7 @@ export default function IvoryLace(profile: TemplateProps) {
             )}
             <p className="il-hashtag">{hashtag}</p>
             <p className="il-body il-closing__message">
-              {tc.closing_message || (lang === "en" ? "We cannot wait to celebrate with you." : "Kami tidak sabar merayakan hari bahagia ini bersama Anda.")}
+              {tc.closing_message || "We cannot wait to celebrate with you."}
             </p>
             {tc.cover_apology && <p className="il-closing__apology">{tc.cover_apology}</p>}
 
@@ -869,7 +867,7 @@ export default function IvoryLace(profile: TemplateProps) {
           guestId={profile.guest_id}
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
-          guestName={profile.guest_name || t("honoredGuest", lang)}
+          guestName={profile.guest_name || "Guest"}
           coupleName={coupleLabel}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
@@ -878,7 +876,6 @@ export default function IvoryLace(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
-          language={profile.language}
           anchor="bottom"
           bottom={92}
         />

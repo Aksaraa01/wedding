@@ -7,8 +7,6 @@ import { resolveEventPhoto } from "@/lib/event-photo"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import { coupleUrl } from "@/lib/coupleUrl"
 
-import { filterSessionsByScope } from "@/lib/invitedSessions"
-
 type PrintGuest = {
   id: string
   name: string
@@ -17,7 +15,6 @@ type PrintGuest = {
   rsvp_status: string | null
   rsvp_pax_count: number | null
   is_vip: boolean
-  invited_session_indexes?: number[] | null
 }
 
 type PrintProfile = {
@@ -81,30 +78,31 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
   )
   const coupleName = useMemo(() => (profile ? resolveCoupleName(profile) : ""), [profile])
   const hashtag = useMemo(() => (profile?.display_name || "").trim(), [profile])
-  const fmtDate = (d: string) =>
-    d ? new Date(d).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" }) : ""
-
-  function sessionsForGuest(guest: PrintGuest) {
-    if (!profile) return [] as { name: string; date: string; time: string; venue: string; address: string }[]
-    const all = Array.isArray(profile.sessions) ? profile.sessions : []
-    const scoped = filterSessionsByScope(all, guest.invited_session_indexes ?? null)
-    const list = (scoped.length > 0 ? scoped : all)
-      .filter((s) => s && (s.date || s.time || s.venue || s.address || s.name))
+  // Printable cards list up to 2 sessions (Akad + Resepsi), each labeled with
+  // the acara name; roll the date down to the session's own date, else the
+  // profile-level date.
+  const printSessions = useMemo(() => {
+    if (!profile) return []
+    const fmt = (d: string) =>
+      d ? new Date(d).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" }) : ""
+    const list = (Array.isArray(profile.sessions) ? profile.sessions : [])
+      .filter((s) => s && (s.date || s.time || s.venue || s.address))
+      .slice(0, 2)
       .map((s) => {
         const time = (s.time || "").trim()
         return {
           name: (s.name || "").trim(),
-          date: fmtDate(s.date || profile.estimated_wedding_date || ""),
+          date: fmt(s.date || profile.estimated_wedding_date || ""),
           time: time && !/\bwib\b/i.test(time) ? `${time} WIB` : time,
           venue: (s.venue || "").trim(),
           address: (s.address || "").trim(),
         }
       })
     if (list.length === 0 && profile.estimated_wedding_date) {
-      return [{ name: "", date: fmtDate(profile.estimated_wedding_date), time: "", venue: "", address: "" }]
+      return [{ name: "", date: fmt(profile.estimated_wedding_date), time: "", venue: "", address: "" }]
     }
     return list
-  }
+  }, [profile])
 
   useEffect(() => {
     let cancelled = false
@@ -166,7 +164,7 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
           const token = guest.qr_token as string
           const content = profile.slug
             ? coupleUrl(profile.slug, `/welcome/${encodeURIComponent(token)}`)
-            : `${window.location.origin}/welcome/${encodeURIComponent(token)}`
+            : `https://wedding.aksaraa.com/welcome/${encodeURIComponent(token)}`
           next[guest.id] = await QRCode.toDataURL(content, {
             errorCorrectionLevel: "Q",
             margin: 2,
@@ -305,7 +303,7 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
                               <em className="qrp-dear">Dear</em>
                               <strong className="qrp-guest">{guest.name}</strong>
                               <span className="qrp-stats">Meja {guest.table_number || ", "} · {pax} Pax</span>
-                              {sessionsForGuest(guest).map((ev, i) => (
+                              {printSessions.map((ev, i) => (
                                 <span key={i} className={`qrp-sess ${i > 0 ? "qrp-sess-follow" : ""}`}>
                                   {ev.name && <span className="qrp-label">{ev.name}</span>}
                                   <span className="qrp-detail">{ev.date || ", "}{ev.time ? ` · ${ev.time}` : ""}</span>

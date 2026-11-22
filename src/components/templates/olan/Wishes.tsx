@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { timeAgo } from "../shared/lib"
 import { wishNameState } from "../shared/wishName"
-import { normalizeLanguage } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -30,7 +29,6 @@ type Props = {
   guestLinkStrict?: boolean
   nameFallback: string
   copy: Copy
-  language?: "id" | "en"
 }
 
 const MAX_CHARS = 500
@@ -66,7 +64,6 @@ export default function Wishes({
   guestLinkStrict,
   nameFallback,
   copy,
-  language = "id"
 }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
@@ -111,9 +108,8 @@ export default function Wishes({
   const send = useCallback(async () => {
     const text = message.trim()
     if (!text || sending) return
-    const en = language === "en"
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
-      setFeedback(en ? "Preview mode — your wish was not saved." : "Mode pratinjau — ucapan tidak tersimpan.")
+      setFeedback("Preview mode — your wish was not saved.")
       setIsError(false)
       setMessage("")
       return
@@ -135,23 +131,23 @@ export default function Wishes({
       })
       if (response.status === 409) {
         setIsError(true)
-        setFeedback(en ? "You have already sent a wish. Thank you for your kindness." : "Anda sudah mengirim ucapan. Terima kasih atas doa Anda.")
+        setFeedback("You have already sent a wish. Thank you for your kindness.")
         return
       }
       if (response.ok) {
-        setFeedback(en ? "Thank you. Your wish appears once it has been reviewed." : "Terima kasih. Ucapan Anda akan tampil setelah ditinjau.")
+        setFeedback("Thank you. Your wish appears once it has been reviewed.")
         setMessage("")
         return
       }
       setIsError(true)
-      setFeedback(en ? "Too many messages right now. Please try again in a moment." : "Terlalu banyak pesan saat ini. Coba lagi sebentar lagi.")
+      setFeedback("Too many messages right now. Please try again in a moment.")
     } catch {
       setIsError(true)
-      setFeedback(en ? "Your wish could not be sent. Please check your connection." : "Ucapan Anda gagal dikirim. Periksa koneksi Anda.")
+      setFeedback("Your wish could not be sent. Please check your connection.")
     } finally {
       setSending(false)
     }
-  }, [weddingProfileId, guestId, guestName, nameFallback, name, message, sending, language])
+  }, [weddingProfileId, guestId, guestName, nameFallback, name, message, sending])
 
   const shown = useMemo(() => wishes.slice(0, visible), [wishes, visible])
 
@@ -213,7 +209,7 @@ export default function Wishes({
                 <path d="M20 6 9 17l-5-5" />
               </svg>
             </p>
-            <p className="olan-wish__time">{timeAgo(wish.created_at, language)}</p>
+            <p className="olan-wish__time">{timeAgo(wish.created_at)}</p>
             <p className="olan-wish__text">{wish.message}</p>
           </div>
         ))}

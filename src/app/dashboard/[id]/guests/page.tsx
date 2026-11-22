@@ -8,7 +8,6 @@ import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import * as XLSX from "xlsx"
 import { sanitizeGuestName } from "@/lib/nameClean"
 import { displayCategory } from "@/lib/gallery-client"
-import { isInvitedToAll, sessionDisplayLabel } from "@/lib/invitedSessions"
 
 type Guest = {
   id: string
@@ -18,7 +17,6 @@ type Guest = {
   table_number: string
   is_vip: boolean
   added_manually?: boolean
-  invited_session_indexes?: number[] | null
 }
 
 type FormData = {
@@ -38,8 +36,6 @@ type VerifyRow = {
   table_number: string
   is_vip: boolean
   duplicate: boolean
-  invited_session_indexes?: number[] | null
-  acara_label?: string
 }
 
 type VerifySummary = {
@@ -56,7 +52,6 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
-  const [formSessionSel, setFormSessionSel] = useState<number[]>([])
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [view, setView] = useState<"list" | "verify">("list")
@@ -70,10 +65,6 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [uploadError, setUploadError] = useState("")
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const [waBlastEnabled, setWaBlastEnabled] = useState(false)
-  const [isPublished, setIsPublished] = useState<boolean | null>(null)
-  const [sessions, setSessions] = useState<any[]>([])
-  const [acaraSupported, setAcaraSupported] = useState(true)
-  const [showConfirmGuard, setShowConfirmGuard] = useState(false)
   const [chartExpanded, setChartExpanded] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
 
@@ -88,10 +79,6 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   useEffect(() => {
     fetch(`/api/dashboard/${weddingProfileId}`).then(r => r.json()).then(data => {
       setWaBlastEnabled(!!data?.selections?.wa_blast)
-      const profile = data?.profile || data
-      setIsPublished(profile?.is_published === true)
-      setSessions(Array.isArray(profile?.sessions) ? profile.sessions : [])
-      setAcaraSupported(data?.template_source_type === "inhouse")
     }).catch(() => {})
   }, [weddingProfileId])
 
@@ -114,18 +101,10 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     return () => clearTimeout(timer)
   }, [search])
 
-  const allSessionIndexes = useMemo(() => sessions.map((_, i) => i), [sessions])
-
   const openAdd = () => {
-    if (isPublished === false) {
-      setShowConfirmGuard(true)
-      return
-    }
     setEditingId(null)
     setForm(EMPTY_FORM)
     setWaDigits("")
-    setFormSessionSel(allSessionIndexes)
-    setDuplicateError("")
     setModalOpen(true)
   }
 
@@ -133,14 +112,6 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     setEditingId(g.id)
     setForm({ name: sanitizeGuestName(g.name), phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "", is_vip: !!g.is_vip })
     setWaDigits((g.phone_number || "").replace(/\D/g, ""))
-    const scope = Array.isArray(g.invited_session_indexes) ? g.invited_session_indexes : null
-    if (!acaraSupported || scope == null || isInvitedToAll(scope, sessions.length)) {
-      setFormSessionSel(allSessionIndexes)
-    } else {
-      const valid = scope.filter((i) => Number.isInteger(i) && i >= 0 && i < sessions.length)
-      setFormSessionSel(valid.length > 0 ? [...valid].sort((a, b) => a - b) : allSessionIndexes)
-    }
-    setDuplicateError("")
     setModalOpen(true)
   }
 
@@ -148,18 +119,12 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     if (!form.name.trim()) return
     setDuplicateError("")
 
-    const invited_session_indexes =
-      acaraSupported && sessions.length > 0 && formSessionSel.length > 0 && formSessionSel.length < sessions.length
-        ? [...formSessionSel].sort((a, b) => a - b)
-        : null
-
     const data = {
       name: sanitizeGuestName(form.name.trim()),
       phone_number: waDigits ? `+62${waDigits}` : "",
       category: form.category.trim(),
       table_number: form.table_number.trim(),
       is_vip: waBlastEnabled && form.is_vip,
-      invited_session_indexes,
     }
 
     if (editingId) {
@@ -260,7 +225,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   }
 
   const handleDownloadTemplate = async () => {
-    const res = await fetch(`/api/guests/template?wedding_profile_id=${encodeURIComponent(weddingProfileId)}`)
+    const res = await fetch("/api/guests/template")
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -400,13 +365,6 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                             {row.duplicate && (
                               <span className="inline-flex items-center px-2 py-0.5 bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] font-label-md text-[10px] font-bold uppercase tracking-wider rounded-full">Duplikat</span>
                             )}
-                            {acaraSupported && sessions.length > 0 && (
-                              <span className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
-                                {row.acara_label || (isInvitedToAll(row.invited_session_indexes ?? null, sessions.length)
-                                  ? "Semua acara"
-                                  : (Array.isArray(row.invited_session_indexes) ? row.invited_session_indexes : []).map((idx) => sessionDisplayLabel(sessions[idx], idx)).join(", ") || "Semua acara")}
-                              </span>
-                            )}
                           </div>
                         </td>
                         <td className="py-3.5 px-4 font-body-md font-medium text-[#2C2A29] text-[13px] md:text-[14px] break-all">{row.phone_number}</td>
@@ -471,11 +429,11 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </section>
 
         <div className="flex items-center gap-2 md:gap-3 mb-5 md:mb-6 shrink-0">
-          <button onClick={() => { if (isPublished === false) { setShowConfirmGuard(true); return } setImportModalOpen(true) }} data-tour="import-excel" className="hidden md:inline-flex items-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+          <button onClick={() => setImportModalOpen(true)} data-tour="import-excel" className="hidden md:inline-flex items-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import Excel
           </button>
-          <button onClick={() => { if (isPublished === false) { setShowConfirmGuard(true); return } setImportModalOpen(true) }} data-tour="import-excel" className="md:hidden flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+          <button onClick={() => setImportModalOpen(true)} data-tour="import-excel" className="md:hidden flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import Excel
           </button>
@@ -641,42 +599,12 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                           Meja —
                         </span>
                       )}
-                      {sessions.length > 0 && (
-                        isInvitedToAll(guest.invited_session_indexes ?? null, sessions.length) ? (
-                          <span className="inline-flex items-center px-2.5 py-1 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[11px] rounded-full">
-                            Semua acara
-                          </span>
-                        ) : (
-                          (Array.isArray(guest.invited_session_indexes) ? guest.invited_session_indexes : []).map((idx) => (
-                            <span key={idx} className="inline-flex items-center px-2.5 py-1 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[11px] rounded-full">
-                              {sessionDisplayLabel(sessions[idx], idx)}
-                            </span>
-                          ))
-                        )
-                      )}
                     </div>
                   </div>
 
                   {/* Desktop grid layout */}
                   <div className="hidden md:grid md:grid-cols-12 md:items-center">
-                    <div className="col-span-5 pr-3">
-                      {nameBlock}
-                      {sessions.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                          {isInvitedToAll(guest.invited_session_indexes ?? null, sessions.length) ? (
-                            <span className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
-                              Semua acara
-                            </span>
-                          ) : (
-                            (Array.isArray(guest.invited_session_indexes) ? guest.invited_session_indexes : []).map((idx) => (
-                              <span key={idx} className="inline-flex items-center px-2 py-0.5 bg-[#EDE9FE] border border-[#C4B5FD] text-[#5B21B6] font-label-md text-[10px] rounded-full">
-                                {sessionDisplayLabel(sessions[idx], idx)}
-                              </span>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    <div className="col-span-5 pr-3">{nameBlock}</div>
                     <div className="col-span-4">
                       <span className="inline-flex items-center px-2.5 py-1 bg-[#F3F4F6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[11px] rounded-full">
                         {guest.category || "—"}
@@ -756,206 +684,125 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       {modalOpen && (
         <div className="fixed inset-0 z-[60]">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div className="bg-[#FAF7F2] w-full sm:max-w-md h-[100dvh] sm:h-auto sm:max-h-[90dvh] sm:rounded-2xl border border-[#E2D9CF] shadow-2xl flex flex-col overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#E2D9CF]/70 bg-[#FAF7F2] shrink-0">
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="bg-[#FAF7F2] w-full max-w-md p-8 shadow-2xl border border-[#E2D9CF] rounded-2xl max-h-[92dvh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="font-headline-md text-headline-md text-[#2C2A29]">
+                  {editingId ? "Edit Tamu" : "Tambah Tamu Baru"}
+                </h2>
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="w-10 h-10 -ml-2 flex items-center justify-center rounded-full text-[#78716C] hover:bg-[#E2D9CF]/40 active:scale-95 transition-all"
+                  className="w-9 h-9 flex items-center justify-center rounded-full text-[#78716C] hover:bg-[#E2D9CF]/40 active:scale-95 transition-all shrink-0 -mr-2 -mt-2"
                   aria-label="Tutup"
                 >
                   <span className="material-symbols-outlined text-[22px]">close</span>
                 </button>
-                <h2 className="font-headline-md text-[17px] sm:text-lg text-[#2C2A29] font-semibold">
-                  {editingId ? "Edit Tamu" : "Tambah Tamu"}
-                </h2>
-                <div className="w-10" />
               </div>
-
-              <form className="flex flex-col min-h-0 flex-1" onSubmit={(e) => { e.preventDefault(); handleSave() }}>
-                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</label>
+              <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); handleSave() }}>
+                <div className="flex flex-col gap-2">
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</label>
+                  <input
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
+                    placeholder="Contoh: Anindya Pramesti"
+                    maxLength={30}
+                    value={form.name}
+                    onChange={(e) => setForm((p) => ({ ...p, name: sanitizeGuestName(e.target.value) }))}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">No. WhatsApp</label>
+                  <div className="flex border border-[#E2D9CF] rounded-xl overflow-hidden focus-within:border-[#B34E3F] focus-within:ring-1 focus-within:ring-[#B34E3F] transition-colors bg-white">
+                    <span className="px-4 py-3 bg-[#F5EFE6] font-body-md text-[#2C2A29] border-r border-[#E2D9CF]">+62</span>
                     <input
-                      className="w-full bg-white border border-[#E2D9CF] rounded-xl h-11 px-3.5 text-sm focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
-                      placeholder="Contoh: Anindya Pramesti"
-                      maxLength={30}
-                      value={form.name}
-                      onChange={(e) => setForm((p) => ({ ...p, name: sanitizeGuestName(e.target.value) }))}
+                      className="w-full px-4 py-3 bg-white font-body-md focus:outline-none placeholder:text-on-surface-variant/50"
+                      placeholder="8123456789"
+                      type="tel"
+                      value={waDigits}
+                      onChange={(e) => setWaDigits(e.target.value.replace(/\D/g, ""))}
                     />
                   </div>
-
-                  <div className="space-y-1.5">
-                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">No. WhatsApp</label>
-                    <div className="flex border border-[#E2D9CF] rounded-xl overflow-hidden focus-within:border-[#B34E3F] focus-within:ring-1 focus-within:ring-[#B34E3F] transition-colors bg-white h-11">
-                      <span className="px-3 flex items-center bg-[#F5EFE6] text-sm text-[#2C2A29] border-r border-[#E2D9CF] shrink-0">+62</span>
-                      <input
-                        className="w-full px-3.5 bg-white text-sm focus:outline-none placeholder:text-on-surface-variant/50"
-                        placeholder="8123456789"
-                        type="tel"
-                        value={waDigits}
-                        onChange={(e) => setWaDigits(e.target.value.replace(/\D/g, ""))}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</label>
-                      <select
-                        className="w-full bg-white border border-[#E2D9CF] rounded-xl h-11 px-3 text-sm focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
-                        value={["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) ? form.category : form.category ? "__legacy__" : ""}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          if (v === "__legacy__") return
-                          setForm((p) => ({ ...p, category: v }))
-                        }}
-                      >
-                        <option value="">Pilih</option>
-                        {form.category && !["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) && (
-                          <option value="__legacy__">{form.category}</option>
-                        )}
-                        <option value="Keluarga">Keluarga</option>
-                        <option value="Kerabat">Kerabat</option>
-                        <option value="Teman">Teman</option>
-                        <option value="Kolega">Kolega</option>
-                        <option value="Lainnya">Lainnya</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</label>
-                      <input
-                        className="w-full bg-white border border-[#E2D9CF] rounded-xl h-11 px-3.5 text-sm focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
-                        placeholder="MEJA 01"
-                        value={form.table_number}
-                        onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-
-                  {sessions.length > 0 && (
-                    <div className="space-y-1.5">
-                      <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Diundang ke Acara</label>
-                      <div className={`border border-[#E2D9CF] rounded-xl px-3.5 py-3 flex flex-col gap-2 ${acaraSupported ? "bg-white" : "bg-[#F7F4F0]"}`}>
-                        {sessions.map((s, i) => {
-                          const checked = acaraSupported ? formSessionSel.includes(i) : true
-                          const label = sessionDisplayLabel(s, i)
-                          return (
-                            <label
-                              key={i}
-                              className={`flex items-center gap-3 select-none min-h-[36px] ${acaraSupported ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}
-                            >
-                              <span
-                                className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                                  checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
-                                }`}
-                                onClick={(e) => {
-                                  if (!acaraSupported) return
-                                  e.preventDefault()
-                                  setFormSessionSel((prev) => {
-                                    const has = prev.includes(i)
-                                    if (has) return prev.filter((x) => x !== i)
-                                    return [...prev, i].sort((a, b) => a - b)
-                                  })
-                                }}
-                              >
-                                {checked && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
-                              </span>
-                              <span className="text-sm text-[#2C2A29] leading-snug">{label}</span>
-                            </label>
-                          )
-                        })}
-                        <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">
-                          {!acaraSupported
-                            ? "Template yang kamu pakai belum mendukung undangan per acara. Untuk sekarang, tamu ini otomatis diundang ke semua acara."
-                            : formSessionSel.length === 0
-                              ? "Jika tidak dipilih, tamu diundang ke semua acara."
-                              : "Pilih acara yang dihadiri tamu ini."}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-1.5">
-                    <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</label>
-                    {waBlastEnabled ? (
-                      <button
-                        type="button"
-                        onClick={() => setForm((p) => ({ ...p, is_vip: !p.is_vip }))}
-                        className={`flex items-center gap-3 border rounded-xl py-2.5 px-3.5 min-h-[44px] transition-colors w-full ${
-                          form.is_vip ? "border-[#FCD34D] bg-[#FEF3C7]" : "border-[#E2D9CF] bg-white"
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</label>
+                  <select
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+                    value={["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) ? form.category : form.category ? "__legacy__" : ""}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      if (v === "__legacy__") return
+                      setForm((p) => ({ ...p, category: v }))
+                    }}
+                  >
+                    <option value="">Pilih kategori</option>
+                    {form.category && !["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) && (
+                      <option value="__legacy__">{form.category}</option>
+                    )}
+                    <option value="Keluarga">Keluarga</option>
+                    <option value="Kerabat">Kerabat</option>
+                    <option value="Teman">Teman</option>
+                    <option value="Kolega">Kolega</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</label>
+                  <input
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
+                    placeholder="Contoh: MEJA 01"
+                    value={form.table_number}
+                    onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</label>
+                  {waBlastEnabled ? (
+                    <button
+                      type="button"
+                      onClick={() => setForm((p) => ({ ...p, is_vip: !p.is_vip }))}
+                      className={`flex items-center gap-3 border rounded-xl py-3 px-4 min-h-[44px] transition-colors ${
+                        form.is_vip ? "border-[#FCD34D] bg-[#FEF3C7]" : "border-[#E2D9CF] bg-white"
+                      }`}
+                    >
+                      <span
+                        className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                          form.is_vip ? "bg-[#FCD34D] border-[#FCD34D]" : "border-[#E2D9CF] bg-white"
                         }`}
                       >
-                        <span
-                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                            form.is_vip ? "bg-[#FCD34D] border-[#FCD34D]" : "border-[#E2D9CF] bg-white"
-                          }`}
-                        >
-                          {form.is_vip && <span className="material-symbols-outlined text-[14px] text-[#92400E]">check</span>}
-                        </span>
-                        <span className="text-sm text-[#2C2A29] text-left leading-snug">
-                          Tandai VIP (reminder WhatsApp otomatis)
-                        </span>
-                      </button>
-                    ) : (
-                      <p className="text-[12px] italic text-on-surface-variant/70 leading-relaxed border border-[#E2D9CF] bg-white rounded-xl py-2.5 px-3.5">
-                        Ubah paket, pengingat tamu VIP
-                      </p>
-                    )}
-                  </div>
+                        {form.is_vip && <span className="material-symbols-outlined text-[14px] text-[#92400E]">check</span>}
+                      </span>
+                      <span className="font-body-md text-sm text-[#2C2A29] text-left">
+                        Tandai sebagai tamu VIP (dapat reminder WhatsApp otomatis)
+                      </span>
+                    </button>
+                  ) : (
+                    <p className="font-body-md text-[12px] italic text-on-surface-variant/70 leading-relaxed border border-[#E2D9CF] bg-white rounded-xl py-3 px-4">
+                      Ubah paket, pengingat tamu VIP
+                    </p>
+                  )}
                 </div>
-
-                <div className="shrink-0 px-4 py-3 border-t border-[#E2D9CF]/70 bg-[#FAF7F2] space-y-2">
+                <div className="flex flex-col gap-3 mt-4">
                   {duplicateError && (
-                    <p className="text-sm text-error text-center">{duplicateError}</p>
+                    <p className="font-body-md text-sm text-error text-center">{duplicateError}</p>
                   )}
                   <button
                     type="submit"
-                    className="w-full bg-[#B34E3F] text-white font-semibold h-12 font-label-md text-[12px] uppercase tracking-widest rounded-xl hover:bg-[#9E3B2D] active:scale-[0.98] transition-all"
+                    className="w-full bg-[#B34E3F] text-white font-bold py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#9E3B2D] active:scale-95 transition-all"
                   >
                     Simpan
                   </button>
                   <button
                     type="button"
                     onClick={() => setModalOpen(false)}
-                    className="w-full bg-transparent border border-[#E2D9CF] text-[#2C2A29] h-11 font-label-md text-[12px] uppercase tracking-widest rounded-xl hover:bg-[#F5EFE6] transition-colors"
+                    className="w-full bg-transparent border border-[#E2D9CF] text-[#2C2A29] py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#F5EFE6] transition-colors"
                   >
                     Batal
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showConfirmGuard && (
-        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowConfirmGuard(false)}>
-          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#B34E3F]/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#B34E3F] text-2xl">edit_calendar</span>
-              </div>
-              <h3 className="font-headline-md text-lg font-medium text-[#2C2A29]">Konfirmasi undangan dulu, yuk</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed">
-                Sebelum menambah tamu, pastikan detail dan daftar acara di undangan sudah final lalu dikonfirmasi. Dengan begitu, tautan, pesan, dan QR setiap tamu langsung sesuai, jadi tidak perlu diulang nanti.
-              </p>
-              <button
-                onClick={() => { setShowConfirmGuard(false); router.push(`/dashboard/${weddingProfileId}/web-invitation/editor`) }}
-                className="w-full bg-[#B34E3F] text-white py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-[#9A3F32] transition-colors"
-              >
-                Buka Editor
-              </button>
-              <button
-                onClick={() => setShowConfirmGuard(false)}
-                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
-              >
-                Nanti dulu
-              </button>
-            </div>
-          </div>
-        </div>
+      </div>
+      </div>
+      </div>
       )}
 
       {resetConfirmOpen && (

@@ -12,10 +12,8 @@ import GiftPopup from "./GiftPopup"
 import LeftPanel, { type PanelMedia } from "./LeftPanel"
 import Rail from "./Rail"
 import Splash from "./Splash"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function DarkSplitRail(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const [phase, setPhase] = useState<"splash" | "cover" | "open">("splash")
   const [progress, setProgress] = useState(0)
   const [leaving, setLeaving] = useState(false)
@@ -151,7 +149,6 @@ export default function DarkSplitRail(profile: TemplateProps) {
             dateShort={coverDate}
             objectPosition={profile.template_demo ? "58% 50%" : "50% 50%"}
             onOpen={openInvitation}
-            language={profile.language}
           />
         )}
 
@@ -186,7 +183,6 @@ export default function DarkSplitRail(profile: TemplateProps) {
             giftAddress={profile.gift_address}
             giftAddressName={profile.gift_address_name}
             onClose={() => setGiftOpen(false)}
-            language={profile.language}
           />
         )}
 
@@ -195,7 +191,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
             guestId={profile.guest_id}
             guestSlug={profile.guest_slug}
             allowFlexibleRsvp={profile.guest_link_strict === false}
-            guestName={profile.guest_name || t("honoredGuest", lang)}
+            guestName={profile.guest_name || "Tamu Undangan"}
             coupleName={coupleLabel}
             weddingProfileId={profile.wedding_profile_id!}
             guestQrUrl={profile.guest_qr_url}
@@ -205,7 +201,6 @@ export default function DarkSplitRail(profile: TemplateProps) {
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={profile.feature_gates?.qr_code_book === true}
             anchor="center"
-            language={lang}
           />
         )}
 
@@ -213,7 +208,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
           <button
             type="button"
             onClick={toggleMusic}
-            aria-label={t("playPauseMusic", lang)}
+            aria-label="Putar atau jeda musik"
             className="fixed bottom-4 right-4 z-[95] flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-[#F2F1EE] text-[#1B1B18] shadow-lg transition-transform hover:scale-105 active:scale-95"
           >
             <span className={`material-symbols-outlined text-[22px] ${playing ? "" : "opacity-60"}`}>

@@ -15,7 +15,7 @@ export async function GET(
     const auth = await requireProfileAccess(req, id, { allowScanner: true })
     if (auth) return auth
 
-    const baseFields = "id, name, phone_number, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, slug, is_checked_in, checkin_timestamp, souvenir_claimed, added_manually, is_vip, invited_session_indexes"
+    const baseFields = "id, name, phone_number, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, slug, is_checked_in, checkin_timestamp, souvenir_claimed, added_manually, is_vip"
     let guestsResult = await supabaseAdmin
       .from("guests")
       .select(`${baseFields}, wa_invite_clicked_at`)

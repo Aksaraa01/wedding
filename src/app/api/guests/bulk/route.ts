@@ -3,18 +3,6 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { normalizePhone, parseVip } from "@/lib/packages"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
 import { sanitizeGuestName } from "@/lib/nameClean"
-import { parseInvitedSessionsCell } from "@/lib/invitedSessions"
-import { templateSupportsInvitedSessions } from "@/lib/invitedSessionsServer"
-
-function pickAcaraCell(r: Record<string, unknown>): unknown {
-  for (const key of ["acara", "Acara", "ACARA", "sesi", "Sesi", "SESI", "acara_sesi", "Acara (Sesi)"]) {
-    if (key in r && r[key] != null && String(r[key]).trim() !== "") return r[key]
-  }
-  for (const [k, v] of Object.entries(r)) {
-    if (/acara|sesi/i.test(k) && v != null && String(v).trim() !== "") return v
-  }
-  return r.acara ?? r.sesi ?? ""
-}
 
 export async function POST(req: Request) {
   try {
@@ -25,41 +13,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })
     }
 
-    const [{ data: profile }, acaraSupported] = await Promise.all([
-      supabaseAdmin
-        .from("wedding_profiles")
-        .select("sessions")
-        .eq("id", wedding_profile_id)
-        .maybeSingle(),
-      templateSupportsInvitedSessions(wedding_profile_id),
-    ])
-    const sessions = Array.isArray(profile?.sessions) ? profile.sessions : []
-
-    const guests = rows.map((r: Record<string, unknown>) => {
-      let invited_session_indexes: number[] | null = null
-      if (acaraSupported) {
-        if (Array.isArray(r.invited_session_indexes)) {
-          const idxs = (r.invited_session_indexes as unknown[])
-            .map((n) => Number(n))
-            .filter((n) => Number.isInteger(n) && n >= 0 && n < (sessions.length || 999))
-          const uniq = Array.from(new Set(idxs)).sort((a, b) => a - b)
-          invited_session_indexes = uniq.length > 0 && uniq.length < sessions.length ? uniq : null
-        } else {
-          const cell = pickAcaraCell(r)
-          invited_session_indexes = parseInvitedSessionsCell(cell, sessions).indexes
-        }
-      }
-
-      return {
-        wedding_profile_id: wedding_profile_id,
-        name: sanitizeGuestName(String(r.name ?? "")).replace(/\s+/g, " ").trim(),
-        phone_number: normalizePhone(String(r.phone_number || r.whatsapp || "")),
-        category: String(r.category || r.relation || "").trim(),
-        table_number: String(r.table_number || "").trim(),
-        is_vip: parseVip(r.vip as any),
-        invited_session_indexes,
-      }
-    }).filter((r: { name: string }) => r.name)
+    const guests = rows.map((r: Record<string, string>) => ({
+      wedding_profile_id: wedding_profile_id,
+      name: sanitizeGuestName(r.name).replace(/\s+/g, " ").trim(),
+      phone_number: normalizePhone((r.phone_number || r.whatsapp || "").toString()),
+      category: (r.category || r.relation || "").toString().trim(),
+      table_number: (r.table_number || "").toString().trim(),
+      is_vip: parseVip(r.vip),
+    })).filter((r: { name: string }) => r.name)
 
     if (guests.length === 0) {
       return NextResponse.json({ error: "Tidak ada data tamu untuk diimpor" }, { status: 400 })

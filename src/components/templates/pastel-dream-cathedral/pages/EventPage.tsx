@@ -3,9 +3,8 @@
 import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
-function EventBlock({ session, align, lang = "id" }: { session: SessionData; align: "left" | "right"; lang?: "id" | "en" }) {
+function EventBlock({ session, align }: { session: SessionData; align: "left" | "right" }) {
   const right = align === "right"
   return (
     <section className={`relative flex flex-col max-w-[290px] drop-shadow-sm px-5 py-5 ${right ? "items-end text-right self-end mt-4" : "items-start text-left"}`}>
@@ -14,7 +13,7 @@ function EventBlock({ session, align, lang = "id" }: { session: SessionData; ali
         <img src={ASSETS.pastelDreamCathedral.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover mix-blend-screen opacity-50 drop-shadow-md" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
       </div>
       <h1 className="text-[38px] leading-tight font-normal mb-2" style={{ ...FONT_SCRIPT, color: "#1c1815" }}>
-        {session.name || (lang === "en" ? "Event" : "Acara")}
+        {session.name || "Acara"}
       </h1>
       {session.date && (
         <p className="text-[13px] font-medium tracking-wide mb-1" style={{ ...FONT_BODY, color: "#2d241e" }}>
@@ -47,31 +46,27 @@ function EventBlock({ session, align, lang = "id" }: { session: SessionData; ali
           <span className="material-symbols-outlined text-[14px]" style={{ color: "#3b2a1e" }}>
             location_on
           </span>
-          <span>{t("viewLocation", lang)}</span>
+          <span>Lihat Lokasi</span>
         </a>
       )}
     </section>
   )
 }
 
-// Renders all invited sessions on one page. With two sessions, keeps the
-// top-left / bottom-right composition; with one or more, alternates sides.
-export default function EventPage({ sessions, lang = "id" }: { sessions: SessionData[]; lang?: "id" | "en" }) {
-  const list = (sessions || []).filter((s) => s && (s.date || s.venue || s.time || s.name || s.address))
+// Combined Akad (top-left) + Resepsi (bottom-right) on one page, text
+// straight on the painting with the shared dove animation. No brush card,
+// no camel caravan — per design.
+export default function EventPage({ sessions }: { sessions: SessionData[] }) {
+  const [akad, resepsi] = sessions
   return (
     <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col px-6 pt-10 pb-16 pointer-events-auto select-none">
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/15 via-transparent to-transparent" />
-      <div className="relative flex-1 w-full h-full flex flex-col justify-between px-5 pt-14 pb-4 gap-4">
-        {list.length > 0 ? (
-          list.map((session, i) => (
-            <EventBlock key={i} session={session} align={i % 2 === 0 ? "left" : "right"} lang={lang} />
-          ))
-        ) : (
-          <span />
-        )}
+      <div className="relative flex-1 w-full h-full flex flex-col justify-between px-5 pt-14 pb-4">
+        {akad && (akad.date || akad.venue) ? <EventBlock session={akad} align="left" /> : <span />}
+        {resepsi && (resepsi.date || resepsi.venue) ? <EventBlock session={resepsi} align="right" /> : <span />}
         <footer className="w-full flex items-center justify-center relative pt-2">
           <span className="text-[11px] font-semibold uppercase" style={{ ...FONT_BODY, letterSpacing: "0.2em", color: "rgba(61,48,37,0.9)" }}>
-            {lang === "en" ? "Swipe up" : "Geser ke atas"}
+            Geser ke atas
           </span>
         </footer>
       </div>

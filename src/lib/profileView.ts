@@ -35,8 +35,6 @@ import { resolveCoupleName } from "@/lib/coupleName"
 export type ProfileViewInput = {
   event_type?: string | null
   subject_gender?: string | null
-  /** Invitation language ("id" | "en"); defaults to "id". */
-  language?: string | null
   package_type?: string | null
   slug?: string | null
 
@@ -154,7 +152,7 @@ export function profileView(input: ProfileViewInput | null | undefined): Profile
   const rite = normalizeEventType(p.event_type)
   const family = eventFamily(p.event_type)
   const kids = isKidsEvent(p.event_type)
-  const labels = eventLabels(p.event_type, p.subject_gender, p.language)
+  const labels = eventLabels(p.event_type, p.subject_gender)
   const gates = p.package_gates || {}
   const ceriavite = (p.package_type || "") === "ceriavite"
 

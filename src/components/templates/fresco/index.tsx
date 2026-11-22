@@ -18,7 +18,6 @@ import {
 import Wishes, { type WishesCopy } from "./Wishes"
 import { FRESCO_ASSETS } from "./assets"
 import "./fresco.css"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 const GUEST_FALLBACK = "Tamu Undangan"
 
@@ -83,7 +82,6 @@ type CoverCopyProps = {
   weekday: string
   year: string
   venue: string
-  lang: "id" | "en"
 }
 
 function CoverCopy({
@@ -97,12 +95,11 @@ function CoverCopy({
   weekday,
   year,
   venue,
-  lang,
 }: CoverCopyProps) {
   return (
     <>
       <Heading className="fr-cover__names">
-        <span>{groomName || (lang === "en" ? "Groom" : "Mempelai Pria")}</span>
+        <span>{groomName || "Groom"}</span>
         {brideName && (
           <>
             <span className="fr-cover__amp" aria-hidden="true">
@@ -229,7 +226,6 @@ const PETALS = [12, 26, 38, 50, 62, 74, 86].map((left, index) => ({
 }))
 
 export default function Fresco(profile: TemplateProps) {
-  const lang = normalizeLanguage(profile.language)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const gateVideoRef = useRef<HTMLVideoElement | null>(null)
@@ -264,7 +260,7 @@ export default function Fresco(profile: TemplateProps) {
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
-  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || (lang === "en" ? "The Wedding" : "Pernikahan")
+  const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
   const groomFull = (profile.groom_full_name || "").trim() || groomName
   const brideFull = (profile.bride_full_name || "").trim() || brideName
   const groomIg = igHandle(profile.groom_instagram)
@@ -275,7 +271,7 @@ export default function Fresco(profile: TemplateProps) {
   // "Hashtag Instagram Post" in the editor is `display_name`. A stored value
   // that is a plain name is not a hashtag, so derive one from the couple.
   const rawHashtag = (profile.display_name || "").trim()
-  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || (lang === "en" ? "OurWedding" : "PernikahanKami")}`
+  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || "OurWedding"}`
   const hashtag = rawHashtag.startsWith("#") ? rawHashtag : derivedHashtag
 
   const dateObject = parseDate(profile.estimated_wedding_date)
@@ -327,60 +323,60 @@ export default function Fresco(profile: TemplateProps) {
   )
   const calendarHref = useMemo(() => gcalLink(events[0], groomName, brideName), [events, groomName, brideName])
 
-  const coverKicker = (tc.cover_kicker || "").trim() || (lang === "en" ? "We invite you to\ncelebrate our wedding" : "Kami mengundang Anda untuk\nmerayakan pernikahan kami")
-  const openLabel = (tc.open_button || "").trim() || (lang === "en" ? "Tap to open" : "Ketuk untuk membuka")
+  const coverKicker = (tc.cover_kicker || "").trim() || "We invite you to\ncelebrate our wedding"
+  const openLabel = (tc.open_button || "").trim() || "Tap to open"
   const apology = (tc.cover_apology || "").trim()
   const venueLine = (events[0]?.venue || "").trim()
-  const countdownTitle = (tc.countdown_title || "").trim() || t("countdown", lang)
-  const countdownIntro = (tc.countdown_intro || "").trim() || (lang === "en" ? "Until" : "Menuju")
-  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
+  const countdownTitle = (tc.countdown_title || "").trim() || "Countdown"
+  const countdownIntro = (tc.countdown_intro || "").trim() || "Until"
+  const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
   const openingTitle = (profile.opening_title || "").trim() || "A Word of Welcome"
   const openingBody = (profile.opening_description || "").trim()
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
-  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || (lang === "en" ? "The Couple" : "Mempelai")
+  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "The Couple"
   const mempelaiIntro =
-    (tc.profiles_intro || "").trim() || (lang === "en" ? "With the blessing of our families, we invite you to share in our joy." : "Dengan restu keluarga kami, kami mengundang Anda untuk berbagi kebahagiaan kami.")
-  const parentsLabel = (tc.parents_label || "").trim() || (lang === "en" ? "Blessed by" : "Dengan restu")
-  const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Our Story" : "Kisah Kami")
-  const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "The Celebration" : "Perayaan")
+    (tc.profiles_intro || "").trim() || "With the blessing of our families, we invite you to share in our joy."
+  const parentsLabel = (tc.parents_label || "").trim() || "Blessed by"
+  const storyTitle = (tc.love_story_title || "").trim() || "Our Story"
+  const eventsTitle = (tc.events_title || "").trim() || "The Celebration"
   const eventsKicker = (tc.events_kicker || "").trim()
   const eventsNote = (tc.events_note || "").trim()
-  const mapsLabel = (tc.maps_label || "").trim() || (lang === "en" ? "View on Map" : "Lihat di Peta")
+  const mapsLabel = (tc.maps_label || "").trim() || "View on Map"
   const invitingKicker = (tc.inviting_kicker || "").trim()
-  const invitingTitle = (tc.inviting_title || "").trim() || t("secInviting", lang)
+  const invitingTitle = (tc.inviting_title || "").trim() || "With Honor"
   const invitingIntro =
-    (tc.inviting_intro || "").trim() || (lang === "en" ? "Together with the families who extend this invitation alongside us." : "Bersama keluarga yang turut mengundang bersama kami.")
-  const rundownTitle = (tc.rundown_title || "").trim() || (lang === "en" ? "The Day" : "Hari Bahagia")
-  const rundownKicker = (tc.rundown_kicker || "").trim() || (lang === "en" ? "Program" : "Susunan Acara")
-  const rundownIntro = (tc.rundown_intro || "").trim() || (lang === "en" ? "The order of our celebration, from the first arrival to the last dance." : "Urutan perayaan kami, dari kedatangan pertama hingga tarian terakhir.")
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Gallery" : "Galeri")
+    (tc.inviting_intro || "").trim() || "Together with the families who extend this invitation alongside us."
+  const rundownTitle = (tc.rundown_title || "").trim() || "The Day"
+  const rundownKicker = (tc.rundown_kicker || "").trim() || "Program"
+  const rundownIntro = (tc.rundown_intro || "").trim() || "The order of our celebration, from the first arrival to the last dance."
+  const galleryTitle = (tc.gallery_title || "").trim() || "Gallery"
   const galleryIntro = (tc.gallery_intro || "").trim() || "A few frames from the days that led us here."
   const galleryQuote = (tc.gallery_quote || "").trim()
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Film")
+  const videoKicker = (tc.video_kicker || "").trim() || "The Film"
   const videoTitle = (tc.video_title || "").trim()
-  const videoIntro = (tc.video_intro || "").trim() || (lang === "en" ? "The day as it happened, kept in motion." : "Hari itu sebagaimana terjadi, tersimpan dalam gerak.")
-  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
-  const giftIntro = (tc.gift_intro_description || "").trim() || (lang === "en" ? "Your presence is our greatest gift." : "Kehadiran Anda adalah hadiah terbesar bagi kami.")
-  const giftWish = (tc.gift_wish || "").trim() || (lang === "en" ? "If you wish to honour us with a gift, we kindly prefer monetary contributions." : "Jika Anda ingin memberikan hadiah, kami dengan rendah hati menerima tanda kasih dalam bentuk uang.")
-  const giftButton = (tc.gift_button || "").trim() || (lang === "en" ? "View bank details" : "Lihat detail rekening")
-  const dressKicker = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dress Code" : "Busana")
-  const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Best Wishes" : "Ucapan Terbaik")
+  const videoIntro = (tc.video_intro || "").trim() || "The day as it happened, kept in motion."
+  const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
+  const giftIntro = (tc.gift_intro_description || "").trim() || "Your presence is our greatest gift."
+  const giftWish = (tc.gift_wish || "").trim() || "If you wish to honour us with a gift, we kindly prefer monetary contributions."
+  const giftButton = (tc.gift_button || "").trim() || "View bank details"
+  const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
+  const wishesTitle = (tc.wishes_title || "").trim() || "Best Wishes"
   const wishesIntro =
-    (tc.wishes_intro || "").trim() || (lang === "en" ? "Leave a wish, a prayer, or a memory for us to keep." : "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.")
+    (tc.wishes_intro || "").trim() || "Leave a wish, a prayer, or a memory for us to keep."
   const closingMessage = (tc.closing_message || "").trim()
-  const accountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening tersalin")
-  const addressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat tersalin")
-  const addressButton = (tc.copy_address_button || "").trim() || (lang === "en" ? "Copy address" : "Salin alamat")
-  const accountButton = (tc.copy_account_button || "").trim() || (lang === "en" ? "Copy account number" : "Salin nomor rekening")
+  const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
+  const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
+  const addressButton = (tc.copy_address_button || "").trim() || "Copy address"
+  const accountButton = (tc.copy_account_button || "").trim() || "Copy account number"
 
   const wishCopy: WishesCopy = {
-    nameLabel: (tc.wishes_name_label || "").trim() || (lang === "en" ? "Name" : "Nama"),
-    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || (lang === "en" ? "Your full name" : "Nama lengkap Anda"),
-    messageLabel: (tc.wishes_message_label || "").trim() || (lang === "en" ? "Message" : "Pesan"),
-    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || (lang === "en" ? "Leave a wish for the couple" : "Tulis ucapan untuk pasangan"),
-    submit: (tc.wishes_submit || "").trim() || (lang === "en" ? "Send wishes" : "Kirim ucapan"),
-    empty: (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama."),
+    nameLabel: (tc.wishes_name_label || "").trim() || "Name",
+    namePlaceholder: (tc.wishes_name_placeholder || "").trim() || "Your full name",
+    messageLabel: (tc.wishes_message_label || "").trim() || "Message",
+    messagePlaceholder: (tc.wishes_message_placeholder || "").trim() || "Leave a wish for the couple",
+    submit: (tc.wishes_submit || "").trim() || "Send wishes",
+    empty: (tc.wishes_empty || "").trim() || "No wishes yet. Be the first.",
   }
 
   const dayStrip = useMemo(() => {
@@ -692,7 +688,6 @@ export default function Fresco(profile: TemplateProps) {
               weekday={dateWeekday}
               year={coverYear}
               venue={venueLine}
-              lang={lang}
             />
           </div>
           {opened && (
@@ -1205,7 +1200,7 @@ export default function Fresco(profile: TemplateProps) {
               guestName={profile.guest_name}
               guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
-              copy={wishCopy} language={lang}
+              copy={wishCopy}
             />
           </div>
         </section>
@@ -1262,7 +1257,7 @@ export default function Fresco(profile: TemplateProps) {
 
       {lightbox !== null && gallery[lightbox] && (
         <div className="fr-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightbox(null)}>
-          <button type="button" className="fr-lightbox__close" aria-label={lang === "en" ? "Close" : "Tutup"} onClick={() => setLightbox(null)}>
+          <button type="button" className="fr-lightbox__close" aria-label="Close" onClick={() => setLightbox(null)}>
             ×
           </button>
           {gallery.length > 1 && (
@@ -1319,7 +1314,6 @@ export default function Fresco(profile: TemplateProps) {
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
           anchor="center"
-          language={lang}
         />
       )}
     </div>

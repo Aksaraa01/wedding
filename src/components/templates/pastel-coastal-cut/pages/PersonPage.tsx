@@ -5,8 +5,7 @@ import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
 import { bridePhoto, groomPhoto } from "../../shared/lib"
 
-export default function PersonPage({ profile, side, language = "id" }: { profile: TemplateProps; side: "groom" | "bride"; language?: string }) {
-  const lang = (language === "en" ? "en" : "id") as "id" | "en"
+export default function PersonPage({ profile, side }: { profile: TemplateProps; side: "groom" | "bride" }) {
   const isGroom = side === "groom"
   const photo = isGroom ? groomPhoto(profile.groom_photo_url) : bridePhoto(profile.bride_photo_url)
   const fullName = (isGroom ? profile.groom_full_name : profile.bride_full_name) || undefined
@@ -39,10 +38,10 @@ export default function PersonPage({ profile, side, language = "id" }: { profile
   const textBlock = (
     <div className={`flex flex-col flex-1 min-w-0 pr-1 ${isGroom ? "items-start text-left" : "items-end text-right"}`}>
       <h1 className="pc-stagger-1 text-[3rem] leading-[0.9] text-[#233543] filter drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" style={FONT_SCRIPT}>
-        {shortName || (lang === "en" ? "The Bride/Groom" : "Mempelai")}
+        {shortName || "Mempelai"}
       </h1>
       <h2 className="pc-stagger-2 font-semibold text-[0.95rem] tracking-[0.12em] uppercase text-[#1e2d38] mt-0.5 mb-1.5 leading-tight" style={FONT_BODY}>
-        {fullName || shortName || (lang === "en" ? "The Bride/Groom" : "Mempelai")}
+        {fullName || shortName || "Mempelai"}
       </h2>
       {parents && (
         <p className="pc-stagger-4 font-medium text-xs leading-snug text-[#1f2930] mb-2.5" style={FONT_BODY}>

@@ -1,7 +1,6 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
-import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { normalizeVideoUrl, type GiftAccountData } from "../../shared/lib"
 import { CopyButton } from "../../shared/CopyButton"
@@ -13,7 +12,6 @@ export default function CombinedPage({
   videoOn,
   giftOn,
   invitingOn,
-  language = "id",
 }: {
   profile: TemplateProps
   accounts: GiftAccountData[]
@@ -21,9 +19,7 @@ export default function CombinedPage({
   videoOn: boolean
   giftOn: boolean
   invitingOn: boolean
-  language?: string
 }) {
-  const lang = (language === "en" ? "en" : "id") as "id" | "en"
   const videoEmbed = normalizeVideoUrl(profile.video_url)
 
   return (
@@ -34,16 +30,16 @@ export default function CombinedPage({
           <div className="inline-flex items-center gap-1.5 mb-2.5 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
             <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">videocam</span>
             <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ ...FONT_BODY, color: "#8E6B3D" }}>
-              {lang === "en" ? "Our Footage" : "Rekaman Kami"}
+              Our Footage
             </span>
           </div>
           <h2 className="italic text-[22px] font-bold tracking-tight mb-2" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-            {lang === "en" ? "Our Sacred Moments" : "Momen Sakral Kami"}
+            Our Sacred Moments
           </h2>
           <div className="relative rounded-2xl overflow-hidden border border-[#d4af37]/35 bg-black/90 aspect-video">
             <iframe
               src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=0&rel=0&playsinline=1`}
-              title={lang === "en" ? "Video Teaser" : "Video Teaser"}
+              title="Video Teaser"
               className="w-full h-full border-0"
               allow="encrypted-media; picture-in-picture"
               allowFullScreen
@@ -59,11 +55,11 @@ export default function CombinedPage({
             <div className="inline-flex items-center gap-1.5 mb-2 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
               <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">group</span>
               <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ ...FONT_BODY, color: "#8E6B3D" }}>
-                {lang === "en" ? "Extended Family" : "Keluarga Besar"}
+                Keluarga Besar
               </span>
             </div>
             <h2 className="italic text-[22px] font-bold tracking-tight" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-              {t("secInviting", lang)}
+              Turut Mengundang
             </h2>
           </div>
           <div className="bg-white/95 rounded-2xl p-4 border border-[#d4af37]/35 shadow-sm">
@@ -83,11 +79,11 @@ export default function CombinedPage({
             <div className="inline-flex items-center gap-1.5 mb-2 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
               <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">featured_seasonal_and_gifts</span>
               <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ ...FONT_BODY, color: "#8E6B3D" }}>
-                {lang === "en" ? "Digital Envelope & Gifts" : "Amplop Digital & Hadiah"}
+                Amplop Digital &amp; Hadiah
               </span>
             </div>
             <h2 className="italic font-bold text-[21px]" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-              {t("secGift", lang)}
+              Ungkapan Tanda Kasih
             </h2>
           </div>
           <div className="space-y-3">
@@ -97,7 +93,7 @@ export default function CombinedPage({
               return (
                 <div key={i} className="bg-white/95 rounded-2xl p-4 border border-[#d4af37]/35 shadow-sm">
                   <p className="text-[11px] uppercase font-semibold tracking-wider mb-1" style={{ ...FONT_BODY, color: "#574E45" }}>
-                    {a.provider_name || (lang === "en" ? "Bank" : "Bank")}
+                    {a.provider_name || "Bank"}
                   </p>
                   <p className="text-[20px] font-bold tracking-wider" style={{ ...FONT_DISPLAY, color: "#b37a56" }}>
                     {num || ", "}
@@ -110,8 +106,8 @@ export default function CombinedPage({
                       <CopyButton
                         copyKey={`pc-gift-${i}`}
                         value={plain}
-                        display={t("copy", lang)}
-                        copiedDisplay={t("copied", lang)}
+                        display="Salin"
+                        copiedDisplay="Tersalin"
                         className="bg-[linear-gradient(135deg,#df8268,#b37a56)] text-white font-semibold text-[12px] px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shrink-0 transition active:scale-95 shadow-[0_4px_14px_rgba(179,122,86,0.35)]"
                         iconClassName="text-[15px]"
                       />
@@ -123,7 +119,7 @@ export default function CombinedPage({
             {profile.gift_address && (
               <div className="bg-white/95 rounded-2xl p-4 border border-[#d4af37]/35 shadow-sm">
                 <p className="font-bold text-[15px] leading-tight" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-                  {lang === "en" ? "Send a Physical Gift" : "Kirim Kado Fisik"}
+                  Kirim Kado Fisik
                 </p>
                 <p className="text-[13px] leading-relaxed mt-1" style={{ ...FONT_BODY, color: "#574E45" }}>
                   {profile.gift_address_name ? `${profile.gift_address_name}, ` : ""}{profile.gift_address}
@@ -131,8 +127,8 @@ export default function CombinedPage({
                 <CopyButton
                   copyKey="pc-gift-address"
                   value={profile.gift_address}
-                  display={t("copyAddress", lang)}
-                  copiedDisplay={t("copied", lang)}
+                  display="Salin Alamat"
+                  copiedDisplay="Tersalin"
                   className="bg-[linear-gradient(135deg,#df8268,#b37a56)] mt-2 w-full py-2 rounded-lg text-white font-semibold text-[12px] inline-flex items-center justify-center gap-1.5 transition active:scale-95 shadow-[0_4px_14px_rgba(179,122,86,0.35)]"
                   iconClassName="text-[15px]"
                 />

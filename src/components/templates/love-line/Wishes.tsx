@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
 import { wishNameState } from "../shared/wishName"
-import { formatWishAgo, normalizeLanguage, t } from "@/lib/i18n"
 
 type Wish = {
   id: string
@@ -27,7 +26,6 @@ type Props = {
   guestLinkStrict?: boolean
   coupleName?: string
   copy: Copy
-  language?: "id" | "en"
 }
 
 const PAGE_SIZE = 4
@@ -49,8 +47,19 @@ const DEMO_WISHES: Wish[] = [
   },
 ]
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy, language = "id" }: Props) {
-  const lang = normalizeLanguage(language)
+function wishAgo(iso?: string): string {
+  if (!iso) return ""
+  const diff = Date.now() - new Date(iso).getTime()
+  const minutes = Math.floor(diff / 60_000)
+  if (minutes < 1) return "Just now"
+  if (minutes < 60) return `${minutes} min ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} hr ago`
+  const days = Math.floor(hours / 24)
+  return days === 1 ? "1 day ago" : `${days} days ago`
+}
+
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, copy }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -95,7 +104,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(t("previewWishNotSaved", lang))
+      setFeedback("Preview mode — your wish was not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -112,19 +121,19 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || t("guestHonored", lang),
+          name: name.trim() || guestName || "Dear Guest",
           message: text,
           source: "invitation",
         }),
       })
       if (response.status === 409) {
         setStatus("error")
-        setFeedback(t("wishAlreadySent", lang))
+        setFeedback("You have already sent a wish. Thank you for your love and prayers.")
         return
       }
       if (response.ok) {
         setStatus("done")
-        setFeedback(t("thanksForWish", lang))
+        setFeedback("Thank you. Your wish will appear after it is reviewed.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -133,12 +142,12 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         return
       }
       setStatus("error")
-      setFeedback(t("tooManyMessages", lang))
+      setFeedback("Too many messages right now. Please try again in a moment.")
     } catch {
       setStatus("error")
-      setFeedback(t("wishFailed", lang))
+      setFeedback("Your wish could not be sent. Please check your connection.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
+  }, [weddingProfileId, guestId, guestName, name, message, status])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -193,7 +202,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <button type="submit" className="ll-secondary" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? t("sending", lang) : copy.submit}
+          {status === "sending" ? "Sending…" : copy.submit}
         </button>
 
         {feedback && (
@@ -204,16 +213,18 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
       </form>
 
       <div className="ll-wishlist">
-        {!loaded && <p className="ll-field__feedback">{t("loadingWishes", lang)}</p>}
+        {!loaded && <p className="ll-field__feedback">Loading wishes…</p>}
         {loaded && wishes.length === 0 && (
-          <p className="ll-field__feedback">{copy.empty}</p>
+          <p className="ll-field__feedback">
+            {copy.empty}{coupleName ? ` (${coupleName})` : ""}
+          </p>
         )}
 
         {pagedWishes.map((wish) => (
           <article className="ll-wish" key={wish.id}>
             <header className="ll-wish__head">
-              <span className="ll-wish__name">{wish.name || t("guestHonored", lang)}</span>
-              <span className="ll-wish__date">{formatWishAgo(wish.created_at, lang)}</span>
+              <span className="ll-wish__name">{wish.name || "Dear Guest"}</span>
+              <span className="ll-wish__date">{wishAgo(wish.created_at)}</span>
             </header>
             <p className="ll-wish__text">{wish.message}</p>
           </article>
@@ -224,7 +235,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
             <button
               type="button"
               className="ll-pager__btn"
-              aria-label={t("previousPage", lang)}
+              aria-label="Previous page"
               disabled={currentPage === 0}
               onClick={() => setPage((value) => Math.max(0, value - 1))}
             >
@@ -236,7 +247,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
             <button
               type="button"
               className="ll-pager__btn"
-              aria-label={t("nextPage", lang)}
+              aria-label="Next page"
               disabled={currentPage >= totalPages - 1}
               onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
             >

@@ -15,10 +15,8 @@ import GiftModal from "./modals/GiftModal"
 import FamilyModal from "./modals/FamilyModal"
 import VideoModal, { type VideoModalData } from "./modals/VideoModal"
 import { normalizeVideoUrl } from "./lib"
-import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function SkylinePenthouse(props: TemplateProps) {
-  const lang = normalizeLanguage(props.language)
   const [opened, setOpened] = useState(false)
   const [modal, setModal] = useState<ModalKind | null>(null)
   const [wishOpen, setWishOpen] = useState(false)
@@ -111,7 +109,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
               onClose={closeModal}
             />
           )}
-          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} language={props.language} />}
+          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} />}
         </div>
 
         {showGuestDock && (
@@ -119,7 +117,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
             guestId={props.guest_id}
             guestSlug={props.guest_slug}
             allowFlexibleRsvp={props.guest_link_strict === false}
-            guestName={props.guest_name || t("honoredGuest", lang)}
+            guestName={props.guest_name || "Tamu Undangan"}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
             guestQrUrl={props.guest_qr_url}
@@ -129,7 +127,6 @@ export default function SkylinePenthouse(props: TemplateProps) {
             rsvpMaxPax={props.rsvp_max_pax ?? 2}
             qrEnabled={props.feature_gates?.qr_code_book === true}
             anchor="bottom"
-            language={lang}
           />
         )}
 

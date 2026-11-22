@@ -26,8 +26,6 @@ type EventInfo = {
   has_pin: boolean
   end_date?: string
   cover_photo?: string | null
-  sessions?: { name?: string }[]
-  acara_supported?: boolean
 }
 
 type ScanResult = {
@@ -91,17 +89,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const [showAddGuest, setShowAddGuest] = useState(false)
   const [addGuestForm, setAddGuestForm] = useState({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
-  const [addGuestSessionSel, setAddGuestSessionSel] = useState<number[]>([])
   const [addGuestSubmitting, setAddGuestSubmitting] = useState(false)
   const [addGuestError, setAddGuestError] = useState("")
   const [addGuestSuccess, setAddGuestSuccess] = useState(false)
-
-  const resetAddGuestForm = useCallback(() => {
-    setAddGuestForm({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
-    const count = Array.isArray(eventInfo?.sessions) ? eventInfo.sessions.length : 0
-    setAddGuestSessionSel(count > 0 ? Array.from({ length: count }, (_, i) => i) : [])
-    setAddGuestError("")
-  }, [eventInfo?.sessions])
   const [selectedGuest, setSelectedGuest] = useState<GuestRecord | null>(null)
 
   const [selfieGuest, setSelfieGuest] = useState<GuestRecord | null>(null)
@@ -581,13 +571,6 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       const digits = addGuestForm.phone.replace(/\D/g, "")
       const phonePayload = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
 
-      const sessionsCount = Array.isArray(eventInfo.sessions) ? eventInfo.sessions.length : 0
-      const acaraSupported = !!eventInfo.acara_supported
-      const invited_session_indexes =
-        acaraSupported && sessionsCount > 0 && addGuestSessionSel.length > 0 && addGuestSessionSel.length < sessionsCount
-          ? [...addGuestSessionSel].sort((a, b) => a - b)
-          : null
-
       const res = await fetch("/api/guests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -601,7 +584,6 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           is_vip: addGuestForm.is_vip,
           added_manually: true,
           checked_in_by: operatorName,
-          invited_session_indexes,
         }),
       })
 
@@ -641,7 +623,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       }
 
       setAddGuestSuccess(true)
-      resetAddGuestForm()
+      setAddGuestForm({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
       if (manualQuery.trim()) handleManualSearch(manualQuery)
       if (g) {
         setTimeout(() => {
@@ -840,7 +822,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         <section className="bg-white/85 backdrop-blur-md border border-[#E2D9CF] rounded-3xl p-3 shadow-md space-y-3">
           <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border border-[#2C2A29]/10">
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,#444_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen || !!scanSuccess} releaseCamera={selfieOpen} />
+            <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen || !!scanSuccess} />
             <div className="absolute top-6 left-6 w-10 h-10 border-t-[3px] border-l-[3px] border-[#B34E3F] rounded-tl-lg"></div>
             <div className="absolute top-6 right-6 w-10 h-10 border-t-[3px] border-r-[3px] border-[#B34E3F] rounded-tr-lg"></div>
             <div className="absolute bottom-6 left-6 w-10 h-10 border-b-[3px] border-l-[3px] border-[#B34E3F] rounded-bl-lg"></div>
@@ -896,7 +878,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           <div className="px-4 pb-4 space-y-2">
           <div className="flex items-center justify-end">
             <button
-              onClick={() => { resetAddGuestForm(); setShowAddGuest(true) }}
+              onClick={() => setShowAddGuest(true)}
               className="text-[10px] font-bold uppercase tracking-widest bg-[#B34E3F] text-white px-3 py-1.5 rounded-lg hover:bg-[#9E3B2D] transition-colors"
             >
               + Tambah Tamu Manual
@@ -1261,64 +1243,71 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
       {/* Tambah Tamu Manual Modal */}
       {showAddGuest && (
-        <div className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0">
-          <div className="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-md sm:rounded-2xl border border-[#E2D9CF] shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-center justify-center p-0">
+          <div className="bg-white w-full h-full md:max-w-md md:h-auto md:max-h-[90vh] md:rounded-2xl border border-[#E2D9CF] shadow-2xl flex flex-col overflow-hidden">
             {/* Header */}
-            <header className="flex items-center justify-between px-4 py-3 border-b border-[#E2D9CF]/60 shrink-0 bg-white">
+            <header className="flex items-center justify-between px-6 py-5 border-b border-[#E2D9CF]/60 shrink-0">
               <button
                 onClick={() => { setShowAddGuest(false); setAddGuestError("") }}
-                className="inline-flex items-center gap-1.5 text-[#2C2A29]/70 hover:text-[#B34E3F] transition-colors text-[11px] uppercase tracking-wider font-semibold min-h-[44px]"
+                className="inline-flex items-center gap-2 text-[#2C2A29]/70 hover:text-[#B34E3F] transition-colors text-[11px] uppercase tracking-wider font-semibold"
               >
                 <span className="material-symbols-outlined text-base">arrow_back</span>
                 Kembali
               </button>
-              <h2 className="text-sm font-semibold text-[#2C2A29]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tambah Tamu</h2>
-              <div className="w-14" />
+              <div className="w-2 h-2 rounded-full bg-[#B34E3F]/40 animate-pulse" />
             </header>
 
             {/* Scrollable form */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-white">
+            <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
+              <div className="border-l-2 border-[#B34E3F]/30 pl-6 py-1">
+                <span className="text-[11px] text-[#B34E3F] uppercase tracking-[0.25em] block mb-2 font-semibold">Manajemen Undangan</span>
+                <h2 className="text-3xl text-[#2C2A29] font-medium tracking-tight" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Detail Kehadiran Tamu</h2>
+                <p className="text-sm text-[#2C2A29]/70 mt-3 max-w-md leading-relaxed">
+                  Silakan masukkan informasi tamu secara manual untuk dicatat ke dalam daftar undangan resmi Aksaraa.
+                </p>
+              </div>
+
               {/* Nama Lengkap */}
-              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
-                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
-                  Nama Lengkap
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                  Nama Lengkap Tamu
                 </label>
                 <input
                   type="text"
                   value={addGuestForm.name}
                   onChange={(e) => setAddGuestForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="Contoh: Bpk. Heru Wijaya"
-                  className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                  className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                 />
               </div>
 
               {/* Nomor WhatsApp */}
-              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
-                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
-                  No. WhatsApp
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                  Nomor WhatsApp
                 </label>
-                <div className="flex items-center">
-                  <span className="text-sm text-[#2C2A29]/70 pr-2 select-none font-medium border-r border-[#E2D9CF] mr-2">+62</span>
+                <div className="relative flex items-center">
+                  <span className="text-base text-[#2C2A29]/70 pr-2 select-none font-medium border-r border-[#E2D9CF] mr-2">+62</span>
                   <input
                     type="tel"
                     value={addGuestForm.phone}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "") }))}
-                    placeholder="81234567890"
-                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                    placeholder="812 3456 7890"
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
               </div>
 
               {/* Kategori */}
-              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
-                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
-                  Kategori
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                  Kategori Undangan
                 </label>
                 <div className="relative flex items-center">
                   <select
                     value={addGuestForm.category}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, category: e.target.value }))}
-                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] appearance-none cursor-pointer focus:ring-0 pr-6"
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] appearance-none cursor-pointer focus:ring-0 pr-8"
                   >
                     <option value="">Pilih Kategori</option>
                     <option value="Keluarga">Keluarga</option>
@@ -1331,10 +1320,30 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                 </div>
               </div>
 
+              {/* Is VIP */}
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setAddGuestForm((p) => ({ ...p, is_vip: !p.is_vip }))}
+                  className="w-full flex items-center justify-between gap-3"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px] text-[#8B6F2A]">star</span>
+                    <span className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider font-semibold text-left">
+                      Tamu VIP
+                      <span className="block normal-case tracking-normal font-normal text-[#2C2A29]/50 mt-0.5">Kartu QR desain khusus VIP</span>
+                    </span>
+                  </span>
+                  <span className={`w-10 h-5 rounded-full relative transition-colors shrink-0 ${addGuestForm.is_vip ? "bg-secondary" : "bg-outline-variant"}`}>
+                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${addGuestForm.is_vip ? "right-0.5" : "left-0.5"}`} />
+                  </span>
+                </button>
+              </div>
+
               {/* Jumlah Pax + Nomor Meja */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
-                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                     Jumlah Pax
                   </label>
                   <input
@@ -1346,102 +1355,38 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       setAddGuestForm((p) => ({ ...p, guest_count: val ? Math.max(1, Number(val)) : 1 }))
                     }}
                     placeholder="1"
-                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
-                <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
-                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1 font-semibold">
+                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                     Nomor Meja
                   </label>
                   <input
                     type="text"
                     value={addGuestForm.table_number}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, table_number: e.target.value }))}
-                    placeholder="Meja 1"
-                    className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
+                    placeholder="Contoh: Meja 12 atau VIP 1"
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
               </div>
-
-              {/* Is VIP */}
-              <div className="bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3">
-                <button
-                  type="button"
-                  onClick={() => setAddGuestForm((p) => ({ ...p, is_vip: !p.is_vip }))}
-                  className="w-full flex items-center justify-between gap-3 min-h-[44px]"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-[18px] text-[#8B6F2A]">star</span>
-                    <span className="text-left">
-                      <span className="block text-sm font-medium text-[#2C2A29]">Tamu VIP</span>
-                      <span className="block text-[11px] text-[#2C2A29]/50">Kartu QR desain khusus VIP</span>
-                    </span>
-                  </span>
-                  <span className={`w-10 h-5 rounded-full relative transition-colors shrink-0 ${addGuestForm.is_vip ? "bg-secondary" : "bg-outline-variant"}`}>
-                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${addGuestForm.is_vip ? "right-0.5" : "left-0.5"}`} />
-                  </span>
-                </button>
-              </div>
-
-              {/* Sesi yang diundang */}
-              {Array.isArray(eventInfo?.sessions) && eventInfo.sessions.length > 0 && (
-                <div className={`border border-[#E2D9CF]/60 rounded-xl px-3.5 py-3 ${eventInfo?.acara_supported ? "bg-[#FAF7F2]" : "bg-[#F3EFE8]"}`}>
-                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-2 font-semibold">
-                    Diundang ke Acara
-                  </label>
-                  <div className="flex flex-col gap-1.5">
-                    {eventInfo.sessions.map((s, i) => {
-                      const acaraSupported = !!eventInfo?.acara_supported
-                      const checked = acaraSupported ? addGuestSessionSel.includes(i) : true
-                      const label = (s?.name || "").trim() || `Acara ${i + 1}`
-                      return (
-                        <label key={i} className={`flex items-center gap-3 select-none min-h-[40px] ${acaraSupported ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}>
-                          <span
-                            className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                              checked ? "bg-[#B34E3F] border-[#B34E3F]" : "border-[#E2D9CF] bg-white"
-                            }`}
-                            onClick={(e) => {
-                              if (!eventInfo?.acara_supported) return
-                              e.preventDefault()
-                              setAddGuestSessionSel((prev) => {
-                                const has = prev.includes(i)
-                                if (has) return prev.filter((x) => x !== i)
-                                return [...prev, i].sort((a, b) => a - b)
-                              })
-                            }}
-                          >
-                            {checked && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
-                          </span>
-                          <span className="text-sm text-[#2C2A29]">{label}</span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                  <p className="mt-2 text-[11px] text-[#2C2A29]/50 leading-relaxed">
-                    {!eventInfo?.acara_supported
-                      ? "Template yang kamu pakai belum mendukung undangan per acara. Untuk sekarang, tamu ini otomatis diundang ke semua acara."
-                      : addGuestSessionSel.length === 0
-                        ? "Jika tidak ada yang dipilih, tamu dianggap diundang ke semua acara."
-                        : "Pilih acara sesuai undangan tamu."}
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* Bottom action */}
-            <div className="shrink-0 bg-white px-4 py-3 border-t border-[#E2D9CF]/40 safe-area-pb">
+            <div className="shrink-0 bg-white/80 backdrop-blur-md px-6 py-6 border-t border-[#E2D9CF]/40">
               {addGuestError && (
-                <p className="text-red-500 text-xs text-center mb-2 font-medium">{addGuestError}</p>
+                <p className="text-red-500 text-xs text-center mb-3 font-medium">{addGuestError}</p>
               )}
               <button
                 onClick={handleAddGuest}
                 disabled={addGuestSubmitting}
-                className="w-full bg-[#B34E3F] hover:bg-[#9E3B2D] text-white min-h-[48px] py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99] shadow-sm disabled:opacity-50"
+                className="w-full bg-[#B34E3F] hover:bg-[#9E3B2D] text-white py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.99] shadow-md disabled:opacity-50"
               >
                 <span className="text-[11px] uppercase tracking-widest font-bold">
-                  {addGuestSubmitting ? "Menyimpan..." : "Simpan & Konfirmasi"}
+                  {addGuestSubmitting ? "Menyimpan..." : "Simpan & Konfirmasi Kehadiran"}
                 </span>
-                <span className="material-symbols-outlined text-base">arrow_forward</span>
+                <span className="material-symbols-outlined text-lg transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
               </button>
             </div>
           </div>
