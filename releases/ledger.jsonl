@@ -29,3 +29,4 @@
 {"at":"2026-11-23T04:32:43.345Z","sha":"0c6dd41583657af7cb7b8f8edd8f49ef7952a31b","short":"0c6dd41","env":"staging","state":"verified","by":"delanataliamalau","note":"staging deploy+smoke green (ID defaults for English-designed copy, BUILD_ID MYM-M2psQN3aTYB17Sgqm)","branch":"main"}
 {"at":"2026-11-23T04:38:18.226Z","sha":"79cb20d8281368e614191c8c2d5ff27b30104678","short":"79cb20d","env":"staging","state":"staged","purpose":"deploy","by":"delanataliamalau","buildId":"TU_qJpIdmvCoWWcUKFITU","branch":"main"}
 {"at":"2026-11-23T04:40:15.772Z","sha":"79cb20d8281368e614191c8c2d5ff27b30104678","short":"79cb20d","env":"staging","state":"verified","by":"delanataliamalau","branch":"HEAD"}
+{"at":"2026-11-23T04:41:09.458Z","sha":"31095e4b1353c939bc9e0326e7230cbc3bb7769d","short":"31095e4","env":"staging","state":"verified","by":"delanataliamalau","note":"staging deploy+smoke green (ID defaults pass 2, BUILD_ID 9IyTxCtEiXRGog3P95KrF)","branch":"main"}
