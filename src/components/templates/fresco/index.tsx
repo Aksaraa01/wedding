@@ -357,7 +357,7 @@ export default function Fresco(profile: TemplateProps) {
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Gallery" : "Galeri")
   const galleryIntro = (tc.gallery_intro || "").trim() || "A few frames from the days that led us here."
   const galleryQuote = (tc.gallery_quote || "").trim()
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Film")
+  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Video")
   const videoTitle = (tc.video_title || "").trim()
   const videoIntro = (tc.video_intro || "").trim() || (lang === "en" ? "The day as it happened, kept in motion." : "Hari itu sebagaimana terjadi, tersimpan dalam gerak.")
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)

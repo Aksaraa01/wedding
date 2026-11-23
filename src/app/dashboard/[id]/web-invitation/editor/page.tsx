@@ -1918,7 +1918,7 @@ function EditorInner({ id }: { id: string }) {
                 <SidebarShimmer />
               ) : (
                 <>
-              {(languageUiEnabled || data.language === "en") && renderSection("bahasa", "language", "BAHASA UNDANGAN",
+              {(isInhouse && (languageUiEnabled || data.language === "en")) && renderSection("bahasa", "language", "BAHASA UNDANGAN",
                 <div className="mt-6 space-y-4">
                   <div>
                     <label className="block font-label-md text-[10px] tracking-widest text-on-surface-variant mb-2">BAHASA UNDANGAN</label>

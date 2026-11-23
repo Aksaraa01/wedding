@@ -256,7 +256,7 @@ export default function Majestic(profile: TemplateProps) {
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Gallery of Us" : "Galeri Kami")
   const galleryIntro = (tc.gallery_intro || "").trim()
   const galleryQuote = (tc.gallery_quote || "").trim()
-  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "The Film" : "Film")
+  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "The Film" : "Video")
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || (lang === "en" ? "The Wedding Gift" : "Hadiah Pernikahan")
   const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT

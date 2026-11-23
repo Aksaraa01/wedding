@@ -86,7 +86,7 @@ const COPY_ID: Record<keyof typeof COPY_EN, string> = {
   gallery_title: "Potret Kami",
   video_title: "Video Kami",
   video_intro: "Film singkat dari hari-hari sebelum pernikahan.",
-  video_caption: "Film",
+  video_caption: "Video",
   story_title: "Kisah Kami",
   gift_title: "Hadiah Pernikahan",
   gift_intro:

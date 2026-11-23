@@ -614,7 +614,7 @@ export default function Teatro(profile: TemplateProps) {
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Scenes" : "Momen")
   const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "Frames from the days that led us here, kept like programmes from a favourite show." : "Potret dari hari-hari yang membawa kami ke sini, disimpan seperti kenangan pertunjukan favorit.")
   const galleryQuote = (tc.gallery_quote || "").trim() || (lang === "en" ? "Every love story is beautiful, but ours is my favourite." : "Setiap kisah cinta itu indah, tapi kisah kami adalah favorit saya.")
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Film")
+  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Video")
   const videoTitle = (tc.video_title || "").trim() || ""
   const videoIntro = (tc.video_intro || "").trim() || (lang === "en" ? "The day as it happened, kept in motion." : "Hari itu sebagaimana terjadi, tersimpan dalam gerak.")
   const giftKicker = (tc.gift_kicker || "").trim() || (lang === "en" ? "Wedding Registry" : "Hadiah Pernikahan")
