@@ -33,3 +33,4 @@
 {"at":"2026-11-23T04:43:56.770Z","sha":"79cb20d8281368e614191c8c2d5ff27b30104678","short":"79cb20d","env":"prod","state":"deployed","purpose":"deploy","by":"delanataliamalau","buildId":"NXCRhqBYEULiqWhFFA_G2","branch":"prod"}
 {"at":"2026-11-23T04:44:21.752Z","sha":"79cb20d8281368e614191c8c2d5ff27b30104678","short":"79cb20d","env":"prod","state":"tagged","tag":"release/prod/2026-11-23.79cb20d","by":"delanataliamalau"}
 {"at":"2026-11-23T04:47:29.453Z","sha":"31095e4b1353c939bc9e0326e7230cbc3bb7769d","short":"31095e4","env":"prod","state":"deployed","by":"delanataliamalau","buildId":"A2gUmCzVux0ZntQHkMeLL","tag":"release/prod/2026-11-23.31095e4"}
+{"at":"2026-11-23T04:56:51.870Z","sha":"e53e7662e1389e9ab5cd94858b32c234a6c389ea","short":"e53e766","env":"staging","state":"verified","by":"delanataliamalau","note":"staging deploy+smoke green (ID defaults tail + bilingual scan tool, BUILD_ID y0kuKmGZx9uXYkHob4po5)","branch":"main"}
