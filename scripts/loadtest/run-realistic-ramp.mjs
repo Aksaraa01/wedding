@@ -51,6 +51,7 @@ const guests = Array.from({ length: GUESTS }, (_, idx) => {
     photos: Math.random() < 0.5 ? 2 : 1,
     nextAt: arrival * 1000,
     done: 0,
+    inFlight: false,
     completed: false,
   }
 })
@@ -118,14 +119,16 @@ const deadline = startedAt + (durationSec + 600) * 1000
 while (Date.now() < deadline) {
   const now = Date.now()
   for (const guest of guests) {
-    if (guest.completed || guest.nextAt > now) continue
+    if (guest.completed || guest.inFlight || guest.nextAt > now) continue
     if (inflight >= MAX_INFLIGHT) break
     if (guest.done >= guest.photos) { guest.completed = true; continue }
     guest.done += 1
+    guest.inFlight = true
     inflight += 1
     started += 1
     void upload(guest, guest.done).then(async (result) => {
       inflight -= 1
+      guest.inFlight = false
       results.push(result)
       await logEvent(result)
       if (result.ok && guest.done < guest.photos) {
