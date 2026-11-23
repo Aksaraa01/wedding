@@ -209,7 +209,7 @@ export default function BoardingPass(profile: TemplateProps) {
   // Dress-code prose lives in template_content because the editor exposes no
   // description field for that section.
   const dressIntro = (tc.dresscode_intro || "").trim() || (profile.dresscode?.description || "").trim()
-  const heroTagline = (tc.hero_tagline || "").trim() || "tujuan akhir: hari bahagia kami"
+  const heroTagline = (tc.hero_tagline || "").trim() || (lang === "en" ? "final destination: our big day" : "tujuan akhir: hari bahagia kami")
   const boardFooter = (tc.board_footer || "").trim() || "sampai jumpa di gerbang keberangkatan"
   const eventsNote = (tc.events_note || "").trim() || (lang === "en" ? "Please arrive 30 minutes before boarding." : "Mohon hadir 30 menit sebelum boarding.")
   const seatClass = (tc.seat_class || "").trim() || "VIP"
@@ -380,7 +380,7 @@ export default function BoardingPass(profile: TemplateProps) {
           <div className="bp-pass bp-pass--top" {...IN("up")}>
             <div className="bp-pass__head">
               <span className="bp-micro bp-micro--teal" {...IN("fade")}>Boarding Pass</span>
-              <span className="bp-micro" {...IN("fade")}>Kelas VIP</span>
+              <span className="bp-micro" {...IN("fade")}>{lang === "en" ? "VIP Class" : "Kelas VIP"}</span>
             </div>
             <span className="bp-pass__rule" aria-hidden="true" {...IN("fade")} />
 
@@ -423,7 +423,7 @@ export default function BoardingPass(profile: TemplateProps) {
           </div>
 
           <div className="bp-pass bp-pass--stub" {...IN("up")}>
-            <span className="bp-micro bp-micro--teal bp-pass__center" {...IN("fade")}>Undangan Pernikahan</span>
+            <span className="bp-micro bp-micro--teal bp-pass__center" {...IN("fade")}>{lang === "en" ? "Wedding Invitation" : "Undangan Pernikahan"}</span>
             <span className="bp-pass__barcode" aria-hidden="true" {...IN("fade")} />
             <span className="bp-micro bp-pass__center" {...IN("fade")}>{ticketCode}</span>
             <button type="button" className="bp-btn bp-pass__open" onClick={openInvitation} {...IN("up")}>

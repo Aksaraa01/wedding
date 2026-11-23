@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height, event_type, subject_gender, children")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height, event_type, subject_gender, children, language")
     .ilike("slug", slug)
     .single()
 
@@ -84,9 +84,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // every one of them — "Qari & Rifki", "Qari, Rifki & Rafa" — never only the
   // first child, whose full name is mirrored into `groom_*`.
   const kidsNames = kids ? childFullNamesLine(resolveChildren(profile)) || name1 : ""
+  const lang = normalizeLanguage(profile.language)
   const title: Metadata["title"] = kids
     ? { absolute: `${labels.eventKicker} ${kidsNames} | ${labels.brand}` }
-    : `The Wedding of ${name1}-${name2}`
+    : lang === "en"
+      ? `The Wedding of ${name1} & ${name2}`
+      : `Pernikahan ${name1} & ${name2}`
 
   const tagline = kids
     ? kidsNames
@@ -95,8 +98,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : ""
   const description = kids
-    ? [tagline, date, `Undangan ${labels.eventNoun.toLowerCase()}. Detail acara dan konfirmasi kehadiran tersedia di tautan ini.`].filter(Boolean).join(" • ")
-    : [tagline, date, "Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan."].filter(Boolean).join(" • ")
+    ? [tagline, date, lang === "en" ? `Invitation to the ${labels.eventNoun.toLowerCase()}. Event details and RSVP are available in this link.` : `Undangan ${labels.eventNoun.toLowerCase()}. Detail acara dan konfirmasi kehadiran tersedia di tautan ini.`].filter(Boolean).join(" • ")
+    : [tagline, date, lang === "en" ? "Thank you for your prayers and blessings; event details and RSVP are in this invitation." : "Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan."].filter(Boolean).join(" • ")
 
   let covers: string[] = []
   if (Array.isArray(profile.cover_photos)) covers = profile.cover_photos.filter((c: unknown) => typeof c === "string" && c.trim())

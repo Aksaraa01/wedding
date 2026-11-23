@@ -12,8 +12,20 @@ import { normalizeLanguage } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const { data } = await supabaseAdmin
+    .from("wedding_profiles")
+    .select("bride_name, groom_name, language")
+    .eq("id", id)
+    .single()
+  const lang = normalizeLanguage(data?.language)
+  const couple = [data?.groom_name, data?.bride_name].filter(Boolean).join(" & ")
+  return {
+    title: lang === "en" ? `Invitation Preview — ${couple}` : `Pratinjau Undangan — ${couple}`,
+    description: lang === "en" ? "Private preview of your invitation." : "Pratinjau undangan Anda.",
+    robots: { index: false, follow: false },
+  }
 }
 
 // GET /preview/[id] — couple preview of an IN-HOUSE invitation, rendered from
