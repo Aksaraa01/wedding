@@ -167,6 +167,15 @@ secret that ever appeared in git is compromised: **rotate it**, then purge.
 - The GitHub PAT used for automation should be short-lived and revoked when the
   task is done; it is stored in `~/.config/aksaraa/github-token` and Keychain.
 
+### Bilingual invitations (id/en)
+The i18n engine (`src/lib/i18n.ts`, `language` column) is merged, but the
+couple-facing switcher is **opt-in per environment**:
+`NEXT_PUBLIC_LANGUAGE_UI === "true"` in the editor (`renderSection("bahasa", …)`).
+Staging sets it; prod does not, so prod couples only see Bahasa Indonesia. An
+already-English profile still gets the selector so it can switch back. The
+build-time flag is declared in `env/contract.mjs` `optionalPublic`; changing it
+requires a rebuild (it is inlined), not just a runtime env update.
+
 ### WordPress Integration (Live WP as Source of Truth)
 WP hosts the Elementor template masters. Each couple gets a **duplicate** of the master (post + linked popups) that is patched with their data via the mu-plugin REST API.
 

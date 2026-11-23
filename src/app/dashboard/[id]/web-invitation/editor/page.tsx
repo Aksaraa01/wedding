@@ -512,6 +512,10 @@ function EditorInner({ id }: { id: string }) {
   const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
   const extraFields = getTemplateExtraFields(template?.code, data.language === "en" ? "en" : "id")
   const extrasLabel = templateExtrasLabel(template?.name, data.language === "en" ? "en" : "id")
+  // Bilingual UI is opt-in per environment. The i18n engine stays; this only
+  // hides the couple-facing switcher where the feature is not released.
+  // An already-English profile still gets the control so it can switch back.
+  const languageUiEnabled = process.env.NEXT_PUBLIC_LANGUAGE_UI === "true"
   // Tanpa-photo template: photo fields (cover slots, person photos, gallery,
   // story images) are hidden in editor + ops and excluded from completeness.
   // Stored photos are kept so switching back to a with-photo template restores
@@ -1914,7 +1918,7 @@ function EditorInner({ id }: { id: string }) {
                 <SidebarShimmer />
               ) : (
                 <>
-              {renderSection("bahasa", "language", "BAHASA UNDANGAN",
+              {(languageUiEnabled || data.language === "en") && renderSection("bahasa", "language", "BAHASA UNDANGAN",
                 <div className="mt-6 space-y-4">
                   <div>
                     <label className="block font-label-md text-[10px] tracking-widest text-on-surface-variant mb-2">BAHASA UNDANGAN</label>

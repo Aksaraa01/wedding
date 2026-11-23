@@ -32,6 +32,7 @@ export const CONTRACT = {
       "NEXT_PUBLIC_SUPABASE_ANON_KEY",
       "NEXT_PUBLIC_COUPLE_APEX_DOMAIN",
       "NEXT_PUBLIC_CS_WIDGET",
+      "NEXT_PUBLIC_LANGUAGE_UI",
     ],
     forbiddenPublic: {
       NEXT_PUBLIC_SITE_URL: "https://wedding-stg.aksaraa.com",
@@ -66,6 +67,7 @@ export const CONTRACT = {
       "NEXT_PUBLIC_WP_ORIGIN",
       "NEXT_PUBLIC_COUPLE_APEX_DOMAIN",
       "NEXT_PUBLIC_CS_WIDGET",
+      "NEXT_PUBLIC_LANGUAGE_UI",
     ],
     forbiddenPublic: {},
     runtimeRequired: ["SUPABASE_SERVICE_ROLE_KEY", "WP_INTERNAL_SECRET", "SCANNER_JWT_SECRET"],
