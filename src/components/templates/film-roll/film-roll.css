@@ -319,7 +319,11 @@ body:has(.film-roll-root){overflow:hidden;background:#000}
 .film-roll-root .fr-player__box iframe, .film-roll-root .fr-player__box video{display:block;width:100%;height:100%;border:0;-o-object-fit:contain;object-fit:contain;background:#000}
 .film-roll-root .fr-player__x{position:absolute;top:20px;right:20px;width:42px;height:42px;z-index:2}
 @media(max-width:991.98px){
-.film-roll-root .fr-player__box{width:100vw}
+/* The film is a phone picture: a 16:9 cinema box letterboxes a vertical video
+   into a thin strip in the middle of the screen. On a handset the player takes
+   the whole screen (the way YouTube's own full-screen does), so a portrait film
+   fills it edge to edge and a landscape one simply gets the usual bars. */
+.film-roll-root .fr-player__box{width:100vw;height:100dvh;max-height:100dvh;aspect-ratio:auto}
 .film-roll-root .fr-player__x{top:14px;right:14px}
 }
 
