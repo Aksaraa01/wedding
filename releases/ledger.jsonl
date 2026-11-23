@@ -8,3 +8,4 @@
 {"at":"2026-11-22T17:26:37.529Z","sha":"d1696ce72dba52cc7d3cc3673e77c6f208d89643","short":"d1696ce","env":"prod","state":"deployed","by":"delanataliamalau","buildId":"tpWXA3GzxXhN3LZGLCcGQ","branch":"prod","tag":"release/prod/2026-11-22.d1696ce"}
 {"at":"2026-11-22T18:28:19.640Z","sha":"73dcf0370852dc118d9f8ee648021ddf8c10cf18","short":"73dcf03","env":"staging","state":"staged","purpose":"deploy","by":"delanataliamalau","buildId":"6arQubCf1fdkdMyjJwNlb","branch":"main"}
 {"at":"2026-11-23T01:57:11.293Z","sha":"be863a5c1b96d3cbbea36d67fdd5615d8501ff87","short":"be863a5","env":"staging","state":"staged","purpose":"deploy","by":"delanataliamalau","buildId":"kjMuwm4eTXf91IjAzf7eA","branch":"main"}
+{"at":"2026-11-23T02:05:07.471Z","sha":"bbc9e0c169adadea535e9e21573e812e9f77d433","short":"bbc9e0c","env":"staging","state":"verified","by":"delanataliamalau","note":"staging deploy+smoke green with language UI flag (BUILD_ID 16YacAamiXHinDaP0qYuN)","branch":"main"}
