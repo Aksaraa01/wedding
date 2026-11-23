@@ -203,6 +203,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
           {step === "gallery" && <GalleryCard photos={galleryPhotos} onHide={() => setCardHidden(true)} onExpand={() => onGalleryOpenChange(true)} />}
           {step === "gift" && (
             <GiftCard
+              lang={lang}
               accounts={accounts}
               giftAddress={gates.gift_address !== false ? profile.gift_address || undefined : undefined}
               giftAddressName={profile.gift_address_name || undefined}

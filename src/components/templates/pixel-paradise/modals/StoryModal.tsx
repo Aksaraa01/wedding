@@ -5,6 +5,7 @@ import { FONT_PIXEL } from "../../shared/Skin"
 import type { StoryData } from "../../shared/lib"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
+import { normalizeLanguage } from "@/lib/i18n"
 
 function Milestone({ story, i }: { story: StoryData; i: number }) {
   const pink = i % 2 === 0
@@ -48,9 +49,10 @@ function Milestone({ story, i }: { story: StoryData; i: number }) {
 }
 
 export default function StoryModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+  const lang = normalizeLanguage(profile.language)
   const stories: StoryData[] = Array.isArray(profile.stories) ? profile.stories : []
   return (
-    <ModalShell icon="sports_esports" iconColor="pink" eyebrow="PIXEL LOVE • STAGE LOG" eyebrowColor="pink" title="KISAH CINTA KAMI" onClose={onClose}>
+    <ModalShell icon="sports_esports" iconColor="pink" eyebrow="PIXEL LOVE • STAGE LOG" eyebrowColor="pink" title={lang === "en" ? "OUR LOVE STORY" : "KISAH CINTA KAMI"} onClose={onClose}>
       <div className="space-y-5">
         {stories.map((s, i) => (
           <Milestone key={i} story={s} i={i} />

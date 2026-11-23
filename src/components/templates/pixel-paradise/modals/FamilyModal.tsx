@@ -5,13 +5,14 @@ import ModalShell from "./ModalShell"
 
 const BULLETS = ["text-[#f472b6]", "text-[#38bdf8]", "text-[#ffc640]"]
 
-export default function FamilyModal({ families, onClose }: { families: string[]; onClose: () => void }) {
+export default function FamilyModal({ families, onClose, language }: { families: string[]; onClose: () => void; language?: string }) {
+  const lang = language === "en" ? "en" : "id"
   if (!families || families.length === 0) return null
   return (
-    <ModalShell icon="videogame_asset" iconColor="pink" eyebrow="FAMILY HONORS" eyebrowColor="cyan" title="TURUT MENGUNDANG" onClose={onClose}>
+    <ModalShell icon="videogame_asset" iconColor="pink" eyebrow="FAMILY HONORS" eyebrowColor="cyan" title={lang === "en" ? "WITH THE BLESSING OF" : "TURUT MENGUNDANG"} onClose={onClose}>
       <div className="text-center px-2 py-1 bg-[#090e1c]/80 border border-[#38bdf8]/30 rounded-xl">
         <p className="text-[10px] text-[#38bdf8] tracking-widest uppercase" style={{ ...FONT_PIXEL, lineHeight: 1.6 }}>
-          ✦ KELUARGA BESAR TURUT MENGUNDANG ✦
+          {lang === "en" ? "✦ WITH THE BLESSING OF OUR FAMILIES ✦" : "✦ KELUARGA BESAR TURUT MENGUNDANG ✦"}
         </p>
       </div>
       <div className="bg-[#090e1c]/95 rounded-2xl p-5 border-2 border-[#38bdf8] shadow-[0_0_18px_rgba(56,189,248,0.25)] relative overflow-hidden">

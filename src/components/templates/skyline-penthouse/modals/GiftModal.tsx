@@ -34,19 +34,20 @@ function CopyButton({ value, display }: { value: string; display: string }) {
   )
 }
 
-export default function GiftModal({
+export default function GiftModal({ lang = "id",
   accounts,
   giftAddress,
   giftAddressName,
   onClose,
 }: {
+  lang?: "id" | "en"
   accounts: GiftAccountData[]
   giftAddress?: string
   giftAddressName?: string
   onClose: () => void
 }) {
   return (
-    <ModalShell icon="redeem" iconFill eyebrow="DENGAN PENUH SENANG HATI" title="WEDDING GIFT" onClose={onClose}>
+    <ModalShell icon="redeem" iconFill eyebrow={lang === "en" ? "WITH A JOYFUL HEART" : "DENGAN PENUH SENANG HATI"} title="WEDDING GIFT" onClose={onClose}>
       {accounts.map((a, i) => {
         const provider = (a.provider_name || "").trim()
         const num = (a.account_number || "").trim()

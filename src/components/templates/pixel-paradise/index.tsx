@@ -97,7 +97,7 @@ export default function PixelParadise(props: TemplateProps) {
             />
           )}
           {opened && modal === "family" && (
-            <FamilyModal families={Array.isArray(props.inviting_families) ? props.inviting_families : []} onClose={closeModal} />
+            <FamilyModal families={Array.isArray(props.inviting_families) ? props.inviting_families : []} onClose={closeModal} language={props.language} />
           )}
           {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} language={props.language} />}
         </div>

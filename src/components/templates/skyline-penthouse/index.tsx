@@ -99,6 +99,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
           {opened && modal === "couple" && <CoupleModal profile={props} onClose={closeModal} />}
           {opened && modal === "gift" && (
             <GiftModal
+              lang={lang}
               accounts={Array.isArray(props.gift_accounts) ? props.gift_accounts : []}
               giftAddress={props.gift_address}
               giftAddressName={props.gift_address_name}

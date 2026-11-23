@@ -6,6 +6,7 @@ import { countdownTarget, coverPhoto, formatDotDate, formatLongDate, gcalLink, t
 import { useCountdown } from "../../shared/useCountdown"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
+import { normalizeLanguage } from "@/lib/i18n"
 
 function SessionCard({ session }: { session: SessionData }) {
   const badge = (session.name || "").trim().toUpperCase() || "MOMENT"
@@ -105,7 +106,7 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
 
       {sessions.length === 0 && (
         <p className="text-center text-sm text-slate-400">
-          {profile.estimated_wedding_date ? formatLongDate(profile.estimated_wedding_date) : "Detail acara akan segera diumumkan."}
+          {profile.estimated_wedding_date ? formatLongDate(profile.estimated_wedding_date) : normalizeLanguage(profile.language) === "en" ? "Event details will be announced soon." : "Detail acara akan segera diumumkan."}
         </p>
       )}
 
