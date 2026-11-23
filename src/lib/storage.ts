@@ -158,22 +158,27 @@ async function normalizeGuestPhoto(
     let quality = overBytes || longEdge > GUEST_PHOTO_MAX_DIMENSION ? 82 : 95
 
     return await withSharpSlot(async () => {
-      for (let attempt = 0; attempt < 4; attempt++) {
-        const out = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS })
-          .rotate()
-          .resize({ width, height: width, fit: "inside", withoutEnlargement: true })
+      // Decode + resize exactly once. Re-encoding the raw pixels avoids
+      // re-decoding the 12MP source (and re-allocating it) on every quality
+      // attempt, which is what spiked RSS to 776MB under 10 concurrent uploads.
+      const { data, info } = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS })
+        .rotate()
+        .resize({ width, height: width, fit: "inside", withoutEnlargement: true })
+        .flatten({ background: "#ffffff" })
+        .toColourspace("srgb")
+        .raw()
+        .toBuffer({ resolveWithObject: true })
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const out = await sharp(data, {
+          raw: { width: info.width, height: info.height, channels: info.channels },
+        })
           .jpeg({ quality, mozjpeg: true })
           .toBuffer()
         if (out.length <= GUEST_PHOTO_MAX_BYTES) {
           return { buffer: out, ext: "jpg", contentType: "image/jpeg" }
         }
-        if (attempt >= 1 && width > 1600) {
-          width = Math.max(1280, Math.round(width * 0.85))
-        } else if (quality > 65) {
-          quality = Math.max(65, quality - 7)
-        } else {
-          width = Math.max(1280, Math.round(width * 0.85))
-        }
+        if (quality <= 65) break
+        quality = Math.max(65, quality - 7)
       }
       return null
     })
