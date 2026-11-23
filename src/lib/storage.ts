@@ -40,7 +40,55 @@ const BUCKET_ALLOWED_MIME_TYPES = [
 // sane. 3000px keeps the full phone frame; 1.75MB caps storage/egress.
 export const GUEST_PHOTO_MAX_DIMENSION = 3000
 export const GUEST_PHOTO_MAX_BYTES = 1.75 * 1024 * 1024
+// Decode ceiling: 60MP covers a 48MP phone photo, while a corrupt/giant file
+// is rejected instead of decoding hundreds of MB inside a request.
+const GUEST_PHOTO_MAX_INPUT_PIXELS = 60_000_000
 const THUMB_QUALITY = 72
+
+// sharp is the memory hog in this app (a 12MP decode is ~36-48MB of raw
+// pixels). The process is a single PM2 fork, so an in-process semaphore is
+// enough to bound it: at most 2 sharp pipelines at once, each with one libvips
+// thread. Without this, 10 concurrent over-limit uploads pushed staging to
+// 840MB and killed the process (2026-11-23).
+const SHARP_CONCURRENCY = 2
+let activeSharp = 0
+const sharpQueue: Array<() => void> = []
+
+async function acquireSharpSlot(): Promise<void> {
+  if (activeSharp < SHARP_CONCURRENCY) {
+    activeSharp += 1
+    return
+  }
+  await new Promise<void>((resolve) => sharpQueue.push(resolve))
+}
+
+function releaseSharpSlot(): void {
+  const next = sharpQueue.shift()
+  if (next) next()
+  else activeSharp = Math.max(0, activeSharp - 1)
+}
+
+async function withSharpSlot<T>(fn: () => Promise<T>): Promise<T> {
+  await acquireSharpSlot()
+  try {
+    return await fn()
+  } finally {
+    releaseSharpSlot()
+  }
+}
+
+let sharpConfigured = false
+async function getSharp() {
+  const { default: sharp } = await import("sharp")
+  if (!sharpConfigured) {
+    // Do not keep decoded-image caches around between requests; the upload
+    // path is one-shot and the RSS never needs to grow with event traffic.
+    sharp.cache(false)
+    sharp.concurrency(1)
+    sharpConfigured = true
+  }
+  return sharp
+}
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif|bmp|tiff?|heic|heif)$/i
 
@@ -71,11 +119,11 @@ async function normalizeGuestPhoto(
   file: File
 ): Promise<{ buffer: Buffer; ext: string; contentType: string } | null> {
   try {
-    const { default: sharp } = await import("sharp")
+    const sharp = await getSharp()
     const input = Buffer.from(await file.arrayBuffer())
     // Already within both limits (and upright): upload the original untouched
-    // instead of paying a q95 re-encode (and losing detail) for nothing.
-    const meta = await sharp(input).metadata()
+    // instead of paying a re-encode (and losing detail) for nothing.
+    const meta = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS }).metadata()
     const longEdge = Math.max(meta.width || 0, meta.height || 0)
     const format = meta.format || ""
     const orientation = meta.orientation || 1
@@ -88,21 +136,44 @@ async function normalizeGuestPhoto(
     ) {
       return null
     }
-    let width = GUEST_PHOTO_MAX_DIMENSION
-    let quality = 95
-    for (let attempt = 0; attempt < 6; attempt++) {
-      const out = await sharp(input)
-        .rotate()
-        .resize({ width, height: width, fit: "inside", withoutEnlargement: true })
-        .jpeg({ quality, mozjpeg: true })
-        .toBuffer()
-      if (out.length <= GUEST_PHOTO_MAX_BYTES) {
-        return { buffer: out, ext: "jpg", contentType: "image/jpeg" }
-      }
-      if (quality > 78) quality = Math.max(78, quality - 8)
-      else width = Math.max(1280, Math.round(width * 0.85))
+    if ((meta.width || 0) * (meta.height || 0) > GUEST_PHOTO_MAX_INPUT_PIXELS) {
+      // Too many pixels to decode safely inside a request; the caller's byte
+      // check turns this into a clear "too large" response instead of an OOM.
+      return null
     }
-    return null
+
+    const overBytes = input.length > GUEST_PHOTO_MAX_BYTES
+    let width = Math.min(GUEST_PHOTO_MAX_DIMENSION, longEdge || GUEST_PHOTO_MAX_DIMENSION)
+    if (overBytes && longEdge > 0) {
+      // Estimate the long edge that lands near the byte cap, then let the
+      // quality loop absorb the rest. One or two passes instead of six.
+      const scale = Math.sqrt(GUEST_PHOTO_MAX_BYTES / input.length)
+      width = Math.max(1280, Math.min(width, Math.round(longEdge * scale)))
+    }
+    // Over-limit/oversized inputs start below q95; a full-size q95 pass on a
+    // 12MP photo is what multiplied memory and latency under load.
+    let quality = overBytes || longEdge > GUEST_PHOTO_MAX_DIMENSION ? 82 : 95
+
+    return await withSharpSlot(async () => {
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const out = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS })
+          .rotate()
+          .resize({ width, height: width, fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality, mozjpeg: true })
+          .toBuffer()
+        if (out.length <= GUEST_PHOTO_MAX_BYTES) {
+          return { buffer: out, ext: "jpg", contentType: "image/jpeg" }
+        }
+        if (attempt >= 1 && width > 1600) {
+          width = Math.max(1280, Math.round(width * 0.85))
+        } else if (quality > 65) {
+          quality = Math.max(65, quality - 7)
+        } else {
+          width = Math.max(1280, Math.round(width * 0.85))
+        }
+      }
+      return null
+    })
   } catch (err) {
     console.warn("[storage] guest normalize failed:", err instanceof Error ? err.message : String(err))
     return null
@@ -115,31 +186,33 @@ async function generateThumbnails(body: File | Buffer, path: string) {
   const widths = thumbWidthsForPath(path)
   if (!widths.length) return
   try {
-    const { default: sharp } = await import("sharp")
     const input = body instanceof File ? Buffer.from(await body.arrayBuffer()) : body
-    for (const width of widths) {
-      const thumbPath = thumbPathFor(path, width)
-      if (!thumbPath) continue
-      const out = await sharp(input)
-        .rotate()
-        .resize({ width, withoutEnlargement: true })
-        .webp({ quality: THUMB_QUALITY, effort: 4 })
-        .toBuffer()
-      const { error } = await supabaseAdmin.storage.from(BUCKET).upload(
-        thumbPath,
-        uploadBody(out, "image/webp"),
-        {
-          upsert: false,
-          contentType: "image/webp",
-          cacheControl: "31536000",
+    const sharp = await getSharp()
+    await withSharpSlot(async () => {
+      for (const width of widths) {
+        const thumbPath = thumbPathFor(path, width)
+        if (!thumbPath) continue
+        const out = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS })
+          .rotate()
+          .resize({ width, withoutEnlargement: true })
+          .webp({ quality: THUMB_QUALITY, effort: 4 })
+          .toBuffer()
+        const { error } = await supabaseAdmin.storage.from(BUCKET).upload(
+          thumbPath,
+          uploadBody(out, "image/webp"),
+          {
+            upsert: false,
+            contentType: "image/webp",
+            cacheControl: "31536000",
+          }
+        )
+        // Concurrent/duplicate uploads are harmless — the derivative already
+        // exists with identical content (timestamped source names).
+        if (error && !/already exists|duplicate/i.test(error.message)) {
+          console.warn(`[storage] thumb ${thumbPath} failed:`, error.message)
         }
-      )
-      // Concurrent/duplicate uploads are harmless — the derivative already
-      // exists with identical content (timestamped source names).
-      if (error && !/already exists|duplicate/i.test(error.message)) {
-        console.warn(`[storage] thumb ${thumbPath} failed:`, error.message)
       }
-    }
+    })
   } catch (err) {
     console.warn("[storage] thumbnail generation failed:", err instanceof Error ? err.message : String(err))
   }
