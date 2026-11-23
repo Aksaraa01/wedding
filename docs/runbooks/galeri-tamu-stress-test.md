@@ -132,5 +132,5 @@ select idempotency_key, count(*) from guest_photos where wedding_profile_id = '<
 ## Kriteria lulus awal
 - 10 upload simultan: >=99% sukses, p95 < 5s, 0 5xx, 0 PM2 restart.
 - Tidak ada over-quota/cap; idempotency benar.
-- Rate-limit 20/jam/IP+token dipahami; perilaku normal venue tidak terblokir secara tidak wajar.
+- Rate-limit upload di-scope per **device_id** (12/jam, cukup untuk kuota maks 10 foto + retry) dengan **ceiling per IP 1000/jam**. Venue yang berbagi satu Wi-Fi tidak lagi memblokir tamu ke-21; uji dengan >20 upload dari satu IP untuk membuktikan.
 - Download ZIP dan Buku Kenangan berhasil dari data test.
