@@ -23,12 +23,13 @@ Mengukur performa upload foto Galeri Tamu saat 5-10 tamu upload bersamaan, untuk
 - Pastikan side effect eksternal mati di staging (`NOTIFY_GROUP_ENABLED=false`).
 
 ## Normalisasi galeri tamu (current)
-- `src/lib/storage.ts`: `GUEST_PHOTO_MAX_DIMENSION = 2100`, `GUEST_PHOTO_MAX_BYTES = 1.75MB`
-- `src/lib/imageCompress.ts`: default 2100 / 1.75MB
-- `src/components/gallery/PhotoboothCamera.tsx`, `src/components/scanner/SelfieModal.tsx`: 2100 / 1.75MB
+- `src/lib/storage.ts`: `GUEST_PHOTO_MAX_DIMENSION = 3000`, `GUEST_PHOTO_MAX_BYTES = 1.75MB`
+- `src/lib/imageCompress.ts`: default editor 2100 / 1.75MB; galeri + selfie pass 3000 / 1.75MB
+- `src/components/gallery/PhotoboothCamera.tsx`, `src/components/scanner/SelfieModal.tsx`: cap 3000 / 1.75MB, capture q0.95
 - `src/app/api/guest-photos/upload/route.ts`: raw `MAX_SIZE = 10MB`; server menormalisasi guest photo ke cap di atas.
+- **Skip re-encode**: JPEG/PNG/WebP yang sudah ≤1.75MB dan sisi terpanjang ≤3000px diupload apa adanya (tidak dikompres ulang). HEIC/HEIF dan file di atas limit tetap dikonversi/dinormalisasi.
 
-Gunakan fixture 1.75MB / width besar (mis. 2400px) untuk menguji batas normalisasi: `node scripts/loadtest/make-photo-fixture.mjs --out scripts/loadtest/fixtures/photo-1750kb.jpg --width 2400 --height 3200 --target-bytes 1835008`.
+Gunakan fixture ≤3000px dan ≤1.75MB (mis. 1920×2635 / 1.73MB) untuk membuktikan file tersimpan apa adanya. Fixture lebih besar dipakai untuk menguji normalisasi turun: `node scripts/loadtest/make-photo-fixture.mjs --out scripts/loadtest/fixtures/photo-1750kb.jpg --width 3200 --height 4000 --target-bytes 1835008`.
 
 ## Pra-syarat
 - `k6 version`

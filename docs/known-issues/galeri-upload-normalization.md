@@ -1,6 +1,7 @@
 # Galeri Tamu — guest photo normalization must be fixed in prod
 
-**Status: OPEN — staging only. This fix is NOT deployed to production.**
+**Status: IN PROGRESS — fix implemented on `main`; staging verification then prod
+release pending.**
 
 ## Symptom
 
@@ -21,6 +22,17 @@ A guest photo under the 1.75MB cap is still re-encoded and often stored at
   before the server re-encodes a third time.
 - The 2100px long-edge cap is applied regardless of file size; the example
   2635px-tall photo is resized even though it is under 1.75MB.
+
+## Implemented on `main`
+
+- `GUEST_PHOTO_MAX_DIMENSION` raised to **3000px** (byte cap stays 1.75MB).
+- Server skips re-encoding when the input is JPEG/PNG/WebP, upright, ≤1.75MB,
+  and ≤3000px long edge; the original uploads untouched. HEIC/HEIF and
+  over-limit files still go through sharp.
+- `compressImage()` returns the file unchanged when it already fits both
+  budgets.
+- Gallery capture + selfie paths use **q0.95** and a 3000px long edge. The
+  generic editor path keeps its cheaper 2100px default.
 
 ## Required fix (prod)
 

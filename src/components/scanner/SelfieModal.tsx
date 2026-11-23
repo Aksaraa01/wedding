@@ -158,13 +158,13 @@ export default function SelfieModal({
     void drawSelfieFrame(ctx, canvas.width, canvas.height, coupleName, endDate).then(() => {
       canvas.toBlob(async (b) => {
         if (!b) return
-        // 1080x1440 is already within the dimension cap; re-encode at q0.88
+        // 1080x1440 is already within the dimension cap; re-encode at q0.95
         // and fall back to the raw capture if compression cannot improve it.
         const raw = new File([b], `selfie-${Date.now()}.jpg`, { type: "image/jpeg" })
         const compressed = await compressImage(raw, {
-          maxDimension: 2100,
+          maxDimension: 3000,
           maxBytes: 1.75 * 1024 * 1024,
-          initialQuality: 0.88,
+          initialQuality: 0.95,
         })
         setCapturedBlob(compressed)
         setCapturedSrc(URL.createObjectURL(compressed))

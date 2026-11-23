@@ -99,8 +99,8 @@ const EXT_BY_TYPE: Record<string, string> = {
 }
 
 export async function compressImage(file: File, options: CompressImageOptions = {}): Promise<File> {
-  // Sharper default than before (was 2000/1.8MB/q0.85): guest books print the
-  // originals, so keep 2100px long edge and spend the byte budget on quality.
+  // Editor/media callers keep the cheaper 2100px default; the guest gallery
+  // and selfie paths pass maxDimension 3000 + q0.95 explicitly.
   const { maxBytes = 1.75 * 1024 * 1024, maxDimension = 2100, initialQuality = 0.88 } = options
 
   if (!file.type.startsWith("image/")) return file
@@ -112,7 +112,12 @@ export async function compressImage(file: File, options: CompressImageOptions = 
   const url = URL.createObjectURL(file)
   try {
     const img = await loadImage(url)
-    if (!(img.naturalWidth || img.width) || !(img.naturalHeight || img.height)) return file
+    const srcW = img.naturalWidth || img.width
+    const srcH = img.naturalHeight || img.height
+    if (!srcW || !srcH) return file
+    // Already inside both budgets: never re-encode a compliant photo (the old
+    // path always did, which turned a 1.73MB source into ~600KB).
+    if (file.size <= maxBytes && Math.max(srcW, srcH) <= maxDimension) return file
 
     const transparent = imageHasAlpha(img)
     let blob = await encodeWithinLimit(img, maxDimension, maxBytes, initialQuality, transparent)

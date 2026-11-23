@@ -37,8 +37,8 @@ const BUCKET_ALLOWED_MIME_TYPES = [
 
 // Guest photos: sharp normalizes server-side so the stored original stays
 // sharp enough for download/share/keepsake book while keeping storage + egress
-// sane. 2100px is ~290dpi at A5; 1.75MB keeps compression artifacts modest.
-export const GUEST_PHOTO_MAX_DIMENSION = 2100
+// sane. 3000px keeps the full phone frame; 1.75MB caps storage/egress.
+export const GUEST_PHOTO_MAX_DIMENSION = 3000
 export const GUEST_PHOTO_MAX_BYTES = 1.75 * 1024 * 1024
 const THUMB_QUALITY = 72
 
@@ -73,8 +73,23 @@ async function normalizeGuestPhoto(
   try {
     const { default: sharp } = await import("sharp")
     const input = Buffer.from(await file.arrayBuffer())
+    // Already within both limits (and upright): upload the original untouched
+    // instead of paying a q95 re-encode (and losing detail) for nothing.
+    const meta = await sharp(input).metadata()
+    const longEdge = Math.max(meta.width || 0, meta.height || 0)
+    const format = meta.format || ""
+    const orientation = meta.orientation || 1
+    if (
+      ["jpeg", "png", "webp"].includes(format) &&
+      orientation === 1 &&
+      file.size <= GUEST_PHOTO_MAX_BYTES &&
+      longEdge > 0 &&
+      longEdge <= GUEST_PHOTO_MAX_DIMENSION
+    ) {
+      return null
+    }
     let width = GUEST_PHOTO_MAX_DIMENSION
-    let quality = 88
+    let quality = 95
     for (let attempt = 0; attempt < 6; attempt++) {
       const out = await sharp(input)
         .rotate()
