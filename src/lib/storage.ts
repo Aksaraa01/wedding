@@ -148,14 +148,16 @@ async function normalizeGuestPhoto(
     const overBytes = input.length > GUEST_PHOTO_MAX_BYTES
     let width = Math.min(GUEST_PHOTO_MAX_DIMENSION, longEdge || GUEST_PHOTO_MAX_DIMENSION)
     if (overBytes && longEdge > 0) {
-      // Estimate the long edge that lands near the byte cap, then let the
-      // quality loop absorb the rest. One or two passes instead of six.
-      const scale = Math.sqrt(GUEST_PHOTO_MAX_BYTES / input.length)
+      // Estimate the long edge that lands near the byte cap, with headroom so
+      // the first encode usually fits. A 3.67MB/12MP noisy source lands around
+      // 2200-2300px (still above the old 2100px cap) instead of 2800px, which
+      // cut the passes and the 100s+ queue latency measured on 2026-11-23.
+      const scale = Math.sqrt(GUEST_PHOTO_MAX_BYTES / input.length) * 0.8
       width = Math.max(1280, Math.min(width, Math.round(longEdge * scale)))
     }
-    // Over-limit/oversized inputs start below q95; a full-size q95 pass on a
-    // 12MP photo is what multiplied memory and latency under load.
-    let quality = overBytes || longEdge > GUEST_PHOTO_MAX_DIMENSION ? 82 : 95
+    // Start below q95 for anything that needs an encode; the byte cap is the
+    // real constraint and a q95 pass on a 12MP source is what spiked CPU/RAM.
+    let quality = overBytes ? 75 : 80
 
     return await withSharpSlot(async () => {
       // Decode + resize exactly once. Re-encoding the raw pixels avoids
@@ -168,7 +170,7 @@ async function normalizeGuestPhoto(
         .toColourspace("srgb")
         .raw()
         .toBuffer({ resolveWithObject: true })
-      for (let attempt = 0; attempt < 5; attempt++) {
+      for (let attempt = 0; attempt < 3; attempt++) {
         const out = await sharp(data, {
           raw: { width: info.width, height: info.height, channels: info.channels },
         })
@@ -178,7 +180,7 @@ async function normalizeGuestPhoto(
           return { buffer: out, ext: "jpg", contentType: "image/jpeg" }
         }
         if (quality <= 65) break
-        quality = Math.max(65, quality - 7)
+        quality = Math.max(65, quality - 5)
       }
       return null
     })
