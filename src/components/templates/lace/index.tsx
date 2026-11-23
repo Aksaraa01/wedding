@@ -720,7 +720,7 @@ export default function Lace(profile: TemplateProps) {
               <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="lc-link lc-link--light" href={calendarUrl} target="_blank" rel="noreferrer">
-                  Add to calendar
+                  {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
                 </a>
               )}
             </div>
@@ -732,7 +732,7 @@ export default function Lace(profile: TemplateProps) {
         {events.length > 0 && (
           <section className="lc-section lc-events" data-section="events">
             <div className="lc-wrap lc-events__head" data-lc-reveal>
-              <h2 className="lc-display lc-heading">The Celebration</h2>
+              <h2 className="lc-display lc-heading">{lang === "en" ? "The Celebration" : "Rangkaian Acara"}</h2>
               <p className="lc-body lc-events__intro">
                 {tc.events_intro || (lang === "en" ? DEFAULT_EVENTS_INTRO : "Merupakan kehormatan bagi kami bila Anda hadir saat kami mengucapkan janji.")}
               </p>

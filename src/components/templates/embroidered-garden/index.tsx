@@ -139,6 +139,8 @@ const DEFAULT_WELCOME =
   "We are so happy to celebrate this day with you, surrounded by the people we love most."
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
+const DEFAULT_CLOSING_ID =
+  "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat yang Anda tinggalkan berarti lebih dari yang dapat kami ungkapkan."
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
@@ -362,7 +364,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const welcomeMessage =
     (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
   const openingTitle = (profile.opening_title || "").trim() || (lang === "en" ? "Together with their families" : "Bersama keluarga kami")
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -774,7 +776,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="eg-link" href={calendarUrl} target="_blank" rel="noreferrer">
-                  Add to calendar
+                  {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
                 </a>
               )}
             </div>

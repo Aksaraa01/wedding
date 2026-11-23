@@ -603,7 +603,7 @@ export default function Teatro(profile: TemplateProps) {
   const revealHint = (tc.reveal_hint || "").trim() || (lang === "en" ? "Scratch to discover the date" : "Gosok untuk melihat tanggal")
   const revealScratchHint = (tc.reveal_scratch_hint || "").trim() || (lang === "en" ? "Scratch all three circles to continue" : "Gosok ketiga lingkaran untuk melanjutkan")
   const scrollLabel = (tc.scroll_label || "").trim() || (lang === "en" ? "Scroll" : "Gulir")
-  const countdownIntro = (tc.countdown_intro || "").trim() || "until the big day"
+  const countdownIntro = (tc.countdown_intro || "").trim() || (lang === "en" ? "until the big day" : "menuju hari bahagia")
   const invitingKicker = (tc.inviting_kicker || "").trim() || (lang === "en" ? "With the blessing of" : "Dengan restu")
   const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Our Families" : "Keluarga Kami")
   const invitingIntro = (tc.inviting_intro || "").trim() || (lang === "en" ? "With deep gratitude we also present the families who extend this invitation alongside us." : "Dengan penuh rasa syukur kami hadirkan pula keluarga yang turut mengundang bersama kami.")
@@ -1058,7 +1058,7 @@ export default function Teatro(profile: TemplateProps) {
               rel="noopener noreferrer"
               {...IN("up", 0.1)}
             >
-              Add to calendar
+              {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
             </a>
             <p className="te-hint" {...IN("fade", 0.1)}>{countdownIntro}</p>
           </section>

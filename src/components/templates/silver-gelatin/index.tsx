@@ -273,7 +273,9 @@ export default function SilverGelatin(profile: TemplateProps) {
   const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Wishes" : "Ucapan")
   const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Write your best prayers and wishes for us." : "Tulis doa dan ucapan terbaik Anda untuk kami.")
   const closingMessage = (tc.closing_message || "").trim() ||
-    "Thank you for your prayers and presence. It is an honour for us to celebrate this day with you."
+    (lang === "en"
+      ? "Thank you for your prayers and presence. It is an honour for us to celebrate this day with you."
+      : "Terima kasih atas doa dan kehadiran Anda. Merupakan kehormatan bagi kami dapat merayakan hari ini bersama Anda.")
   const closingSee = (tc.closing_see || "").trim() || (lang === "en" ? "See you!" : "Sampai jumpa!")
   const accountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening tersalin")
   const addressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat tersalin")
@@ -684,7 +686,7 @@ export default function SilverGelatin(profile: TemplateProps) {
               </div>
               {calendarUrl && (
                 <a className="sg-link sg-count__cal" href={calendarUrl} target="_blank" rel="noopener noreferrer" {...IN("fade", 0.1)}>
-                  Add to calendar
+                  {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
                 </a>
               )}
             </section>

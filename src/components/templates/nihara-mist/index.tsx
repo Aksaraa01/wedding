@@ -788,7 +788,7 @@ export default function NiharaMist(profile: TemplateProps) {
                 <section className="sheet__section sheet__section--gift" data-io>
                   <h3 className="display story__heading">A Token of Love</h3>
                   <p className="gift__intro serif-i">
-                    Your presence is the greatest gift. If you would like to send a token of love, you can find the details below.
+                    {lang === "en" ? "Your presence is the greatest gift. If you would like to send a token of love, you can find the details below." : "Kehadiran Anda adalah hadiah terindah. Bila ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini."}
                   </p>
                   {!giftOpen ? (
                     <button type="button" className="btn-open gift__open" onClick={() => setGiftOpen(true)}>

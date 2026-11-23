@@ -23,6 +23,8 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
+const DEFAULT_CLOSING_ID =
+  "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat yang Anda tinggalkan berarti lebih dari yang dapat kami ungkapkan."
 
 // Art-directed stills shipped with the template. Used only as fallbacks for
 // decorative surfaces (never as demo couple data).
@@ -172,7 +174,7 @@ export default function StillEver(profile: TemplateProps) {
   const monogram = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "S&E"
   const monogramCount = initialsGlyphs(monogram).length
   const guestName = profile.guest_name || t("honoredGuest", lang)
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID)
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
 
   // Guest dock (QR + RSVP) is a per-guest affair: only real invitation links

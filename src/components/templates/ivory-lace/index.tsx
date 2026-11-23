@@ -565,7 +565,7 @@ export default function IvoryLace(profile: TemplateProps) {
 
             {calendarUrl && (
               <a className="il-btn il-btn--ghost il-countdown__cal" href={calendarUrl} target="_blank" rel="noreferrer">
-                Add to calendar
+                {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
               </a>
             )}
           </section>
@@ -672,7 +672,7 @@ export default function IvoryLace(profile: TemplateProps) {
               <h2 className="il-display il-heading il-gift__heading">{tc.gift_intro_title || t("secGift", lang)}</h2>
               <p className="il-body il-gift__intro">
                 {tc.gift_intro_description ||
-                  "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
+                  (lang === "en" ? "Your presence is the greatest gift. Should you wish to send a token of love, the details are below." : "Kehadiran Anda adalah hadiah terindah. Bila berkenan mengirimkan tanda kasih, detailnya tersedia di bawah ini.")}
               </p>
 
               {accounts.length > 0 && (

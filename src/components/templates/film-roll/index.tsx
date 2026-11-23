@@ -572,7 +572,9 @@ export default function FilmRoll(profile: TemplateProps) {
   const giftTitle = splitTitle((tc.gift_intro_title || "").trim() || t("secGift", lang))
   const giftLead =
     (tc.gift_intro_description || "").trim() ||
-    "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here."
+    (lang === "en"
+      ? "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here."
+      : "Doa restu Anda adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, Anda dapat melakukannya di sini.")
   const giftSignature = (tc.gift_signature || "").trim() || (lang === "en" ? "With love and gratitude" : "Dengan cinta dan terima kasih")
   const dressKicker = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dresscode" : "Busana")
   const dressHeading = dressTitleWritten || (lang === "en" ? "What to Wear" : "Busana")
