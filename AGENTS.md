@@ -583,6 +583,19 @@ Notes:
 - Pick to prod: `git switch prod && git pull --ff-only && npm run release:pick -- <sha...>` (cherry-pick -x; conflict => abort, fix on main).
 - **Mandatory rehearsal**: build/deploy the composed `prod` branch to staging (`--target staging --branch prod`), verify, then deploy prod.
 - Prod deploy gate: commit must be ancestor of latest verified staging tip and not rejected; `--allow-unverified` is emergency-only.
+- **No-downgrade guard** (`predeploy-guard`, prod only): reads the server's
+  `RELEASE.json` and refuses a bundle whose commit does **not** contain the build
+  that is live, i.e. a deploy that moves prod backwards. A server it cannot read
+  (ssh down, first deploy) or a live commit missing from the clone only **warns** —
+  this check must never block a healthy deploy. Deliberate rollback to an older
+  build: `npm run deploy -- --allow-downgrade`. Why it exists: on 2026-11-23
+  promoting `prod`'s branch tip (81 commits behind the live `136156b8` commit)
+  silently reverted the film-roll/shared YouTube-shorts normalisation; smoke stayed
+  green because the loss was behavioural (video gone), not a non-200.
+- Drift report before releasing: `npm run release:doctor` cross-checks
+  `origin/prod` ↔ the last `deployed` ledger entry ↔ live `RELEASE.json`.
+  Report-only (exit 0); `--strict` exits 1, `--offline` / `--live-release <file>`
+  for dry runs.
 - **Recommended: promote by tag, not by branch.** `main` is always releasable and
   staging runs its tip. To release: `npm run release:tag -- --env prod --commit <sha>`
   (refuses unless the SHA is verified), then build from the tag and deploy with

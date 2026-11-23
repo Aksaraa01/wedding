@@ -33,7 +33,7 @@ SSH_OPTS=(-i "$SSH_KEY" -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o TC
 SERVER="${SERVER:-askaraa@103.93.135.176}"
 
 TARGET="prod"
-SKIP_GUARD=0; NO_ROLLBACK=0
+SKIP_GUARD=0; NO_ROLLBACK=0; ALLOW_DOWNGRADE=0
 GUARD_REF=""
 GUARD_SITE_URL=""
 GUARD_BRANCH="${GUARD_BRANCH:-}"
@@ -47,6 +47,7 @@ while [ $i -lt ${#args[@]} ]; do
   case "$a" in
     --skip-build-check) SKIP_GUARD=1 ;;
     --no-rollback) NO_ROLLBACK=1 ;;
+    --allow-downgrade) ALLOW_DOWNGRADE=1 ;;
     --target)
       i=$((i + 1)); TARGET="${args[$i]:-prod}" ;;
     --ref)
@@ -103,6 +104,7 @@ if [ "$SKIP_GUARD" = "0" ]; then
   guard_args=(--target "$TARGET" --branch "$GUARD_BRANCH" --ref "$GUARD_REF")
   [ -n "$GUARD_COMMIT" ] && guard_args+=(--commit "$GUARD_COMMIT")
   [ -n "$GUARD_SITE_URL" ] && guard_args+=(--site-url "$GUARD_SITE_URL")
+  [ "$ALLOW_DOWNGRADE" = "1" ] && guard_args+=(--allow-downgrade)
   node scripts/predeploy-guard.mjs "${guard_args[@]}"
 fi
 
