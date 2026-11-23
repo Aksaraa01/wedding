@@ -1,3 +1,81 @@
+import { EXTRA_DEFAULTS } from "./templateExtraDefaults"
+
+// Templates that render nothing when a field is empty still need a locator in
+// the extras accordion, so those few fields get an explicit example in both
+// languages. The "Contoh:"/"e.g." prefix keeps them visibly examples rather
+// than default copy. Only fields with no template default belong here; anything
+// the template itself prints is covered by EXTRA_DEFAULTS.
+const EXTRA_EXAMPLE_HINTS: Record<string, Record<string, { id: string; en: string }>> = {
+  "altar-garden": { countdown_title: { id: "Contoh: Menuju Hari Bahagia", en: "e.g. Counting Down" } },
+  "piano-garden": { countdown_title: { id: "Contoh: Menuju Hari Bahagia", en: "e.g. Counting Down" } },
+  evermore: {
+    events_intro: {
+      id: "Contoh: Kami menantikan kehadiran Anda di acara kami.",
+      en: "e.g. We look forward to celebrating with you.",
+    },
+  },
+  iris: {
+    cover_apology: {
+      id: "Contoh: Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
+      en: "e.g. We apologize for any misspelling of your name or title.",
+    },
+    events_intro: {
+      id: "Contoh: Dengan hormat, berikut waktu dan tempat acara kami.",
+      en: "e.g. With due respect, here are the details of our event.",
+    },
+    inviting_intro: {
+      id: "Contoh: Kami turut mengundang keluarga dan sahabat tercinta.",
+      en: "e.g. We also invite our beloved family and friends.",
+    },
+    rundown_intro: {
+      id: "Contoh: Berikut susunan acara di hari bahagia kami.",
+      en: "e.g. Here is the order of events on our big day.",
+    },
+    gallery_intro: {
+      id: "Contoh: Sekilas momen kebersamaan kami.",
+      en: "e.g. A glimpse of our moments together.",
+    },
+    video_intro: { id: "Contoh: Video singkat kisah kami.", en: "e.g. A short video of our story." },
+    dresscode_intro: {
+      id: "Contoh: Kami akan senang bila Anda hadir dengan palet warna di bawah ini.",
+      en: "e.g. We would be delighted if you joined us in the palette below.",
+    },
+    gift_intro_description: {
+      id: "Contoh: Doa restu Anda adalah hadiah terindah bagi kami.",
+      en: "e.g. Your blessings are the most beautiful gift to us.",
+    },
+    wishes_title: { id: "Contoh: Ucapan & Doa", en: "e.g. Wishes & Prayers" },
+    wishes_intro: {
+      id: "Contoh: Kirimkan ucapan dan doa terbaik Anda untuk kami.",
+      en: "e.g. Send us your warmest wishes and prayers.",
+    },
+  },
+  "love-line": {
+    person_one_label: { id: "Contoh: Mempelai Wanita", en: "e.g. The Bride" },
+    person_two_label: { id: "Contoh: Mempelai Pria", en: "e.g. The Groom" },
+    parents_label_male: { id: "Contoh: Putra dari Bapak & Ibu", en: "e.g. Son of Mr. & Mrs." },
+    parents_label_female: { id: "Contoh: Putri dari Bapak & Ibu", en: "e.g. Daughter of Mr. & Mrs." },
+  },
+  noir: {
+    gallery_intro: {
+      id: "Contoh: Sekilas momen kebersamaan kami.",
+      en: "e.g. A glimpse of our moments together.",
+    },
+    video_caption: { id: "Contoh: Video singkat kisah kami.", en: "e.g. A short video of our story." },
+  },
+  sandhya: {
+    gallery_title: { id: "Contoh: Galeri", en: "e.g. Gallery" },
+    gallery_intro: {
+      id: "Contoh: Sekilas momen kebersamaan kami.",
+      en: "e.g. A glimpse of our moments together.",
+    },
+    wishes_intro: {
+      id: "Contoh: Kirimkan ucapan dan doa terbaik Anda untuk kami.",
+      en: "e.g. Send us your warmest wishes and prayers.",
+    },
+  },
+}
+
 export interface TemplateExtraField {
   key: string
   label: string
@@ -2142,13 +2220,27 @@ function translateExtraLabelToEn(label: string): string {
 }
 
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
+  // Hint precedence: an explicit per-template placeholder on the field, then the
+  // template's own fallback copy (generated from its source), then the shared
+  // legacy placeholder. A template default that only exists in the other
+  // language hides the hint instead of showing copy the guest will not see.
+  const generated = EXTRA_DEFAULTS[code]?.[field.key]
+  const example = EXTRA_EXAMPLE_HINTS[code]?.[field.key]
+  // The example fills a language the template default does not have.
+  const templateHint = (lang === "en" ? generated?.en : generated?.id) ?? example?.[lang]
+  const hasTemplateDefault = !!(generated || example)
+  const override = lang === "en" ? field.placeholdersEn?.[code] : field.placeholders?.[code]
+  // An empty string is "no hint", not an override.
+  const explicit = override && override.trim() ? override : undefined
+  const legacyPlaceholder = hasTemplateDefault ? undefined : field.placeholder
   const base = {
     ...field,
     section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
     order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
-    placeholder: field.placeholders?.[code] ?? field.placeholder,
+    placeholder: explicit ?? templateHint ?? legacyPlaceholder,
   }
   if (lang !== "en") {
+    if (explicit || templateHint) return base
     if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
       return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
     }
@@ -2158,7 +2250,8 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
     return base
   }
   const enPlaceholder =
-    field.placeholdersEn?.[code] ??
+    explicit ??
+    templateHint ??
     field.placeholderEn ??
     (base.placeholder
       ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(base.placeholder) ??

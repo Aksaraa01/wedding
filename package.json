@@ -24,10 +24,11 @@
     "release:tag": "node scripts/release-tag.mjs",
     "check:schema": "node scripts/check-schema.mjs",
     "check:bilingual": "node scripts/scan-template-language.mjs",
+    "generate:extra-defaults": "node scripts/generate-extra-defaults.mjs",
     "tree:doctor": "node scripts/tree-doctor.mjs",
     "test:cs:e2e": "node scripts/cs-e2e.mjs",
     "test:cs:coverage": "node --import ./scripts/register-ts-resolve.mjs --experimental-strip-types scripts/cs-widget-coverage.mjs",
-    "audit:extras": "node --experimental-strip-types scripts/template-extras-check.mjs"
+    "audit:extras": "node --import ./scripts/register-ts-resolve.mjs --experimental-strip-types scripts/template-extras-check.mjs"
   },
   "dependencies": {
     "@img/sharp-libvips-linux-x64": "^1.3.4",
