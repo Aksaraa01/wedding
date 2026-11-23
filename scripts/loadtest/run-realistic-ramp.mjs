@@ -27,7 +27,7 @@ await fs.writeFile(LOG_FILE, "")
 const startedAt = Date.now()
 const durationSec = DURATION_MIN * 60
 
-const categories = ["Teman", "Keluarga", "Rekan Kerja", "Sekolah"]
+const categories = ["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"]
 const rand = (a, b) => a + Math.random() * (b - a)
 const uuid = () => crypto.randomUUID()
 const pad = (n) => String(n).padStart(2, "0")
@@ -49,7 +49,7 @@ const guests = Array.from({ length: GUESTS }, (_, idx) => {
     category: categories[idx % categories.length],
     deviceId: deviceId(i),
     photos: Math.random() < 0.5 ? 2 : 1,
-    nextAt: arrival * 1000,
+    nextAt: startedAt + arrival * 1000,
     done: 0,
     inFlight: false,
     completed: false,
