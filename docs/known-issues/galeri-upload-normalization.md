@@ -34,6 +34,18 @@ A guest photo under the 1.75MB cap is still re-encoded and often stored at
 - Gallery capture + selfie paths use **q0.95** and a 3000px long edge. The
   generic editor path keeps its cheaper 2100px default.
 
+## Hardening (2026-11-23 load test)
+
+- Before: 10 concurrent `3.67MB / 3000×4000` over-limit uploads drove staging to
+  **840MB** and restarted the process (**10× 502**).
+- Fix: process-wide sharp gate (**2 concurrent**, libvips threads=1, cache off),
+  decode once + re-encode from the raw buffer, a width/quality estimate, max 3
+  passes, and a 60MP input ceiling.
+- After: 10 concurrent over-limit → **10/10 200**, p50 **28.7s**; 15 concurrent
+  → **15/15 200**, p50 **39.8s**; no restart, peak RSS ~**773MB**.
+- Residual: over-limit traffic still grows RSS toward the 900MB restart limit.
+  Monitor prod; if large-photo volume grows, move normalization to a worker.
+
 ## Fix details
 
 1. **Server** (`normalizeGuestPhoto`): skip re-encoding when the input is
