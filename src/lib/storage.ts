@@ -51,21 +51,24 @@ const THUMB_QUALITY = 72
 // thread. Without this, 10 concurrent over-limit uploads pushed staging to
 // 840MB and killed the process (2026-11-23).
 const SHARP_CONCURRENCY = 2
-let activeSharp = 0
-const sharpQueue: Array<() => void> = []
+type SharpGate = { active: number; queue: Array<() => void> }
+// globalThis so a duplicated module chunk (route bundles) still shares the
+// gate; two semaphores in one process would double the real concurrency.
+const globalForSharp = globalThis as typeof globalThis & { __aksaraSharpGate?: SharpGate }
+const sharpGate = (globalForSharp.__aksaraSharpGate ??= { active: 0, queue: [] })
 
 async function acquireSharpSlot(): Promise<void> {
-  if (activeSharp < SHARP_CONCURRENCY) {
-    activeSharp += 1
+  if (sharpGate.active < SHARP_CONCURRENCY) {
+    sharpGate.active += 1
     return
   }
-  await new Promise<void>((resolve) => sharpQueue.push(resolve))
+  await new Promise<void>((resolve) => sharpGate.queue.push(resolve))
 }
 
 function releaseSharpSlot(): void {
-  const next = sharpQueue.shift()
+  const next = sharpGate.queue.shift()
   if (next) next()
-  else activeSharp = Math.max(0, activeSharp - 1)
+  else sharpGate.active = Math.max(0, sharpGate.active - 1)
 }
 
 async function withSharpSlot<T>(fn: () => Promise<T>): Promise<T> {
