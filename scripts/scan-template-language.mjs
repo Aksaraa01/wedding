@@ -57,10 +57,31 @@ const strip = (html) =>
     .trim()
 
 const { data: before } = await db.from("wedding_profiles")
-  .select("selected_template_id, language").eq("id", profileId).single()
+  .select("selected_template_id, language, groom_name, bride_name, groom_full_name, bride_full_name, quote_text, quote_source, opening_title, opening_description, display_name, stories")
+  .eq("id", profileId).single()
 if (!before) {
   console.error("profile not found:", profileId)
   process.exit(2)
+}
+
+// Couple-typed content is allowed to stay in either language (names, quote,
+// ayat, opening, stories). Remove it before scanning so those never count.
+const contentStrings = [
+  before.groom_name, before.bride_name, before.groom_full_name, before.bride_full_name,
+  before.quote_text, before.quote_source, before.opening_title, before.opening_description,
+  before.display_name,
+].filter((v) => typeof v === "string" && v.trim().length > 3)
+for (const story of Array.isArray(before.stories) ? before.stories : []) {
+  if (story && typeof story === "object") {
+    for (const v of [story.title, story.description]) {
+      if (typeof v === "string" && v.trim().length > 3) contentStrings.push(v)
+    }
+  }
+}
+const stripContent = (text) => {
+  let out = text
+  for (const value of contentStrings) out = out.split(value).join(" ")
+  return out
 }
 
 const { data: templates, error } = await db.from("web_templates")
@@ -77,7 +98,7 @@ for (const t of templates) {
     await db.from("wedding_profiles")
       .update({ selected_template_id: t.id, language: lang }).eq("id", profileId)
     const res = await fetch(`${base}/preview/${profileId}`, { headers: { "Cache-Control": "no-cache" } })
-    const text = strip(await res.text())
+    const text = stripContent(strip(await res.text()))
     const bad = lang === "id" ? EN : ID
     const hits = new Set()
     for (const m of text.matchAll(new RegExp(bad.source, "gi"))) {
