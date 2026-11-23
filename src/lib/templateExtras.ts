@@ -1,5 +1,3 @@
-import { EXTRA_DEFAULTS } from "./templateExtraDefaults"
-
 export interface TemplateExtraField {
   key: string
   label: string
@@ -441,7 +439,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 3,
     placeholders: {
-      "film-roll": "The stills we keep closest.",
+      "film-roll": "Setiap kisah cinta itu indah, tapi kisah kami adalah favorit kami.",
       "silver-gelatin": "Little snippets of our journey",
       teatro: "Scenes from the days that led us here, kept like programmes from a favourite show.",
       "cinnabar-seal": "Bingkai kecil dari perjalanan kami, disimpan untuk dikenang bersama.",
@@ -468,6 +466,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Oleh-oleh dari perjalanan kami, bingkai yang paling kami simpan.",
     },
+    placeholdersEn: { "film-roll": "Every love story is beautiful, but ours is our favourite." },
     templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "nihara-mist", "sandhya", "dark-split-rail"],
   },
   {
@@ -624,7 +623,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 3,
     placeholders: { "ubin-ottoman": "Doa dan kehadiran Anda sudah lebih dari cukup. Bila ingin memberi tanda kasih, dapat melalui:", "love-line": "Your blessings are more than enough. If you'd like to give more, we'll receive it with deep gratitude.",
-      "film-roll": "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here.",
+      "film-roll": "Doa restu Anda adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, Anda dapat melakukannya di sini.",
       "silver-gelatin": "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:",
       teatro: "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
       "cinnabar-seal": "Doa restu Anda adalah hadiah terindah. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
@@ -658,6 +657,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Doa restu Anda adalah bekal terbaik untuk perjalanan kami. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
     },
+    placeholdersEn: { "film-roll": "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here." },
     templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "nihara-mist", "minang-royal", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
   },
   {
@@ -1076,7 +1076,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "closing_see",
     label: "Teks Perpisahan Penutup",
-    placeholders: { "film-roll": "See you at the pictures.", teatro: "See you on our wedding day!" , "silver-gelatin": "See you!" },
+    placeholders: { "film-roll": "Sampai jumpa di sana.", teatro: "See you on our wedding day!" , "silver-gelatin": "See you!" },
+    placeholdersEn: { "film-roll": "See you at the pictures." },
     placeholder: "See you on our wedding day!",
     templates: ["silver-gelatin", "iris", "teatro", "film-roll"],
   },
@@ -1118,7 +1119,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Catatan Dress Code",
     multiline: true,
     rows: 2,
-    placeholders: { "film-roll": "Please avoid white and bright patterns.", teatro: "Please avoid white and burgundy, reserved for the couple." , "silver-gelatin": "Please avoid white and bright patterns." },
+    placeholders: { "film-roll": "Contoh: Mohon hindari warna putih.", teatro: "Please avoid white and burgundy, reserved for the couple." , "silver-gelatin": "Please avoid white and bright patterns." },
+    placeholdersEn: { "film-roll": "e.g. Please avoid white." },
     templates: ["silver-gelatin", "teatro", "film-roll"],
   },
   {
@@ -2140,36 +2142,27 @@ function translateExtraLabelToEn(label: string): string {
 }
 
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
-  // The template's own default copy (generated from src/components/templates by
-  // scripts/generate-extra-defaults.mjs). This is the text the invitation will
-  // render when the field is empty, so the editor hint matches the output.
-  const tpl = EXTRA_DEFAULTS[code]?.[field.key]
-  const explicitPh = field.placeholders?.[code] ?? field.placeholder
   const base = {
     ...field,
     section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
     order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
-    placeholder: explicitPh,
+    placeholder: field.placeholders?.[code] ?? field.placeholder,
   }
   if (lang !== "en") {
-    const explicitIsEn =
-      !!explicitPh && EN_PLACEHOLDER_RE.test(explicitPh) && !ID_PLACEHOLDER_RE.test(explicitPh)
-    const ph = explicitIsEn ? tpl?.id ?? explicitPh : explicitPh ?? tpl?.id
-    if (ph && EXTRA_PLACEHOLDER_ID[ph]) {
-      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[ph] }
+    if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
+      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
     }
-    if (ph && EN_PLACEHOLDER_RE.test(ph) && !ID_PLACEHOLDER_RE.test(ph)) {
+    if (base.placeholder && EN_PLACEHOLDER_RE.test(base.placeholder) && !ID_PLACEHOLDER_RE.test(base.placeholder)) {
       return { ...base, placeholder: undefined }
     }
-    return { ...base, placeholder: ph }
+    return base
   }
   const enPlaceholder =
     field.placeholdersEn?.[code] ??
     field.placeholderEn ??
-    tpl?.en ??
-    (explicitPh
-      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(explicitPh) ??
-        (EXTRA_PLACEHOLDER_ID[explicitPh] ? explicitPh : undefined)
+    (base.placeholder
+      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(base.placeholder) ??
+        (EXTRA_PLACEHOLDER_ID[base.placeholder] ? base.placeholder : undefined)
       : undefined)
   const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
   return {
