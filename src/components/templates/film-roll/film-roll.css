@@ -97,7 +97,7 @@
 .film-roll-root .fr-credits{grid-gap:13px;gap:13px}
 .film-roll-root .fr-credits, .film-roll-root .fr-credits li{display:flex;flex-direction:column}
 .film-roll-root .fr-credits li{grid-gap:7px;gap:7px}
-.film-roll-root .fr-credits b{font-family:"Urbanist","Helvetica Neue",Arial,sans-serif;font-weight:600;text-transform:uppercase;font-size:19.2px;line-height:17.28px;letter-spacing:-.02em;word-wrap:anywhere}
+.film-roll-root .fr-credits b{font-family:"Urbanist","Helvetica Neue",Arial,sans-serif;font-weight:600;font-size:19.2px;line-height:1.15;letter-spacing:-.02em;word-wrap:anywhere}
 /* Parents are typed in the editor: show them exactly as written. The display
    face is uppercase everywhere else, but a person's name is not a title, and
    the couple's line break (father / mother) must survive. */
