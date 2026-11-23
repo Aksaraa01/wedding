@@ -166,7 +166,7 @@ export default function Noir(profile: TemplateProps) {
   const kicker = tc.cover_kicker || t("weddingInvitation", lang)
   const greeting = tc.cover_guest_label || t("toGuest", lang)
   const openLabel = tc.open_button || t("openInvitation", lang)
-  const welcomeTitle = tc.welcome_title || t("theWeddingOf", lang)
+  const welcomeTitle = tc.welcome_title || coupleShort
   const welcomeNote = tc.welcome_note || t("withLoveAndGratitude", lang)
   const openingTitle = (profile.opening_title || "").trim()
   const openingDescription = (profile.opening_description || "").trim()
@@ -738,9 +738,12 @@ export default function Noir(profile: TemplateProps) {
                           className={`story-chitra__slider-for__item${index === storyIndex ? " is-active" : ""}`}
                           key={`${story.title || "story"}-${index}`}
                           style={
-                            story.image_url
-                              ? ({ "--story-background": `url("${story.image_url}")` } as CSSProperties)
-                              : undefined
+                            {
+                              // A milestone typed without a photo still gets a full-bleed
+                              // frame (the second cover slot, else the cover) instead of a
+                              // flat black card.
+                              "--story-background": `url("${story.image_url || coverSlides[1] || cover}")`,
+                            } as CSSProperties
                           }
                         >
                           <div className="story-chitra__content">

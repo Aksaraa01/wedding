@@ -658,3 +658,14 @@
   display: flex;
   justify-content: center;
 }
+
+/* countdown labels: four columns on a handset need a tighter tracking */
+.noir-root .countdown-wrap .cover-countdown .count-text {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+/* rundown connector: a dashed rule between the dots, as in the reference */
+.noir-root .rundown-line {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.55) 0 3px, rgba(255, 255, 255, 0) 3px 7px);
+}
