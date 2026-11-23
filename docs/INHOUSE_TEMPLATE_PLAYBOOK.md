@@ -951,6 +951,12 @@ own fallback renders; the `placeholder` is only the grey hint in the editor.
   sources, and anything untranslated is omitted rather than mixed.
 - Guest-submitted wishes keep the guest's original text in both languages.
 
+- **Placeholder source of truth:** `src/lib/templateExtraDefaults.ts` is generated from
+  the templates (`npm run generate:extra-defaults`) and holds each template's default
+  copy per language. `getTemplateExtraFields(code, lang)` uses it, so the accordion
+  hint matches what the invitation renders. Re-run the generator after adding or
+  changing a template default; a field with no localized default shows no hint.
+
 ### Minimum wiring checklist for a new template
 
 1. `import { normalizeLanguage, t } from "@/lib/i18n"` and `const lang = normalizeLanguage(profile.language)`.

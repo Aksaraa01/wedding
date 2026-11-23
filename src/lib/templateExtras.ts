@@ -1,3 +1,5 @@
+import { EXTRA_DEFAULTS } from "./templateExtraDefaults"
+
 export interface TemplateExtraField {
   key: string
   label: string
@@ -2138,29 +2140,36 @@ function translateExtraLabelToEn(label: string): string {
 }
 
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
+  // The template's own default copy (generated from src/components/templates by
+  // scripts/generate-extra-defaults.mjs). This is the text the invitation will
+  // render when the field is empty, so the editor hint matches the output.
+  const tpl = EXTRA_DEFAULTS[code]?.[field.key]
+  const explicitPh = field.placeholders?.[code] ?? field.placeholder
   const base = {
     ...field,
     section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
     order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
-    placeholder: field.placeholders?.[code] ?? field.placeholder,
+    placeholder: explicitPh,
   }
   if (lang !== "en") {
-    if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
-      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
+    const explicitIsEn =
+      !!explicitPh && EN_PLACEHOLDER_RE.test(explicitPh) && !ID_PLACEHOLDER_RE.test(explicitPh)
+    const ph = explicitIsEn ? tpl?.id ?? explicitPh : explicitPh ?? tpl?.id
+    if (ph && EXTRA_PLACEHOLDER_ID[ph]) {
+      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[ph] }
     }
-    // English-designed templates ship English sample copy. Showing it in
-    // Indonesian mode is the mixed-language bug; drop it rather than mix.
-    if (base.placeholder && EN_PLACEHOLDER_RE.test(base.placeholder) && !ID_PLACEHOLDER_RE.test(base.placeholder)) {
+    if (ph && EN_PLACEHOLDER_RE.test(ph) && !ID_PLACEHOLDER_RE.test(ph)) {
       return { ...base, placeholder: undefined }
     }
-    return base
+    return { ...base, placeholder: ph }
   }
   const enPlaceholder =
     field.placeholdersEn?.[code] ??
     field.placeholderEn ??
-    (base.placeholder
-      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(base.placeholder) ??
-        (EXTRA_PLACEHOLDER_ID[base.placeholder] ? base.placeholder : undefined)
+    tpl?.en ??
+    (explicitPh
+      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(explicitPh) ??
+        (EXTRA_PLACEHOLDER_ID[explicitPh] ? explicitPh : undefined)
       : undefined)
   const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
   return {
