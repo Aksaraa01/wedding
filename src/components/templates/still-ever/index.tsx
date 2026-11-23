@@ -734,7 +734,7 @@ export default function StillEver(profile: TemplateProps) {
               <h2 className="se-display se-heading">{tc.gift_intro_title || t("secGift", lang)}</h2>
               <p className="se-text se-gift__intro">
                 {tc.gift_intro_description ||
-                  "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
+                  (lang === "en" ? "Your presence is the greatest gift. Should you wish to send a token of love, the details are below." : "Kehadiran Anda adalah hadiah terindah. Bila berkenan mengirimkan tanda kasih, detailnya tersedia di bawah ini.")}
               </p>
 
               {giftTabs && (

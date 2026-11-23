@@ -906,6 +906,51 @@ every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect
 - **Guards:** `node scripts/check-i18n.mjs` must pass; `predeploy-guard.mjs` runs it.
   Every `t()/tf()` key must exist in `src/lib/i18n.ts`.
 
+### Mixed-language check (mandatory, before review)
+
+A template is **not** bilingual because it imports `t()`; it is bilingual when the
+rendered page contains no text in the wrong language. Static greps cannot see
+which branch actually rendered (several templates ship English sample copy in
+`COPY_EN`/`placeholders`), so run the render scan:
+
+```bash
+node scripts/scan-template-language.mjs \
+  --env-file .env.staging \
+  --base https://wedding-stg.aksaraa.com \
+  --profile <staging-test-profile-id> \
+  --json /tmp/template-language.json
+```
+
+- It temporarily sets the test profile's `selected_template_id` + `language`,
+  renders `/preview/{id}` for every in-house template in `id` and `en`, and
+  restores the profile.
+- `--strict` exits 1 on any hit — use it for new templates.
+- **Allowed content** (never translated): guest-submitted wishes, couple-typed
+  values (names, quote/ayat, opening), Arabic ayat, and brand strings
+  (`Wedding by Aksaraa`). Everything else must be 0.
+- A new template is rejected at review if it prints `id>0` or `en>0`.
+
+The 2026-11 audit used this and found English defaults rendering inside
+Indonesian invitations (film-roll, lace, ivory-lace, silver-gelatin, imagine,
+minang-royal, still-ever, fresco, nihara-mist, …). Each pass fixes the defaults
+and re-runs the scan until the count reaches 0.
+
+### Extras + placeholders (the editor hints)
+
+Extras are **invitation text**, not samples. When a field is empty the template's
+own fallback renders; the `placeholder` is only the grey hint in the editor.
+
+- Field sets are **per template** (`templates: [code]`); olan ≠ fresco ≠ teatro.
+  Shared keys may share a label because the meaning is identical.
+- Every field carries `label` (Indonesian) and `labelEn` / `EXTRA_LABEL_EN`
+  (English). Add a key to `EXTRA_LABEL_EN` when the auto-translated label would
+  be a hybrid (e.g. `welcome_message` → "Welcome Message", not "Message Sambutan").
+- `placeholders` are the Indonesian hints; `placeholdersEn` / `placeholderEn`
+  are the English ones. **Never show an English placeholder in `id` or an
+  Indonesian one in `en`** — `EXTRA_PLACEHOLDER_ID` maps the common English
+  sources, and anything untranslated is omitted rather than mixed.
+- Guest-submitted wishes keep the guest's original text in both languages.
+
 ### Minimum wiring checklist for a new template
 
 1. `import { normalizeLanguage, t } from "@/lib/i18n"` and `const lang = normalizeLanguage(profile.language)`.
@@ -913,7 +958,8 @@ every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect
 3. Pass `language={profile.language}` to `<Wishes ... />` and `<InvitationOverlay ... />`.
 4. Register heading/copy extras in `templateExtras.ts` for the template code, with section/order/placeholder.
 5. `npm run audit:copy -- <code>` and `node scripts/check-i18n.mjs` clean.
-6. Smoke in both `id` and `en` (editor language selector / profile.language).
+6. `node scripts/scan-template-language.mjs ... --strict` prints `id=0 en=0` for the new code.
+7. Smoke in both `id` and `en` (editor language selector / profile.language).
 
 ## 9. Failure catalogue (symptom → cause → fix)
 

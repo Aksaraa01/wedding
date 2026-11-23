@@ -1914,7 +1914,9 @@ export default function FilmRoll(profile: TemplateProps) {
                   <div className="fr-scroll fr-end__t">
                     <span className="fr-serif fr-pre">
                       {(tc.closing_message || "").trim() ||
-                        "It is an honour and a happiness for us to have you with us on our wedding day."}
+                        (lang === "en"
+                          ? "It is an honour and a happiness for us to have you with us on our wedding day."
+                          : "Merupakan suatu kehormatan dan kebahagiaan bagi kami bila Anda hadir di hari pernikahan kami.")}
                     </span>
                     {honored.length > 0 && (
                       <ul className="fr-credits fr-credits--c">

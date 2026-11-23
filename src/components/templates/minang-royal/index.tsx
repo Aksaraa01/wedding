@@ -383,7 +383,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                 </div>
                 {calendarUrl && (
                   <div className="add-to-calendar-wrap">
-                    <a className="add-to-calendar" href={calendarUrl} target="_blank" rel="noreferrer">Add to Calendar</a>
+                    <a className="add-to-calendar" href={calendarUrl} target="_blank" rel="noreferrer">{lang === "en" ? "Add to Calendar" : "Simpan ke Kalender"}</a>
                   </div>
                 )}
               </div>

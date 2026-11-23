@@ -963,7 +963,7 @@ export default function Lace(profile: TemplateProps) {
               <div className="lc-gift__panel">
                 <span className="lc-gift__lace" style={bandStyle(ART_PANEL)} aria-hidden="true" />
                 <div className="lc-gift__inner">
-                  <p className="lc-display lc-gift__lead">Your presence is our greatest gift.</p>
+                  <p className="lc-display lc-gift__lead">{lang === "en" ? "Your presence is our greatest gift." : "Kehadiran Anda adalah hadiah terindah bagi kami."}</p>
                   <p className="lc-body lc-gift__intro">
                     {tc.gift_intro_description ||
                       "Should you wish to give a gift, you may do so in cash or by bank transfer."}

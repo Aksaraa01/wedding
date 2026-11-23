@@ -742,7 +742,7 @@ export default function Imagine(props: TemplateProps) {
               </div>
               {calHref && (
                 <div className="add-to-calendar-wrap" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="1100">
-                  <a className="add-to-calendar" href={calHref} target="_blank" rel="noreferrer">Add to Calendar</a>
+                  <a className="add-to-calendar" href={calHref} target="_blank" rel="noreferrer">{lang === "en" ? "Add to Calendar" : "Simpan ke Kalender"}</a>
                 </div>
               )}
             </section>
@@ -754,9 +754,9 @@ export default function Imagine(props: TemplateProps) {
               <section className="agenda-wrap">
                 <div className="agenda-inner">
                   <div className="agenda-head">
-                    <h2 className="agenda-title" data-aos="zoom-in" data-aos-duration="1500">It&rsquo;s Wedding Day</h2>
+                    <h2 className="agenda-title" data-aos="zoom-in" data-aos-duration="1500">{lang === "en" ? "It’s Wedding Day" : "Hari Pernikahan"}</h2>
                     <p className="agenda-description" data-aos="fade-up" data-aos-duration="1200">
-                      We cordially invite you to attend our wedding
+                      {lang === "en" ? "We cordially invite you to attend our wedding" : "Dengan penuh sukacita, kami mengundang Anda untuk menghadiri pernikahan kami"}
                     </p>
                   </div>
                   <div className="agenda-body">

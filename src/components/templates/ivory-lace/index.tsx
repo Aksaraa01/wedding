@@ -751,7 +751,7 @@ export default function IvoryLace(profile: TemplateProps) {
             <h2 className="il-display il-heading">Wishes</h2>
             <p className="il-body il-wishes__intro">
               {tc.wishes_intro ||
-                "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish, and let us know you are coming."}
+                (lang === "en" ? "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish, and let us know you are coming." : "Tidak ada yang lebih membahagiakan bagi kami selain merayakan hari ini bersama orang-orang yang kami cintai. Tinggalkan ucapan dan beri tahu kami bahwa Anda akan hadir.")}
             </p>
             <Wishes
               weddingProfileId={profile.wedding_profile_id}
