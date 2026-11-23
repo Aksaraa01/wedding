@@ -257,7 +257,7 @@ export default function SilverGelatin(profile: TemplateProps) {
   const rundownIntro = (tc.rundown_intro || "").trim()
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Momen")
   const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "Little snippets of our journey" : "Cuplikan kecil perjalanan kami")
-  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "Our Film" : "Film Kami")
+  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "Our Film" : "Video")
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim() ||

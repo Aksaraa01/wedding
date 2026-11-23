@@ -260,7 +260,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const rundownTitle = (tc.rundown_title || "").trim() || t("rundownTitle", lang)
   const rundownIntro = (tc.rundown_intro || "").trim()
   const galleryKicker = (tc.gallery_kicker || "").trim() || (lang === "en" ? "Precious" : "Momen")
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Momen Kami")
+  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Galeri")
   const galleryIntro = (tc.gallery_intro || "").trim()
   const videoKicker = (tc.video_kicker || "").trim() || t("secVideo", lang)
   const videoTitle = (tc.video_title || "").trim() || t("secVideo", lang)

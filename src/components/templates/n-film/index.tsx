@@ -608,7 +608,7 @@ export default function NFilm(profile: TemplateProps) {
         {hasVideo && (
           <section className="nf-section" data-section="video" aria-label="The film">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">The Film</h2>
+              <h2 className="nf-title">{lang === "en" ? "The Film" : "Video"}</h2>
             </div>
             <div className="nf-film" data-nf-reveal>
               <button type="button" className="nf-film__plate" onClick={() => setVideoOpen(true)} aria-label="Play the film">

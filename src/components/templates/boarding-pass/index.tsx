@@ -751,10 +751,10 @@ export default function BoardingPass(profile: TemplateProps) {
 
         {/* 12 — the film. */}
         {hasVideo && (
-          <section className="bp-section" data-section="video" aria-label="Dalam perjalanan">
+          <section className="bp-section" data-section="video" aria-label={lang === "en" ? "On the journey" : "Dalam perjalanan"}>
             <div className="bp-head">
-              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Dalam Perjalanan</p>
-              <h2 className="bp-title" {...IN("up", 0.06)}>Film Kami</h2>
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>{lang === "en" ? "On the Journey" : "Dalam Perjalanan"}</p>
+              <h2 className="bp-title" {...IN("up", 0.06)}>{lang === "en" ? "Our Film" : "Video"}</h2>
             </div>
             <div className="bp-film" {...IN("up", 0.18)}>
               <button type="button" className="bp-film__plate" onClick={() => setVideoOpen(true)} aria-label={lang === "en" ? "Play film" : "Putar film"}>
