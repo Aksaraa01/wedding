@@ -536,7 +536,7 @@ export default function NiharaMist(profile: TemplateProps) {
               <div className="cover__guest reveal" style={{ "--d": "1s" } as React.CSSProperties}>
                 <p className="label cover__greeting">{lang === "en" ? "Dear," : "Kepada Yth.,"}</p>
                 <p className="cover__guest-name">{guestName}</p>
-                <p className="cover__apology">We apologize for any error in the writing of names &amp; titles</p>
+                <p className="cover__apology">{lang === "en" ? "We apologize for any error in the writing of names & titles" : "Kami mohon maaf apabila ada kesalahan penulisan nama dan gelar"}</p>
               </div>
               <button type="button" className="btn-open reveal" style={{ "--d": "1.25s" } as React.CSSProperties} onClick={openInvitation}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
@@ -644,7 +644,7 @@ export default function NiharaMist(profile: TemplateProps) {
                         <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" />
                         <circle cx="12" cy="10" r="2.5" />
                       </svg>
-                      <span>OPEN MAPS</span>
+                      <span>{lang === "en" ? "OPEN MAPS" : "BUKA PETA"}</span>
                     </a>
                   )}
                 </article>
@@ -710,7 +710,7 @@ export default function NiharaMist(profile: TemplateProps) {
           </div>          <div className="scene__veil scene__veil--deep" />
           <div className="finale__scroll" id="niharaFinaleScroll" ref={finaleScrollRef}>
             <div className="finale__hero">
-              <h2 className="display finale__std reveal">Counting the Days</h2>
+              <h2 className="display finale__std reveal">{lang === "en" ? "Counting the Days" : "Menghitung Hari"}</h2>
               <div className="countdown reveal">
                 <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>Days</span></div>
                 <i />
@@ -726,7 +726,7 @@ export default function NiharaMist(profile: TemplateProps) {
                     <rect x="3" y="4.5" width="18" height="16" rx="2" />
                     <path d="M3 9h18M8 2.5v4M16 2.5v4" />
                   </svg>
-                  <span>SAVE THE DATE</span>
+                  <span>{lang === "en" ? "SAVE THE DATE" : "SIMPAN TANGGAL"}</span>
                 </a>
               )}
             </div>

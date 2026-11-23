@@ -305,7 +305,9 @@ export default function Fresco(profile: TemplateProps) {
   const dressBody =
     (profile.dresscode?.description || "").trim() ||
     (tc.dresscode_intro || "").trim() ||
-    "We would be delighted if you joined us in the palette below."
+    (lang === "en"
+      ? "We would be delighted if you joined us in the palette below."
+      : "Kami akan senang bila Anda hadir dengan palet warna di bawah ini.")
   const dressNote = (tc.dresscode_note || "").trim()
   const hasDresscode = profile.dresscode_visible !== false && (!!dressTitle || !!dressBody || dressColors.length > 0)
 

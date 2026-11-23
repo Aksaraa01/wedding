@@ -974,7 +974,7 @@ export default function Teatro(profile: TemplateProps) {
 
           {phase === "idle" && (
             <button type="button" className="te-gate" onClick={openInvitation} aria-label="Open the invitation">
-              <span className="te-gate__to">Dear,</span>
+              <span className="te-gate__to">{lang === "en" ? "Dear," : "Kepada Yth.,"}</span>
               <span className="te-gate__guest">{guestName}</span>
               <span className="te-gate__ring" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false">

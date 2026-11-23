@@ -19,6 +19,8 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
+const DEFAULT_CLOSING_ID =
+  "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat yang Anda tinggalkan berarti lebih dari yang dapat kami ungkapkan."
 
 const DEFAULT_OPENING_TITLE = "Warmest Greetings"
 const DEFAULT_OPENING_DESCRIPTION =
@@ -151,7 +153,7 @@ export default function NFilm(profile: TemplateProps) {
     giftIntroTitle: (tc.gift_intro_title || "").trim() || t("secGift", lang),
     giftIntro: (tc.gift_intro_description || "").trim(),
     wishesIntro: (tc.wishes_intro || "").trim(),
-    closing: (tc.closing_message || "").trim() || DEFAULT_CLOSING,
+    closing: (tc.closing_message || "").trim() || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID),
     invitingIntro: (tc.inviting_intro || "").trim(),
   }
 

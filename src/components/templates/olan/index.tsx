@@ -1269,7 +1269,9 @@ export default function Olan(profile: TemplateProps) {
               <h4 className="note-title">{content.closing_title || t("thankYou", lang)}</h4>
               <p className="note-description">
                 {content.closing_message ||
-                  "From the bottom of our hearts we thank you for being part of our big day. We are beyond lucky to have each of you in our lives."}
+                  (lang === "en"
+                    ? "From the bottom of our hearts we thank you for being part of our big day. We are beyond lucky to have each of you in our lives."
+                    : "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari besar kami. Kami sangat beruntung memiliki Anda semua dalam hidup kami.")}
               </p>
             </div>
           </section>

@@ -288,7 +288,7 @@ export default function Lace(profile: TemplateProps) {
   // remain the fallback so invitations authored before this mapping keep copy.
   const welcomeTitle =
     (profile.opening_title || "").trim() || tc.welcome_invite || (lang === "en" ? "Together with their families" : "Bersama keluarga kami")
-  const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
+  const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || (lang === "en" ? DEFAULT_WELCOME : "Kami sangat bahagia dapat merayakan hari ini bersama Anda, dikelilingi orang-orang yang paling kami cintai.")
 
   // The lead tile spans both columns, so an even number of photos leaves the
   // grid with a single orphan on the last row. Drop the last photo instead of
@@ -734,7 +734,7 @@ export default function Lace(profile: TemplateProps) {
             <div className="lc-wrap lc-events__head" data-lc-reveal>
               <h2 className="lc-display lc-heading">The Celebration</h2>
               <p className="lc-body lc-events__intro">
-                {tc.events_intro || DEFAULT_EVENTS_INTRO}
+                {tc.events_intro || (lang === "en" ? DEFAULT_EVENTS_INTRO : "Merupakan kehormatan bagi kami bila Anda hadir saat kami mengucapkan janji.")}
               </p>
             </div>
 
@@ -851,7 +851,7 @@ export default function Lace(profile: TemplateProps) {
             <div className="lc-panel__body lc-honored__body" data-lc-reveal>
               <h2 className="lc-display lc-panel__title lc-honored__title">With Honor</h2>
               {tc.inviting_intro !== "" && (
-                <p className="lc-body lc-honored__intro">{tc.inviting_intro || DEFAULT_INVITING}</p>
+                <p className="lc-body lc-honored__intro">{tc.inviting_intro || (lang === "en" ? DEFAULT_INVITING : "Bersama keluarga yang turut mengundang dalam undangan ini.")}</p>
               )}
               <ul className="lc-honored__list">
                 {honored.map((family, index) => (

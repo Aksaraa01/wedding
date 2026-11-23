@@ -22,6 +22,8 @@ const A = (name: string) => `/templates/manjari/${name}`
 const DEMO_TRACK = "/templates/manjari/lee-hi-only.mp3"
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, prayers, and warm wishes mean more to us than words can express."
+const DEFAULT_CLOSING_ID =
+  "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan ucapan hangat Anda berarti lebih dari yang dapat kami ungkapkan."
 
 function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
   const target = useMemo(() => countdownTarget(sessions, iso), [sessions, iso])
@@ -95,7 +97,7 @@ export default function Manjari(profile: TemplateProps) {
   const dateLong = formatDate(profile.estimated_wedding_date || "", lang)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID)
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
 
   // Shared floating dock (RSVP modal + guest QR). Same rule as the other

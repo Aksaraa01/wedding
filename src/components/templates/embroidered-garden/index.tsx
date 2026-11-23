@@ -1080,7 +1080,9 @@ export default function EmbroideredGarden(profile: TemplateProps) {
                   <p className="eg-kicker">{tc.gift_intro_title || t("secGift", lang)}</p>
                   <p className="eg-body eg-gift__intro">
                     {tc.gift_intro_description ||
-                      "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
+                      (lang === "en"
+                        ? "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."
+                        : "Kehadiran Anda adalah hadiah terindah. Bila berkenan memberikan tanda kasih, detailnya tersedia di bawah ini.")}
                   </p>
 
                   {giftTabs && (

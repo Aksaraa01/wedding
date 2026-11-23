@@ -261,7 +261,9 @@ export default function SilverGelatin(profile: TemplateProps) {
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim() ||
-    "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:"
+    (lang === "en"
+      ? "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:"
+      : "Doa restu Anda adalah hadiah terindah bagi kami. Namun bila berkenan memberikan tanda kasih, Anda dapat melakukannya melalui:")
   const giftTransferLabel = (tc.gift_button || "").trim() || (lang === "en" ? "Direct Transfer" : "Transfer Langsung")
   const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const giftTransferNote = (tc.gift_transfer_note || "").trim() || (lang === "en" ? "Transfer directly to the account below:" : "Transfer langsung ke rekening di bawah ini:")

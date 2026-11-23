@@ -528,7 +528,7 @@ export default function StillEver(profile: TemplateProps) {
               <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="se-pill se-countdown__cta" href={calendarUrl} target="_blank" rel="noreferrer">
-                  Save the date
+                  {lang === "en" ? "Save the date" : "Simpan Tanggal"}
                 </a>
               )}
             </div>
@@ -540,8 +540,8 @@ export default function StillEver(profile: TemplateProps) {
           <section className="se-section se-events" data-section="events">
             <div className="se-wrap">
               <header className="se-events__head" data-se-reveal>
-                <p className="se-eyebrow">The Celebration</p>
-                <h2 className="se-display se-heading">When We Say Yes</h2>
+                <p className="se-eyebrow">{lang === "en" ? "The Celebration" : "Rangkaian Acara"}</p>
+                <h2 className="se-display se-heading">{lang === "en" ? "When We Say Yes" : "Saat Kami Mengucapkan Janji"}</h2>
               </header>
 
               <div className="se-events__list">

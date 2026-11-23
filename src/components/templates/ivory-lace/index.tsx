@@ -233,7 +233,7 @@ export default function IvoryLace(profile: TemplateProps) {
     : `#${`${groom}${bride}`.replace(/[^A-Za-z0-9]/g, "")}`
 
   const welcomeTitle = (profile.opening_title || "").trim() || tc.welcome_invite || (lang === "en" ? "Dear Family & Friends" : "Keluarga & Sahabat Tercinta")
-  const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
+  const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || (lang === "en" ? DEFAULT_WELCOME : "Kami sangat bahagia dapat berbagi hari ini dengan Anda, dikelilingi orang-orang yang paling kami cintai.")
 
   const showGuestDock =
     !profile.preview_mode &&
@@ -469,7 +469,7 @@ export default function IvoryLace(profile: TemplateProps) {
           <section className="il-section il-events" data-section="events">
             <div className="il-wrap il-events__head" data-il-reveal>
               <h2 className="il-display il-heading">Ceremony &amp; Reception</h2>
-              <p className="il-body il-events__intro">{tc.events_intro || DEFAULT_EVENTS_INTRO}</p>
+              <p className="il-body il-events__intro">{tc.events_intro || (lang === "en" ? DEFAULT_EVENTS_INTRO : "Merupakan kehormatan bagi kami bila Anda hadir saat kami mengucapkan janji.")}</p>
             </div>
 
             {events.map((event, index) => {
@@ -576,7 +576,7 @@ export default function IvoryLace(profile: TemplateProps) {
           <section className="il-section il-inviting" data-section="inviting">
             <div className="il-wrap il-inviting__body" data-il-reveal>
               <h2 className="il-script il-inviting__title">With Honour</h2>
-              <p className="il-body il-inviting__intro">{tc.inviting_intro || DEFAULT_INVITING}</p>
+              <p className="il-body il-inviting__intro">{tc.inviting_intro || (lang === "en" ? DEFAULT_INVITING : "Bersama keluarga yang turut mengundang dalam undangan ini.")}</p>
               <ul className="il-inviting__list">
                 {honored.map((family, index) => (
                   <li key={`${family}-${index}`}>{family}</li>
