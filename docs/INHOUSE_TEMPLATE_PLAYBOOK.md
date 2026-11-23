@@ -955,7 +955,24 @@ own fallback renders; the `placeholder` is only the grey hint in the editor.
   the templates (`npm run generate:extra-defaults`) and holds each template's default
   copy per language. `getTemplateExtraFields(code, lang)` uses it, so the accordion
   hint matches what the invitation renders. Re-run the generator after adding or
-  changing a template default; a field with no localized default shows no hint.
+  changing a template default.
+- **Precedence:** explicit `placeholders[code]` → generated default in the active
+  language → legacy shared `placeholder`. An explicit `""` means "no hint", not an
+  override. A default that exists only in the other language hides the hint
+  (never show Indonesian copy in `en` or the reverse) — the fix is to make the
+  template default bilingual, not to translate the hint.
+- **Locator examples:** a field the template renders nothing for would be
+  un-findable in the accordion, so 22 such fields carry an explicit
+  `EXTRA_EXAMPLE_HINTS` entry prefixed `Contoh:` / `e.g.` in `templateExtras.ts`.
+  Add one there when a new field has no template default; keep the prefix so it
+  reads as an example, not as shipped copy.
+- The generator reads the AST: it attributes only copy inside the
+  `tc.<key> || … || (lang === "en" ? EN : ID)` chain (or a resolved `t()` key /
+  local constant). A regex over the file pairs aliases and JSX with the wrong
+  field — do not reintroduce one.
+- Coverage today: **1016/1016 Indonesian hints**, **785/1016 English** — the
+  remainder are template defaults written in Indonesian only, which the render
+  scan already lists; translating them is a reviewed copy task.
 
 ### Minimum wiring checklist for a new template
 
