@@ -396,9 +396,13 @@ export default function Iris(profile: TemplateProps) {
           </div>
           <div className="ir-cover__foot">
             <p className="ir-cover__to" {...ON_LOAD("fade", 0.22)}>
-              Kepada Yth.
-              <br />
-              Bapak/ Ibu/ Saudara/ i
+              {lang === "en" ? "Dear Mr./Mrs./Ms." : "Kepada Yth."}
+              {lang !== "en" && (
+                <>
+                  <br />
+                  Bapak/ Ibu/ Saudara/ i
+                </>
+              )}
             </p>
             <p className="ir-cover__guest" {...ON_LOAD("fade", 0.26)}>{guestName}</p>
             <button type="button" className="ir-btn ir-btn--gold" onClick={openInvitation} {...ON_LOAD("up", 0.32)}>

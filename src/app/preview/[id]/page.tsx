@@ -75,7 +75,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       groom_name={profile.groom_name}
       estimated_wedding_date={profile.estimated_wedding_date}
       slug={profile.slug || ""}
-      guest_name="Tamu Undangan"
+      guest_name={normalizeLanguage(profile.language) === "en" ? "Guest" : "Tamu Undangan"}
       couple_illustration_url={(thumbUrl(profile.couple_illustration_url, 800) as string) || undefined}
       cover_photos={(thumbUrl(profile.cover_photos, 1200) as typeof profile.cover_photos) || undefined}
       couple_initials={profile.couple_initials || undefined}

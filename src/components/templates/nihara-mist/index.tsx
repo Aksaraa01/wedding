@@ -534,7 +534,7 @@ export default function NiharaMist(profile: TemplateProps) {
             </header>
             <footer className="cover__bottom">
               <div className="cover__guest reveal" style={{ "--d": "1s" } as React.CSSProperties}>
-                <p className="label cover__greeting">Dear,</p>
+                <p className="label cover__greeting">{lang === "en" ? "Dear," : "Kepada Yth.,"}</p>
                 <p className="cover__guest-name">{guestName}</p>
                 <p className="cover__apology">We apologize for any error in the writing of names &amp; titles</p>
               </div>

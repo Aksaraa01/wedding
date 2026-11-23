@@ -884,7 +884,7 @@ export default function StillEver(profile: TemplateProps) {
 
               <div className="se-gate__card">
                 <p className="se-gate__guest">
-                  Dear,
+                  {lang === "en" ? "Dear," : "Kepada Yth.,"}
                   <strong>{guestName}</strong>
                 </p>
                 <p className="se-gate__kicker">{t("theWeddingOf", lang)}</p>

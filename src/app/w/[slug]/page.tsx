@@ -331,7 +331,7 @@ export default async function WeddingInvitation({
     }
   }
 
-  const guestName = guestContext?.name || prettifyGuestSlug(to) || (linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
+  const guestName = guestContext?.name || prettifyGuestSlug(to) || (normalizeLanguage(profile.language) === "en" ? "Guest" : linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
   const visibleSessions = filterSessionsByScope(
     (profile.sessions as any[] | null) || [],
     guestContext?.invited_session_indexes ?? null,
