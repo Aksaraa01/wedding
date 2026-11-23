@@ -1996,6 +1996,13 @@ const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
   "Together with the families who make this day possible.": "Bersama keluarga yang membuat hari ini terwujud.",
 }
 
+// Reverse of EXTRA_PLACEHOLDER_ID: Indonesian label -> English source. Used to
+// keep an English placeholder in `en` mode and to detect Indonesian prose that
+// has no English counterpart (those are dropped rather than shown mixed).
+const EXTRA_PLACEHOLDER_EN_FROM_ID = new Map(
+  Object.entries(EXTRA_PLACEHOLDER_ID).map(([en, id]) => [id, en]),
+)
+
 const EXTRA_LABEL_EN_RE: Array<[RegExp, string]> = [
   [/^Judul Hitung Mundur$/i, "Countdown Title"],
   [/^Label Hari$/i, "Days Label"],
@@ -2085,7 +2092,13 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
     }
     return base
   }
-  const enPlaceholder = field.placeholdersEn?.[code] ?? field.placeholderEn ?? base.placeholder
+  const enPlaceholder =
+    field.placeholdersEn?.[code] ??
+    field.placeholderEn ??
+    (base.placeholder
+      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(base.placeholder) ??
+        (EXTRA_PLACEHOLDER_ID[base.placeholder] ? base.placeholder : undefined)
+      : undefined)
   const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
   return {
     ...base,

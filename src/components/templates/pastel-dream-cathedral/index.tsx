@@ -109,7 +109,7 @@ export default function PastelDreamCathedral(props: TemplateProps) {
                   {initials}
                 </span>
                 <span className="text-[11px] uppercase font-medium" style={{ ...FONT_BODY, letterSpacing: "0.3em", color: "#E5DEC9", animation: "imLoadPulse 1.6s ease-in-out infinite" }}>
-                  Menyiapkan Undangan
+                  {lang === "en" ? "Preparing Invitation" : "Menyiapkan Undangan"}
                 </span>
               </div>
             </div>
