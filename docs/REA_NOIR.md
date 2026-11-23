@@ -6,8 +6,14 @@ confirmed the design may be ported; no reference asset, photograph or couple
 data ships here. Every ornament is authored in CSS, the two typefaces are
 vendored Google fonts, and the demo uses Aksaraa's own sample content.
 
-- Component: `src/components/templates/noir/` (`index.tsx`, `Wishes.tsx`,
-  `noir.css` = authored layer in the reference's visual language)
+- Component: `src/components/templates/noir/` (`index.tsx`, `Wishes.tsx`)
+- CSS: `noir-reference.css` = **the reference theme stylesheet itself**
+  (`/public/dist/c8bd64b9.css`), scoped to `.noir-root` with its keyframes
+  namespaced; `noir.css` = only what the reference gets from its page runtime
+  (palette variables it injects on `<body>`, slick → scroll-snap, lightgallery
+  → our lightbox, Katsudoto's gift/wish backends → our endpoints) plus the four
+  contract-only surfaces. Markup is the reference's markup: same classes and
+  same block order.
 - Assets: `public/templates/noir/thumbnail.webp` only (the design has **no
   ornament images** — the reference CSS contains zero `url()` rules)
 - Fonts: `Cormorant Unicase` (300–700) + `Newsreader` (variable, 400 ± italic),
@@ -81,6 +87,7 @@ form is replaced by the shared `InvitationOverlay` dock (playbook §6).
 
 | Deviation | Reason |
 |---|---|
+| **Markup is the reference's** | `kat-page__side-to-side` shell, `top-cover` gate, `.cover` head/photo/foot, `.quote`, `.couple-info` + cream details card, `.agenda-wrap`, `.rundown-*` timeline, `.story-chitra__*`, `.gallery__single-slider`, `.video-gallery`, `.wedding-gift-*`, `.wedding-wish-*`, `.footnote`. Only the countdown is moved out of the cover (SOP #7 orders it after Event) and it reuses the cover's own `.cover-countdown` block. |
 | **No opening video** | The design opens on a still cover, not a film. Section 2 is conditional ("only when the design opens with a film"); the couple's `video_url` still renders in section 11 under `feature_gates.video` + `video_section_visible`. |
 | **No inline RSVP** | Playbook rule: RSVP/QR is the floating dock, never a section. |
 | **Instagram filter dropped** | Outside the 16-section contract and no `wedding_profiles` column feeds it. Reported here instead of shipping a dead block. |

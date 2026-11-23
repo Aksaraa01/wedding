@@ -66,7 +66,7 @@ export default function Wishes({
   guestLinkStrict,
   nameFallback,
   copy,
-  language = "id"
+  language = "id",
 }: Props) {
   const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
@@ -158,67 +158,72 @@ export default function Wishes({
 
   return (
     <>
-      <form
-        className="noir-wish-form"
-        onSubmit={(event: FormEvent) => {
-          event.preventDefault()
-          void send()
-        }}
-      >
-        <label className="noir-field">
-          <span className="noir-field__label">{copy.nameLabel}</span>
-          <input
-            className="noir-field__input"
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={copy.namePlaceholder}
-            maxLength={80}
-            autoComplete="name"
-            readOnly={nameLocked}
-            aria-readonly={nameLocked}
-          />
-        </label>
-        <label className="noir-field">
-          <span className="noir-field__label">{copy.messageLabel}</span>
-          <textarea
-            className="noir-field__input noir-field__input--area"
-            value={message}
-            onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
-            placeholder={copy.messagePlaceholder}
-            rows={3}
-            maxLength={MAX_CHARS}
-            required
-          />
-        </label>
-        <button type="submit" className="noir-btn noir-btn--solid noir-wish-submit" disabled={sending || !message.trim()} aria-busy={sending}>
-          {copy.submit}
-        </button>
+      <div className="wedding-wish-form">
+        <form
+          onSubmit={(event: FormEvent) => {
+            event.preventDefault()
+            void send()
+          }}
+        >
+          <div className="form-group guest-name-wrap">
+            <input
+              type="text"
+              className="form-control guest-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder={copy.namePlaceholder}
+              aria-label={copy.nameLabel}
+              maxLength={80}
+              autoComplete="name"
+              readOnly={nameLocked}
+              aria-readonly={nameLocked}
+            />
+          </div>
+          <div className="form-group guest-comment-wrap">
+            <textarea
+              className="form-control guest-comment"
+              value={message}
+              onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
+              placeholder={copy.messagePlaceholder}
+              aria-label={copy.messageLabel}
+              rows={1}
+              maxLength={MAX_CHARS}
+              required
+            />
+          </div>
+          <div className="submit-comment-wrap">
+            <button type="submit" className="submit submit-comment" disabled={sending || !message.trim()} aria-busy={sending}>
+              {copy.submit}
+            </button>
+          </div>
+        </form>
         {feedback ? (
-          <p className={`noir-wish-feedback${isError ? " is-error" : ""}`} role="status">
+          <p className={`wedding-wish-feedback${isError ? " is-error" : ""}`} role="status">
             {feedback}
           </p>
         ) : null}
-      </form>
+      </div>
 
-      <div className="noir-wish-list">
-        {!loaded ? <p className="noir-wish-empty">{copy.loading}</p> : null}
-        {loaded && wishes.length === 0 ? <p className="noir-wish-empty">{copy.empty}</p> : null}
+      <div className="comment-wrap">
+        {!loaded ? <p className="wish-empty">{copy.loading}</p> : null}
+        {loaded && wishes.length === 0 ? <p className="wish-empty">{copy.empty}</p> : null}
         {shown.map((wish) => (
-          <article className="noir-wish" key={wish.id}>
-            <header className="noir-wish__head">
-              <p className="noir-wish__name">{wish.name || nameFallback}</p>
-              <p className="noir-wish__time">{timeAgo(wish.created_at, lang)}</p>
+          <article className="wish-item" key={wish.id}>
+            <header className="wish-head">
+              <p className="wish-name">{wish.name || nameFallback}</p>
+              <p className="wish-time">{timeAgo(wish.created_at, lang)}</p>
             </header>
-            <p className="noir-wish__text">{wish.message}</p>
+            <p className="wish-text">{wish.message}</p>
           </article>
         ))}
       </div>
 
       {wishes.length > visible ? (
-        <button type="button" className="noir-btn noir-btn--ghost noir-wish-more" onClick={() => setVisible((v) => v + PAGE)}>
-          {copy.more}
-        </button>
+        <div className="more-comment-wrap">
+          <button type="button" onClick={() => setVisible((v) => v + PAGE)}>
+            {copy.more}
+          </button>
+        </div>
       ) : null}
     </>
   )

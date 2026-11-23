@@ -42,6 +42,8 @@ export const I18N = {
   // Section headings (locked, artful-but-clear — see plan §7)
   secOpening: { id: "Sepatah Kata", en: "A Few Words" },
   secCouple: { id: "Kedua Mempelai", en: "The Couple" },
+  groomLabel: { id: "Mempelai Pria", en: "The Groom" },
+  brideLabel: { id: "Mempelai Wanita", en: "The Bride" },
   secQuote: { id: "Untaian Doa", en: "A Verse of Prayer" },
   secQuoteReligious: { id: "Ayat Suci", en: "A Sacred Verse" },
   secInviting: { id: "Turut Mengundang", en: "With the Blessing of" },
