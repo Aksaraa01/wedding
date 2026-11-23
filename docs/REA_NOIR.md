@@ -147,13 +147,20 @@ Deployed to `wedding-stg.aksaraa.com` (commit `9849a1b`) and exercised on the
 agreed staging couple `fikri-dinda` (real data: 2 events, 3 text-only stories,
 5 rundown rows, 6 photos, gift accounts + address, 3 invited families):
 
-- all 15 rendered sections appear in the shipped order, `scrollWidth ===
-  innerWidth` at 390×844 and 1440×900
+- all 15 rendered sections appear in the shipped order; the scroller is the
+  reference's `.kat-page__side-to-side` on a handset (document scroll on
+  desktop), `scrollWidth === innerWidth` at 390×844 and 1440×900
 - gate opens and starts the track; gallery lightbox opens, pages and closes;
   story bars switch slides; video poster mounts the YouTube player; gift tabs
   switch between accounts and address; "Salin Alamat" raises the toast; the
   RSVP dock sits bottom-right; wish form + empty state render
-- desktop keeps the fixed 61 % photo pane with the 39 % black column
+- desktop keeps the fixed 61 % photo pane with the 39 % column exactly as the
+  reference does, including the cover photograph continuing behind the scroll
+  pane (`.hero`, painted under the sections)
+- motion is the reference's AOS build: `fade-up = translate3d(0,100px,0)`,
+  `zoom-in = scale(0.6)`, `zoom-out = scale(1.2)`, `ease`, 1000–1600 ms with the
+  reference's delays; the gate runs its own entrance on load and the cover
+  animates when the gate lifts
 
 ---
 
