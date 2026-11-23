@@ -602,11 +602,17 @@ export default function Noir(profile: TemplateProps) {
               <div className="noir-story__stage">
                 {stories.map((story, index) => (
                   <article
-                    className={`noir-story__slide${index === storyIndex ? " is-active" : ""}`}
+                    className={`noir-story__slide${index === storyIndex ? " is-active" : ""}${story.image_url ? "" : " is-text"}`}
                     key={`${story.title || "story"}-${index}`}
                     aria-hidden={index !== storyIndex}
                   >
-                    {story.image_url ? <img className="noir-story__img" src={story.image_url} alt="" loading="lazy" /> : null}
+                    {story.image_url ? (
+                      <img className="noir-story__img" src={story.image_url} alt="" loading="lazy" />
+                    ) : (
+                      <span className="noir-story__ghost" aria-hidden>
+                        {pad2(index + 1)}
+                      </span>
+                    )}
                     <div className="noir-story__veil" />
                     <div className="noir-story__text">
                       <p className="noir-kicker noir-kicker--wide">

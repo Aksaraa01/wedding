@@ -171,8 +171,13 @@
 }
 
 .noir-btn:disabled {
-  opacity: 0.45;
   cursor: default;
+}
+
+.noir-btn--solid:disabled {
+  background: transparent;
+  border-color: var(--noir-line);
+  color: var(--noir-faint);
 }
 
 /* ── gate (mobile) ───────────────────────────────────────────────────────── */
@@ -841,6 +846,49 @@
 
 .noir-story__caption::-webkit-scrollbar {
   display: none;
+}
+
+/* A milestone without a photo becomes a designed typographic slide instead of
+   an empty black frame (real couples often type the story before uploading). */
+.noir-story__slide.is-text {
+  background:
+    radial-gradient(90% 65% at 50% 34%, rgba(230, 216, 213, 0.09), rgba(0, 0, 0, 0) 62%),
+    #060606;
+}
+
+.noir-story__slide.is-text .noir-story__veil {
+  display: none;
+}
+
+.noir-story__ghost {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--noir-display);
+  font-size: clamp(6rem, 24vw, 10rem);
+  line-height: 1;
+  color: rgba(230, 216, 213, 0.08);
+  pointer-events: none;
+  user-select: none;
+}
+
+.noir-story__slide.is-text .noir-story__text {
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.noir-story__slide.is-text .noir-story__title {
+  margin-top: 12px;
+}
+
+.noir-story__slide.is-text .noir-story__caption {
+  max-height: 40%;
 }
 
 .noir-story__nav {

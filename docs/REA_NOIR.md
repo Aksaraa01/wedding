@@ -100,7 +100,7 @@ form is replaced by the shared `InvitationOverlay` dock (playbook §6).
 | 5 | Mempelai | names, full names, portraits, parents, Instagram | `person_photos !== false` | one portrait ⇒ one card with monogram-free fallback photo; missing IG ⇒ link absent | `tc.mempelai_title`, `tc.mempelai_intro`, `t("sonOf"/"daughterOf")` | `fade-up` 1 s, 120 ms step |
 | 6 | Event | `sessions[]` | always (publish blocked without it) | 1 event ⇒ one card; N ⇒ stacked cards; no `maps_url` ⇒ button absent | `tc.agenda_title`, `tc.events_intro`, `tc.maps_label` | `fade-up` 900 ms, 90 ms step |
 | 7 | Countdown | `estimated_wedding_date` (falls back to first session date) | always when a date exists | past date ⇒ zeros; 3-digit days fit | `tc.countdown_*`, `tc.calendar_button` | 1 s tick, no entrance animation |
-| 8 | Love story | `stories[]` | `feature_gates.story !== false` **and** `story_visible !== false` | 0 ⇒ section absent; 1 ⇒ slide without nav; photo per `story_photo` | `tc.love_story_title`, `t("storyPart")` | cross-fade 900 ms + bars |
+| 8 | Love story | `stories[]` | `feature_gates.story !== false` **and** `story_visible !== false` | 0 ⇒ section absent; 1 ⇒ slide without nav; a milestone without `image_url` becomes a typographic slide with its ordinal; photo per `story_photo` | `tc.love_story_title`, `t("storyPart")` | cross-fade 900 ms + bars |
 | 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ absent; 1 ⇒ single row | `tc.rundown_title` | none (list must stay scannable) |
 | 10 | Gallery | `gallery_photos[]` | `no_photo === false` + data | 1 photo ⇒ track without arrows; N ⇒ snap track + lightbox (keyboard + arrows) | `tc.gallery_title`, `tc.gallery_intro` | hover scale 0.9 s |
 | 11 | Video | `video_url` | `feature_gates.video !== false` **and** `video_section_visible !== false` | YouTube ⇒ poster + click-to-mount; file ⇒ `<video>`; no poster ⇒ black frame | `tc.video_title`, `tc.video_caption` | poster fades on hover; player mounts on click |
@@ -126,6 +126,7 @@ plus the demo page at 1440 × 900:
 | `feature_gates` all false | story, inviting, video and gift address disappear; accounts stay (they are not gated) |
 | every section toggle false | story, rundown, gift, video, dresscode, inviting disappear |
 | one session / one photo / one story / one rundown row / one family | single-item branches render, no stretched cards |
+| every story without `image_url` | designed typographic slide per milestone, never an empty black frame |
 | gift accounts only / address only / none | tabs vanish when they cannot switch; section hides when empty |
 | `prefers-reduced-motion` | all copy visible, no transforms |
 | JS disabled | `<noscript>` rule forces every reveal target visible |
