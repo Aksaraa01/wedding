@@ -904,5 +904,47 @@
     "weight": "600",
     "style": "normal",
     "bytes": 35708
+  },
+  "cormorantunicase-300.woff2": {
+    "family": "Cormorant Unicase",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 20244
+  },
+  "cormorantunicase-400.woff2": {
+    "family": "Cormorant Unicase",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 21072
+  },
+  "cormorantunicase-500.woff2": {
+    "family": "Cormorant Unicase",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 21216
+  },
+  "cormorantunicase-600.woff2": {
+    "family": "Cormorant Unicase",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 21200
+  },
+  "cormorantunicase-700.woff2": {
+    "family": "Cormorant Unicase",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 20708
+  },
+  "newsreader-400-italic.woff2": {
+    "family": "Newsreader",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 64500
+  },
+  "newsreader-400.woff2": {
+    "family": "Newsreader",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 58152
   }
 }

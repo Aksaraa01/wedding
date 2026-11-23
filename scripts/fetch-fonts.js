@@ -66,6 +66,11 @@ const FAMILIES = [
   { name: "Mr Dafoe", weights: ["400"], styles: ["normal"] },
   // Emerald Heirloom: the reference's body serif (OFL, no substitution needed).
   { name: "Abhaya Libre", weights: ["400", "700"], styles: ["normal"] },
+  // Noir: the reference's unicase display face and its text serif (both OFL).
+  { name: "Cormorant Unicase", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
+  // Newsreader is served as one variable file per style, so 400 covers the
+  // whole 200–800 range; extra weights would just duplicate the same bytes.
+  { name: "Newsreader", weights: ["400"], styles: ["normal", "italic"] },
 ];
 
 function cssUrl(f) {
