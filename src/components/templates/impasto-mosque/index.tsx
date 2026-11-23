@@ -161,7 +161,7 @@ export default function ImpastoMosque(props: TemplateProps) {
           <button
             type="button"
             onClick={toggleMusic}
-            aria-label="Putar atau jeda musik"
+            aria-label={lang === "en" ? "Play or pause music" : "Putar atau jeda musik"}
             title="Putar atau jeda musik"
             className="fixed right-4 z-[95] w-11 h-11 rounded-full bg-white text-[#111827] shadow-lg border border-black/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
             style={{

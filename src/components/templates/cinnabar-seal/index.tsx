@@ -1070,7 +1070,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
           type="button"
           className={`cn-music${playing ? " is-on" : " is-off"}`}
           onClick={toggleMusic}
-          aria-label={playing ? "Jeda musik" : "Putar musik"}
+          aria-label={playing ? (lang === "en" ? "Pause music" : "Jeda musik") : (lang === "en" ? "Play music" : "Putar musik")}
           aria-pressed={playing}
         >
           <span className="cn-music__bar" aria-hidden="true" />

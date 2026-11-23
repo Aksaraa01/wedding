@@ -343,7 +343,7 @@ export default function BoardingPass(profile: TemplateProps) {
   const passengers = [
     {
       key: "groom",
-      role: "Mempelai",
+      role: lang === "en" ? "The Couple" : "Mempelai",
       shot: groomShot,
       name: (profile.groom_full_name || groomName).trim(),
       parents: (profile.groom_parents || "").trim(),
@@ -351,7 +351,7 @@ export default function BoardingPass(profile: TemplateProps) {
     },
     {
       key: "bride",
-      role: "Mempelai",
+      role: lang === "en" ? "The Couple" : "Mempelai",
       shot: brideShot,
       name: (profile.bride_full_name || brideName).trim(),
       parents: (profile.bride_parents || "").trim(),

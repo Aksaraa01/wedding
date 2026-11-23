@@ -633,7 +633,7 @@ export default function UbinOttoman(profile: TemplateProps) {
                     type="button"
                     onClick={() => setWishPage((p) => Math.max(0, p - 1))}
                     disabled={wishPage === 0}
-                    aria-label="Ucapan sebelumnya"
+                    aria-label={lang === "en" ? "Previous wish" : "Ucapan sebelumnya"}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_left</span>
                   </button>
@@ -642,7 +642,7 @@ export default function UbinOttoman(profile: TemplateProps) {
                     type="button"
                     onClick={() => setWishPage((p) => Math.min(wishPages - 1, p + 1))}
                     disabled={wishPage >= wishPages - 1}
-                    aria-label="Ucapan berikutnya"
+                    aria-label={lang === "en" ? "Next wish" : "Ucapan berikutnya"}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_right</span>
                   </button>

@@ -485,7 +485,7 @@ export default function NiharaMist(profile: TemplateProps) {
           className={`tpl-preload-root${preloadLeaving ? " is-leaving" : ""}`}
           role="status"
           aria-live="polite"
-          aria-label="Memuat undangan"
+          aria-label={lang === "en" ? "Loading invitation" : "Memuat undangan"}
           style={{ "--tpl-preload-font-display": "var(--nihara-font-heading)", "--tpl-preload-accent": "var(--warm)" } as React.CSSProperties}
         >
           <div className="tpl-preload-vignette" aria-hidden="true" />
@@ -698,7 +698,7 @@ export default function NiharaMist(profile: TemplateProps) {
                   ref={finaleIframeRef}
                   id="niharaFinaleVideo"
                   src={"https://www.youtube-nocookie.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId + "&controls=0&modestbranding=1&showinfo=0&cc_load_policy=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1"}
-                  title="Video pernikahan"
+                  title={lang === "en" ? "Wedding video" : "Video pernikahan"}
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                   style={{ position: "absolute", top: "50%", left: "50%", width: "177.78vh", height: "100vh", minWidth: "100%", minHeight: "100%", transform: "translate(-50%, -50%) scale(1.18)", border: 0, pointerEvents: "none", filter: "contrast(1.03) brightness(.86) saturate(.88)" }}
                   referrerPolicy="strict-origin-when-cross-origin"
@@ -760,14 +760,14 @@ export default function NiharaMist(profile: TemplateProps) {
                     <div className="nihara-video">
                       <AutoplayYouTube
                         videoId={videoId}
-                        title="Video pernikahan"
+                        title={lang === "en" ? "Wedding video" : "Video pernikahan"}
                         signal={opened ? 1 : 0}
                       />
                       <button
                         type="button"
                         className="nihara-video__hit"
                         onClick={() => setVideoModal(true)}
-                        aria-label="Buka video pasangan"
+                        aria-label={lang === "en" ? "Open the couple's video" : "Buka video pasangan"}
                       />
                     </div>
                   )}
