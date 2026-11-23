@@ -1,7 +1,9 @@
 # Galeri Tamu — guest photo normalization must be fixed in prod
 
-**Status: FIXED — deployed to prod in `ae2fb95` (build
-`IzmHTm4U0_JRij460Bmei`, tag `release/prod/2026-11-23.ae2fb95`).**
+**Status: FIXED — normalization shipped in `ae2fb95` (build
+`IzmHTm4U0_JRij460Bmei`, tag `release/prod/2026-11-23.ae2fb95`); sharp
+hardening shipped in `79cb20d8` (build `NXCRhqBYEULiqWhFFA_G2`, tag
+`release/prod/2026-11-23.79cb20d`).**
 
 ## Symptom
 
