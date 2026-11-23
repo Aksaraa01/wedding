@@ -84,8 +84,14 @@ function youtubeId(url?: string | null): string {
 function SectionHead({ title, intro }: { title: string; intro?: string }) {
   return (
     <header className="noir-head">
-      <h2 className="noir-h2">{title}</h2>
-      {intro ? <p className="noir-lead">{intro}</p> : null}
+      <h2 className="noir-h2" data-aos="zoom-in" data-aos-duration="1000">
+        {title}
+      </h2>
+      {intro ? (
+        <p className="noir-lead" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
+          {intro}
+        </p>
+      ) : null}
     </header>
   )
 }
@@ -322,10 +328,9 @@ export default function Noir(profile: TemplateProps) {
       for (const el of els) el.classList.add("aos-animate")
       return
     }
-    for (const el of els) {
-      if (el.closest(".noir-gate") || el.closest(".noir-pane")) el.classList.add("aos-animate")
-    }
-    const observe = els.filter((el) => !el.classList.contains("aos-animate"))
+    // The cover holds its entrance until the gate is dismissed, so the first
+    // thing a guest sees after tapping is the reference's staggered reveal.
+    const observe = els.filter((el) => !el.classList.contains("aos-animate") && !el.closest(".noir-cover"))
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -339,6 +344,21 @@ export default function Noir(profile: TemplateProps) {
     for (const el of observe) io.observe(el)
     return () => io.disconnect()
   }, [])
+
+  // Cover entrance: fires when the gate opens (and replays if it is re-locked).
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const els = Array.from(root.querySelectorAll<HTMLElement>(".noir-cover [data-aos]"))
+    if (!opened) {
+      for (const el of els) el.classList.remove("aos-animate")
+      return
+    }
+    const id = window.setTimeout(() => {
+      for (const el of els) el.classList.add("aos-animate")
+    }, 240)
+    return () => window.clearTimeout(id)
+  }, [opened])
 
   // ── keyboard: lightbox + story ──────────────────────────────────────────
   useEffect(() => {
@@ -383,14 +403,29 @@ export default function Noir(profile: TemplateProps) {
         <img className="noir-gate__img" src={cover} alt="" />
         <div className="noir-gate__veil" />
         <div className="noir-gate__body">
-          <p className="noir-kicker">{kicker}</p>
-          <h1 className="noir-gate__names">{coupleShort}</h1>
-          {coverDate ? <p className="noir-gate__date">{coverDate}</p> : null}
-          <p className="noir-gate__guest">
+          <p className="noir-kicker" data-aos="fade-down" data-aos-duration="1000">
+            {kicker}
+          </p>
+          <h1 className="noir-gate__names" data-aos="zoom-in" data-aos-duration="1600" data-aos-delay="200">
+            {coupleShort}
+          </h1>
+          {coverDate ? (
+            <p className="noir-gate__date" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="500">
+              {coverDate}
+            </p>
+          ) : null}
+          <p className="noir-gate__guest" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="700">
             <span>{guestPrefix}</span>
             <strong>{guestLabel}</strong>
           </p>
-          <button type="button" className="noir-btn noir-btn--solid" onClick={openInvitation}>
+          <button
+            type="button"
+            className="noir-btn noir-btn--solid"
+            onClick={openInvitation}
+            data-aos="fade-up"
+            data-aos-duration="1000"
+            data-aos-delay="900"
+          >
             {openLabel}
           </button>
         </div>
@@ -415,19 +450,19 @@ export default function Noir(profile: TemplateProps) {
               {cover ? <img className="noir-cover__img" src={cover} alt="" fetchPriority="high" /> : null}
               <div className="noir-cover__veil" />
               <div className="noir-cover__body">
-                <p className="noir-kicker" data-aos="fade-down" data-aos-duration="900">
+                <p className="noir-kicker" data-aos="fade-down" data-aos-duration="1000">
                   {kicker}
                 </p>
-                <h1 className="noir-cover__names" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="120">
+                <h1 className="noir-cover__names" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
                   {coupleShort}
                 </h1>
                 <span className="noir-rule" aria-hidden />
                 {coverDate ? (
-                  <p className="noir-cover__date" data-aos="fade-up" data-aos-duration="1100" data-aos-delay="260">
+                  <p className="noir-cover__date" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
                     {coverDate}
                   </p>
                 ) : null}
-                <p className="noir-cover__guest" data-aos="fade-up" data-aos-duration="1100" data-aos-delay="380">
+                <p className="noir-cover__guest" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="450">
                   <span>{guestPrefix}</span>
                   <strong>{guestLabel}</strong>
                 </p>
@@ -440,13 +475,33 @@ export default function Noir(profile: TemplateProps) {
 
           {/* 3 — Welcome */}
           <section className="noir-sec noir-welcome">
-            <div className="noir-welcome__frame" data-aos="zoom-in" data-aos-duration="1000">
-              <p className="noir-kicker">{t("theWeddingOf", lang)}</p>
-              <p className="noir-welcome__names">{resolveCoupleName(profile) || coupleShort}</p>
-              {coverDate ? <span className="noir-rule noir-rule--short" aria-hidden /> : null}
-              {coverDate ? <p className="noir-welcome__date">{coverDate}</p> : null}
-              {welcomeNote ? <p className="noir-welcome__note">{welcomeNote}</p> : null}
-              <p className="noir-welcome__guest">
+            <div className="noir-welcome__frame">
+              <p className="noir-kicker" data-aos="fade-down" data-aos-duration="1000">
+                {t("theWeddingOf", lang)}
+              </p>
+              <p className="noir-welcome__names" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="120">
+                {resolveCoupleName(profile) || coupleShort}
+              </p>
+              {coverDate ? (
+                <span
+                  className="noir-rule noir-rule--short"
+                  aria-hidden
+                  data-aos="fade-up"
+                  data-aos-duration="1000"
+                  data-aos-delay="220"
+                />
+              ) : null}
+              {coverDate ? (
+                <p className="noir-welcome__date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="280">
+                  {coverDate}
+                </p>
+              ) : null}
+              {welcomeNote ? (
+                <p className="noir-welcome__note" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="360">
+                  {welcomeNote}
+                </p>
+              ) : null}
+              <p className="noir-welcome__guest" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="460">
                 <span>{guestPrefix}</span>
                 <strong>{guestLabel}</strong>
               </p>
@@ -456,10 +511,18 @@ export default function Noir(profile: TemplateProps) {
           {/* 4 — Kalimat pembuka (+ the reference's quote card) */}
           {openingTitle || openingDescription || quoteText ? (
             <section className="noir-sec noir-opening">
-              {openingTitle ? <p className="noir-kicker noir-kicker--wide">{openingTitle}</p> : null}
-              {openingDescription ? <p className="noir-opening__text">{openingDescription}</p> : null}
+              {openingTitle ? (
+                <p className="noir-kicker noir-kicker--wide" data-aos="fade-up" data-aos-duration="1000">
+                  {openingTitle}
+                </p>
+              ) : null}
+              {openingDescription ? (
+                <p className="noir-opening__text" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
+                  {openingDescription}
+                </p>
+              ) : null}
               {quoteText ? (
-                <figure className="noir-quote" data-aos="fade-up" data-aos-duration="1000">
+                <figure className="noir-quote" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200">
                   <span className="noir-rule noir-rule--short" aria-hidden />
                   <blockquote className="noir-quote__text">{quoteText}</blockquote>
                   {quoteSource ? <figcaption className="noir-quote__source">{quoteSource}</figcaption> : null}
@@ -473,11 +536,11 @@ export default function Noir(profile: TemplateProps) {
             <SectionHead title={mempelaiTitle} intro={mempelaiIntro} />
             <div className="noir-couple__list">
               {groomShort || groomName ? (
-                <article className="noir-person" data-aos="fade-up" data-aos-duration="1000">
+                <article className="noir-person">
                   <div className="noir-person__photo">
-                    <img src={groomPhoto} alt="" loading="lazy" />
+                    <img src={groomPhoto} alt="" loading="lazy" data-aos="zoom-out" data-aos-duration="1200" />
                   </div>
-                  <div className="noir-person__card">
+                  <div className="noir-person__card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
                     <h3 className="noir-person__name">{groomName || groomShort}</h3>
                     {profile.groom_parents ? (
                       <p className="noir-person__parents">
@@ -498,11 +561,11 @@ export default function Noir(profile: TemplateProps) {
                 </article>
               ) : null}
               {brideShort || brideName ? (
-                <article className="noir-person" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="120">
+                <article className="noir-person">
                   <div className="noir-person__photo">
-                    <img src={bridePhoto} alt="" loading="lazy" />
+                    <img src={bridePhoto} alt="" loading="lazy" data-aos="zoom-out" data-aos-duration="1200" data-aos-delay="150" />
                   </div>
-                  <div className="noir-person__card">
+                  <div className="noir-person__card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
                     <h3 className="noir-person__name">{brideName || brideShort}</h3>
                     {profile.bride_parents ? (
                       <p className="noir-person__parents">
@@ -537,8 +600,8 @@ export default function Noir(profile: TemplateProps) {
                       className="noir-event"
                       key={`${session.name || "event"}-${index}`}
                       data-aos="fade-up"
-                      data-aos-duration="900"
-                      data-aos-delay={String(index * 90)}
+                      data-aos-duration="1000"
+                      data-aos-delay={String(index * 120)}
                     >
                       <div className="noir-event__head">
                         {card ? (
@@ -578,7 +641,7 @@ export default function Noir(profile: TemplateProps) {
           {countdown ? (
             <section className="noir-sec noir-countdown">
               <p className="noir-kicker noir-kicker--wide">{countdownTitle}</p>
-              <div className="noir-countdown__grid" aria-live="off">
+              <div className="noir-countdown__grid" aria-live="off" data-aos="zoom-in" data-aos-duration="1200">
                 {countdownLabels.map((unit) => (
                   <div className="noir-countdown__cell" key={unit.key}>
                     <span className="noir-countdown__num">{pad2(countdown[unit.key as keyof typeof countdown])}</span>
@@ -586,9 +649,21 @@ export default function Noir(profile: TemplateProps) {
                   </div>
                 ))}
               </div>
-              {coverDate ? <p className="noir-countdown__date">{coverDate}</p> : null}
+              {coverDate ? (
+                <p className="noir-countdown__date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                  {coverDate}
+                </p>
+              ) : null}
               {calendar ? (
-                <a className="noir-btn noir-btn--ghost" href={calendar} target="_blank" rel="noreferrer noopener">
+                <a
+                  className="noir-btn noir-btn--ghost"
+                  href={calendar}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  data-aos="fade-up"
+                  data-aos-duration="1000"
+                  data-aos-delay="300"
+                >
                   {calendarLabel}
                 </a>
               ) : null}
@@ -599,7 +674,7 @@ export default function Noir(profile: TemplateProps) {
           {stories.length > 0 ? (
             <section className="noir-sec noir-story">
               <SectionHead title={storyTitle} />
-              <div className="noir-story__stage">
+              <div className="noir-story__stage" data-aos="fade-up" data-aos-duration="1200">
                 {stories.map((story, index) => (
                   <article
                     className={`noir-story__slide${index === storyIndex ? " is-active" : ""}${story.image_url ? "" : " is-text"}`}
@@ -625,7 +700,7 @@ export default function Noir(profile: TemplateProps) {
                 ))}
               </div>
               {stories.length > 1 ? (
-                <div className="noir-story__nav">
+                <div className="noir-story__nav" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
                   <button
                     type="button"
                     className="noir-story__arrow"
@@ -668,7 +743,13 @@ export default function Noir(profile: TemplateProps) {
               <SectionHead title={rundownTitle} />
               <ol className="noir-rundown__list">
                 {rundown.map((row, index) => (
-                  <li className="noir-rundown__row" key={`${row.time || "row"}-${index}`}>
+                  <li
+                    className="noir-rundown__row"
+                    key={`${row.time || "row"}-${index}`}
+                    data-aos="fade-up"
+                    data-aos-duration="900"
+                    data-aos-delay={String(Math.min(index, 5) * 90)}
+                  >
                     <span className="noir-rundown__time">{row.time}</span>
                     <span className="noir-rundown__text">{row.description}</span>
                   </li>
@@ -689,6 +770,9 @@ export default function Noir(profile: TemplateProps) {
                     key={`${src}-${index}`}
                     onClick={() => setLightbox(index)}
                     aria-label={t("photoGallery", lang)}
+                    data-aos="fade-in"
+                    data-aos-duration="1000"
+                    data-aos-delay={String(Math.min(index, 4) * 100)}
                   >
                     <img src={src} alt="" loading="lazy" />
                   </button>
@@ -715,7 +799,7 @@ export default function Noir(profile: TemplateProps) {
           {hasVideo && video ? (
             <section className="noir-sec noir-video">
               <SectionHead title={videoTitle} intro={videoCaption} />
-              <div className="noir-video__frame">
+              <div className="noir-video__frame" data-aos="zoom-in" data-aos-duration="1200">
                 {videoOn ? (
                   video.kind === "file" ? (
                     <video className="noir-video__player" src={video.src} controls autoPlay muted loop playsInline />
@@ -764,7 +848,13 @@ export default function Noir(profile: TemplateProps) {
               {accounts.length > 0 && (giftTab === "account" || !giftAddress) ? (
                 <div className="noir-gift__panel">
                   {accounts.map((account, index) => (
-                    <article className="noir-gift__card" key={`${account.account_number || "acc"}-${index}`}>
+                    <article
+                      className="noir-gift__card"
+                      key={`${account.account_number || "acc"}-${index}`}
+                      data-aos="fade-up"
+                      data-aos-duration="1000"
+                      data-aos-delay={String(index * 100)}
+                    >
                       {account.provider_name ? <p className="noir-gift__provider">{account.provider_name}</p> : null}
                       {account.account_number ? <p className="noir-gift__number">{account.account_number}</p> : null}
                       {account.account_name ? <p className="noir-gift__owner">{account.account_name}</p> : null}
@@ -808,7 +898,13 @@ export default function Noir(profile: TemplateProps) {
               {dresscodeColors.length > 0 ? (
                 <ul className="noir-dress__colors">
                   {dresscodeColors.map((color, index) => (
-                    <li className="noir-dress__swatch" key={`${color.hex || color.name}-${index}`}>
+                    <li
+                      className="noir-dress__swatch"
+                      key={`${color.hex || color.name}-${index}`}
+                      data-aos="zoom-in"
+                      data-aos-duration="900"
+                      data-aos-delay={String(index * 80)}
+                    >
                       <span className="noir-dress__dot" style={{ backgroundColor: color.hex || "transparent" }} aria-hidden />
                       {color.name ? <span className="noir-dress__name">{color.name}</span> : null}
                     </li>
@@ -859,12 +955,30 @@ export default function Noir(profile: TemplateProps) {
           <section className="noir-sec noir-closing">
             {coverSlides[1] ? <img className="noir-closing__img" src={coverSlides[1]} alt="" loading="lazy" /> : null}
             <div className="noir-closing__body">
-              <p className="noir-kicker noir-kicker--wide">{closingTitle}</p>
-              <p className="noir-closing__names">{coupleShort}</p>
-              {coverDate ? <p className="noir-closing__date">{coverDate}</p> : null}
-              <span className="noir-rule noir-rule--short" aria-hidden />
-              <p className="noir-closing__message">{closingMessage}</p>
-              <p className="noir-closing__brand">{closingBrand}</p>
+              <p className="noir-kicker noir-kicker--wide" data-aos="fade-up" data-aos-duration="1000">
+                {closingTitle}
+              </p>
+              <p className="noir-closing__names" data-aos="zoom-in" data-aos-duration="1200" data-aos-delay="100">
+                {coupleShort}
+              </p>
+              {coverDate ? (
+                <p className="noir-closing__date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="250">
+                  {coverDate}
+                </p>
+              ) : null}
+              <span
+                className="noir-rule noir-rule--short"
+                aria-hidden
+                data-aos="fade-up"
+                data-aos-duration="1000"
+                data-aos-delay="350"
+              />
+              <p className="noir-closing__message" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="400">
+                {closingMessage}
+              </p>
+              <p className="noir-closing__brand" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="550">
+                {closingBrand}
+              </p>
             </div>
           </section>
         </main>

@@ -280,7 +280,7 @@
 .noir-sec {
   position: relative;
   padding: 72px 24px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .noir-sec + .noir-sec {
@@ -369,9 +369,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 100vh;
-    padding: 0 40px;
+    padding: 16vh 40px 0;
   }
 
   .noir-sec {
@@ -392,7 +392,7 @@
 .noir-cover__frame {
   position: relative;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: center;
   min-height: 100vh;
   min-height: 100svh;
@@ -413,14 +413,14 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.12) 36%, rgba(0, 0, 0, 0.9) 100%);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.42) 38%, rgba(0, 0, 0, 0.16) 70%, rgba(0, 0, 0, 0.55) 100%);
 }
 
 .noir-cover__body {
   position: relative;
   z-index: 2;
   width: 100%;
-  padding: 0 26px 10vh;
+  padding: 12vh 26px 0;
   text-align: center;
 }
 
@@ -465,9 +465,6 @@
     font-size: clamp(2rem, 3.4vw, 3rem);
   }
 
-  .noir-cover__body {
-    padding: 0 40px 9vh;
-  }
 }
 
 /* ── welcome ─────────────────────────────────────────────────────────────── */
@@ -1558,23 +1555,42 @@
 
 /* ── reveal (same mechanism as the reference's AOS) ──────────────────────── */
 
+/* Same numbers as the reference's AOS build (aos.css): 100px travel for
+   fade, 0.6 scale for zoom-in, `ease`, duration from data-aos-duration. */
 .noir-root [data-aos] {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-property: opacity, transform;
+  transition-duration: 1000ms;
+  transition-timing-function: ease;
   will-change: opacity, transform;
 }
 
-.noir-root [data-aos="fade-down"] {
-  transform: translateY(-14px);
+.noir-root [data-aos="fade-up"] {
+  transform: translate3d(0, 100px, 0);
 }
 
-.noir-root [data-aos="fade-up"] {
-  transform: translateY(18px);
+.noir-root [data-aos="fade-down"] {
+  transform: translate3d(0, -100px, 0);
+}
+
+.noir-root [data-aos="fade-right"] {
+  transform: translate3d(-100px, 0, 0);
+}
+
+.noir-root [data-aos="fade-left"] {
+  transform: translate3d(100px, 0, 0);
 }
 
 .noir-root [data-aos="zoom-in"] {
-  transform: scale(0.955);
+  transform: scale(0.6);
+}
+
+.noir-root [data-aos="zoom-out"] {
+  transform: scale(1.2);
+}
+
+.noir-root [data-aos="zoom-out-up"] {
+  transform: translate3d(0, 100px, 0) scale(1.2);
 }
 
 .noir-root [data-aos="fade-in"] {
@@ -1583,7 +1599,7 @@
 
 .noir-root [data-aos].aos-animate {
   opacity: 1;
-  transform: none;
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1651,5 +1667,10 @@
 
   .noir-closing {
     padding: 96px 44px;
+  }
+
+  /* Later than the base rule, so the cover's top offset actually applies. */
+  .noir-cover__body {
+    padding: 14vh 40px 0;
   }
 }
