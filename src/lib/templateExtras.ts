@@ -1910,20 +1910,57 @@ const EXTRA_SECTION_LABEL_ID: Record<string, string> = {
 }
 
 const EXTRA_LABEL_EN: Record<string, string> = {
-  basmalah: "Basmalah (Arabic text)",
-  board_footer: "Boarding Board Note",
-  copied_label: "Text After Copying",
+  agenda_kicker: "Order of Events Kicker",
+  calendar_button: "Calendar Button Text",
+  closing_family: "Closing Family Name",
+  closing_kicker: "Closing Kicker",
+  closing_see: "Closing Farewell Text",
+  closing_thanks: "Closing Thank You",
+  copy_account_button: "Copy Account Button",
+  copy_address_button: "Copy Address Button",
+  copy_label: "Copy Button Text",
   countdown_days: "Countdown Days Label",
   countdown_hours: "Countdown Hours Label",
   countdown_minutes: "Countdown Minutes Label",
   countdown_seconds: "Countdown Seconds Label",
+  cover_apology: "Cover Apology Note",
+  cover_guest_label: "Cover Guest Label",
+  doa_arabic: "Prayer (Arabic text)",
+  events_kicker: "Event Kicker",
+  events_note: "Event Note",
+  gallery_kicker: "Gallery Kicker",
+  gate_hint: "Open Invitation Hint",
+  gift_account_label: "Account Number Label",
+  gift_button: "Gift Button Text",
+  gift_name_label: "Account Holder Label",
+  gift_send_label: "Send Gift Tab Label",
+  hero_badge: "Badge Label",
+  inviting_kicker: "Inviting Kicker",
+  livestream_cta: "Live Stream Button Text",
+  maps_label: "Map Button Text",
+  mempelai_kicker: "Couple Kicker",
+  parents_label: "Parents Label",
+  parents_label_female: "Bride's Parents Label",
+  parents_label_male: "Groom's Parents Label",
+  person_one_label: "First Person Label",
+  person_two_label: "Second Person Label",
+  story_kicker: "Love Story Kicker",
+  welcome_invite: "Cover Invitation Text",
+  welcome_message: "Welcome Message",
+  wishes_empty: "Empty Wishes Text",
+  wishes_kicker: "Wishes Kicker",
+  wishes_message_label: "Wishes Message Field Label",
+  wishes_more: "Load More Wishes Text",
+  wishes_name_label: "Name Field Label",
+  wishes_submit: "Send Button Text",
+  basmalah: "Basmalah (Arabic text)",
+  board_footer: "Boarding Board Note",
+  copied_label: "Text After Copying",
   dresscode_kicker: "Dress Code Kicker",
   dresscode_note: "Dress Code Note",
   dresscode_title: "Dress Code Title",
   gift_kicker: "Gift Kicker",
-  hero_badge: "Badge Label",
   hero_meta: "Poster Meta Line",
-  parents_label: "Parents Label",
   reveal_scratch_hint: "Scratch Hint (Hand Icon)",
   rundown_kicker: "Rundown Kicker",
   save_date_kicker: "Save the Date Kicker",
@@ -1932,7 +1969,6 @@ const EXTRA_LABEL_EN: Record<string, string> = {
   seat_class: "Seat Class",
   video_kicker: "Video Kicker",
   wishes_loading: "Loading Text",
-  wishes_name_label: "Name Field Label",
   wishes_name_placeholder: "Name Placeholder",
   inviting_intro: "Inviting Introduction",
   inviting_title: "Inviting Title",
@@ -1950,6 +1986,25 @@ const EXTRA_LABEL_EN: Record<string, string> = {
 }
 
 const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
+  "The Wedding Day": "Hari Pernikahan",
+  "The Celebration": "Rangkaian Acara",
+  "The Wedding Gift": "Hadiah Pernikahan",
+  "Gallery of Us": "Galeri Kami",
+  "The Film": "Video",
+  "With Blessings": "Dengan Restu",
+  "With Honour": "Dengan Hormat",
+  "Counting the Days": "Menghitung Hari",
+  "Counting Down To Forever": "Menuju Selamanya",
+  "Order of the Day": "Susunan Acara",
+  "Join Us Online": "Saksikan Daring",
+  "We Are Getting Married": "Kami Akan Menikah",
+  "Welcome to our wedding": "Selamat datang di pernikahan kami",
+  "You are invited to the wedding of": "Anda diundang ke pernikahan",
+  "Press play to hear it again": "Tekan putar untuk mendengarnya lagi",
+  "Tap to continue": "Ketuk untuk melanjutkan",
+  "Scratch all three circles to continue": "Gosok ketiga lingkaran untuk melanjutkan",
+  "Save to calendar": "Simpan ke Kalender",
+  "Tap to open": "Ketuk untuk membuka",
   "Countdown": "Hitung Mundur",
   "Save the Date": "Simpan Tanggal",
   "Days": "Hari",
@@ -1999,6 +2054,9 @@ const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
 // Reverse of EXTRA_PLACEHOLDER_ID: Indonesian label -> English source. Used to
 // keep an English placeholder in `en` mode and to detect Indonesian prose that
 // has no English counterpart (those are dropped rather than shown mixed).
+const EN_PLACEHOLDER_RE = /\b(the|your|our|and|with|for|you|we|will|welcome|dear|guest|love|story|wedding|gift|wishes|please|join|us|of|in|on|is|are|before|after|every|day|days|first|look|lights|come|up|there)\b/i
+const ID_PLACEHOLDER_RE = /\b(dan|yang|dengan|untuk|kami|anda|nama|tanggal|acara|hadiah|ucapan|undangan|mempelai|tamu|kirim|tulis|salin|lihat|buka|simpan|kasih|doa|cerita|galeri|foto|hari|keluarga|besar)\b/i
+
 const EXTRA_PLACEHOLDER_EN_FROM_ID = new Map(
   Object.entries(EXTRA_PLACEHOLDER_ID).map(([en, id]) => [id, en]),
 )
@@ -2089,6 +2147,11 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
   if (lang !== "en") {
     if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
       return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
+    }
+    // English-designed templates ship English sample copy. Showing it in
+    // Indonesian mode is the mixed-language bug; drop it rather than mix.
+    if (base.placeholder && EN_PLACEHOLDER_RE.test(base.placeholder) && !ID_PLACEHOLDER_RE.test(base.placeholder)) {
+      return { ...base, placeholder: undefined }
     }
     return base
   }
