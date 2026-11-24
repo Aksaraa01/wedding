@@ -9,6 +9,7 @@ import PastelCoastal from "./pastel-coastal-cut"
 import NiharaMist from "./nihara-mist"
 import DarkSplitRail from "./dark-split-rail"
 import Sandhya from "./sandhya"
+import SandhyaIvory from "./sandhya-ivory"
 import Evermore from "./evermore"
 import PianoGarden from "./piano-garden"
 import AltarGarden from "./altar-garden"
@@ -61,6 +62,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "nihara-mist": NiharaMist,
   "dark-split-rail": DarkSplitRail,
   sandhya: Sandhya,
+  "sandhya-ivory": SandhyaIvory,
   evermore: Evermore,
   "piano-garden": PianoGarden,
   "altar-garden": AltarGarden,
@@ -466,6 +468,43 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         accentMuted: "#c98f6b",
         overlay: "#000000",
         dark: "#100d0a",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.7, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 5,
+      cover_slot_labels: ["Sampul", "Ayat / Kutipan", "Acara", "Dress Code", "Finale"],
+      groom_photo: "single",
+      bride_photo: "single",
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "sandhya-ivory",
+    name: "Sandhya Ivory",
+    description: "Versi terang Sandhya dengan palet ivory dan sage, foto sinematik, tipografi anggun, galeri, hadiah, dan ucapan dalam satu alur gulir.",
+    theme: {
+      fonts: { display: "Cormorant", script: "Allura", body: "Inter" },
+      colors: {
+        surface: "#f7f3ea",
+        text: "#2f3a31",
+        accent: "#7c8d6d",
+        accentMuted: "#56684f",
+        overlay: "#f7f3ea",
+        dark: "#2f3a31",
       },
       ornaments: { divider: "floral", border: "minimal", frame: "square" },
       motion: { enabled: true, duration: 0.7, stagger: 0.2 },

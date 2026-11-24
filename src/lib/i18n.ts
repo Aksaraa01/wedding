@@ -160,6 +160,30 @@ export const I18N = {
   storyPart: { id: "Bagian {n}", en: "Part {n}" },
   colorN: { id: "Warna {n}", en: "Color {n}" },
 
+  // Sandhya Ivory
+  sandhyaCoverApology: { id: "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.", en: "We apologize for any error in the writing of names & titles." },
+  sandhyaGalleryQuote: { id: "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.", en: "Every love story is beautiful, but ours is my favorite." },
+  sandhyaGiftIntro: { id: "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.", en: "Your presence is the greatest gift. If you would like to send a token of love, the details are available below." },
+  sandhyaClosing: { id: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.", en: "It is an honor and a joy for us if you would be pleased to attend and give your blessing on our wedding day." },
+  sandhyaOpeningTitle: { id: "Salam Hangat", en: "Warmest Greetings" },
+  sandhyaOpeningDescription: { id: "Dengan penuh sukacita dan rasa syukur, kami mengundang Anda untuk berbagi di awal kisah selamanya kami.", en: "With great joy and gratitude, we invite you to share in the beginning of our forever." },
+  sandhyaDresscodePalette: { id: "Busana elegan bernuansa {colors}.", en: "Elegant Attire in {colors}." },
+  sandhyaAksaraaWhatsapp: { id: "Halo Aksaraa Wedding, saya tertarik membuat undangan digital", en: "Hello Aksaraa Wedding, I would like to create a digital invitation." },
+  sandhyaLoadingInvitation: { id: "Memuat undangan", en: "Loading invitation" },
+  sandhyaDear: { id: "Kepada Yth.,", en: "Dear," },
+  sandhyaLivestreamDescription: { id: "Bergabunglah secara virtual saat kami mengucapkan janji suci, bagi keluarga dan sahabat yang belum dapat hadir.", en: "Join us virtually as we exchange our vows, for beloved family and friends who cannot be with us in person." },
+  sandhyaWithJoy: { id: "Dengan Sukacita", en: "With Joy" },
+  sandhyaWeddingFilm: { id: "Film pernikahan kami", en: "Our wedding film" },
+  sandhyaPlayWeddingFilm: { id: "Putar film pernikahan kami", en: "Play our wedding film" },
+  sandhyaWishesIntro: { id: "Tinggalkan pesan cinta dan doa untuk {couple}.", en: "Leave a message of love and a prayer for {couple}." },
+  sandhyaContactAksaraa: { id: "Hubungi Aksaraa Wedding via WhatsApp", en: "Contact Aksaraa Wedding via WhatsApp" },
+  sandhyaCopyright: { id: "© {year} {couple}. Hak cipta dilindungi.", en: "© {year} {couple}. All rights reserved." },
+  sandhyaSwipeUp: { id: "Geser ke atas", en: "Swipe up" },
+  sandhyaWishNameLabel: { id: "Nama", en: "Name" },
+  sandhyaWishNamePlaceholder: { id: "Nama Anda", en: "Your name" },
+  aksaraaBrand: { id: "Aksaraa Wedding", en: "Aksaraa Wedding" },
+  weddingByAksaraa: { id: "Wedding by Aksaraa", en: "Wedding by Aksaraa" },
+
   // Wishes extras
 } as const satisfies Record<string, Record<Language, string>>
 

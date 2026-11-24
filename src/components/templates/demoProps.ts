@@ -749,6 +749,32 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
   },
 }
 
+DEMO_PROPS_BY_CODE["sandhya-ivory"] = {
+  ...DEMO_PROPS_BY_CODE.sandhya,
+  estimated_wedding_date: "2027-10-16",
+  display_name: "#AlbarnFaye2027",
+  guest_name: "Guest",
+  language: "en",
+  sessions: (DEMO_PROPS_BY_CODE.sandhya.sessions || []).map((session) => ({ ...session, date: "2027-10-16" })),
+  template_content: {
+    cover_apology: "We apologize for any error in the writing of names & titles.",
+    gallery_quote: "Every love story is beautiful, but ours is my favorite.",
+    gallery_title: "Gallery",
+    gallery_intro: "A glimpse of the moments we hold closest.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description: "Your presence is the greatest gift. If you would like to send a token of love, the details are available below.",
+    closing_message: "It is an honor and a joy for us if you would be pleased to attend and give your blessing on our wedding day.",
+    dresscode_title: "Dress Code",
+    countdown_title: "Counting Down",
+    save_date_label: "Save the Date",
+    opening_kicker: "With Joy",
+    love_story_title: "Our Love Story",
+    inviting_title: "With the Blessing of",
+    wishes_title: "Wishes & Prayers",
+    wishes_intro: "Leave a message of love and a prayer for Albarn & Faye.",
+  },
+}
+
 DEMO_PROPS_BY_CODE["adat-melayu"] = {
   ...DEMO_PROPS_BY_CODE["altar-garden"],
   slug: "demo",
