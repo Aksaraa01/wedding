@@ -1,4 +1,5 @@
 import { EXTRA_DEFAULTS } from "./templateExtraDefaults"
+import { I18N } from "./i18n"
 
 // Templates that render nothing when a field is empty still need a locator in
 // the extras accordion, so those few fields get an explicit example in both
@@ -2238,7 +2239,8 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
     order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
   }
   if (lang !== "en") {
-    const hint = generated?.id ?? example?.id ?? explicit ?? legacyPlaceholder
+    const gloss = KEY_TO_GLOSS[field.key]
+    const hint = generated?.id ?? example?.id ?? explicit ?? legacyPlaceholder ?? (gloss ? I18N[gloss].id : undefined)
     const mapped = hint && EXTRA_PLACEHOLDER_ID[hint] ? EXTRA_PLACEHOLDER_ID[hint] : hint
     // No Indonesian default for this key (template ships a COPY object the
     // generator cannot read): hide an English-only hint rather than show the
@@ -2254,6 +2256,7 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
     generated?.en ??
     example?.en ??
     field.placeholderEn ??
+    (KEY_TO_GLOSS[field.key] ? I18N[KEY_TO_GLOSS[field.key]].en : undefined) ??
     (legacyPlaceholder
       ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(legacyPlaceholder) ??
         (EXTRA_PLACEHOLDER_ID[legacyPlaceholder] ? legacyPlaceholder : undefined)
@@ -3242,6 +3245,31 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "couple_title", label: "Judul Mempelai", labelEn: "Couple Heading", section: "mempelai", order: 10, templates: [] },
   { key: "gallery_caption", label: "Keterangan Galeri", labelEn: "Gallery Caption", section: "galeri", order: 30, multiline: true, rows: 2, templates: [] },
 )
+
+// Section headings have a locked sentence in the glossary. When a template's
+// own default cannot be extracted (constants, COPY maps, helper returns), use
+// the glossary value so the field still shows the copy the page prints in that
+// language — generic for every template and every future one.
+const KEY_TO_GLOSS: Record<string, keyof typeof I18N> = {
+  gallery_title: "secGallery", gallery_kicker: "secGallery", gallery_caption: "secGallery",
+  love_story_title: "secStory", story_title: "secStory", story_kicker: "secStory",
+  wishes_title: "secWishes", wishes_kicker: "secWishes",
+  events_title: "secEvent", events_kicker: "secEvent", agenda_kicker: "secEvent",
+  dresscode_title: "secDresscode",
+  rundown_title: "secRundown",
+  video_title: "secVideo",
+  livestream_title: "secLivestream",
+  inviting_title: "secInviting", inviting_kicker: "secInviting",
+  opening_kicker: "secOpening",
+  mempelai_title: "secCouple", couple_title: "secCouple",
+  closing_title: "thankYou",
+  quote_title: "secQuote",
+  countdown_title: "secCountdown",
+  save_date_label: "saveTheDate",
+  cover_kicker: "weddingInvitation",
+  open_button: "openInvitation",
+  contacts_title: "secContact",
+}
 
 // Swan Garden keeps copy in COPY_EN/COPY_ID, which the generator cannot
 // attribute; pin the printed copy so the accordion is never blank.
