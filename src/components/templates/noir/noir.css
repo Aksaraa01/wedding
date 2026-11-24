@@ -81,52 +81,6 @@
   margin-top: 6px;
 }
 
-.noir-root .countdown-wrap {
-  background-color: var(--background-primary);
-}
-
-.noir-root .countdown-wrap .rundown-inner {
-  padding: 60px 24px;
-  text-align: center;
-}
-
-.noir-root .countdown-wrap .cover-countdown {
-  align-items: flex-start;
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  margin: 10px 0 0;
-}
-
-.noir-root .countdown-wrap .cover-countdown .count-item {
-  margin: 0;
-  padding: 0 2px;
-  width: 25%;
-}
-
-.noir-root .countdown-wrap .cover-countdown .count-num {
-  font-size: calc(var(--heading-size) + var(--fs-extra-1));
-  font-variant-numeric: tabular-nums;
-}
-
-.noir-root .countdown-wrap .cover-countdown .count-text {
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.noir-root .countdown-wrap .count-date {
-  color: var(--text-secondary);
-  font-size: 13px;
-  margin-top: 18px;
-}
-
-.noir-root .countdown-wrap .add-to-calendar-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
 .noir-root .dresscode-wrap .dresscode-colors {
   display: flex;
   flex-wrap: wrap;
@@ -659,13 +613,53 @@
   justify-content: center;
 }
 
-/* countdown labels: four columns on a handset need a tighter tracking */
-.noir-root .countdown-wrap .cover-countdown .count-text {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-}
-
 /* rundown connector: a dashed rule between the dots, as in the reference */
 .noir-root .rundown-line {
   background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.55) 0 3px, rgba(255, 255, 255, 0) 3px 7px);
+}
+
+/* ── AOS, the reference's separate plugin stylesheet (aos.css) ───────────── */
+.noir-root [data-aos] {
+  opacity: 0;
+  transition-property: opacity, transform;
+  transition-duration: 1000ms;
+  transition-timing-function: ease;
+  will-change: opacity, transform;
+}
+
+.noir-root [data-aos="fade-up"] {
+  transform: translate3d(0, 100px, 0);
+}
+
+.noir-root [data-aos="fade-down"] {
+  transform: translate3d(0, -100px, 0);
+}
+
+.noir-root [data-aos="fade-right"] {
+  transform: translate3d(-100px, 0, 0);
+}
+
+.noir-root [data-aos="fade-left"] {
+  transform: translate3d(100px, 0, 0);
+}
+
+.noir-root [data-aos="zoom-in"] {
+  transform: scale(0.6);
+}
+
+.noir-root [data-aos="zoom-out"] {
+  transform: scale(1.2);
+}
+
+.noir-root [data-aos="zoom-out-up"] {
+  transform: translate3d(0, 100px, 0) scale(1.2);
+}
+
+.noir-root [data-aos="fade-in"] {
+  transform: none;
+}
+
+.noir-root [data-aos].aos-animate {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
 }

@@ -81,6 +81,15 @@ function youtubeId(url?: string | null): string {
   return ""
 }
 
+// The cover prints the bride under the groom: "Groom &" then a line break.
+function splitCoupleName(name: string): [string, string] | null {
+  const i = name.lastIndexOf(" & ")
+  if (i < 0) return null
+  const left = name.slice(0, i).trim()
+  const right = name.slice(i + 3).trim()
+  return left && right ? [left, right] : null
+}
+
 export default function Noir(profile: TemplateProps) {
   const lang = normalizeLanguage(profile.language)
   const gates = profile.feature_gates || {}
@@ -321,7 +330,7 @@ export default function Noir(profile: TemplateProps) {
           io.unobserve(entry.target)
         }
       },
-      { rootMargin: "0px 100% 120px 100%", threshold: 0.01 }
+      { rootMargin: "0px 100% -15% 100%", threshold: 0.01 }
     )
     for (const el of observe) io.observe(el)
     return () => io.disconnect()
@@ -377,6 +386,16 @@ export default function Noir(profile: TemplateProps) {
 
   const rootStyle = { "--bg-cover": `url("${cover}")` } as CSSProperties
   const brideFirst = tc.couple_order === "bride-first"
+  const nameParts = splitCoupleName(coupleShort)
+  const coupleNameNode = nameParts ? (
+    <>
+      {nameParts[0]} &amp;
+      <br />
+      {nameParts[1]}
+    </>
+  ) : (
+    coupleShort
+  )
 
   const person = (kind: "groom" | "bride") => {
     const isGroom = kind === "groom"
@@ -437,7 +456,7 @@ export default function Noir(profile: TemplateProps) {
                 {kicker}
               </p>
               <h1 data-aos="zoom-in" data-aos-duration="1200" data-aos-delay="700">
-                {coupleShort}
+                {coupleNameNode}
               </h1>
               {hashtag ? (
                 <p className="bottom-text" data-aos="fade-up" data-aos-duration="1200">
@@ -477,7 +496,7 @@ export default function Noir(profile: TemplateProps) {
                   {kicker}
                 </p>
                 <h1 data-aos="zoom-in" data-aos-duration="1200" data-aos-delay="700">
-                  {coupleShort}
+                  {coupleNameNode}
                 </h1>
                 {hashtag ? (
                   <p className="bottom-text" data-aos="fade-up" data-aos-duration="1200">
@@ -513,7 +532,7 @@ export default function Noir(profile: TemplateProps) {
                   {kicker}
                 </p>
                 <h1 data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
-                  {coupleShort}
+                  {coupleNameNode}
                 </h1>
                 {coverDate ? (
                   <p className="date" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
@@ -529,6 +548,22 @@ export default function Noir(profile: TemplateProps) {
                 </div>
               </div>
               <div className="foot" data-aos="fade-up" data-aos-duration="2000">
+                {countdown ? (
+                  <div className="cover-countdown">
+                    {countdownLabels.map((unit, index) => (
+                      <div
+                        className="count-item"
+                        key={unit.key}
+                        data-aos="fade-up"
+                        data-aos-duration="1200"
+                        data-aos-delay={String(100 + index * 200)}
+                      >
+                        <h2 className="count-num">{pad2(countdown[unit.key as keyof typeof countdown])}</h2>
+                        <small className="count-text">{unit.label}</small>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
                 {calendar ? (
                   <div className="add-to-calendar-wrap" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="800">
                     <a className="add-to-calendar" href={calendar} target="_blank" rel="noreferrer noopener">
@@ -549,11 +584,11 @@ export default function Noir(profile: TemplateProps) {
                 <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">
                   {welcomeTitle}
                 </h1>
-                <p className="couple-description" data-aos="fade-up" data-aos-duration="1000">
+                <p className="couple-description" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
                   {welcomeNote}
                 </p>
                 {coverDate ? (
-                  <p className="date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
+                  <p className="date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="350">
                     {coverDate}
                   </p>
                 ) : null}
@@ -692,36 +727,7 @@ export default function Noir(profile: TemplateProps) {
             </section>
           ) : null}
 
-          {/* 7 — Countdown (the reference's cover countdown block) */}
-          {countdown ? (
-            <section className="rundown-container countdown-wrap">
-              <div className="rundown-inner">
-                <h3 className="rundown-title">{countdownTitle}</h3>
-                <div className="cover-countdown">
-                  {countdownLabels.map((unit, index) => (
-                    <div
-                      className="count-item"
-                      key={unit.key}
-                      data-aos="fade-up"
-                      data-aos-duration="1200"
-                      data-aos-delay={String(100 + index * 200)}
-                    >
-                      <h2 className="count-num">{pad2(countdown[unit.key as keyof typeof countdown])}</h2>
-                      <small className="count-text">{unit.label}</small>
-                    </div>
-                  ))}
-                </div>
-                {coverDate ? <p className="count-date">{coverDate}</p> : null}
-                {calendar ? (
-                  <div className="add-to-calendar-wrap">
-                    <a className="add-to-calendar" href={calendar} target="_blank" rel="noreferrer noopener">
-                      {calendarLabel}
-                    </a>
-                  </div>
-                ) : null}
-              </div>
-            </section>
-          ) : null}
+          {/* 7 — Countdown lives on the cover foot, exactly like the reference. */}
 
           {/* 8 — Love story */}
           {stories.length > 0 ? (
