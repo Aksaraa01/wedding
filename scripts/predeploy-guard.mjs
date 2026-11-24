@@ -22,14 +22,55 @@
  *   node scripts/predeploy-guard.mjs --allow-stale   # skip the git sync check
  *   node scripts/predeploy-guard.mjs --allow-dirty   # skip the clean-tree check
  *   node scripts/predeploy-guard.mjs --allow-downgrade  # ship an older commit anyway
+ *
+ * A live commit whose SHA is not an ancestor is still accepted when every file
+ * that commit changed is byte-identical in the bundle (a hotfix branch cut from
+ * the deployed commit — prod-cssfix on 2026-11-24): the guard prints a loud
+ * content-superseded warning instead of forcing an override. If any file
+ * differs, the deploy fails as before.
  *   node scripts/predeploy-guard.mjs --live-release <file>  # evaluate a fixture instead of ssh
  *   node scripts/predeploy-guard.mjs --sync-only     # git checks only (post-rsync)
  */
-import { execSync } from "node:child_process"
+import { execFileSync, execSync } from "node:child_process"
 import { createHash } from "node:crypto"
 import { readFileSync, existsSync } from "node:fs"
 import { CONTRACT } from "../env/contract.mjs"
-import { evaluateDowngrade } from "./lib/release-guards.mjs"
+import { evaluateDowngrade, evaluateSupersession } from "./lib/release-guards.mjs"
+
+// Files the live commit changed, and which of them are byte-identical in the
+// target. Used when a hotfix branch was cut from the deployed commit instead of
+// the release branch: the SHA has no ancestry link, but the content can still be
+// proven to survive. Returns null when git cannot answer (shallow clone, root
+// commit, live SHA not fetched) so the caller falls back to failing.
+function liveChangeSupersession(liveSha, targetSha, env) {
+  if (!liveSha || !targetSha) return null
+  let changedFiles
+  try {
+    changedFiles = execFileSync("git", ["diff", "--name-only", `${liveSha}^`, liveSha], {
+      encoding: "utf8",
+      env,
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+  } catch {
+    return null
+  }
+  if (changedFiles.length === 0) return null
+  const lostFiles = []
+  for (const file of changedFiles) {
+    try {
+      execFileSync("git", ["diff", "--quiet", liveSha, targetSha, "--", file], {
+        stdio: "ignore",
+        env,
+      })
+    } catch {
+      lostFiles.push(file)
+    }
+  }
+  return { changedFiles, lostFiles }
+}
 
 const args = process.argv.slice(2)
 const allowStale = args.includes("--allow-stale")
@@ -390,8 +431,13 @@ if (expectTarget === "prod" && !syncOnly) {
       liveIsAncestorOfTarget: liveIsAncestor,
     })
     if (verdict.level === "fail") {
-      if (allowDowngrade) warn(`${verdict.message}\n  (shipping anyway: --allow-downgrade)`)
-      else fail(verdict.message)
+      const proof = localHasLive ? liveChangeSupersession(live.commit, manifest.commit, GIT_ENV) : null
+      const supersession = proof
+        ? evaluateSupersession({ liveCommit: live.commit, targetCommit: manifest.commit, ...proof })
+        : null
+      if (supersession?.level === "warn") warn(supersession.message)
+      else if (allowDowngrade) warn(`${verdict.message}\n  (shipping anyway: --allow-downgrade)`)
+      else fail(`${verdict.message}${supersession ? `\n  ${supersession.message}` : ""}`)
     } else if (verdict.level === "ok") {
       ok(`prod downgrade check: ${verdict.message}`)
     } else {
