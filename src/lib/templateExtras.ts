@@ -3243,6 +3243,53 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "gallery_caption", label: "Keterangan Galeri", labelEn: "Gallery Caption", section: "galeri", order: 30, multiline: true, rows: 2, templates: [] },
 )
 
+// Swan Garden keeps copy in COPY_EN/COPY_ID, which the generator cannot
+// attribute; pin the printed copy so the accordion is never blank.
+const SWAN_GARDEN_HINTS: Record<string, { id: string; en: string }> = {
+  cover_kicker: { id: "Undangan Pernikahan", en: "Wedding Invitation" },
+  open_button: { id: "Buka Undangan", en: "Open Invitation" },
+  mempelai_title: { id: "Pernikahan", en: "The Wedding Of" },
+  mempelai_intro: { id: "Dengan hormat kami mengundang Anda untuk merayakan pernikahan kami", en: "We cordially invite you to celebrate our wedding" },
+  countdown_title: { id: "Simpan Tanggal", en: "Save the Date" },
+  save_date_label: { id: "Simpan ke Kalender", en: "Add to Calendar" },
+  events_title: { id: "Hari Pernikahan", en: "The Wedding Day" },
+  maps_label: { id: "Lihat Lokasi", en: "View Maps" },
+  dresscode_title: { id: "Dresscode", en: "Dresscode" },
+  dresscode_note: { id: "Kami mohon tamu hadir dengan pakaian yang selaras dengan warna pernikahan kami.", en: "We kindly ask that guests please attend wearing our wedding colors." },
+  rundown_title: { id: "Susunan Acara", en: "Rundown" },
+  rundown_event_title: { id: "Resepsi", en: "Reception" },
+  inviting_title: { id: "Turut Mengundang", en: "With Honor" },
+  inviting_intro: { id: "Bersama keluarga yang mewujudkan hari ini.", en: "Together with the families who make this day possible." },
+  live_title: { id: "Siaran Langsung", en: "Live Streaming" },
+  live_button: { id: "Buka Tautan", en: "Open Link" },
+  gallery_title: { id: "Potret Kami", en: "Portraits of Us" },
+  video_title: { id: "Video Kami", en: "Our Footage" },
+  video_intro: { id: "Film singkat dari hari-hari sebelum pernikahan.", en: "A short film from the days before the wedding." },
+  video_caption: { id: "Video", en: "The Film" },
+  story_title: { id: "Kisah Kami", en: "Our Story" },
+  gift_title: { id: "Hadiah Pernikahan", en: "Wedding Gift" },
+  gift_intro: { id: "Doa restu dan kehadiran Anda sudah lebih dari cukup bagi kami. Namun jika ingin memberi hadiah, kami menyediakan amplop digital untuk memudahkan Anda. Terima kasih.", en: "Your blessing and coming to our wedding are enough for us. However, if you want to give a gift we provide a Digital Envelope to make it easier for you. Thank you." },
+  gift_address_title: { id: "Kirim Hadiah", en: "Send a Gift" },
+  copy_label: { id: "Salin", en: "Copy" },
+  copied_label: { id: "Tersalin", en: "Copied" },
+  wishes_title: { id: "Ucapan & Doa", en: "Wedding Wish" },
+  wishes_intro: { id: "Tinggalkan ucapan atau doa untuk kami.", en: "Leave a wish or a prayer for us to keep." },
+  wishes_name_placeholder: { id: "Nama", en: "Name" },
+  wishes_message_placeholder: { id: "Tulis ucapan Anda", en: "Give your wish" },
+  wishes_submit: { id: "Kirim", en: "Send" },
+  wishes_empty: { id: "Jadilah yang pertama mengirim ucapan.", en: "Be the first to send a wish." },
+  closing_title: { id: "Terima Kasih", en: "Thank You" },
+  closing_message: { id: "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari bahagia kami. Kami sangat bersyukur memiliki Anda dalam hidup kami dan merasa terhormat Anda dapat hadir bersama kami.", en: "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us." },
+  live_description: { id: "Ikuti upacara kami dari mana pun Anda berada.", en: "Join our ceremony from wherever you are." },
+}
+for (const field of TEMPLATE_EXTRA_FIELDS) {
+  if (!field.templates.includes("swan-garden")) continue
+  const hint = SWAN_GARDEN_HINTS[field.key]
+  if (!hint) continue
+  field.placeholders = { ...(field.placeholders || {}), "swan-garden": hint.id }
+  field.placeholdersEn = { ...(field.placeholdersEn || {}), "swan-garden": hint.en }
+}
+
 // ── Per-template registration reconciliation ──────────────────────────────
 // The table above lists, per field, the templates that render it. These maps
 // are the audited delta between that table and what each component actually
