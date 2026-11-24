@@ -20,8 +20,7 @@ import { waLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { MAX_CHILDREN, parseChildren, readChildren, resolveChildren, type InvitationChild } from "@/lib/children"
-import { LANGUAGE_PREFERENCE_OPTIONS, normalizeLanguagePreference } from "@/lib/i18n"
-import { resolveLanguage } from "@/lib/templateNativeLang"
+import { LANGUAGE_OPTIONS, normalizeLanguage } from "@/lib/i18n"
 
 type Profile = {
   id: string
@@ -395,7 +394,7 @@ function EditorInner({ id }: { id: string }) {
         setData(prev => ({
           ...prev,
           ...p,
-          language: normalizeLanguagePreference(p.language),
+          language: normalizeLanguage(p.language),
           display_name: p.display_name || "",
           link_thumbnail_url: p.link_thumbnail_url || "",
           link_thumbnail_disabled: p.link_thumbnail_disabled === true,
@@ -1690,8 +1689,8 @@ function EditorInner({ id }: { id: string }) {
         rsvp_max_pax={data.rsvp_max_pax ?? 2}
         event_type={data.event_type || profile?.event_type || "wedding"}
         subject_gender={data.subject_gender || profile?.subject_gender || undefined}
-        language={resolveLanguage(data.language, template?.code)}
-        event_labels={profileView({ ...data, event_type: data.event_type || profile?.event_type, subject_gender: data.subject_gender || profile?.subject_gender, language: resolveLanguage(data.language, template?.code) }).labels}
+        language={normalizeLanguage(data.language)}
+        event_labels={profileView({ ...data, event_type: data.event_type || profile?.event_type, subject_gender: data.subject_gender || profile?.subject_gender, language: normalizeLanguage(data.language) }).labels}
         feature_gates={{
           story: gates.story.included,
           gift_address: gates.gift_address.included,
@@ -1920,18 +1919,18 @@ function EditorInner({ id }: { id: string }) {
                 <SidebarShimmer />
               ) : (
                 <>
-              {(isInhouse && (languageUiEnabled || data.language !== "id")) && renderSection("bahasa", "language", "BAHASA UNDANGAN",
+              {(isInhouse && (languageUiEnabled || data.language === "en")) && renderSection("bahasa", "language", "BAHASA UNDANGAN",
                 <div className="mt-6 space-y-4">
                   <div>
                     <label className="block font-label-md text-[10px] tracking-widest text-on-surface-variant mb-2">BAHASA UNDANGAN</label>
                     <div className="relative">
                       <select
                         className="input-editorial w-full font-body-md text-[14px] cursor-pointer appearance-none pr-10 bg-white"
-                        value={normalizeLanguagePreference(data.language)}
-                        onChange={(e) => updateField("language", normalizeLanguagePreference(e.target.value))}
+                        value={normalizeLanguage(data.language)}
+                        onChange={(e) => updateField("language", normalizeLanguage(e.target.value))}
                         disabled={isPublished || reviewMode}
                       >
-                        {LANGUAGE_PREFERENCE_OPTIONS.map((opt) => (
+                        {LANGUAGE_OPTIONS.map((opt) => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
@@ -1941,7 +1940,7 @@ function EditorInner({ id }: { id: string }) {
                   <p className="font-body-md text-[12px] text-on-surface-variant leading-relaxed">
                     Seluruh undangan akan tampil dalam bahasa ini untuk semua tamu.
                     {data.language === "default" && (
-                      <> Template ini akan tampil dalam <strong>{resolveLanguage("default", template?.code) === "en" ? "English" : "Bahasa Indonesia"}</strong>.</>
+                      <> Template ini akan tampil dalam <strong>{normalizeLanguage("default") === "en" ? "English" : "Bahasa Indonesia"}</strong>.</>
                     )}
                   </p>
                 </div>

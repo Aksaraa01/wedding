@@ -37,7 +37,7 @@ export default function CombinedPage({
           <div className="inline-flex items-center gap-1.5 mb-2.5 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
             <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">videocam</span>
             <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ ...FONT_BODY, color: "#8E6B3D" }}>
-              {lang === "en" ? "Our Footage" : "Rekaman Kami"}
+              {t("secVideo", lang)}
             </span>
           </div>
           <h2 className="text-[20px] font-bold tracking-tight mb-2" style={{ ...FONT_DISPLAY, color: "#221C16" }}>

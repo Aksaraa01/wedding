@@ -998,7 +998,7 @@ export default function Imagine(props: TemplateProps) {
             <section className="video-gallery" data-section-order="gallery_video">
               <div className="inner">
                 <div className="title" data-aos="zoom-out" data-aos-duration="1000">
-                  <h1 data-aos="zoom-out-up" data-aos-duration="1000">Our Footage</h1>
+                  <h1 data-aos="zoom-out-up" data-aos-duration="1000">{t("secVideo", lang)}</h1>
                 </div>
                 <div className="video-outer">
                   <div className="video">

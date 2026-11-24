@@ -167,11 +167,9 @@ secret that ever appeared in git is compromised: **rotate it**, then purge.
 - The GitHub PAT used for automation should be short-lived and revoked when the
   task is done; it is stored in `~/.config/aksaraa/github-token` and Keychain.
 
-### Bilingual invitations (default/id/en)
-The i18n engine (`src/lib/i18n.ts`, `language` column) is merged. Stored values are
-`default` | `id` | `en`; `default` follows the design's own copy via
-`TEMPLATE_NATIVE_LANG` (`src/lib/templateNativeLang.ts`). Resolve it at the render
-boundary with `resolveLanguage(...)`; templates only ever receive `id`/`en`.
+### Bilingual invitations (id/en)
+The i18n engine (`src/lib/i18n.ts`, `language` column) is merged; values are `id` | `en`.
+Couple-entered content is never translated — only shipped defaults and chrome switch.
 The couple-facing switcher is **opt-in per environment**:
 `NEXT_PUBLIC_LANGUAGE_UI === "true"` in the editor (`renderSection("bahasa", …)`).
 Staging sets it; prod does not, so prod couples only see Bahasa Indonesia. An

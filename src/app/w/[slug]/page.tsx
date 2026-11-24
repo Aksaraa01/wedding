@@ -20,7 +20,6 @@ import { profileView } from "@/lib/profileView"
 import { normalizeLanguage } from "@/lib/i18n"
 import InvitationExpired from "@/components/InvitationExpired"
 import { coupleUrl } from "@/lib/coupleUrl"
-import { resolveLanguage } from "@/lib/templateNativeLang"
 
 export const revalidate = 60
 
@@ -93,7 +92,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       : 0
     noCoverSlots = (tplRow as any)?.no_photo === true || (specSlots ?? manifestSlots) === 0
   }
-  const lang = resolveLanguage(profile.language, metaTemplateCode)
+  const lang = normalizeLanguage(profile.language)
   const view = profileView({ ...profile, language: lang })
   const kids = view.kids
   const labels = view.labels
@@ -386,7 +385,7 @@ export default async function WeddingInvitation({
       templateDemoUrl = tmpl.demo_url
     }
   }
-  const lang = resolveLanguage(profile.language, templateCode)
+  const lang = normalizeLanguage(profile.language)
   const guestName = guestContext?.name || prettifyGuestSlug(to) || (lang === "en" ? "Guest" : linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
 
   // In-house templates default to "An Everlasting Love" when the couple has not

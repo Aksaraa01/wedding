@@ -116,7 +116,6 @@ export const TEMPLATE_EXTRA_SECTIONS: { key: string; label: string }[] = [
   { key: "dresscode", label: "DRESS CODE" },
   { key: "gift", label: "HADIAH" },
   { key: "wishes", label: "UCAPAN & DOA" },
-  { key: "rsvp", label: "RSVP" },
   { key: "closing", label: "PENUTUP" },
 ]
 
@@ -3242,7 +3241,6 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "hero_kicker", label: "Label Kecil Hero", labelEn: "Hero Kicker", section: "sampul", order: 11, templates: [] },
   { key: "couple_title", label: "Judul Mempelai", labelEn: "Couple Heading", section: "mempelai", order: 10, templates: [] },
   { key: "gallery_caption", label: "Keterangan Galeri", labelEn: "Gallery Caption", section: "galeri", order: 30, multiline: true, rows: 2, templates: [] },
-  { key: "rsvp_title", label: "Judul RSVP", labelEn: "RSVP Heading", section: "rsvp", order: 10, templates: [] },
 )
 
 // ── Per-template registration reconciliation ──────────────────────────────

@@ -529,7 +529,7 @@ export default function BoardingPass(profile: TemplateProps) {
             >
               <img className="bp-storylist__orn" src={ART("sprig")} alt="" aria-hidden="true" loading="lazy" {...IN("fade", 0.12)} />
               <div className="bp-storylist__head">
-                <p className="bp-mono bp-mono--teal" {...IN("fade")}>Kisah Kami</p>
+                <p className="bp-mono bp-mono--teal" {...IN("fade")}>{t("secStory", lang)}</p>
                 <h2 className="bp-title" {...IN("up", 0.08)}>Catatan Perjalanan</h2>
               </div>
 
@@ -712,7 +712,7 @@ export default function BoardingPass(profile: TemplateProps) {
           <section className="bp-section" data-section="galeri" aria-label="Album perjalanan">
             <div className="bp-head">
               <p className="bp-mono bp-mono--teal" {...IN("fade")}>Album Perjalanan</p>
-              <h2 className="bp-title" {...IN("up", 0.06)}>Potret Kami</h2>
+              <h2 className="bp-title" {...IN("up", 0.06)}>{t("secGallery", lang)}</h2>
               <p className="bp-mono" style={{ textTransform: "lowercase", letterSpacing: "1.2px" }} {...IN("fade", 0.12)}>
                 {galleryIntro}
               </p>
@@ -774,7 +774,7 @@ export default function BoardingPass(profile: TemplateProps) {
         {hasGift && (
           <section className="bp-section" data-section="gift" aria-label="Tanda kasih">
             <div className="bp-head">
-              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Tanda Kasih</p>
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>{t("secGift", lang)}</p>
               <h2 className="bp-title" {...IN("up", 0.06)}>{giftIntroTitle}</h2>
               {giftIntro && <p className="bp-body" {...IN("fade", 0.12)}>{giftIntro}</p>}
             </div>

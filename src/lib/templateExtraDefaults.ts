@@ -1813,10 +1813,6 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Our Love Story",
       "id": "Perjalanan Cinta"
     },
-    "rsvp_title": {
-      "en": "Confirm Attendance",
-      "id": "Konfirmasi Kehadiran"
-    },
     "wishes_title": {
       "en": "Wishes & Prayers",
       "id": "Ucapan & Doa"
@@ -2300,16 +2296,16 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "id": "Undangan Pernikahan"
     },
     "gallery_title": {
-      "en": "Portraits of Us",
-      "id": "Potret Kami"
+      "en": "Gallery",
+      "id": "Galeri"
     },
     "gallery_intro": {
       "en": "A glimpse of our moments together.",
       "id": "Sekilas momen kebersamaan kami."
     },
     "video_title": {
-      "en": "Our Footage",
-      "id": "Cuplikan Kami"
+      "en": "Video",
+      "id": "Video"
     },
     "video_caption": {
       "en": "A short film of our story.",
@@ -3032,6 +3028,16 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "cover_apology": {
       "en": "We apologize for any misspelling of your name or title.",
       "id": "Kami mohon maaf apabila terdapat kesalahan penulisan nama dan gelar."
+    }
+  },
+  "swan-garden": {
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
+    },
+    "video_title": {
+      "en": "Video",
+      "id": "Video"
     }
   },
   "teatro": {

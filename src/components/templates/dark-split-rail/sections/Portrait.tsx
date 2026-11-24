@@ -18,7 +18,7 @@ export default function Portrait({ videoEmbed, photos, language, title, intro }:
   const lang = normalizeLanguage(language)
   const gallery = photos.filter(Boolean)
   if (!videoEmbed && gallery.length === 0) return null
-  const resolvedTitle = (title || "").trim() || (lang === "en" ? "Portrait of Us" : "Potret Kami")
+  const resolvedTitle = (title || "").trim() || t("secGallery", lang)
   const resolvedIntro = (intro || "").trim()
 
   return (

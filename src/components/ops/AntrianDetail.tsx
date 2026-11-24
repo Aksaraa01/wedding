@@ -48,8 +48,7 @@ import { hidesOpeningSection } from "@/lib/templateSections"
 import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
 import BankSelect from "@/components/dashboard/BankSelect"
 import { getBankBySlug, getBankByName, bankLogoUrl } from "@/lib/bankList"
-import { LANGUAGE_PREFERENCE_OPTIONS, normalizeLanguagePreference } from "@/lib/i18n"
-import { resolveLanguage } from "@/lib/templateNativeLang"
+import { LANGUAGE_OPTIONS, normalizeLanguage } from "@/lib/i18n"
 
 type QueueItem = {
   id: string
@@ -1269,8 +1268,8 @@ export default function AntrianDetail({ id }: { id: string }) {
   // Same split as the couple editor: a design can take a gallery/film but no
   // cover or portrait photos (lace).
   const invHasPersonPhotos = !invNoPhoto && invContentSpec?.person_photos !== false
-  const invExtraFields = getTemplateExtraFields(invTpl?.code, resolveLanguage(invForm?.language, invTpl?.code))
-  const invExtrasLabel = templateExtrasLabel(invTpl?.name, resolveLanguage(invForm?.language, invTpl?.code))
+  const invExtraFields = getTemplateExtraFields(invTpl?.code, normalizeLanguage(invForm?.language))
+  const invExtrasLabel = templateExtrasLabel(invTpl?.name, normalizeLanguage(invForm?.language))
   const invCoverSlotCount = invContentSpec?.cover_slots ?? (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
   // Zero slots means no cover drives the link preview, so the couple must pick
   // a dedicated thumbnail (or opt out) in the SAMPUL accordion.
@@ -1431,7 +1430,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       gift_section_visible: p.gift_section_visible !== false,
       inviting_families_visible: p.inviting_families_visible !== false,
       selected_track_id: p.selected_track_id || "",
-      language: normalizeLanguagePreference(p.language),
+      language: normalizeLanguage(p.language),
       giftAccounts: (src.gift_accounts || []).map((a: any) => ({
         id: a.id,
         provider_name: a.provider_name || "",
@@ -1622,7 +1621,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       ["gift_intro_description", "Gift Intro Description"],
       ["closing_message", "Closing Message"],
     ])
-    for (const field of getTemplateExtraFields(invTpl?.code, resolveLanguage(invForm?.language, invTpl?.code))) {
+    for (const field of getTemplateExtraFields(invTpl?.code, normalizeLanguage(invForm?.language))) {
       tcLabels.set(field.key, field.label)
     }
     for (const [key, label] of tcLabels) {
@@ -1697,7 +1696,7 @@ export default function AntrianDetail({ id }: { id: string }) {
           template_content: f.template_content || {},
           inviting_families_visible: !!f.inviting_families_visible,
           selected_track_id: f.selected_track_id || null,
-          language: normalizeLanguagePreference(f.language),
+          language: normalizeLanguage(f.language),
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -3281,7 +3280,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Bahasa Undangan</label>
-                      <select className="input-editorial w-full font-headline-md text-[16px]" value={normalizeLanguagePreference(invForm.language)} onChange={(e) => setInvForm({ ...invForm, language: normalizeLanguagePreference(e.target.value) })} disabled={invitationData?.template?.source_type === "wp"}>
+                      <select className="input-editorial w-full font-headline-md text-[16px]" value={normalizeLanguage(invForm.language)} onChange={(e) => setInvForm({ ...invForm, language: normalizeLanguage(e.target.value) })} disabled={invitationData?.template?.source_type === "wp"}>
                         <option value="id">Bahasa Indonesia</option>
                         <option value="en">English</option>
                       </select>
@@ -4481,7 +4480,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <p className="text-[11px] text-on-surface-variant italic">
                           Copy khusus template {invTpl?.name}. Kosongkan untuk memakai teks bawaan.
                         </p>
-                        {groupExtraFields(invExtraFields, resolveLanguage(invForm?.language, invTpl?.code)).map((group) => {
+                        {groupExtraFields(invExtraFields, normalizeLanguage(invForm?.language)).map((group) => {
                           const isOpen = openInvExtraGroup === group.section
                           return (
                             <div key={group.section} className="border border-outline-variant/40 rounded-lg overflow-hidden">
@@ -4515,7 +4514,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        {groupExtraFields(invExtraFields, resolveLanguage(invForm?.language, invTpl?.code)).map((group) => {
+                        {groupExtraFields(invExtraFields, normalizeLanguage(invForm?.language)).map((group) => {
                           const isOpen = openInvExtraGroup === group.section
                           return (
                             <div key={group.section} className="border border-outline-variant/40 rounded-lg overflow-hidden">

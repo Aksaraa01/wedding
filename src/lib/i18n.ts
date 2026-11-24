@@ -8,22 +8,10 @@
 
 export type Language = "id" | "en"
 
-/**
- * What the couple stores. `"default"` follows the design's own language
- * (`TEMPLATE_NATIVE_LANG` in templateNativeLang.ts); templates never see it.
- */
-export type LanguagePreference = "default" | "id" | "en"
-
 export const LANGUAGES: Language[] = ["id", "en"]
-
-export const LANGUAGE_PREFERENCES: LanguagePreference[] = ["default", "id", "en"]
 
 export function isLanguage(value: unknown): value is Language {
   return value === "id" || value === "en"
-}
-
-export function isLanguagePreference(value: unknown): value is LanguagePreference {
-  return value === "default" || value === "id" || value === "en"
 }
 
 /** Normalizes unknown input to a supported language. Defaults to 'id'. */
@@ -33,27 +21,11 @@ export function normalizeLanguage(value: unknown): Language {
   return v === "en" ? "en" : "id"
 }
 
-/** Normalizes unknown input to a stored preference. Defaults to 'id'. */
-export function normalizeLanguagePreference(value: unknown): LanguagePreference {
-  if (typeof value !== "string") return "id"
-  const v = value.trim().toLowerCase()
-  return v === "default" || v === "en" ? v : "id"
-}
-
 export const LANGUAGE_OPTIONS: { value: Language; label: string }[] = [
   { value: "id", label: "Bahasa Indonesia" },
   { value: "en", label: "English" },
 ]
 
-export const LANGUAGE_PREFERENCE_OPTIONS: { value: LanguagePreference; label: string; hint: string }[] = [
-  {
-    value: "default",
-    label: "Default (ikuti desain asli)",
-    hint: "Mengikuti bahasa asli desain template.",
-  },
-  { value: "id", label: "Bahasa Indonesia", hint: "Seluruh undangan tampil dalam Bahasa Indonesia." },
-  { value: "en", label: "English", hint: "The whole invitation renders in English." },
-]
 
 // ---------------------------------------------------------------------------
 // Shared chrome dictionary. Keys are stable identifiers; values are the

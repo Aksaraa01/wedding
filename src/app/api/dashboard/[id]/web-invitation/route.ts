@@ -9,7 +9,7 @@ import { getTemplateContentSpec } from "@/components/templates"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { isKidsEvent } from "@/lib/eventType"
 import { parseChildren, readChildren } from "@/lib/children"
-import { normalizeLanguagePreference } from "@/lib/i18n"
+import { normalizeLanguage } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
@@ -108,7 +108,7 @@ export async function GET(
         opening_title: profile.opening_title || "",
         opening_description: profile.opening_description || "",
         template_content: profile.template_content || {},
-        language: normalizeLanguagePreference(profile.language),
+        language: normalizeLanguage(profile.language),
         dresscode: profile.dresscode || {},
         livestream: profile.livestream || {},
         dresscode_visible: profile.dresscode_visible !== false,
@@ -172,7 +172,7 @@ export async function PUT(  req: NextRequest,
           // they can hold multiple slides (slideshow backgrounds).
           updates[key] = JSON.stringify(body[key].filter(Boolean))
         } else if (key === "language") {
-          updates[key] = normalizeLanguagePreference(body[key])
+          updates[key] = normalizeLanguage(body[key])
         } else {
           updates[key] = body[key]
         }

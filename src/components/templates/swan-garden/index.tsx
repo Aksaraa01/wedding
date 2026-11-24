@@ -396,11 +396,11 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
               poster={coverPhoto}
             />
           ) : null}
-          <Gallery photos={galleryPhotos} title={tc.gallery_title || C.gallery_title} onPhoto={openLightbox} />
+          <Gallery photos={galleryPhotos} title={tc.gallery_title || t("secGallery", lang)} onPhoto={openLightbox} />
           {hasVideo ? (
             <Film
               videoUrl={profile.video_url || ""}
-              title={tc.video_title || C.video_title}
+              title={tc.video_title || t("secVideo", lang)}
               intro={tc.video_intro || C.video_intro}
               caption={tc.video_caption || C.video_caption}
               poster={galleryPhotos[0] || ""}
