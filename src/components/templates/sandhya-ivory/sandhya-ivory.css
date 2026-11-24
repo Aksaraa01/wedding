@@ -250,21 +250,37 @@ animation:none
 
 /* Ivory photo veils keep Sandhya's full-bleed scenes while guaranteeing dark
    sage copy stays readable over both bright and low-key photographs. */
-.sandhya-ivory-root .deskcover__veil{background:linear-gradient(0deg,rgba(247,243,234,.74) 0,rgba(247,243,234,.08) 45%,rgba(247,243,234,.22)),linear-gradient(90deg,rgba(247,243,234,.3),rgba(247,243,234,0) 40%)}
+.sandhya-ivory-root .deskcover__veil{background:linear-gradient(0deg,rgba(247,243,234,.64) 0,rgba(247,243,234,.04) 45%,rgba(247,243,234,.14)),linear-gradient(90deg,rgba(247,243,234,.2),rgba(247,243,234,0) 40%)}
 .sandhya-ivory-root .scene__veil{background:linear-gradient(180deg,rgba(247,243,234,.64) 0,rgba(247,243,234,.14) 26%,rgba(247,243,234,0) 48%,rgba(247,243,234,.18) 68%,rgba(247,243,234,.78))}
-.sandhya-ivory-root .scene__veil--deep{background:linear-gradient(180deg,rgba(247,243,234,.76) 0,rgba(247,243,234,.28) 38%,rgba(247,243,234,.04) 62%,rgba(247,243,234,.58))}
-.sandhya-ivory-root .scene--verse .scene__content{background:radial-gradient(ellipse at 50% 34%,rgba(247,243,234,.62),rgba(247,243,234,0) 72%)}
-.sandhya-ivory-root .finale__hero{background:radial-gradient(ellipse at 50% 46%,rgba(247,243,234,.52),rgba(247,243,234,0) 74%)}
-.sandhya-ivory-root .scene__veil--events{background:linear-gradient(180deg,rgba(247,243,234,.7) 0,rgba(247,243,234,.34) 34%,rgba(247,243,234,.08) 55%,rgba(247,243,234,0) 72%,rgba(247,243,234,.44)),radial-gradient(130% 95% at 50% 45%,rgba(247,243,234,.12) 44%,rgba(247,243,234,.56) 100%),rgba(247,243,234,.28)}
-.sandhya-ivory-root .scene__veil--top{background:linear-gradient(180deg,rgba(247,243,234,.76) 0,rgba(247,243,234,.46) 34%,rgba(247,243,234,.08) 58%,rgba(247,243,234,0) 74%,rgba(247,243,234,.54))}
-.sandhya-ivory-root .scene--dresscode .scene__content{background:radial-gradient(ellipse at 50% 56%,rgba(247,243,234,.64),rgba(247,243,234,0) 74%)}
+.sandhya-ivory-root .scene__veil--deep{background:linear-gradient(180deg,rgba(247,243,234,.64) 0,rgba(247,243,234,.2) 38%,rgba(247,243,234,.02) 62%,rgba(247,243,234,.46))}
+.sandhya-ivory-root .scene--verse .scene__content{background:radial-gradient(ellipse at 50% 34%,rgba(247,243,234,.54),rgba(247,243,234,0) 72%)}
+.sandhya-ivory-root .finale__hero{background:radial-gradient(ellipse at 50% 46%,rgba(247,243,234,.46),rgba(247,243,234,0) 74%)}
+.sandhya-ivory-root .scene__veil--events{background:linear-gradient(180deg,rgba(247,243,234,.58) 0,rgba(247,243,234,.26) 34%,rgba(247,243,234,.04) 55%,rgba(247,243,234,0) 72%,rgba(247,243,234,.34)),radial-gradient(130% 95% at 50% 45%,rgba(247,243,234,.08) 44%,rgba(247,243,234,.44) 100%),rgba(247,243,234,.18)}
+.sandhya-ivory-root .scene__veil--top{background:linear-gradient(180deg,rgba(247,243,234,.64) 0,rgba(247,243,234,.36) 34%,rgba(247,243,234,.04) 58%,rgba(247,243,234,0) 74%,rgba(247,243,234,.42))}
+.sandhya-ivory-root .scene--dresscode .scene__content{background:radial-gradient(ellipse at 50% 56%,rgba(247,243,234,.5),rgba(247,243,234,0) 74%)}
 .sandhya-ivory-root .scene__veil--left{background:linear-gradient(90deg,rgba(247,243,234,.76) 0,rgba(247,243,234,.44) 42%,rgba(247,243,234,.06) 75%),linear-gradient(180deg,rgba(247,243,234,.54),rgba(247,243,234,0) 30%,rgba(247,243,234,.6))}
-.sandhya-ivory-root .scene__veil--couple{background:linear-gradient(180deg,rgba(247,243,234,.46) 0,rgba(247,243,234,.04) 26%,rgba(247,243,234,.06) 48%,rgba(247,243,234,.7) 72%,rgba(247,243,234,.92))}
-.sandhya-ivory-root .scene--cover .scene__veil{background:linear-gradient(180deg,rgba(247,243,234,.68) 0,rgba(247,243,234,.42) 30%,rgba(247,243,234,.04) 52%,rgba(247,243,234,.24) 68%,rgba(247,243,234,.84))}
+.sandhya-ivory-root .scene__veil--couple{background:linear-gradient(180deg,rgba(247,243,234,.34) 0,rgba(247,243,234,.02) 26%,rgba(247,243,234,.03) 48%,rgba(247,243,234,.58) 72%,rgba(247,243,234,.86))}
+.sandhya-ivory-root .scene--cover .scene__veil{background:linear-gradient(180deg,rgba(247,243,234,.56) 0,rgba(247,243,234,.32) 30%,rgba(247,243,234,.02) 52%,rgba(247,243,234,.18) 68%,rgba(247,243,234,.74))}
 .sandhya-ivory-root .wishes__submit:hover:not(:disabled){color:var(--warm-fg,#fff)}
 .sandhya-ivory-root .deskcover__names .label{color:var(--ink-dim);text-shadow:0 1px 14px rgba(255,253,248,.9)}
 .sandhya-ivory-root .deskcover__names h2{color:var(--ink);text-shadow:0 2px 26px rgba(255,253,248,.92),0 0 8px rgba(255,253,248,.7)}
 /* Keep Sandhya's finale background video visible through the entire scroll.
    The ivory sheet is a readable scrim, not an opaque page. */
-.sandhya-ivory-root .sheet{background:linear-gradient(180deg,rgba(247,243,234,.9) 0,rgba(247,243,234,.78) 22%,rgba(247,243,234,.64) 100%)}
-.sandhya-ivory-root .sheet__closing{background:rgba(241,237,227,.72)}
+.sandhya-ivory-root .sheet{background:rgba(247,243,234,.6);box-shadow:none}
+.sandhya-ivory-root .sheet__closing{background:rgba(247,243,234,.58)}
+.sandhya-ivory-root .sheet h3,
+.sandhya-ivory-root .sheet h4,
+.sandhya-ivory-root .sheet p,
+.sandhya-ivory-root .sheet li,
+.sandhya-ivory-root .sheet .label,
+.sandhya-ivory-root .sheet .hand,
+.sandhya-ivory-root .sheet .serif,
+.sandhya-ivory-root .sheet .serif-i{text-shadow:0 1px 16px rgba(255,253,248,.92),0 0 3px rgba(255,253,248,.62)}
+
+/* Localised reading panels. The page stays transparent so the finale film is
+   visible throughout; only the copy-heavy cards get a light scrim. */
+.sandhya-ivory-root .chapter__plate,
+.sandhya-ivory-root .gallery__quote-wrap,
+.sandhya-ivory-root .tpl-gift,
+.sandhya-ivory-root .honored__grid,
+.sandhya-ivory-root .tpl-rsvp{background:rgba(247,243,234,.78);border:1px solid rgba(47,58,49,.12);padding:20px 16px;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);box-shadow:0 12px 34px rgba(47,58,49,.08)}
