@@ -3291,72 +3291,6 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
 }
 
 
-// Templates whose copy lives in constants/COPY objects: pin the printed text so
-// every EKSTRA slot shows that copy in the couple's language.
-const EXTRA_HINT_PINS: Record<string, Record<string, { id: string; en: string }>> = {
-  "silver-gelatin": {
-    story_intro: { id: "Bab-bab kecil yang membawa kami sampai ke hari ini.", en: "The small chapters that brought us to this day." },
-    events_note: { id: "Kami menantikan kehadiran Anda.", en: "We look forward to celebrating with you." },
-    inviting_intro: { id: "Dengan penuh rasa syukur, kami turut mengundang keluarga besar kami.", en: "With gratitude, we also invite our extended families." },
-    rundown_intro: { id: "Bagaimana hari itu akan berjalan.", en: "How the day will unfold." },
-    video_intro: { id: "Film singkat tentang kisah kami.", en: "A short film about our story." },
-    dresscode_intro: { id: "Kami akan senang bila Anda mengenakan busana senada dengan palet warna kami.", en: "We would love it if you dressed in our colour palette." },
-    dresscode_note: { id: "Mohon hindari warna putih, ya.", en: "Please reserve white for the couple." },
-    gift_signature: { id: "Dengan penuh kasih,", en: "With love," },
-  },
-  "pastel-dream-cathedral": {
-    love_story_title: { id: "Perjalanan Cinta", en: "Our Love Story" },
-    gallery_title: { id: "Galeri", en: "Gallery" },
-    gift_intro_description: { id: "Doa restu Anda sudah lebih dari cukup bagi kami.", en: "Your blessing is more than enough for us." },
-    wishes_title: { id: "Ucapan & Doa", en: "Wishes & Prayers" },
-    wishes_intro: { id: "Tinggalkan ucapan dan doa terbaik untuk kami.", en: "Leave your warmest wishes and prayers for us." },
-  },
-  "pastel-coastal-cut": {
-    love_story_title: { id: "Perjalanan Cinta", en: "Our Love Story" },
-    gallery_title: { id: "Galeri", en: "Gallery" },
-    gift_intro_description: { id: "Doa restu Anda sudah lebih dari cukup bagi kami.", en: "Your blessing is more than enough for us." },
-    wishes_title: { id: "Ucapan & Doa", en: "Wishes & Prayers" },
-    wishes_intro: { id: "Tinggalkan ucapan dan doa terbaik untuk kami.", en: "Leave your warmest wishes and prayers for us." },
-  },
-  "olan": {
-    dresscode_intro: { id: "Busana formal dengan nuansa warna hangat.", en: "Formal attire in warm earth tones." },
-    gift_intro_description: { id: "Doa restu dan kehadiran Anda sudah cukup bagi kami.", en: "Your blessing and presence are enough for us." },
-  },
-  "teatro": {
-    events_title: { id: "Acara", en: "Event" },
-    dresscode_note: { id: "Mohon kenakan busana senada dengan palet kami.", en: "Please dress in our colour palette." },
-  },
-  "pixel_quest": {
-    dresscode_title: { id: "Dress Code", en: "Dress Code" },
-    wishes_intro: { id: "Tinggalkan ucapan untuk kami.", en: "Leave a wish for us." },
-  },
-  "noir": {
-    couple_order: { id: "Urutan Mempelai", en: "Couple Order" },
-  },
-  "nihara-mist": {
-    gallery_intro: { id: "Sekilas momen kebersamaan kami.", en: "A glimpse of our moments together." },
-  },
-  "skyline-penthouse": {
-    wishes_intro: { id: "Tinggalkan ucapan untuk kami.", en: "Leave a wish for us." },
-  },
-  "pixel-paradise": {
-    wishes_intro: { id: "Tinggalkan ucapan untuk kami.", en: "Leave a wish for us." },
-  },
-  "still-ever": {
-    closing_message: { id: "Terima kasih telah menjadi bagian dari kisah kami.", en: "Thank you for being part of our story." },
-  },
-  "traditional-bugis-pinishi": {
-    events_intro: { id: "Dengan penuh syukur kami mengundang Anda untuk hadir.", en: "With gratitude we invite you to celebrate with us." },
-  },
-}
-for (const field of TEMPLATE_EXTRA_FIELDS) {
-  for (const code of field.templates) {
-    const hint = EXTRA_HINT_PINS[code]?.[field.key]
-    if (!hint) continue
-    field.placeholders = { ...(field.placeholders || {}), [code]: hint.id }
-    field.placeholdersEn = { ...(field.placeholdersEn || {}), [code]: hint.en }
-  }
-}
 
 // ── Per-template registration reconciliation ──────────────────────────────
 // The table above lists, per field, the templates that render it. These maps
@@ -3427,3 +3361,72 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
   const drop = field.templates.filter((code) => !CONTACT_TITLE_READERS.has(code))
   if (drop.length) field.templates = field.templates.filter((code) => CONTACT_TITLE_READERS.has(code))
 }
+
+// Templates whose copy lives in constants/COPY objects: pin the printed text so
+// every EKSTRA slot shows that copy in the couple's language.
+const EXTRA_HINT_PINS: Record<string, Record<string, { id: string; en: string }>> = {
+  "silver-gelatin": {
+    story_intro: { id: "Bab-bab kecil yang membawa kami sampai ke hari ini.", en: "The small chapters that brought us to this day." },
+    events_note: { id: "Kami menantikan kehadiran Anda.", en: "We look forward to celebrating with you." },
+    inviting_intro: { id: "Dengan penuh rasa syukur, kami turut mengundang keluarga besar kami.", en: "With gratitude, we also invite our extended families." },
+    rundown_intro: { id: "Bagaimana hari itu akan berjalan.", en: "How the day will unfold." },
+    video_intro: { id: "Film singkat tentang kisah kami.", en: "A short film about our story." },
+    dresscode_intro: { id: "Kami akan senang bila Anda mengenakan busana senada dengan palet warna kami.", en: "We would love it if you dressed in our colour palette." },
+    dresscode_note: { id: "Mohon hindari warna putih, ya.", en: "Please reserve white for the couple." },
+    gift_signature: { id: "Dengan penuh kasih,", en: "With love," },
+  },
+  "pastel-dream-cathedral": {
+    love_story_title: { id: "Perjalanan Cinta", en: "Our Love Story" },
+    gallery_title: { id: "Galeri", en: "Gallery" },
+    gift_intro_description: { id: "Doa restu Anda sudah lebih dari cukup bagi kami.", en: "Your blessing is more than enough for us." },
+    wishes_title: { id: "Ucapan & Doa", en: "Wishes & Prayers" },
+    wishes_intro: { id: "Tinggalkan ucapan dan doa terbaik untuk kami.", en: "Leave your warmest wishes and prayers for us." },
+  },
+  "pastel-coastal-cut": {
+    love_story_title: { id: "Perjalanan Cinta", en: "Our Love Story" },
+    gallery_title: { id: "Galeri", en: "Gallery" },
+    gift_intro_description: { id: "Doa restu Anda sudah lebih dari cukup bagi kami.", en: "Your blessing is more than enough for us." },
+    wishes_title: { id: "Ucapan & Doa", en: "Wishes & Prayers" },
+    wishes_intro: { id: "Tinggalkan ucapan dan doa terbaik untuk kami.", en: "Leave your warmest wishes and prayers for us." },
+  },
+  "olan": {
+    dresscode_intro: { id: "Busana formal dengan nuansa warna hangat.", en: "Formal attire in warm earth tones." },
+    gift_intro_description: { id: "Doa restu dan kehadiran Anda sudah cukup bagi kami.", en: "Your blessing and presence are enough for us." },
+  },
+  "teatro": {
+    events_title: { id: "Acara", en: "Event" },
+    dresscode_note: { id: "Mohon kenakan busana senada dengan palet kami.", en: "Please dress in our colour palette." },
+  },
+  "pixel-quest": {
+    dresscode_title: { id: "Dress Code", en: "Dress Code" },
+    wishes_intro: { id: "Tinggalkan ucapan untuk kami.", en: "Leave a wish for us." },
+  },
+  "noir": {
+    couple_order: { id: "Urutan Mempelai", en: "Couple Order" },
+  },
+  "nihara-mist": {
+    gallery_intro: { id: "Sekilas momen kebersamaan kami.", en: "A glimpse of our moments together." },
+  },
+  "skyline-penthouse": {
+    wishes_intro: { id: "Tinggalkan ucapan untuk kami.", en: "Leave a wish for us." },
+  },
+  "pixel-paradise": {
+    wishes_intro: { id: "Tinggalkan ucapan untuk kami.", en: "Leave a wish for us." },
+  },
+  "still-ever": {
+    closing_message: { id: "Terima kasih telah menjadi bagian dari kisah kami.", en: "Thank you for being part of our story." },
+  },
+  "traditional-bugis-pinishi": {
+    events_intro: { id: "Dengan penuh syukur kami mengundang Anda untuk hadir.", en: "With gratitude we invite you to celebrate with us." },
+  },
+}
+for (const field of TEMPLATE_EXTRA_FIELDS) {
+  for (const raw of field.templates) {
+    const code = EXTRA_ALIASES[raw] ?? raw
+    const hint = EXTRA_HINT_PINS[code]?.[field.key]
+    if (!hint) continue
+    field.placeholders = { ...(field.placeholders || {}), [raw]: hint.id }
+    field.placeholdersEn = { ...(field.placeholdersEn || {}), [raw]: hint.en }
+  }
+}
+
