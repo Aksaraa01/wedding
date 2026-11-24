@@ -9,6 +9,8 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function CountdownPage({ profile, sessions }: { profile: TemplateProps; sessions: SessionData[] }) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content ?? {}
+  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
   const target = countdownTarget(sessions, profile.estimated_wedding_date)
   const { days, hours, minutes, seconds } = useCountdown(target)
   const calLink = gcalLink(sessions[0], profile.groom_name, profile.bride_name)
@@ -27,8 +29,8 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
           <img src={ASSETS.pastelDreamCathedral.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover mix-blend-screen opacity-50 drop-shadow-md" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
         </div>
       <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
-        <h1 className="italic text-[28px] leading-tight mb-2 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-          {t("saveTheDate", lang)}
+        <h1 className="italic text-[28px] leading-tight mb-2 drop-shadow-sm whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
+          {saveDateLabel}
         </h1>
         <div className="flex items-center gap-2 mb-4">
           <span className="h-px w-6 bg-[#8E6B3D]/40" />

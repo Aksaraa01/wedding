@@ -8,12 +8,13 @@ type Props = {
   coupleLabel: string
   guestName?: string
   dateShort?: string
+  kicker?: string
   objectPosition?: string
   onOpen: () => void
   language?: string
 }
 
-export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, objectPosition = "50% 50%", onOpen, language = "id" }: Props) {
+export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, kicker, objectPosition = "50% 50%", onOpen, language = "id" }: Props) {
   const lang = normalizeLanguage(language)
   return (
     <div className="fixed inset-0 z-[900] overflow-hidden">
@@ -28,8 +29,8 @@ export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, obj
       <div className="absolute inset-0 bg-black/50" />
 
       <div className="relative flex h-full flex-col items-center justify-center px-8 text-center text-white">
-        <p className="text-[13px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-          {t("theWeddingOf", lang)}
+        <p className="text-[13px] uppercase whitespace-pre-line" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
+          {(kicker || "").trim() || t("theWeddingOf", lang)}
         </p>
         <h1 className="mt-4 text-[34px] leading-tight" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
           {coupleLabel}

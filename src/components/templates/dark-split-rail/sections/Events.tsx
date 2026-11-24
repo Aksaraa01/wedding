@@ -5,14 +5,20 @@ import { FONT_BODY, FONT_BTN, FONT_DISPLAY } from "../fonts"
 import Section from "../Section"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 
-export default function Events({ sessions, language }: { sessions: SessionData[]; language?: string }) {
+export default function Events({ sessions, language, title }: { sessions: SessionData[]; language?: string; title?: string }) {
   const lang = normalizeLanguage(language)
   const list = sessions.filter((s) => s && (s.name || s.date || s.venue))
   if (list.length === 0) return null
+  const resolvedTitle = (title || "").trim()
 
   return (
     <Section id="events" className="bg-black/[0.06]">
       <div className="space-y-12 text-center text-white">
+        {resolvedTitle && (
+          <h2 className="text-[20px] uppercase text-white/95 whitespace-pre-line" style={{ ...FONT_DISPLAY, letterSpacing: "2px" }}>
+            {resolvedTitle}
+          </h2>
+        )}
         {list.map((s, i) => (
           <div key={i}>
             <h3 className="text-[19px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "2.5px" }}>

@@ -14,17 +14,19 @@ type Props = {
   data: VideoModalData | null
   onClose: () => void
   language?: string
+  templateContent?: Record<string, string>
 }
 
 // Autoplays as soon as the modal opens (opening it is a user gesture; the iframe
 // is created on mount with autoplay=1). Lessons from Skyline applied: no poster.
-export default function VideoModal({ data, onClose, language = "id" }: Props) {
+export default function VideoModal({ data, onClose, language = "id", templateContent }: Props) {
   const lang = normalizeLanguage(language);
+  const tc = templateContent || {}
   if (!data) return null
 
   if (data.state === "none") {
     return (
-      <ModalShell icon="sports_esports" eyebrow="CINEMA TEASER" title="OUR MOMENTS" onClose={onClose}>
+      <ModalShell icon="sports_esports" eyebrow="CINEMA TEASER" title={tc.livestream_title || "OUR MOMENTS"} onClose={onClose}>
         <p className="text-center text-sm text-slate-400">{lang === "en" ? "Video not available yet." : "Video belum tersedia."}</p>
       </ModalShell>
     )
@@ -32,7 +34,7 @@ export default function VideoModal({ data, onClose, language = "id" }: Props) {
 
   if (data.state === "loading") {
     return (
-      <ModalShell icon="sports_esports" eyebrow="CINEMA TEASER" title="OUR MOMENTS" onClose={onClose}>
+      <ModalShell icon="sports_esports" eyebrow="CINEMA TEASER" title={tc.livestream_title || "OUR MOMENTS"} onClose={onClose}>
         <p className="text-center text-sm text-slate-400">{lang === "en" ? "Loading video…" : "Memuat video…"}</p>
       </ModalShell>
     )
@@ -42,7 +44,7 @@ export default function VideoModal({ data, onClose, language = "id" }: Props) {
   const src = `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&rel=0&playsinline=1`
 
   return (
-    <ModalShell icon="sports_esports" eyebrow="CINEMA TEASER" title="OUR MOMENTS" onClose={onClose}>
+    <ModalShell icon="sports_esports" eyebrow="CINEMA TEASER" title={tc.livestream_title || "OUR MOMENTS"} onClose={onClose}>
       <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-[#38bdf8]/40 bg-black shadow-[0_4px_24px_rgba(0,0,0,0.7),0_0_20px_rgba(56,189,248,0.15)]">
         <iframe
           src={src}

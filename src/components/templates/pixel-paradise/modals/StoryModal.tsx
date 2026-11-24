@@ -48,11 +48,12 @@ function Milestone({ story, i }: { story: StoryData; i: number }) {
   )
 }
 
-export default function StoryModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+export default function StoryModal({ profile, templateContent, onClose }: { profile: TemplateProps; templateContent?: Record<string, string>; onClose: () => void }) {
   const lang = normalizeLanguage(profile.language)
+  const tc = templateContent || {}
   const stories: StoryData[] = Array.isArray(profile.stories) ? profile.stories : []
   return (
-    <ModalShell icon="sports_esports" iconColor="pink" eyebrow="PIXEL LOVE • STAGE LOG" eyebrowColor="pink" title={lang === "en" ? "OUR LOVE STORY" : "KISAH CINTA KAMI"} onClose={onClose}>
+    <ModalShell icon="sports_esports" iconColor="pink" eyebrow="PIXEL LOVE • STAGE LOG" eyebrowColor="pink" title={tc.love_story_title || (lang === "en" ? "OUR LOVE STORY" : "KISAH CINTA KAMI")} onClose={onClose}>
       <div className="space-y-5">
         {stories.map((s, i) => (
           <Milestone key={i} story={s} i={i} />

@@ -36,6 +36,8 @@ export default function PixelCover({
   onOpen,
   backgroundUrl,
   language,
+  templateContent,
+  coverKicker,
 }: {
   groom_name?: string
   bride_name?: string
@@ -44,8 +46,11 @@ export default function PixelCover({
   onOpen: () => void
   backgroundUrl?: string
   language?: string
+  templateContent?: Record<string, string>
+  coverKicker?: string
 }) {
   const lang = normalizeLanguage(language)
+  const tc = templateContent || {}
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -86,7 +91,7 @@ export default function PixelCover({
           <CoinSeal initials={couple_initials || ""} />
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-[#38bdf8]/40 bg-[#38bdf8]/10 backdrop-blur-md mb-5 shadow-[0_0_12px_rgba(56,189,248,0.25)]">
             <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-[#8ed5ff]" style={{ ...PIXEL, textShadow: "0 0 8px rgba(56,189,248,0.8)" }}>
-              ✦ {t("theWeddingOf", lang).toUpperCase()} ✦
+              ✦ {coverKicker || tc.cover_kicker || t("theWeddingOf", lang).toUpperCase()} ✦
             </span>
           </div>
           <h1 className="flex flex-col items-center gap-1 leading-tight">

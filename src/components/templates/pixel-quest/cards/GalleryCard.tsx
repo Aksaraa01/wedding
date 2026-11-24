@@ -9,16 +9,19 @@ import CardShell from "./CardShell"
 // pixel-paradise gallery overlay (handled by the parent).
 export default function GalleryCard({
   photos,
+  content,
   onHide,
   onExpand,
 }: {
   photos: string[]
+  content?: Record<string, string>
   onHide: () => void
   onExpand: () => void
 }) {
+  const tc = content || {}
   if (photos.length === 0) return null
   return (
-    <CardShell icon="photo_library" eyebrow="STOP: GALLERY" title="OUR GALLERY" badge={`${photos.length} FOTO`} onHide={onHide}>
+    <CardShell icon="photo_library" eyebrow="STOP: GALLERY" title={tc.gallery_title || "OUR GALLERY"} badge={`${photos.length} FOTO`} onHide={onHide}>
       <button type="button" onClick={onExpand} className="block w-full text-left cursor-zoom-in active:scale-[0.99] transition-transform" aria-label="Lihat galeri penuh">
         <div className="grid grid-cols-3 gap-1.5">
           {photos.slice(0, 6).map((src, i) => (

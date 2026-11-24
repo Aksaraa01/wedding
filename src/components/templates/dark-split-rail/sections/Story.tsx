@@ -9,17 +9,19 @@ type Props = {
   stories: StoryData[]
   coupleLabel: string
   language?: string
+  title?: string
 }
 
-export default function Story({ stories, coupleLabel, language }: Props) {
+export default function Story({ stories, coupleLabel, language, title }: Props) {
   const lang = normalizeLanguage(language)
   const list = stories.filter((s) => s && (s.title || s.description || s.image_url))
   if (list.length === 0) return null
+  const resolvedTitle = (title || "").trim() || t("secStory", lang)
 
   return (
     <Section id="story" className="bg-black/[0.06]">
       <div className="text-center text-white">
-        <SectionHeading>{t("secStory", lang)}</SectionHeading>
+        <SectionHeading>{resolvedTitle}</SectionHeading>
         <p className="mt-2 text-[15px]" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
           {coupleLabel}
         </p>

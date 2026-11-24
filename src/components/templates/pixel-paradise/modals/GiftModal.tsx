@@ -36,20 +36,23 @@ export default function GiftModal({
   accounts,
   giftAddress,
   giftAddressName,
+  templateContent,
   onClose,
 }: {
   accounts: GiftAccountData[]
   giftAddress?: string
   giftAddressName?: string
+  templateContent?: Record<string, string>
   onClose: () => void
 }) {
+  const tc = templateContent || {}
   return (
     <ModalShell
       icon="featured_seasonal_and_gifts"
       iconColor="pink"
       eyebrow="GIFT SHOP"
       eyebrowColor="cyan"
-      title="WEDDING GIFT ♥"
+      title={tc.gift_intro_title || "WEDDING GIFT ♥"}
       onClose={onClose}
     >
       {accounts.map((a, i) => {
@@ -124,7 +127,7 @@ export default function GiftModal({
           THANK YOU
         </div>
         <p className="text-[13px] text-slate-200" style={FONT_BODY}>
-          Terima kasih atas doa restu &amp; tanda kasih Anda untuk petualangan baru kami.
+          {tc.gift_intro_description || "Terima kasih atas doa restu & tanda kasih Anda untuk petualangan baru kami."}
         </p>
       </div>
     </ModalShell>

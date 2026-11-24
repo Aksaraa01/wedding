@@ -20,6 +20,8 @@ type Props = {
   guestName?: string
   guestLinkStrict?: boolean
   language?: string
+  title?: string
+  intro?: string
 }
 
 function ArrowLeftIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
@@ -67,8 +69,11 @@ function initials(name?: string | null, lang: "id" | "en" = "id"): string {
   return `${first}${second}`.toUpperCase()
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict , language = "id"}: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict , language = "id", title, intro}: Props) {
   const lang = normalizeLanguage(language)
+  const resolvedTitle = (title || "").trim() || t("secWishes", lang)
+  const resolvedIntro = (intro || "").trim() ||
+    (lang === "en" ? "Share your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua.")
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -149,10 +154,10 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
 
   return (
     <Section id="wishes" className="border-t border-white/[0.08]">
-      <SectionHeading>{t("secWishes", lang)}</SectionHeading>
+      <SectionHeading>{resolvedTitle}</SectionHeading>
 
-      <p className="mx-auto mt-5 max-w-[360px] text-center leading-relaxed" style={{ ...FONT_BODY, color: "rgba(242,241,238,0.85)" }}>
-        {lang === "en" ? "Share your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua."}
+      <p className="mx-auto mt-5 max-w-[360px] text-center leading-relaxed whitespace-pre-line" style={{ ...FONT_BODY, color: "rgba(242,241,238,0.85)" }}>
+        {resolvedIntro}
       </p>
 
       <form

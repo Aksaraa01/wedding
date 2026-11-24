@@ -488,6 +488,33 @@ try {
   console.warn("! could not check i18n keys")
 }
 
+// ---------- 3b3. extras catalogue ----------
+// A registered field the template never renders is a dead input, and a
+// `tc.<key>` read with no field is copy the couple cannot edit. Both were
+// found by hand on 2026-11-24; the check makes that class of regression a
+// deploy blocker instead of a support ticket.
+try {
+  const out = execSync("npm run audit:extras 2>&1 || true", { encoding: "utf8" })
+  if (out.includes("✗")) fail(`extra-field catalogue is inconsistent:
+${out.slice(-2500)}`)
+  ok("extra-field catalogue consistent")
+} catch {
+  console.warn("! could not run audit:extras")
+}
+
+// ---------- 3b4. generated extras defaults ----------
+// EXTRA_DEFAULTS is generated from the templates' own fallback copy. Stale
+// means the editor hints the wrong string in one language.
+try {
+  const out = execSync("npm run check:extra-defaults 2>&1 || true", { encoding: "utf8" })
+  const line = out.trim().split("\n").pop() || ""
+  if (out.includes("✗")) fail(`generated extra defaults are stale:
+${out}`)
+  ok(line)
+} catch {
+  console.warn("! could not check generated extra defaults")
+}
+
 // ---------- 3c. one copy path ----------
 // A copy action must never serialise markup out of the DOM: iOS/iPadOS Safari
 // rewrites phone-shaped text into <a href="tel:…">, which is how a bank account

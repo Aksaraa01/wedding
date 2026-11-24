@@ -9,6 +9,7 @@ import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
 import { normalizeLanguage } from "@/lib/i18n"
+import { resolveLanguage } from "@/lib/templateNativeLang"
 
 export const dynamic = "force-dynamic"
 
@@ -16,10 +17,19 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("bride_name, groom_name, language")
+    .select("bride_name, groom_name, language, selected_template_id")
     .eq("id", id)
     .single()
-  const lang = normalizeLanguage(data?.language)
+  let metaCode: string | null = null
+  if (data?.selected_template_id) {
+    const { data: tpl } = await supabaseAdmin
+      .from("web_templates")
+      .select("code")
+      .eq("id", data.selected_template_id)
+      .maybeSingle()
+    metaCode = tpl?.code || null
+  }
+  const lang = resolveLanguage(data?.language, metaCode)
   const couple = [data?.groom_name, data?.bride_name].filter(Boolean).join(" & ")
   return {
     title: lang === "en" ? `Invitation Preview — ${couple}` : `Pratinjau Undangan — ${couple}`,
@@ -87,7 +97,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       groom_name={profile.groom_name}
       estimated_wedding_date={profile.estimated_wedding_date}
       slug={profile.slug || ""}
-      guest_name={normalizeLanguage(profile.language) === "en" ? "Guest" : "Tamu Undangan"}
+      guest_name={resolveLanguage(profile.language, templateCode) === "en" ? "Guest" : "Tamu Undangan"}
       couple_illustration_url={(thumbUrl(profile.couple_illustration_url, 800) as string) || undefined}
       cover_photos={(thumbUrl(profile.cover_photos, 1200) as typeof profile.cover_photos) || undefined}
       couple_initials={profile.couple_initials || undefined}
@@ -132,7 +142,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       wedding_profile_id={profile.id}
       event_type={profile.event_type || "wedding"}
       subject_gender={profile.subject_gender || undefined}
-      language={normalizeLanguage(profile.language)}
+      language={resolveLanguage(profile.language, templateCode)}
       event_labels={eventLabels(profile.event_type, profile.subject_gender, profile.language)}
       rsvp_max_pax={profile.rsvp_max_pax ?? undefined}
       feature_gates={{

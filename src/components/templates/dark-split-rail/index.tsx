@@ -93,6 +93,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
   }, [phase, progress, ready])
 
   const coupleLabel = resolveCoupleName(profile)
+  const tc = profile.template_content ?? {}
   const shortCoupleLabel =
     [profile.groom_name, profile.bride_name].map((n) => (n || "").trim()).filter(Boolean).join(" & ") ||
     coupleLabel
@@ -149,6 +150,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
             coupleLabel={shortCoupleLabel}
             guestName={profile.guest_name}
             dateShort={coverDate}
+            kicker={tc.cover_kicker}
             objectPosition={profile.template_demo ? "58% 50%" : "50% 50%"}
             onOpen={openInvitation}
             language={profile.language}

@@ -1,6 +1,6 @@
 "use client"
 
-import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
+import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 import { normalizeLanguage, t } from "@/lib/i18n"
 
@@ -51,12 +51,18 @@ function EventBlock({ session, align, lang = "id" }: { session: SessionData; ali
 
 // Renders all invited sessions on one page. With two sessions, keeps the
 // top-left / bottom-right composition; with one or more, alternates sides.
-export default function EventPage({ sessions, lang = "id" }: { sessions: SessionData[]; lang?: "id" | "en" }) {
+export default function EventPage({ sessions, lang = "id", content }: { sessions: SessionData[]; lang?: "id" | "en"; content?: Record<string, string> }) {
+  const tc = content || {}
   const list = (sessions || []).filter((s) => s && (s.date || s.venue || s.time || s.name || s.address))
   return (
     <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col px-6 pt-10 pb-16 pointer-events-auto select-none">
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/15 via-transparent to-transparent" />
       <div className="relative flex-1 w-full h-full flex flex-col justify-between px-5 pt-14 pb-4 gap-4">
+        {tc.events_title && (
+          <h1 className="text-[26px] font-bold tracking-tight text-center" style={{ ...FONT_DISPLAY, color: "#8C6212" }}>
+            {tc.events_title}
+          </h1>
+        )}
         {list.length > 0 ? (
           list.map((session, i) => (
             <EventBlock key={i} session={session} align={i % 2 === 0 ? "left" : "right"} lang={lang} />

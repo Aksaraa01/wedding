@@ -880,8 +880,21 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 ## 8.8 Bilingual (id/en) — mandatory for all in-house templates
 
 Every in-house template must render in Bahasa Indonesia (`id`) and English (`en`).
-Language is **couple-selected** in editor/ops (`wedding_profiles.language`, default `id`);
-every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect.
+Language is **couple-selected** in editor/ops (`wedding_profiles.language`), one of:
+
+| Stored value | Meaning |
+|---|---|
+| `default` | follow the design's own language (`TEMPLATE_NATIVE_LANG`) |
+| `id` | Bahasa Indonesia |
+| `en` | English |
+
+Every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect.
+
+`default` is a *preference*, never a third dictionary: resolve it at the render
+boundary (`resolveLanguage(profile.language, templateCode)` in
+`src/lib/templateNativeLang.ts`) and pass the resolved `"id" | "en"` to templates.
+Templates never see `default`. To make a new port default to English, add
+`"<code>": "en"` to `TEMPLATE_NATIVE_LANG` — that is the only place to change it.
 
 ### Rules
 
@@ -905,6 +918,13 @@ every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect
   `templateExtrasLabel(name, lang)` are lang-aware; pass current language.
 - **Guards:** `node scripts/check-i18n.mjs` must pass; `predeploy-guard.mjs` runs it.
   Every `t()/tf()` key must exist in `src/lib/i18n.ts`.
+- **Extras catalogue:** every `tc.<key>` a component reads must be registered for
+  that template and vice versa. `npm run audit:extras` fails on duplicates,
+  same-label collisions, uneditable reads and dead inputs; the guard runs it.
+- **Generated defaults:** `src/lib/templateExtraDefaults.ts` is generated from the
+  templates' own fallback copy. After editing a default, run
+  `npm run generate:extra-defaults`; `npm run check:extra-defaults` (guard) fails
+  when the file is stale.
 
 ### Mixed-language check (mandatory, before review)
 

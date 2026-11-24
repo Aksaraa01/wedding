@@ -62,6 +62,7 @@ ${SKYLINE_ATMOSPHERE_CSS}
 
 export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal, modalActive, wishOpen, onWishOpenChange }: RoomProps) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content || {}
   const [hint, setHint] = useState(true)
   // Art box is measured (never overflows): full image always visible, hotspots aligned.
   const { boxRef, boxStyle, onArtLoad } = useSceneFit(124, "390 / 513.2")
@@ -152,6 +153,8 @@ export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal
             weddingProfileId={profile.wedding_profile_id}
             guestId={profile.guest_id}
             guestName={profile.guest_name}
+            title={tc.wishes_title || "LIVE WISHES & DOA"}
+            intro={tc.wishes_intro}
           />
         </div>
       </div>

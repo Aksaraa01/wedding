@@ -116,6 +116,7 @@ export const TEMPLATE_EXTRA_SECTIONS: { key: string; label: string }[] = [
   { key: "dresscode", label: "DRESS CODE" },
   { key: "gift", label: "HADIAH" },
   { key: "wishes", label: "UCAPAN & DOA" },
+  { key: "rsvp", label: "RSVP" },
   { key: "closing", label: "PENUTUP" },
 ]
 
@@ -2267,7 +2268,8 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
 
 export function getTemplateExtraFields(templateCode: string | null | undefined, lang: "id" | "en" = "id"): TemplateExtraField[] {
   if (!templateCode) return []
-  const code = templateCode.toLowerCase()
+  const raw = templateCode.toLowerCase()
+  const code = EXTRA_ALIASES[raw] ?? raw
   const sectionOrder = new Map(TEMPLATE_EXTRA_SECTIONS.map((s, i) => [s.key, i]))
   return TEMPLATE_EXTRA_FIELDS
     .filter((field) => field.templates.includes(code))
@@ -3232,3 +3234,76 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "closing_message", label: "Pesan Penutup", labelEn: "Closing Message", section: "closing", order: 20, multiline: true, rows: 4, templates: ["noir"], placeholders: { noir: "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari kami." }, placeholdersEn: { noir: "From the bottom of our hearts, thank you for being part of our day." } },
   { key: "closing_brand", label: "Baris Merek di Penutup", labelEn: "Closing Brand Line", section: "closing", order: 30, templates: ["noir"], placeholders: { noir: "Undangan Pernikahan Digital" }, placeholdersEn: { noir: "Aksaraa — Digital Wedding Invitation" } },
 )
+
+// Headings that individual ports render but the shared table never declared.
+TEMPLATE_EXTRA_FIELDS.push(
+  { key: "couple_order", label: "Urutan Mempelai", labelEn: "Couple Order", section: "mempelai", order: 8, templates: ["noir"] },
+  { key: "hero_kicker", label: "Label Kecil Hero", labelEn: "Hero Kicker", section: "sampul", order: 11, templates: [] },
+  { key: "couple_title", label: "Judul Mempelai", labelEn: "Couple Heading", section: "mempelai", order: 10, templates: [] },
+  { key: "gallery_caption", label: "Keterangan Galeri", labelEn: "Gallery Caption", section: "galeri", order: 30, multiline: true, rows: 2, templates: [] },
+  { key: "rsvp_title", label: "Judul RSVP", labelEn: "RSVP Heading", section: "rsvp", order: 10, templates: [] },
+)
+
+// ── Per-template registration reconciliation ──────────────────────────────
+// The table above lists, per field, the templates that render it. These maps
+// are the audited delta between that table and what each component actually
+// reads (`tc.<key>`). `npm run audit:extras` fails if either side drifts:
+//   • ADD  = key a component reads but no field is registered for → uneditable
+//   • DROP = field registered for a template that never reads it → dead input
+// Code aliases cover the two templates whose map code differs from the folder
+// that holds their extras (and their generated defaults).
+export const EXTRA_ALIASES: Record<string, string> = {
+  "impasto-mosque-dark-gold": "impasto-mosque",
+  pixel_quest: "pixel-quest",
+}
+
+// Fields that exist for other templates but were never registered here.
+const EXTRA_ADD_TEMPLATES: Record<string, string[]> = {
+  "adat-banjar": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
+  "adat-betawi": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
+  "adat-dayak": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
+  "adat-jawa": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
+  "adat-minang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
+  "adat-palembang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
+  "adat-jawa-2": ["closing_title", "cover_kicker", "gallery_title", "gift_title", "hero_kicker", "inviting_title", "love_story_title", "video_title", "wishes_title"],
+  "lunar-blossom": ["closing_title", "countdown_title", "couple_title", "events_title", "gallery_caption", "gallery_title", "gift_title", "hero_kicker", "inviting_title", "love_story_title", "rsvp_title", "wishes_title"],
+  "minang-royal": ["cover_apology", "dresscode_note", "gallery_intro", "wishes_intro"],
+  "traditional-bugis-pinishi": ["events_intro"],
+}
+
+// Registered but never rendered by the template: the couple would edit a field
+// that changes nothing. Contact headings are read by the 11 adat templates,
+// not by the rest.
+const CONTACT_TITLE_READERS = new Set([
+  "adat-bali", "adat-banjar", "adat-batak", "adat-betawi", "adat-bugis", "adat-dayak",
+  "adat-jawa", "adat-melayu", "adat-minang", "adat-palembang", "traditional-bugis-pinishi",
+])
+const EXTRA_DROP_TEMPLATES: Record<string, string[]> = {
+  evermore: ["countdown_days", "countdown_hours", "countdown_minutes", "countdown_seconds", "events_intro", "events_title"],
+  "altar-garden": ["inviting_kicker", "opening_kicker"],
+  "piano-garden": ["inviting_kicker", "opening_kicker"],
+  noir: ["mempelai_intro", "mempelai_title"],
+  "adat-jawa-2": ["contacts_title"],
+}
+
+for (const [code, keys] of Object.entries(EXTRA_ADD_TEMPLATES)) {
+  for (const key of keys) {
+    const fields = TEMPLATE_EXTRA_FIELDS.filter((f) => f.key === key)
+    // Register on the shared field when one exists, else on the first override.
+    const target = fields.find((f) => !f.templates.includes(code))
+    if (target) target.templates.push(code)
+  }
+}
+for (const [code, keys] of Object.entries(EXTRA_DROP_TEMPLATES)) {
+  for (const key of keys) {
+    for (const field of TEMPLATE_EXTRA_FIELDS) {
+      if (field.key !== key) continue
+      field.templates = field.templates.filter((t) => t !== code)
+    }
+  }
+}
+for (const field of TEMPLATE_EXTRA_FIELDS) {
+  if (field.key !== "contacts_title") continue
+  const drop = field.templates.filter((code) => !CONTACT_TITLE_READERS.has(code))
+  if (drop.length) field.templates = field.templates.filter((code) => CONTACT_TITLE_READERS.has(code))
+}

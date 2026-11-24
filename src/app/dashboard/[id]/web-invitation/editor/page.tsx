@@ -20,6 +20,8 @@ import { waLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { MAX_CHILDREN, parseChildren, readChildren, resolveChildren, type InvitationChild } from "@/lib/children"
+import { LANGUAGE_PREFERENCE_OPTIONS, normalizeLanguagePreference } from "@/lib/i18n"
+import { resolveLanguage } from "@/lib/templateNativeLang"
 
 type Profile = {
   id: string
@@ -70,7 +72,7 @@ type Profile = {
   rundown_visible?: boolean
   contacts_visible?: boolean
   template_content?: Record<string, string> | null
-  language?: "id" | "en" | null
+  language?: "default" | "id" | "en" | null
 }
 
 type RundownItem = {
@@ -265,7 +267,7 @@ function EditorInner({ id }: { id: string }) {
     cover_photos: [],
     inviting_families: [],
     template_content: {},
-    language: "id",
+    language: "id" as "default" | "id" | "en",
   })
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
@@ -393,7 +395,7 @@ function EditorInner({ id }: { id: string }) {
         setData(prev => ({
           ...prev,
           ...p,
-          language: p.language === "en" ? "en" : "id",
+          language: normalizeLanguagePreference(p.language),
           display_name: p.display_name || "",
           link_thumbnail_url: p.link_thumbnail_url || "",
           link_thumbnail_disabled: p.link_thumbnail_disabled === true,
@@ -1688,8 +1690,8 @@ function EditorInner({ id }: { id: string }) {
         rsvp_max_pax={data.rsvp_max_pax ?? 2}
         event_type={data.event_type || profile?.event_type || "wedding"}
         subject_gender={data.subject_gender || profile?.subject_gender || undefined}
-        language={data.language === "en" ? "en" : "id"}
-        event_labels={profileView({ ...data, event_type: data.event_type || profile?.event_type, subject_gender: data.subject_gender || profile?.subject_gender, language: data.language }).labels}
+        language={resolveLanguage(data.language, template?.code)}
+        event_labels={profileView({ ...data, event_type: data.event_type || profile?.event_type, subject_gender: data.subject_gender || profile?.subject_gender, language: resolveLanguage(data.language, template?.code) }).labels}
         feature_gates={{
           story: gates.story.included,
           gift_address: gates.gift_address.included,
@@ -1918,25 +1920,29 @@ function EditorInner({ id }: { id: string }) {
                 <SidebarShimmer />
               ) : (
                 <>
-              {(isInhouse && (languageUiEnabled || data.language === "en")) && renderSection("bahasa", "language", "BAHASA UNDANGAN",
+              {(isInhouse && (languageUiEnabled || data.language !== "id")) && renderSection("bahasa", "language", "BAHASA UNDANGAN",
                 <div className="mt-6 space-y-4">
                   <div>
                     <label className="block font-label-md text-[10px] tracking-widest text-on-surface-variant mb-2">BAHASA UNDANGAN</label>
                     <div className="relative">
                       <select
                         className="input-editorial w-full font-body-md text-[14px] cursor-pointer appearance-none pr-10 bg-white"
-                        value={data.language === "en" ? "en" : "id"}
-                        onChange={(e) => updateField("language", e.target.value === "en" ? "en" : "id")}
+                        value={normalizeLanguagePreference(data.language)}
+                        onChange={(e) => updateField("language", normalizeLanguagePreference(e.target.value))}
                         disabled={isPublished || reviewMode}
                       >
-                        <option value="id">Bahasa Indonesia</option>
-                        <option value="en">English</option>
+                        {LANGUAGE_PREFERENCE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant pointer-events-none">expand_more</span>
                     </div>
                   </div>
                   <p className="font-body-md text-[12px] text-on-surface-variant leading-relaxed">
                     Seluruh undangan akan tampil dalam bahasa ini untuk semua tamu.
+                    {data.language === "default" && (
+                      <> Template ini akan tampil dalam <strong>{resolveLanguage("default", template?.code) === "en" ? "English" : "Bahasa Indonesia"}</strong>.</>
+                    )}
                   </p>
                 </div>
               )}

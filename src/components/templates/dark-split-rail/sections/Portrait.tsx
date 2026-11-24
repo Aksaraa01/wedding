@@ -10,17 +10,26 @@ type Props = {
   videoEmbed?: string
   photos: string[]
   language?: string
+  title?: string
+  intro?: string
 }
 
-export default function Portrait({ videoEmbed, photos, language }: Props) {
+export default function Portrait({ videoEmbed, photos, language, title, intro }: Props) {
   const lang = normalizeLanguage(language)
   const gallery = photos.filter(Boolean)
   if (!videoEmbed && gallery.length === 0) return null
+  const resolvedTitle = (title || "").trim() || (lang === "en" ? "Portrait of Us" : "Potret Kami")
+  const resolvedIntro = (intro || "").trim()
 
   return (
     <Section id="portrait" className="bg-black/[0.06]">
       <div className="text-center text-white">
-        <SectionHeading>{lang === "en" ? "Portrait of Us" : "Potret Kami"}</SectionHeading>
+        <SectionHeading>{resolvedTitle}</SectionHeading>
+        {resolvedIntro && (
+          <p className="mx-auto mt-5 max-w-[340px] text-[14px] leading-relaxed whitespace-pre-line" style={{ ...FONT_BODY, color: "rgba(255,255,255,0.85)" }}>
+            {resolvedIntro}
+          </p>
+        )}
 
         {videoEmbed && (
           <div className="mt-6">

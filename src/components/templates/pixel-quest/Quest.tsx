@@ -49,6 +49,7 @@ type Props = {
 
 export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, onWishOpenChange, galleryOpen, onGalleryOpenChange, onCardVisibilityChange }: Props) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content || {}
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
   const sessions = Array.isArray(profile.sessions) ? profile.sessions : []
@@ -199,19 +200,22 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
         <main className="relative z-30 px-4 pb-2 shrink-0">
           {step === "couple" && <CoupleCard profile={profile} onHide={() => setCardHidden(true)} />}
           {step === "story" && <StoryCard profile={profile} onHide={() => setCardHidden(true)} />}
-          {step === "events" && <EventsCard profile={profile} onHide={() => setCardHidden(true)} />}
-          {step === "gallery" && <GalleryCard photos={galleryPhotos} onHide={() => setCardHidden(true)} onExpand={() => onGalleryOpenChange(true)} />}
+          {step === "events" && <EventsCard profile={profile} content={tc} onHide={() => setCardHidden(true)} />}
+          {step === "gallery" && <GalleryCard photos={galleryPhotos} content={tc} onHide={() => setCardHidden(true)} onExpand={() => onGalleryOpenChange(true)} />}
           {step === "gift" && (
             <GiftCard
               lang={lang}
               accounts={accounts}
               giftAddress={gates.gift_address !== false ? profile.gift_address || undefined : undefined}
               giftAddressName={profile.gift_address_name || undefined}
+              content={tc}
               onHide={() => setCardHidden(true)}
             />
           )}
-          {step === "inviting" && <FamilyCard families={families} onHide={() => setCardHidden(true)} />}
-          {step === "video" && <VideoCard data={videoData} title={coupleTitle} onHide={() => setCardHidden(true)} language={profile.language} />}
+          {step === "inviting" && <FamilyCard families={families} content={tc} onHide={() => setCardHidden(true)} />}
+          {step === "video" && (
+            <VideoCard data={videoData} title={coupleTitle} content={tc} onHide={() => setCardHidden(true)} language={profile.language} />
+          )}
         </main>
       )}
 
@@ -303,6 +307,8 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
         weddingProfileId={profile.wedding_profile_id}
         guestId={profile.guest_id}
         guestName={profile.guest_name}
+        title={tc.wishes_title || "LIVE WISHES & DOA"}
+        intro={tc.wishes_intro}
         hideTrigger
       />
     </div>

@@ -6,7 +6,7 @@ import { countdownTarget, coverPhoto, formatDotDate, formatLongDate, gcalLink, t
 import { useCountdown } from "../../shared/useCountdown"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
-import { normalizeLanguage } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 function SessionCard({ session }: { session: SessionData }) {
   const badge = (session.name || "").trim().toUpperCase() || "MOMENT"
@@ -57,7 +57,9 @@ function SessionCard({ session }: { session: SessionData }) {
   )
 }
 
-export default function EventsModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+export default function EventsModal({ profile, templateContent, onClose }: { profile: TemplateProps; templateContent?: Record<string, string>; onClose: () => void }) {
+  const tc = templateContent || {}
+  const lang = normalizeLanguage(profile.language)
   const sessions: SessionData[] = (Array.isArray(profile.sessions) ? profile.sessions : []).filter((s) => s && (s.date || s.venue))
   const cover = coverPhoto(profile)
   const target = countdownTarget(sessions, profile.estimated_wedding_date)
@@ -66,7 +68,7 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
   const pad2 = (n: number) => String(n).padStart(2, "0")
 
   return (
-    <ModalShell icon="event" eyebrow="RETRO ARCADE LOUNGE" title="DATE & VENUE" onClose={onClose}>
+    <ModalShell icon="event" eyebrow={tc.save_date_label || "RETRO ARCADE LOUNGE"} title={tc.events_title || "DATE & VENUE"} onClose={onClose}>
       <div className="relative rounded-2xl overflow-hidden border-2 border-[#38bdf8]/40 group shadow-lg bg-[#090e1c]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={toTransformedUrl(cover, { width: 800 })} alt="Venue" className="w-full h-44 object-contain" />
@@ -113,6 +115,17 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
       {sessions.map((s, i) => (
         <SessionCard key={i} session={s} />
       ))}
+
+      {(profile.dresscode_visible !== false && (tc.dresscode_title || profile.dresscode?.description)) && (
+        <section className="p-3.5 rounded-2xl bg-[#081020]/95 border-2 border-[#38bdf8]/40 text-center">
+          <p className="text-[9px] tracking-wider uppercase text-[#f472b6]" style={FONT_PIXEL}>
+            {tc.dresscode_title || t("secDresscode", lang)}
+          </p>
+          {profile.dresscode?.description && (
+            <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{profile.dresscode.description}</p>
+          )}
+        </section>
+      )}
 
       {calLink && (
         <a

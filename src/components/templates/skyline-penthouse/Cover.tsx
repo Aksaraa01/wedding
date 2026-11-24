@@ -34,6 +34,7 @@ export default function SkylineCover({
   couple_initials,
   onOpen,
   language,
+  templateContent,
 }: {
   groom_name?: string
   bride_name?: string
@@ -41,8 +42,10 @@ export default function SkylineCover({
   couple_initials?: string
   onOpen: () => void
   language?: string
+  templateContent?: Record<string, string>
 }) {
   const lang = normalizeLanguage(language)
+  const tc = templateContent || {}
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -85,7 +88,7 @@ export default function SkylineCover({
             className="text-[11px] sm:text-[13px] uppercase tracking-[0.35em] text-transparent bg-clip-text bg-gradient-to-r from-[#bdc8d1] via-[#dee2f6] to-[#bdc8d1] mb-4"
             style={BODY}
           >
-            {t("theWeddingOf", lang)}
+            {tc.cover_kicker || t("theWeddingOf", lang)}
           </p>
           <h1 className="text-4xl md:text-5xl leading-tight tracking-tight" style={DISPLAY}>
             <span className="block">{groom_name || (lang === "en" ? "The Groom" : "Mempelai Pria")}</span>

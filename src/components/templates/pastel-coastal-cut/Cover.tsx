@@ -42,6 +42,7 @@ export default function PastelCover({
   bride_name,
   guest_name,
   estimated_wedding_date,
+  kicker,
   onOpen,
   language,
 }: {
@@ -49,6 +50,7 @@ export default function PastelCover({
   bride_name?: string
   guest_name?: string
   estimated_wedding_date?: string | null
+  kicker?: string
   onOpen: () => void
   language?: string
 }) {
@@ -83,8 +85,8 @@ export default function PastelCover({
           style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
         >
           <div className="relative flex flex-col items-center">
-            <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3B32", textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}>
-              {t("theWeddingOf", lang).toUpperCase()}
+            <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1 whitespace-pre-line" style={{ ...FONT_BODY, color: "#4A3B32", textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}>
+              {kicker || t("theWeddingOf", lang)}
             </h2>
             <h1 className="relative text-[3.8rem] leading-[1.08] py-0.5 px-2 font-normal" style={{ ...FONT_SCRIPT, color: "#FFFFFF", textShadow: "0 2px 6px rgba(74,52,39,0.45), 0 1px 2px rgba(74,52,39,0.35)" }}>
               <span className="block">{groom_name || (lang === "en" ? "Groom" : "Mempelai")} &amp;</span>

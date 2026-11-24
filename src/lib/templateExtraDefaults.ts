@@ -458,6 +458,26 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "The Celebration",
       "id": "Rangkaian Acara"
     },
+    "countdown_title": {
+      "en": "Counting Down",
+      "id": "Menuju Hari Bahagia"
+    },
+    "countdown_days": {
+      "en": "Days",
+      "id": "Hari"
+    },
+    "countdown_hours": {
+      "en": "Hours",
+      "id": "Jam"
+    },
+    "countdown_minutes": {
+      "en": "Minutes",
+      "id": "Menit"
+    },
+    "countdown_seconds": {
+      "en": "Seconds",
+      "id": "Detik"
+    },
     "events_intro": {
       "en": "With great joy and gratitude, we invite you to share in the celebration of our wedding day:",
       "id": "Dengan penuh sukacita dan rasa syukur, kami mengundang Anda untuk berbagi dalam perayaan hari pernikahan kami:"
@@ -1265,6 +1285,29 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us."
     }
   },
+  "impasto-mosque": {
+    "wishes_title": {
+      "id": "LIVE WISHES & DOA"
+    },
+    "closing_message": {
+      "en": "Thank You & Blessings",
+      "id": "Terima Kasih & Doa Restu"
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "gift_intro_title": {
+      "en": "Wedding Gift",
+      "id": "Tanda Kasih"
+    },
+    "gallery_title": {
+      "en": "Our Moments"
+    },
+    "love_story_title": {
+      "en": "Our Journey"
+    }
+  },
   "iris": {
     "closing_message": {
       "id": "Merupakan suatu kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari cerita kami."
@@ -2043,6 +2086,52 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "id": "Tanda Kasih"
     }
   },
+  "nihara-mist": {
+    "cover_apology": {
+      "en": "We apologize for any error in the writing of names & titles",
+      "id": "Kami mohon maaf apabila ada kesalahan penulisan nama dan gelar"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    },
+    "countdown_title": {
+      "en": "Counting the Days",
+      "id": "Menghitung Hari"
+    },
+    "love_story_title": {
+      "en": "Our Love Story",
+      "id": "Perjalanan Cinta"
+    },
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
+    },
+    "dresscode_title": {
+      "en": "Dress Code",
+      "id": "Tema Busana"
+    },
+    "gift_intro_title": {
+      "en": "Wedding Gift",
+      "id": "Tanda Kasih"
+    },
+    "gift_intro_description": {
+      "en": "Your presence is the greatest gift. If you would like to send a token of love, you can find the details below.",
+      "id": "Kehadiran Anda adalah hadiah terindah. Bila ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini."
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
+    },
+    "wishes_intro": {
+      "en": "Share your best wishes and prayers for us here.",
+      "id": "Berikan harapan dan doa terbaikmu di sini untuk kami berdua."
+    },
+    "closing_message": {
+      "en": "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day.",
+      "id": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari bahagia kami."
+    }
+  },
   "noir": {
     "dresscode_title": {
       "en": "Dress Code",
@@ -2060,9 +2149,17 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Open Invitation",
       "id": "Buka Undangan"
     },
-    "mempelai_title": {
-      "en": "The Couple",
-      "id": "Kedua Mempelai"
+    "welcome_note": {
+      "en": "With love and gratitude",
+      "id": "Kami yang berbahagia"
+    },
+    "groom_label": {
+      "en": "The Groom",
+      "id": "Mempelai Pria"
+    },
+    "bride_label": {
+      "en": "The Bride",
+      "id": "Mempelai Wanita"
     },
     "agenda_title": {
       "en": "The Celebration",
@@ -2351,6 +2448,42 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "id": "Buka Undangan"
     }
   },
+  "pastel-coastal-cut": {
+    "closing_message": {
+      "en": "It is an honor and joy for us to have your presence and blessings on our special day.",
+      "id": "Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara/i sekalian."
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "gift_intro_title": {
+      "en": "Wedding Gift",
+      "id": "Tanda Kasih"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    }
+  },
+  "pastel-dream-cathedral": {
+    "closing_message": {
+      "en": "It is an honor and joy for us to have your presence and blessings on our special day.",
+      "id": "Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara/i sekalian."
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "gift_intro_title": {
+      "en": "Wedding Gift",
+      "id": "Tanda Kasih"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    }
+  },
   "piano-garden": {
     "cover_apology": {
       "en": "We apologize for any error in the writing of names & titles",
@@ -2367,6 +2500,26 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "events_title": {
       "en": "The Celebration",
       "id": "Rangkaian Acara"
+    },
+    "countdown_title": {
+      "en": "Counting Down",
+      "id": "Menuju Hari Bahagia"
+    },
+    "countdown_days": {
+      "en": "Days",
+      "id": "Hari"
+    },
+    "countdown_hours": {
+      "en": "Hours",
+      "id": "Jam"
+    },
+    "countdown_minutes": {
+      "en": "Minutes",
+      "id": "Menit"
+    },
+    "countdown_seconds": {
+      "en": "Seconds",
+      "id": "Detik"
     },
     "events_intro": {
       "en": "With great joy and gratitude, we invite you to share in the celebration of our wedding day:",
@@ -2389,6 +2542,66 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "id": "Ucapan & Doa"
     }
   },
+  "pixel-paradise": {
+    "dresscode_title": {
+      "en": "Dress Code",
+      "id": "Tema Busana"
+    },
+    "inviting_title": {
+      "en": "WITH THE BLESSING OF",
+      "id": "TURUT MENGUNDANG"
+    },
+    "closing_message": {
+      "en": "A heartfelt thank you from the families of both the bride and groom for your prayers, attention, and presence.",
+      "id": "Ungkapan terima kasih yang tulus dari segenap keluarga besar kedua mempelai atas doa, perhatian, dan kehadiran Anda."
+    },
+    "gallery_title": {
+      "en": "OUR GALLERY"
+    },
+    "gift_intro_title": {
+      "en": "WEDDING GIFT ♥"
+    },
+    "gift_intro_description": {
+      "id": "Terima kasih atas doa restu & tanda kasih Anda untuk petualangan baru kami."
+    },
+    "love_story_title": {
+      "en": "OUR LOVE STORY",
+      "id": "KISAH CINTA KAMI"
+    },
+    "livestream_title": {
+      "en": "OUR MOMENTS"
+    },
+    "wishes_title": {
+      "id": "LIVE WISHES & DOA"
+    }
+  },
+  "pixel-quest": {
+    "events_title": {
+      "id": "Waktu & Lokasi Acara"
+    },
+    "closing_message": {
+      "id": "Merupakan kehormatan & kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu."
+    },
+    "gallery_title": {
+      "en": "OUR GALLERY"
+    },
+    "gift_intro_title": {
+      "en": "Wedding Gift & Berkah"
+    },
+    "gift_intro_description": {
+      "en": "Your blessings are the greatest gift. If you wish to send a token of love:",
+      "id": "Doa restu Anda merupakan karunia terindah bagi kami. Jika ingin memberikan tanda kasih secara cashless:"
+    },
+    "love_story_title": {
+      "en": "Metropolitan Love Story"
+    },
+    "livestream_title": {
+      "en": "Our Story Video"
+    },
+    "wishes_title": {
+      "id": "LIVE WISHES & DOA"
+    }
+  },
   "sandhya": {
     "cover_apology": {
       "en": "We apologize for any error in the writing of names & titles",
@@ -2397,6 +2610,10 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "gallery_quote": {
       "en": "Every love story is beautiful, but ours is my favorite.",
       "id": "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku."
+    },
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
     },
     "gift_intro_title": {
       "en": "Wedding Gift",
@@ -2417,6 +2634,22 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "countdown_title": {
       "en": "Counting Down",
       "id": "Menuju Hari Bahagia"
+    },
+    "countdown_days": {
+      "en": "Days",
+      "id": "Hari"
+    },
+    "countdown_hours": {
+      "en": "Hours",
+      "id": "Jam"
+    },
+    "countdown_minutes": {
+      "en": "Minutes",
+      "id": "Menit"
+    },
+    "countdown_seconds": {
+      "en": "Seconds",
+      "id": "Detik"
     },
     "opening_kicker": {
       "en": "With Joy",
@@ -2591,6 +2824,44 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "wishes_empty": {
       "en": "No wishes yet. Be the first.",
       "id": "Belum ada ucapan. Jadilah yang pertama."
+    }
+  },
+  "skyline-penthouse": {
+    "cover_kicker": {
+      "en": "The Wedding of",
+      "id": "Pernikahan"
+    },
+    "events_title": {
+      "en": "DATE & VENUE",
+      "id": "TANGGAL & LOKASI"
+    },
+    "dresscode_title": {
+      "en": "Dress Code",
+      "id": "Tema Busana"
+    },
+    "closing_message": {
+      "en": "A heartfelt thank you from the families of both the bride and groom for your prayers, attention, and presence.",
+      "id": "Ungkapan terima kasih yang tulus dari segenap keluarga besar kedua mempelai atas doa, perhatian, dan kehadiran Anda."
+    },
+    "gallery_title": {
+      "en": "OUR GALLERY"
+    },
+    "gift_intro_title": {
+      "en": "WEDDING GIFT"
+    },
+    "gift_intro_description": {
+      "en": "Thank you for your prayers, blessings, and tokens of love.",
+      "id": "Terima kasih atas doa restu & tanda kasih Anda"
+    },
+    "love_story_title": {
+      "en": "OUR LOVE STORY",
+      "id": "KISAH CINTA KAMI"
+    },
+    "livestream_title": {
+      "en": "OUR MOMENTS / TEASER"
+    },
+    "wishes_title": {
+      "id": "LIVE WISHES & DOA"
     }
   },
   "songket-marun": {

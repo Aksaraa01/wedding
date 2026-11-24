@@ -6,14 +6,15 @@ import { countdownTarget, formatDotDate, formatLongDate, gcalLink, type SessionD
 import { useCountdown } from "../../shared/useCountdown"
 import CardShell from "./CardShell"
 
-export default function EventsCard({ profile, onHide }: { profile: TemplateProps; onHide: () => void }) {
+export default function EventsCard({ profile, content, onHide }: { profile: TemplateProps; content?: Record<string, string>; onHide: () => void }) {
+  const tc = content || {}
   const sessions: SessionData[] = (Array.isArray(profile.sessions) ? profile.sessions : []).filter((s) => s && (s.date || s.venue))
   const target = countdownTarget(sessions, profile.estimated_wedding_date)
   const { days, hours, minutes, seconds } = useCountdown(target)
   const calLink = gcalLink(sessions[0], profile.groom_name, profile.bride_name)
   const pad2 = (n: number) => String(n).padStart(2, "0")
   return (
-    <CardShell icon="calendar_month" iconClassName="bg-pink-500/20 border-pink-400/50 text-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]" eyebrow="STOP 3: CEREMONY" title="Waktu & Lokasi Acara" badge="MAP 03" onHide={onHide}>
+    <CardShell icon="calendar_month" iconClassName="bg-pink-500/20 border-pink-400/50 text-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]" eyebrow={tc.save_date_label || "STOP 3: CEREMONY"} title={tc.events_title || "Waktu & Lokasi Acara"} badge="MAP 03" onHide={onHide}>
       {sessions.length === 0 && (
         <p className="text-center text-sm text-slate-400">
           {profile.estimated_wedding_date ? formatLongDate(profile.estimated_wedding_date) : "Detail acara akan segera diumumkan."}
@@ -77,6 +78,16 @@ export default function EventsCard({ profile, onHide }: { profile: TemplateProps
           </div>
         )
       })}
+      {(profile.dresscode_visible !== false && (tc.dresscode_title || profile.dresscode?.description)) && (
+        <div className="rounded-xl bg-[#090e1c]/90 border border-cyan-400/40 p-2.5 text-center">
+          <p className="text-[8px] tracking-widest uppercase text-cyan-300" style={FONT_PIXEL}>
+            {tc.dresscode_title || "DRESS CODE"}
+          </p>
+          {profile.dresscode?.description && (
+            <p className="text-[10px] text-slate-300 mt-1 leading-relaxed">{profile.dresscode.description}</p>
+          )}
+        </div>
+      )}
       {calLink && (
         <a
           href={calLink}

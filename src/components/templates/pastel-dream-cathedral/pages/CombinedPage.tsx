@@ -27,6 +27,10 @@ export default function CombinedPage({
 }) {
   const lang = (language === "en" ? "en" : "id") as "id" | "en"
   const videoEmbed = normalizeVideoUrl(profile.video_url)
+  const tc = profile.template_content ?? {}
+  const invitingTitle = (tc.inviting_title || "").trim() || t("secInviting", lang)
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
+  const giftIntro = (tc.gift_intro_description || "").trim()
 
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto px-4 pt-3 pb-16 space-y-4">
@@ -64,8 +68,8 @@ export default function CombinedPage({
                 {lang === "en" ? "Extended Family" : "Keluarga Besar"}
               </span>
             </div>
-            <h2 className="text-[20px] font-bold tracking-tight" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-              {t("secInviting", lang)}
+            <h2 className="text-[20px] font-bold tracking-tight whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
+              {invitingTitle}
             </h2>
           </div>
           <div className="bg-white/95 rounded-2xl p-4 border border-[#d4af37]/35 shadow-sm">
@@ -88,10 +92,15 @@ export default function CombinedPage({
                 {lang === "en" ? "Digital Envelope & Gifts" : "Amplop Digital & Hadiah"}
               </span>
             </div>
-            <h2 className="italic font-bold text-[19px]" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-              {t("secGift", lang)}
+            <h2 className="italic font-bold text-[19px] whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
+              {giftTitle}
             </h2>
           </div>
+          {giftIntro && (
+            <p className="text-center text-[12.5px] leading-relaxed mb-3 whitespace-pre-line" style={{ ...FONT_BODY, color: "#574E45" }}>
+              {giftIntro}
+            </p>
+          )}
           <div className="space-y-3">
             {accounts.map((a, i) => {
               const num = (a.account_number || "").trim()

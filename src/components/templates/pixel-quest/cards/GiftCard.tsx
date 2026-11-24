@@ -11,19 +11,22 @@ export default function GiftCard({
   accounts,
   giftAddress,
   giftAddressName,
+  content,
   onHide,
 }: {
   lang?: "id" | "en"
   accounts: GiftAccountData[]
   giftAddress?: string
   giftAddressName?: string
+  content?: Record<string, string>
   onHide: () => void
 }) {
+  const tc = content || {}
   return (
-    <CardShell icon="featured_seasonal_and_gifts" iconClassName="bg-amber-500/20 border-amber-400/50 text-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]" eyebrow="FINAL STAGE: COMPLETE" title="Wedding Gift & Berkah" badge="FINISH" badgeClassName="bg-amber-950/80 border-amber-500/40 text-amber-400" onHide={onHide}>
+    <CardShell icon="featured_seasonal_and_gifts" iconClassName="bg-amber-500/20 border-amber-400/50 text-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]" eyebrow="FINAL STAGE: COMPLETE" title={tc.gift_intro_title || "Wedding Gift & Berkah"} badge="FINISH" badgeClassName="bg-amber-950/80 border-amber-500/40 text-amber-400" onHide={onHide}>
       <div className="rounded-xl bg-[#090e1c]/90 border border-cyan-400/40 p-2.5 text-center">
         <p className="text-[11px] text-slate-300 leading-snug">
-          {lang === "en" ? "Your blessings are the greatest gift. If you wish to send a token of love:" : "Doa restu Anda merupakan karunia terindah bagi kami. Jika ingin memberikan tanda kasih secara cashless:"}
+          {tc.gift_intro_description || (lang === "en" ? "Your blessings are the greatest gift. If you wish to send a token of love:" : "Doa restu Anda merupakan karunia terindah bagi kami. Jika ingin memberikan tanda kasih secara cashless:")}
         </p>
       </div>
       {accounts.map((a, i) => {

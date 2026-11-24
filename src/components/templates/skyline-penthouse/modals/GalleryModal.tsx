@@ -3,11 +3,20 @@
 import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
 
-export default function GalleryModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+export default function GalleryModal({
+  profile,
+  templateContent,
+  onClose,
+}: {
+  profile: TemplateProps
+  templateContent?: Record<string, string>
+  onClose: () => void
+}) {
   const photos: string[] = (Array.isArray(profile.gallery_photos) ? profile.gallery_photos : []).filter(Boolean)
   if (photos.length === 0) return null
+  const tc = templateContent || {}
   return (
-    <ModalShell icon="photo_library" eyebrow="OUR MOMENTS" title="OUR GALLERY" onClose={onClose}>
+    <ModalShell icon="photo_library" eyebrow="OUR MOMENTS" title={tc.gallery_title || "OUR GALLERY"} onClose={onClose}>
       <div className="grid grid-cols-2 gap-3.5">
         {photos.map((src, i) => (
           <div key={i} className="rounded-2xl overflow-hidden border border-[#38bdf8]/40 bg-slate-900/50 aspect-[4/3]">

@@ -55,6 +55,7 @@ function useImpastoReady(profile: TemplateProps) {
 
 export default function ImpastoMosque(props: TemplateProps) {
   const lang = normalizeLanguage(props.language)
+  const tc = props.template_content || {}
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -121,6 +122,7 @@ export default function ImpastoMosque(props: TemplateProps) {
               guest_name={props.guest_name}
               estimated_wedding_date={props.estimated_wedding_date}
               onOpen={openInvitation}
+              templateContent={props.template_content}
             />
           ) : (
             <ImpastoPages profile={props} onWishOpenChange={onWishOpenChange} />
@@ -133,6 +135,8 @@ export default function ImpastoMosque(props: TemplateProps) {
               weddingProfileId={props.wedding_profile_id}
               guestId={props.guest_id}
               guestName={props.guest_name}
+              title={tc.wishes_title || "LIVE WISHES & DOA"}
+              intro={tc.wishes_intro}
               hideTrigger
             />
           )}

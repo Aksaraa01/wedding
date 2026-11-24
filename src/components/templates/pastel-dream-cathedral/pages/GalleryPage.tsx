@@ -1,14 +1,16 @@
 "use client"
 
 import { FONT_DISPLAY } from "../../shared/Skin"
+import { t } from "@/lib/i18n"
 
 const HEIGHTS = ["h-52", "h-40", "h-44", "h-48"]
 
-export default function GalleryPage({ photos }: { photos: string[] }) {
+export default function GalleryPage({ photos, title, lang = "id" }: { photos: string[]; title?: string; lang?: "id" | "en" }) {
+  const resolvedTitle = (title || "").trim() || t("secGallery", lang)
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto px-1 pt-5 pb-16">
-      <h1 className="text-center italic text-[30px] leading-tight mt-2 mb-4 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-        Our Moments
+      <h1 className="text-center italic text-[30px] leading-tight mt-2 mb-4 drop-shadow-sm whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
+        {resolvedTitle}
       </h1>
       <div className="columns-2 gap-3 space-y-3">
         {photos.map((src, i) => (

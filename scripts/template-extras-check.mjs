@@ -37,8 +37,11 @@ function templateCodes() {
   return [...map.matchAll(/^\s{2}"?([a-z0-9_-]+)"?:\s*[A-Za-z0-9_]+,/gim)].map((m) => m[1])
 }
 
+// Map code -> folder when the TEMPLATE_MAP key differs from the folder name.
+const FOLDER_ALIASES = { "impasto-mosque-dark-gold": "impasto-mosque", pixel_quest: "pixel-quest" }
+
 function componentFiles(code) {
-  const dir = path.join(TEMPLATES_DIR, code)
+  const dir = path.join(TEMPLATES_DIR, FOLDER_ALIASES[code] ?? code)
   if (!fs.existsSync(dir)) return []
   return fs
     .readdirSync(dir, { recursive: true })
@@ -50,7 +53,8 @@ function usedKeys(code) {
   const keys = new Set()
   for (const file of componentFiles(code)) {
     const src = fs.readFileSync(file, "utf8")
-    for (const m of src.matchAll(/(?<![A-Za-z0-9_-])tc\.([A-Za-z0-9_]+)/g)) keys.add(m[1])
+    // Templates name the template_content bag `tc`, `content` or `template`.
+    for (const m of src.matchAll(/(?<![A-Za-z0-9_-])(?:tc|content|template)\.([A-Za-z0-9_]+)/g)) keys.add(m[1])
   }
   return keys
 }

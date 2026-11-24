@@ -12,6 +12,7 @@ export default function ImpastoCover({
   bride_name,
   guest_name,
   estimated_wedding_date,
+  kicker,
   onOpen,
   language,
 }: {
@@ -19,6 +20,7 @@ export default function ImpastoCover({
   bride_name?: string
   guest_name?: string
   estimated_wedding_date?: string | null
+  kicker?: string
   onOpen: () => void
   language?: string
 }) {
@@ -57,8 +59,8 @@ export default function ImpastoCover({
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] pointer-events-none"
               style={{ background: "radial-gradient(circle, rgba(255,244,220,0.55) 0%, rgba(255,244,220,0.18) 45%, transparent 70%)" }}
             />
-            <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6)" }}>
-              {t("theWeddingOf", lang).toUpperCase()}
+            <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1 whitespace-pre-line" style={{ ...FONT_BODY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6)" }}>
+              {kicker || t("theWeddingOf", lang)}
             </h2>
             <h1 className="relative text-[3.4rem] leading-[1.08] py-1 px-2" style={{ ...FONT_SCRIPT, color: "#FFFFFF", textShadow: "0 2px 6px rgba(74,52,39,0.45), 0 1px 2px rgba(74,52,39,0.35)" }}>
               <span className="block">{groom_name || (lang === "en" ? "Groom" : "Mempelai")} &amp;</span>
