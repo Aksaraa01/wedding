@@ -3471,3 +3471,21 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
     if (hint.en) field.placeholdersEn = { ...(field.placeholdersEn || {}), [raw]: hint.en }
   }
 }
+
+/**
+ * The copy a template prints when the couple has not filled a field: the same
+ * text the editor shows as its hint. Merging this under the stored content
+ * makes "extra exists ⇒ the invitation shows the hint until it is changed"
+ * true for every template, without threading defaults through each component.
+ */
+export function templateContentWithDefaults(
+  templateCode: string | null | undefined,
+  lang: "id" | "en",
+  content: Record<string, string> | null | undefined,
+): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const field of getTemplateExtraFields(templateCode, lang)) {
+    if (field.placeholder) out[field.key] = field.placeholder
+  }
+  return { ...out, ...(content || {}) }
+}

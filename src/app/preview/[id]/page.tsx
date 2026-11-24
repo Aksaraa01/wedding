@@ -9,6 +9,7 @@ import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
 import { normalizeLanguage } from "@/lib/i18n"
+import { templateContentWithDefaults } from "@/lib/templateExtras"
 
 export const dynamic = "force-dynamic"
 
@@ -114,7 +115,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       video_url={profile.video_url || undefined}
       opening_title={profile.opening_title || undefined}
       opening_description={profile.opening_description || undefined}
-      template_content={(profile.template_content as Record<string, string>) || undefined}
+      template_content={templateContentWithDefaults(templateCode, normalizeLanguage(profile.language), profile.template_content as Record<string, string> | null)}
       preview_mode
       dresscode={(profile.dresscode as any) || undefined}
       livestream={(profile.livestream as any) || undefined}

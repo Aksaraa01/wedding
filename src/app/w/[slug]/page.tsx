@@ -20,6 +20,7 @@ import { profileView } from "@/lib/profileView"
 import { normalizeLanguage } from "@/lib/i18n"
 import InvitationExpired from "@/components/InvitationExpired"
 import { coupleUrl } from "@/lib/coupleUrl"
+import { templateContentWithDefaults } from "@/lib/templateExtras"
 
 export const revalidate = 60
 
@@ -506,7 +507,7 @@ export default async function WeddingInvitation({
         video_url={profile.video_url || undefined}
         opening_title={profile.opening_title || undefined}
         opening_description={profile.opening_description || undefined}
-        template_content={(profile.template_content as Record<string, string>) || undefined}
+        template_content={templateContentWithDefaults(templateCode, lang, profile.template_content as Record<string, string> | null)}
         dresscode={(profile.dresscode as any) || undefined}
         livestream={(profile.livestream as any) || undefined}
         dresscode_visible={(profile as any).dresscode_visible !== false}
