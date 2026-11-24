@@ -54,6 +54,49 @@ export function evaluateDowngrade({
 }
 
 /**
+ * Decide whether a live commit that is NOT an ancestor of the target can still
+ * be superseded safely: a hotfix branch cut from the deployed commit (e.g.
+ * `c0f5d766` cut from `136156b8`) has no ancestry link to the release train, so
+ * the ancestry check cannot prove the deploy keeps the hotfix. This compares the
+ * content instead — the files the live commit changed must be byte-identical in
+ * the target. Nothing is lost when they are, even though the SHA is.
+ *
+ * @param {object} input
+ * @param {string|null} input.liveCommit
+ * @param {string|null} input.targetCommit
+ * @param {string[]} input.changedFiles  files the live commit changed (vs its parent)
+ * @param {string[]} input.lostFiles     those of `changedFiles` that differ in the target
+ * @returns {{level: "warn"|"fail", message: string}}
+ */
+export function evaluateSupersession({ liveCommit, targetCommit, changedFiles, lostFiles }) {
+  const live = liveCommit ? String(liveCommit).slice(0, 7) : "?"
+  const target = targetCommit ? String(targetCommit).slice(0, 7) : "?"
+
+  if (!liveCommit || !targetCommit) {
+    return { level: "fail", message: `cannot prove supersession without both commits (live ${live}, target ${target})` }
+  }
+  if (!Array.isArray(changedFiles) || changedFiles.length === 0) {
+    return { level: "fail", message: `live prod ${live} is not an ancestor of ${target} and its diff against the parent is unreadable` }
+  }
+  if (Array.isArray(lostFiles) && lostFiles.length > 0) {
+    const shown = lostFiles.slice(0, 4).join(", ")
+    return {
+      level: "fail",
+      message:
+        `live prod ${live} is not an ancestor of ${target}, and ${lostFiles.length} file(s) it changed differ in the target (${shown}${lostFiles.length > 4 ? ", …" : ""}).\n` +
+        `  Deploying it would drop that hotfix. Rebuild on top of ${live} instead.`,
+    }
+  }
+  const shown = changedFiles.slice(0, 4).join(", ")
+  return {
+    level: "warn",
+    message:
+      `live prod ${live} is not an ancestor of ${target}, but the ${changedFiles.length} file(s) it changed are byte-identical in the target ` +
+      `(${shown}${changedFiles.length > 4 ? ", …" : ""}) — content-superseded, the hotfix is preserved.`,
+  }
+}
+
+/**
  * Cross-check the three sources of truth for what is in prod: the branch tip,
  * the last `deployed` ledger entry, and the live RELEASE.json. Report-only.
  *
