@@ -651,7 +651,7 @@ export default function Lace(profile: TemplateProps) {
         {/* ── Mempelai (the couple) ────────────────────────────── */}
         <section className="lc-section lc-couple" data-section="couple">
           <div className="lc-wrap lc-couple__head" data-lc-reveal>
-            <h2 className="lc-display lc-heading">The Bride &amp; Groom</h2>
+            <h2 className="lc-display lc-heading">{t("secCouple", lang)}</h2>
             {tc.profiles_intro && <p className="lc-body lc-couple__intro">{tc.profiles_intro}</p>}
           </div>
 
@@ -716,7 +716,7 @@ export default function Lace(profile: TemplateProps) {
             <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
             <span className="lc-bows" style={bandStyle(ART_BOWS)} aria-hidden="true" />
             <div className="lc-panel__body" data-lc-reveal>
-              <h2 className="lc-display lc-panel__title">Countdown</h2>
+              <h2 className="lc-display lc-panel__title">{t("secCountdown", lang)}</h2>
               <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="lc-link lc-link--light" href={calendarUrl} target="_blank" rel="noreferrer">
@@ -849,7 +849,7 @@ export default function Lace(profile: TemplateProps) {
           <section className="lc-panel lc-honored" data-section="inviting">
             <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
             <div className="lc-panel__body lc-honored__body" data-lc-reveal>
-              <h2 className="lc-display lc-panel__title lc-honored__title">With Honor</h2>
+              <h2 className="lc-display lc-panel__title lc-honored__title">{tc.inviting_title || t("secInviting", lang)}</h2>
               {tc.inviting_intro !== "" && (
                 <p className="lc-body lc-honored__intro">{tc.inviting_intro || (lang === "en" ? DEFAULT_INVITING : "Bersama keluarga yang turut mengundang dalam undangan ini.")}</p>
               )}
@@ -1029,7 +1029,7 @@ export default function Lace(profile: TemplateProps) {
           <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
           <div className="lc-panel__body lc-wishes__body" data-lc-reveal>
             <WishesHeart className="lc-wishes__mark" />
-            <h2 className="lc-display lc-panel__title">Wishes</h2>
+            <h2 className="lc-display lc-panel__title">{tc.wishes_title || t("secWishes", lang)}</h2>
             <p className="lc-body lc-wishes__intro">
               {tc.wishes_intro ||
                 "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish and let us know you are coming."}

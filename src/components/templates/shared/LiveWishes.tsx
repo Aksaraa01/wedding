@@ -133,7 +133,7 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(56,239,255,1)]" />
                 <h3 className="text-[11px] text-cyan-300 tracking-widest truncate max-w-[250px]" style={{ ...FONT_PIXEL, textShadow: "0 0 5px rgba(56,239,255,0.8)" }}>
-                  {title || "LIVE WISHES & DOA"}
+                  {title || (lang === "en" ? "LIVE WISHES & DOA" : "UCAPAN & DOA")}
                 </h3>
               </div>
               <button

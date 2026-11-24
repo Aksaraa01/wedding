@@ -468,7 +468,7 @@ export default function StillEver(profile: TemplateProps) {
         {honored.length > 0 && (
           <section className="se-section se-honored" data-section="inviting">
             <div className="se-wrap se-honored__inner" data-se-reveal>
-              <h2 className="se-display se-heading">With Honour</h2>
+              <h2 className="se-display se-heading">{t("secInviting", lang)}</h2>
               <span className="se-rule-short se-rule-short--center" aria-hidden="true" />
               <p className="se-text se-honored__intro">
                 With deep gratitude we also present the families who extend this invitation alongside us.
@@ -543,7 +543,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-events__head" data-se-reveal>
                 <p className="se-eyebrow">{lang === "en" ? "The Celebration" : "Rangkaian Acara"}</p>
-                <h2 className="se-display se-heading">{lang === "en" ? "When We Say Yes" : "Saat Kami Mengucapkan Janji"}</h2>
+                <h2 className="se-display se-heading">{tc.events_title || t("secEvent", lang)}</h2>
               </header>
 
               <div className="se-events__list">
@@ -590,7 +590,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
                 <p className="se-eyebrow">Rundown</p>
-                <h2 className="se-display se-heading">The Order of the Day</h2>
+                <h2 className="se-display se-heading">{tc.rundown_title || t("secRundown", lang)}</h2>
               </header>
 
               <ol className="se-rundown__list">
@@ -665,7 +665,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
                 <p className="se-eyebrow">{t("secLivestream", lang)}</p>
-                <h2 className="se-display se-heading">Join From Anywhere</h2>
+                <h2 className="se-display se-heading">{tc.livestream_title || t("secLivestream", lang)}</h2>
               </header>
 
               <div className="se-frame" data-se-reveal>
@@ -692,7 +692,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
                 <p className="se-eyebrow">In Motion</p>
-                <h2 className="se-display se-heading">A Piece Of Our Story</h2>
+                <h2 className="se-display se-heading">{tc.gallery_title || t("secGallery", lang)}</h2>
               </header>
 
               <div className="se-frame se-frame--video" data-se-reveal>
@@ -791,7 +791,7 @@ export default function StillEver(profile: TemplateProps) {
           <div className="se-wrap">
             <header className="se-section__head" data-se-reveal>
               <p className="se-eyebrow">With Love</p>
-              <h2 className="se-display se-heading">A Word For Us</h2>
+              <h2 className="se-display se-heading">{tc.wishes_title || t("secWishes", lang)}</h2>
               <p className="se-text se-wishes__intro">
                 {tc.wishes_intro || (lang === "en" ? "Leave a wish, a prayer, or a memory for us to keep." : "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.")}
               </p>
@@ -812,7 +812,7 @@ export default function StillEver(profile: TemplateProps) {
           <div className="se-closing__body">
             <div className="se-closing__inner" data-se-reveal>
               <p className="se-eyebrow">With All Our Hearts</p>
-              <h2 className="se-display se-closing__title">Until We Meet</h2>
+              <h2 className="se-display se-closing__title">{tc.closing_title || t("thankYou", lang)}</h2>
               <p className="se-text se-closing__message">{closingMessage}</p>
               <p className="se-closing__names">{coupleLabel}</p>
               {profile.display_name && <p className="se-closing__hashtag">{profile.display_name}</p>}

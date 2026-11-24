@@ -530,7 +530,7 @@ export default function BoardingPass(profile: TemplateProps) {
               <img className="bp-storylist__orn" src={ART("sprig")} alt="" aria-hidden="true" loading="lazy" {...IN("fade", 0.12)} />
               <div className="bp-storylist__head">
                 <p className="bp-mono bp-mono--teal" {...IN("fade")}>{t("secStory", lang)}</p>
-                <h2 className="bp-title" {...IN("up", 0.08)}>Catatan Perjalanan</h2>
+                <h2 className="bp-title" {...IN("up", 0.08)}>{t("secStory", lang)}</h2>
               </div>
 
               {stories.slice(0, 3).map((story, index) => {
@@ -550,7 +550,7 @@ export default function BoardingPass(profile: TemplateProps) {
                       </span>
                     </div>
                     <div className={`bp-story__copy bp-story__copy--${slot}`}>
-                      <h3 className="bp-story__title" {...IN("up", 0.12)}>{title || (lang === "en" ? "Our Journey" : "Perjalanan Kami")}</h3>
+                      <h3 className="bp-story__title" {...IN("up", 0.12)}>{title || t("secStory", lang)}</h3>
                       {story.description && <p className="bp-story__text" {...IN("fade", 0.18)}>{story.description}</p>}
                     </div>
                   </div>
@@ -568,7 +568,7 @@ export default function BoardingPass(profile: TemplateProps) {
             <div className="bp-flights" style={{ aspectRatio: events.length > 1 ? "390 / 806" : "390 / 500" }}>
               <div className="bp-flights__head">
                 <p className="bp-mono bp-mono--teal" {...IN("fade")}>Itinerary</p>
-                <h2 className="bp-title" {...IN("up", 0.08)}>Jadwal Keberangkatan</h2>
+                <h2 className="bp-title" {...IN("up", 0.08)}>{t("secRundown", lang)}</h2>
                 <p className="bp-body bp-body--tight" style={{ marginTop: "1.5cqw" }} {...IN("fade", 0.12)}>
                   {eventsNote}
                 </p>
@@ -693,8 +693,8 @@ export default function BoardingPass(profile: TemplateProps) {
         {rundown.length > 0 && (
           <section className="bp-section" data-section="rundown" aria-label="Jadwal acara">
             <div className="bp-head bp-head--left">
-              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Jadwal Keberangkatan</p>
-              <h2 className="bp-title" {...IN("up", 0.08)}>Run of Show</h2>
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>{t("secRundown", lang)}</p>
+              <h2 className="bp-title" {...IN("up", 0.08)}>{t("secRundown", lang)}</h2>
             </div>
             <div>
               {rundown.map((item, index) => (
@@ -754,7 +754,7 @@ export default function BoardingPass(profile: TemplateProps) {
           <section className="bp-section" data-section="video" aria-label={lang === "en" ? "On the journey" : "Dalam perjalanan"}>
             <div className="bp-head">
               <p className="bp-mono bp-mono--teal" {...IN("fade")}>{lang === "en" ? "On the Journey" : "Dalam Perjalanan"}</p>
-              <h2 className="bp-title" {...IN("up", 0.06)}>{lang === "en" ? "Our Film" : "Video"}</h2>
+              <h2 className="bp-title" {...IN("up", 0.06)}>{t("secVideo", lang)}</h2>
             </div>
             <div className="bp-film" {...IN("up", 0.18)}>
               <button type="button" className="bp-film__plate" onClick={() => setVideoOpen(true)} aria-label={lang === "en" ? "Play film" : "Putar film"}>
@@ -843,7 +843,7 @@ export default function BoardingPass(profile: TemplateProps) {
             <div className="bp-dress">
               <div className="bp-dress__head">
                 <p className="bp-mono bp-mono--teal" {...IN("fade")}>Sebelum Berangkat</p>
-                <h2 className="bp-title" {...IN("up", 0.06)}>Dress Code</h2>
+                <h2 className="bp-title" {...IN("up", 0.06)}>{tc.dresscode_title || t("secDresscode", lang)}</h2>
               </div>
 
               <span className="bp-dress__string" aria-hidden="true" {...IN("fade", 0.16)} />
@@ -870,9 +870,7 @@ export default function BoardingPass(profile: TemplateProps) {
         <section className="bp-section" data-section="wishes" aria-labelledby="bp-wishes-title">
           <div className="bp-head bp-head--left">
             <p className="bp-mono bp-mono--teal" {...IN("fade")}>Buku Tamu</p>
-            <h2 className="bp-title" id="bp-wishes-title" {...IN("up", 0.06)}>
-              Pesan &amp; Doa
-            </h2>
+            <h2 className="bp-title" id="bp-wishes-title" {...IN("up", 0.06)}>{tc.wishes_title || t("secWishes", lang)}</h2>
           </div>
           <div {...IN("up", 0.18)}>
             <Wishes

@@ -670,7 +670,7 @@ export default function NiharaMist(profile: TemplateProps) {
               ))}
               {hasLivestream && (
                 <article className={`event-card event-card--pos${events.length % 3}${isActive("events") && step === events.length ? " is-current" : ""}`}>
-                  <h3 className="event-card__title">Live Streaming</h3>
+                  <h3 className="event-card__title">{t("secLivestream", lang)}</h3>
                   <p className="event-card__venue serif-i">Join us virtually as we exchange our vows, for beloved family and friends who cannot be with us in person.</p>
                   <a className="btn-map" href={livestream.url} target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">

@@ -481,7 +481,7 @@ export default function NFilm(profile: TemplateProps) {
         {stories.length > 0 && (
           <section className="nf-section" data-section="story" aria-label="Love story">
             <div className="nf-head" data-nf-reveal>
-              <h2 className="nf-title">Episodes</h2>
+              <h2 className="nf-title">{t("secStory", lang)}</h2>
               <p className="nf-eyebrow">Love Story · Season 1</p>
             </div>
             <div className="nf-episodes">
@@ -505,7 +505,7 @@ export default function NFilm(profile: TemplateProps) {
         {events.length > 0 && (
           <section className="nf-section" id="nf-events" data-section="acara" aria-label="Time and place">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">Time &amp; Place</h2>
+              <h2 className="nf-title">{t("secEvent", lang)}</h2>
             </div>
             <div className="nf-events">
               {events.map((event, index) => (
@@ -560,7 +560,7 @@ export default function NFilm(profile: TemplateProps) {
         {rundown.length > 0 && (
           <section className="nf-section" data-section="rundown" aria-label="Run of show">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">Run of Show</h2>
+              <h2 className="nf-title">{tc.rundown_title || t("secRundown", lang)}</h2>
             </div>
             <div className="nf-rundown">
               {rundown.map((item, index) => (
@@ -577,7 +577,7 @@ export default function NFilm(profile: TemplateProps) {
         {gallery.length > 0 && (
           <section className="nf-section" data-section="galeri" aria-label="Our moment">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">Our Moment</h2>
+              <h2 className="nf-title">{tc.gallery_title || t("secGallery", lang)}</h2>
               <p className="nf-eyebrow" style={{ textTransform: "lowercase", letterSpacing: "1.2px" }}>
                 {texts.galleryIntro}
               </p>
@@ -709,9 +709,7 @@ export default function NFilm(profile: TemplateProps) {
         {/* 15 — wishes. RSVP is the floating dock, never a section. */}
         <section className="nf-section" id="nf-wishes" data-section="wishes" aria-labelledby="nf-wishes-title">
           <div className="nf-head nf-head--center" data-nf-reveal>
-            <h2 className="nf-title" id="nf-wishes-title">
-              Wishes
-            </h2>
+            <h2 className="nf-title" id="nf-wishes-title">{tc.wishes_title || t("secWishes", lang)}</h2>
           </div>
           <Wishes
             weddingProfileId={profile.wedding_profile_id}

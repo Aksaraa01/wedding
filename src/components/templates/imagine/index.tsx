@@ -876,7 +876,7 @@ export default function Imagine(props: TemplateProps) {
           {hasRundown && (
             <section className="tpl-rundown" data-section-order="rundown" aria-label={t("rundownTitle", lang)}>
               <div className="tpl-rundown__card" data-aos="fade-up" data-aos-duration="1000">
-                <h2 className="tpl-rundown__title" data-aos="zoom-in" data-aos-duration="1000">Rundown Acara</h2>
+                <h2 className="tpl-rundown__title" data-aos="zoom-in" data-aos-duration="1000">{tc.rundown_title || t("secRundown", lang)}</h2>
                 <div className="tpl-rundown__list">
                   {rundownItems.map((item, index) => (
                     <article
@@ -1135,7 +1135,7 @@ export default function Imagine(props: TemplateProps) {
             </div>
             <div className="wedding-wish-inner">
               <div className="wedding-wish-head">
-                <h1 className="wedding-wish-title" data-aos="fade-up" data-aos-duration="1200">Best Wishes</h1>
+                <h1 className="wedding-wish-title" data-aos="fade-up" data-aos-duration="1200">{tc.wishes_title || t("secWishes", lang)}</h1>
                 {tc.wishes_intro && (
                   <p className="wedding-wish-description" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200">
                     {tc.wishes_intro}
@@ -1157,7 +1157,7 @@ export default function Imagine(props: TemplateProps) {
           {/* THANK YOU NOTE */}
           <section className="notes-container" data-section-order="greet_thanks">
             <div className="note">
-              <h4 className="note-title" data-aos="fade-up" data-aos-duration="1200">Thank You</h4>
+              <h4 className="note-title" data-aos="fade-up" data-aos-duration="1200">{tc.closing_title || t("thankYou", lang)}</h4>
               <p className="note-description" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200">
                 {tc.closing_message ||
                   "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us."}

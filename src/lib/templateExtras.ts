@@ -3258,16 +3258,22 @@ export const EXTRA_ALIASES: Record<string, string> = {
 
 // Fields that exist for other templates but were never registered here.
 const EXTRA_ADD_TEMPLATES: Record<string, string[]> = {
-  "adat-banjar": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
-  "adat-betawi": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
-  "adat-dayak": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
-  "adat-jawa": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
-  "adat-minang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
-  "adat-palembang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title"],
+  "adat-banjar": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-betawi": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-dayak": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-jawa": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
   "adat-jawa-2": ["closing_title", "cover_kicker", "gallery_title", "gift_title", "hero_kicker", "inviting_title", "love_story_title", "video_title", "wishes_title"],
+  "adat-minang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-palembang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "boarding-pass": ["dresscode_title", "wishes_title"],
+  "imagine": ["rundown_title", "wishes_title", "closing_title"],
+  "ivory-lace": ["inviting_title", "dresscode_title", "wishes_title"],
+  "lace": ["inviting_title", "wishes_title"],
   "lunar-blossom": ["closing_title", "countdown_title", "couple_title", "events_title", "gallery_caption", "gallery_title", "gift_title", "hero_kicker", "inviting_title", "love_story_title", "rsvp_title", "wishes_title"],
-  "minang-royal": ["cover_apology", "dresscode_note", "gallery_intro", "wishes_intro"],
-  "traditional-bugis-pinishi": ["events_intro"],
+  "minang-royal": ["cover_apology", "dresscode_note", "gallery_intro", "wishes_intro", "gallery_title", "video_title", "wishes_title", "closing_title"],
+  "n-film": ["rundown_title", "gallery_title", "wishes_title"],
+  "still-ever": ["events_title", "rundown_title", "livestream_title", "wishes_title", "closing_title"],
+  "traditional-bugis-pinishi": ["events_intro", "love_story_title", "gallery_title", "save_date_label", "wishes_title"],
 }
 
 // Registered but never rendered by the template: the couple would edit a field

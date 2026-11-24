@@ -50,6 +50,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Love Gift",
       "id": "Tanda Kasih"
     },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    },
     "livestream_title": {
       "en": "Live Stream",
       "id": "Siaran Langsung"
@@ -129,6 +137,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "gift_intro_title": {
       "en": "Love Gift",
       "id": "Tanda Kasih"
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
     },
     "livestream_title": {
       "en": "Live Stream",
@@ -210,6 +226,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Love Gift",
       "id": "Tanda Kasih"
     },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    },
     "livestream_title": {
       "en": "Live Stream",
       "id": "Siaran Langsung"
@@ -247,6 +271,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "gift_intro_title": {
       "en": "Love Gift",
       "id": "Tanda Kasih"
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
     },
     "livestream_title": {
       "en": "Live Stream",
@@ -374,6 +406,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Love Gift",
       "id": "Tanda Kasih"
     },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    },
     "livestream_title": {
       "en": "Live Stream",
       "id": "Siaran Langsung"
@@ -411,6 +451,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "gift_intro_title": {
       "en": "Love Gift",
       "id": "Tanda Kasih"
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
     },
     "livestream_title": {
       "en": "Live Stream",
@@ -525,6 +573,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "cover_apology": {
       "en": "Please show this ticket with a smile.",
       "id": "Tunjukkan tiket ini dengan senyuman."
+    },
+    "dresscode_title": {
+      "en": "Dress Code",
+      "id": "Tema Busana"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
     }
   },
   "cinnabar-seal": {
@@ -1266,6 +1322,10 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "With the blessing of our families, we cordially invite you to the wedding of",
       "id": "Dengan restu keluarga kami, kami mengundang Anda ke pernikahan"
     },
+    "rundown_title": {
+      "en": "Order of Events",
+      "id": "Susunan Acara"
+    },
     "gallery_title": {
       "en": "Gallery Of Us",
       "id": "Galeri Kami"
@@ -1280,6 +1340,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     },
     "gift_intro_description": {
       "en": "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
+    },
+    "closing_title": {
+      "en": "Thank You",
+      "id": "Terima Kasih"
     },
     "closing_message": {
       "en": "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us."
@@ -1438,6 +1506,10 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Our Love Story",
       "id": "Perjalanan Cinta"
     },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
     "rundown_title": {
       "en": "Order of Events",
       "id": "Susunan Acara"
@@ -1457,6 +1529,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "gift_intro_description": {
       "en": "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
       "id": "Kehadiran Anda adalah hadiah terindah. Bila berkenan mengirimkan tanda kasih, detailnya tersedia di bawah ini."
+    },
+    "dresscode_title": {
+      "en": "Dress Code",
+      "id": "Tema Busana"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
     },
     "wishes_intro": {
       "en": "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish, and let us know you are coming.",
@@ -1484,6 +1564,10 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Dress Code",
       "id": "Tema Busana"
     },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
     "love_story_title": {
       "en": "How Our Story Began",
       "id": "Awal Kisah Kami"
@@ -1502,6 +1586,10 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     },
     "gift_intro_description": {
       "en": "Should you wish to give a gift, you may do so in cash or by bank transfer."
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
     },
     "wishes_intro": {
       "en": "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish and let us know you are coming."
@@ -2056,6 +2144,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Rundown",
       "id": "Susunan Acara"
     },
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
+    },
+    "video_title": {
+      "en": "Video",
+      "id": "Video"
+    },
     "gift_intro_title": {
       "en": "Wedding Gift",
       "id": "Tanda Kasih"
@@ -2063,6 +2159,14 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "gift_intro_description": {
       "en": "Without diminishing our respect, for those who wish to send a gift, it can be sent through:",
       "id": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
+    },
+    "closing_title": {
+      "en": "Thank You",
+      "id": "Terima Kasih"
     }
   },
   "n-film": {
@@ -2080,6 +2184,18 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "gift_intro_title": {
       "en": "Wedding Gift",
       "id": "Tanda Kasih"
+    },
+    "rundown_title": {
+      "en": "Order of Events",
+      "id": "Susunan Acara"
+    },
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
     }
   },
   "nihara-mist": {
@@ -3006,12 +3122,24 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "How Our Story Began",
       "id": "Awal Kisah Kami"
     },
+    "events_title": {
+      "en": "The Celebration",
+      "id": "Rangkaian Acara"
+    },
+    "rundown_title": {
+      "en": "Order of Events",
+      "id": "Susunan Acara"
+    },
     "gallery_title": {
-      "en": "The Days We Kept",
-      "id": "Hari-Hari yang Kami Simpan"
+      "en": "Gallery",
+      "id": "Galeri"
     },
     "gallery_quote": {
       "en": "A lifetime with you is the story I would choose again and again."
+    },
+    "livestream_title": {
+      "en": "Live Stream",
+      "id": "Siaran Langsung"
     },
     "gift_intro_title": {
       "en": "Wedding Gift",
@@ -3021,9 +3149,17 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
       "id": "Kehadiran Anda adalah hadiah terindah. Bila berkenan mengirimkan tanda kasih, detailnya tersedia di bawah ini."
     },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
+    },
     "wishes_intro": {
       "en": "Leave a wish, a prayer, or a memory for us to keep.",
       "id": "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan."
+    },
+    "closing_title": {
+      "en": "Thank You",
+      "id": "Terima Kasih"
     },
     "cover_apology": {
       "en": "We apologize for any misspelling of your name or title.",
@@ -3275,9 +3411,25 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Send your gift",
       "id": "Kirim Hadiah"
     },
+    "love_story_title": {
+      "en": "Our Love Story",
+      "id": "Perjalanan Cinta"
+    },
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
+    },
+    "save_date_label": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    },
     "rundown_title": {
       "en": "Order of Events",
       "id": "Susunan Acara"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
     },
     "contacts_title": {
       "en": "Contact Us",

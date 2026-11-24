@@ -42,7 +42,7 @@ export default function CombinedPage({
             </span>
           </div>
           <h2 className="italic text-[22px] font-bold tracking-tight mb-2" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-            {lang === "en" ? "Our Sacred Moments" : "Momen Sakral Kami"}
+            {t("secGallery", lang)}
           </h2>
           <div className="relative rounded-2xl overflow-hidden border border-[#d4af37]/35 bg-black/90 aspect-video">
             <iframe

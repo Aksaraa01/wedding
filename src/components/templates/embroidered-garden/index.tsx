@@ -772,7 +772,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <section className="eg-section eg-countdown" data-section="countdown">
             <div className="eg-countdown__frame" style={{ backgroundImage: `url(${ART_COUNTDOWN_FRAME})` }} aria-hidden="true" />
             <div className="eg-wrap eg-countdown__body" data-eg-reveal>
-              <h2 className="eg-display eg-heading">Countdown</h2>
+              <h2 className="eg-display eg-heading">{t("secCountdown", lang)}</h2>
               <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="eg-link" href={calendarUrl} target="_blank" rel="noreferrer">
@@ -852,7 +852,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <section className="eg-section eg-honored" data-section="inviting">
             <div className="eg-garland" style={{ backgroundImage: `url(${ART_GARLAND})` }} aria-hidden="true" />
             <div className="eg-wrap eg-honored__body" data-eg-reveal>
-              <h2 className="eg-display eg-heading">With Honour</h2>
+              <h2 className="eg-display eg-heading">{t("secInviting", lang)}</h2>
               {tc.inviting_intro && <p className="eg-body eg-honored__intro">{tc.inviting_intro}</p>}
               <ul className="eg-honored__list">
                 {honored.map((family, index) => (
@@ -872,7 +872,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             >
               <div className="eg-card__frame" data-eg-reveal>
               <p className="eg-kicker">Where we celebrate</p>
-              <h2 className="eg-display eg-heading">The Wedding Day</h2>
+              <h2 className="eg-display eg-heading">{t("secEvent", lang)}</h2>
               {tc.events_intro && <p className="eg-body eg-events__intro">{tc.events_intro}</p>}
               <div className="eg-events__list">
                 {events.map((event, index) => (
