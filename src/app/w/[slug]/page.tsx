@@ -337,7 +337,6 @@ export default async function WeddingInvitation({
     }
   }
 
-  const guestName = guestContext?.name || prettifyGuestSlug(to) || (resolveLanguage(profile.language, null) === "en" ? "Guest" : linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
   const visibleSessions = filterSessionsByScope(
     (profile.sessions as any[] | null) || [],
     guestContext?.invited_session_indexes ?? null,
@@ -388,6 +387,7 @@ export default async function WeddingInvitation({
     }
   }
   const lang = resolveLanguage(profile.language, templateCode)
+  const guestName = guestContext?.name || prettifyGuestSlug(to) || (lang === "en" ? "Guest" : linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
 
   // In-house templates default to "An Everlasting Love" when the couple has not
   // picked a track yet (they can override it in the editor music section).
@@ -603,7 +603,7 @@ feature_gates={{
         color: "#444748",
         marginBottom: "32px",
       }}>
-        Kepada Yth. {guestName}
+        {lang === "en" ? "Dear" : "Kepada Yth."} {guestName}
       </p>
       {weddingDate && (
         <p style={{
