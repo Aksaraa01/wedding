@@ -5,6 +5,7 @@ import { FONT_PIXEL } from "../../shared/Skin"
 import type { GiftAccountData } from "../../shared/lib"
 import { CopyButton } from "../../shared/CopyButton"
 import CardShell from "./CardShell"
+import { t } from "@/lib/i18n"
 
 export default function GiftCard({
   lang = "id",
@@ -23,7 +24,7 @@ export default function GiftCard({
 }) {
   const tc = content || {}
   return (
-    <CardShell icon="featured_seasonal_and_gifts" iconClassName="bg-amber-500/20 border-amber-400/50 text-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]" eyebrow="FINAL STAGE: COMPLETE" title={tc.gift_intro_title || "Wedding Gift & Berkah"} badge="FINISH" badgeClassName="bg-amber-950/80 border-amber-500/40 text-amber-400" onHide={onHide}>
+    <CardShell icon="featured_seasonal_and_gifts" iconClassName="bg-amber-500/20 border-amber-400/50 text-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]" eyebrow="FINAL STAGE: COMPLETE" title={tc.gift_intro_title || t("secGift", lang)} badge="FINISH" badgeClassName="bg-amber-950/80 border-amber-500/40 text-amber-400" onHide={onHide}>
       <div className="rounded-xl bg-[#090e1c]/90 border border-cyan-400/40 p-2.5 text-center">
         <p className="text-[11px] text-slate-300 leading-snug">
           {tc.gift_intro_description || (lang === "en" ? "Your blessings are the greatest gift. If you wish to send a token of love:" : "Doa restu Anda merupakan karunia terindah bagi kami. Jika ingin memberikan tanda kasih secara cashless:")}

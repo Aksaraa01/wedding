@@ -125,7 +125,7 @@ export default function LoveLine(profile: TemplateProps) {
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
   const dressIntro =
     (tc.dresscode_intro || profile.dresscode?.description || "").trim() ||
-    "Your presence is the greatest gift, but we'd love it if you dressed in our colour palette."
+    (lang === "en" ? "Your presence is the greatest gift, but we'd love it if you dressed in our colour palette." : "Kehadiran Anda adalah hadiah terindah, namun kami akan senang bila Anda mengenakan busana senada dengan palet warna kami.")
   const hasDresscode = profile.dresscode_visible !== false && (dressColors.length > 0 || !!dressIntro)
 
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
@@ -150,38 +150,38 @@ export default function LoveLine(profile: TemplateProps) {
   const openingTitle = (profile.opening_title || "").trim()
   const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING
   const quoteText = (profile.quote_text || "").trim()
-  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingMessage = (tc.closing_message || "").trim() || (lang === "en" ? DEFAULT_CLOSING : "Merupakan suatu kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari cerita kami.")
 
-  const coverKicker = (tc.cover_kicker || "").trim() || "you're invited to our wedding"
+  const coverKicker = (tc.cover_kicker || "").trim() || t("weddingInvitation", lang)
   const coverGuestLabel = (tc.cover_guest_label || "").trim() || (lang === "en" ? "Dear honoured guest" : "Tamu yang terhormat")
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
-  const apology = (tc.cover_apology || "").trim() || DEFAULT_APOLOGY
-  const openingKicker = (tc.opening_kicker || "").trim() || "with grateful hearts"
-  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "two people, one story"
+  const apology = (tc.cover_apology || "").trim() || (lang === "en" ? DEFAULT_APOLOGY : "Kami mohon maaf apabila terdapat kesalahan penulisan nama atau gelar.")
+  const openingKicker = (tc.opening_kicker || "").trim() || t("secOpening", lang)
+  const mempelaiKicker = (tc.mempelai_kicker || "").trim() || t("secCouple", lang)
   const mempelaiTitle = (tc.mempelai_title || "").trim() || (lang === "en" ? "The Couple" : "Mempelai")
-  const personOneLabel = (tc.person_one_label || "").trim() || "the one"
-  const personTwoLabel = (tc.person_two_label || "").trim() || "the beauty"
-  const parentsLabelMale = (tc.parents_label_male || "").trim() || "son of"
-  const parentsLabelFemale = (tc.parents_label_female || "").trim() || "daughter of"
-  const storyKicker = (tc.story_kicker || "").trim() || "our journey"
+  const personOneLabel = (tc.person_one_label || "").trim() || (lang === "en" ? "the one" : "mempelai pria")
+  const personTwoLabel = (tc.person_two_label || "").trim() || (lang === "en" ? "the beauty" : "mempelai wanita")
+  const parentsLabelMale = (tc.parents_label_male || "").trim() || t("sonOf", lang)
+  const parentsLabelFemale = (tc.parents_label_female || "").trim() || t("daughterOf", lang)
+  const storyKicker = (tc.story_kicker || "").trim() || t("secStory", lang)
   const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Story" : "Kisah")
   const storyIntro = (tc.story_intro || "").trim() || (lang === "en" ? "The small chapters that brought us here." : "Bab-bab kecil yang membawa kami ke sini.")
-  const eventsKicker = (tc.events_kicker || "").trim() || "details of our big day"
+  const eventsKicker = (tc.events_kicker || "").trim() || t("secEvent", lang)
   const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Date & Venue" : "Tanggal & Tempat")
   const eventsIntro = (tc.events_intro || "").trim() || (lang === "en" ? "We would be honoured to have you with us." : "Merupakan kehormatan bagi kami jika Anda dapat hadir.")
   const mapsLabel = (tc.maps_label || "").trim() || (lang === "en" ? "Open Map" : "Buka Peta")
   const calendarLabel = (tc.events_note || "").trim() || t("saveToCalendar", lang)
   const countdownIntro = (tc.countdown_intro || "").trim() || "counting down"
-  const invitingKicker = (tc.inviting_kicker || "").trim() || "with honour"
+  const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || t("secInviting", lang)
   const invitingIntro = (tc.inviting_intro || "").trim() || (lang === "en" ? "With gratitude, we also invite our families and friends." : "Dengan rasa syukur, kami juga mengundang keluarga dan sahabat kami.")
   const rundownKicker = (tc.rundown_kicker || "").trim() || "programme"
   const rundownTitle = (tc.rundown_title || "").trim() || (lang === "en" ? "Schedule" : "Jadwal")
   const rundownIntro = (tc.rundown_intro || "").trim() || (lang === "en" ? "How the day will unfold." : "Bagaimana hari akan berlangsung.")
-  const galleryKicker = (tc.gallery_kicker || "").trim() || "our moments"
+  const galleryKicker = (tc.gallery_kicker || "").trim() || t("secGallery", lang)
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Gallery" : "Galeri")
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
-  const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT_INTRO
+  const giftIntro = (tc.gift_intro_description || "").trim() || (lang === "en" ? DEFAULT_GIFT_INTRO : "Doa restu Anda sudah lebih dari cukup. Jika ingin memberi lebih, kami menerimanya dengan penuh rasa syukur.")
   const giftTransferLabel = (tc.gift_button || "").trim() || (lang === "en" ? "Direct Transfer" : "Transfer Langsung")
   const giftAddressLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const transferNote = (tc.gift_transfer_note || "").trim() || (lang === "en" ? "Transfer directly to the account below:" : "Transfer langsung ke rekening di bawah ini:")

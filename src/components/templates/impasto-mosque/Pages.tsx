@@ -117,9 +117,9 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
       case "bride":
         return <PersonPage profile={profile} side="bride" language={profile.language} />
       case "gallery":
-        return <GalleryPage photos={galleryPhotos} content={tc} />
+        return <GalleryPage photos={galleryPhotos} content={tc} language={profile.language} />
       case "story":
-        return <StoryPage stories={stories} content={tc} />
+        return <StoryPage stories={stories} content={tc} language={profile.language} />
       case "events":
         return <EventPage sessions={sessions as any} lang={lang} content={tc} />
       case "countdown":

@@ -1,6 +1,6 @@
 "use client"
 
-import { normalizeLanguage } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import { FONT_PIXEL } from "../../shared/Skin"
 import CardShell from "./CardShell"
 
@@ -12,7 +12,7 @@ export default function VideoCard({ data, title, content, onHide, language = "id
   const tc = content || {}
   if (!data) return null
   return (
-    <CardShell icon="movie" eyebrow="CINEMA TEASER" title={tc.livestream_title || "Our Story Video"} badge="4K HD" badgeClassName="bg-pink-950/80 border-pink-500/40 text-pink-400" onHide={onHide}>
+    <CardShell icon="movie" eyebrow="CINEMA TEASER" title={tc.livestream_title || t("secVideo", lang)} badge="4K HD" badgeClassName="bg-pink-950/80 border-pink-500/40 text-pink-400" onHide={onHide}>
       {data.state === "loading" ? (
         <p className="text-center text-sm text-slate-400">{lang === "en" ? "Loading video…" : "Memuat video…"}</p>
       ) : data.state === "none" ? (

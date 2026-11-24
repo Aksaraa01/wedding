@@ -414,7 +414,7 @@ export default function StillEver(profile: TemplateProps) {
         {profile.quote_text && (
           <section className="se-section se-quote" data-section="quote">
             <div className="se-wrap se-quote__inner" data-se-reveal>
-              <p className="se-eyebrow">{tc.quote_title || "A Word From Us"}</p>
+              <p className="se-eyebrow">{tc.quote_title || t("secQuote", lang)}</p>
               <blockquote className="se-quote__text">{profile.quote_text}</blockquote>
               {profile.quote_source && <cite className="se-quote__source">{profile.quote_source}</cite>}
             </div>
@@ -650,7 +650,7 @@ export default function StillEver(profile: TemplateProps) {
               {(tc.gallery_quote || coupleLabel) && (
                 <figure className="se-gallery__quote" data-se-reveal>
                   <blockquote>
-                    “{tc.gallery_quote || "A lifetime with you is the story I would choose again and again."}”
+                    “{tc.gallery_quote || (lang === "en" ? "A lifetime with you is the story I would choose again and again." : "Hidup bersamamu adalah kisah yang akan kupilih lagi dan lagi.")}”
                   </blockquote>
                   <figcaption>, {coupleLabel}</figcaption>
                 </figure>

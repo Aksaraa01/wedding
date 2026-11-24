@@ -4,6 +4,7 @@ import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const frame = (i: number) =>
   i % 2 === 0
@@ -21,9 +22,10 @@ export default function GalleryModal({
 }) {
   const photos: string[] = (Array.isArray(profile.gallery_photos) ? profile.gallery_photos : []).filter(Boolean)
   if (photos.length === 0) return null
+  const lang = normalizeLanguage(profile.language)
   const tc = templateContent || {}
   return (
-    <ModalShell icon="photo_library" eyebrow="LEVEL SELECT" title={tc.gallery_title || "OUR GALLERY"} onClose={onClose}>
+    <ModalShell icon="photo_library" eyebrow="LEVEL SELECT" title={tc.gallery_title || t("secGallery", lang)} onClose={onClose}>
       <div className="grid grid-cols-2 gap-3">
         {photos.map((src, i) => (
           <div key={i} className={`relative p-[2px] rounded-lg bg-gradient-to-br ${frame(i)}`}>

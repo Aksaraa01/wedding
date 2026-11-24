@@ -203,14 +203,14 @@ export default function BoardingPass(profile: TemplateProps) {
   const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION[lang]
   const hasQuote = !!((profile.quote_text || "").trim())
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING[lang]
-  const galleryIntro = (tc.gallery_intro || "").trim() || "oleh-oleh dari perjalanan kami"
+  const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "souvenirs from our journey" : "oleh-oleh dari perjalanan kami")
   const giftIntroTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim()
   // Dress-code prose lives in template_content because the editor exposes no
   // description field for that section.
   const dressIntro = (tc.dresscode_intro || "").trim() || (profile.dresscode?.description || "").trim()
   const heroTagline = (tc.hero_tagline || "").trim() || (lang === "en" ? "final destination: our big day" : "tujuan akhir: hari bahagia kami")
-  const boardFooter = (tc.board_footer || "").trim() || "sampai jumpa di gerbang keberangkatan"
+  const boardFooter = (tc.board_footer || "").trim() || (lang === "en" ? "see you at the departure gate" : "sampai jumpa di gerbang keberangkatan")
   const eventsNote = (tc.events_note || "").trim() || (lang === "en" ? "Please arrive 30 minutes before boarding." : "Mohon hadir 30 menit sebelum boarding.")
   const seatClass = (tc.seat_class || "").trim() || "VIP"
   const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Leave your best wishes and prayers for our new journey." : "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.")

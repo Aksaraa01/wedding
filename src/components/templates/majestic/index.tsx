@@ -236,7 +236,7 @@ export default function Majestic(profile: TemplateProps) {
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
   const storyTitle = (tc.love_story_title || "").trim() || (lang === "en" ? "Love Story" : "Kisah Cinta")
-  const storyIntro = (tc.story_intro || "").trim() || DEFAULT_STORY_INTRO
+  const storyIntro = (tc.story_intro || "").trim() || (lang === "en" ? "The small chapters that brought us to this day." : DEFAULT_STORY_INTRO)
   const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "The Wedding Day" : "Hari Pernikahan")
   const eventsNote = (tc.events_note || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || t("viewLocation", lang)
@@ -259,7 +259,7 @@ export default function Majestic(profile: TemplateProps) {
   const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "The Film" : "Video")
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || (lang === "en" ? "The Wedding Gift" : "Hadiah Pernikahan")
-  const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
+  const giftIntro = (tc.gift_intro_description || "").trim() || (lang === "en" ? "Your blessings are more than enough. If you wish to give a gift, we will receive it with gratitude." : DEFAULT_GIFT)
   const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const copyAccount = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
   const copyAddress = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
@@ -278,7 +278,7 @@ export default function Majestic(profile: TemplateProps) {
   const wishEmpty = (tc.wishes_empty || "").trim() || (lang === "en" ? "No wishes yet. Be the first." : "Belum ada ucapan. Jadilah yang pertama.")
   const wishLoading = (tc.wishes_loading || "").trim() || (lang === "en" ? "Loading wishes" : "Memuat ucapan")
   const closingTitle = (tc.closing_title || "").trim() || t("secClosing", lang)
-  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingMessage = (tc.closing_message || "").trim() || (lang === "en" ? "It is a joy and an honour for us if you would attend and give your blessing." : DEFAULT_CLOSING)
   const apology = (tc.cover_apology || "").trim()
 
   // "Hashtag Instagram Post" is stored in display_name (editor field). A value

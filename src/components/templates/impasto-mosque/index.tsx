@@ -135,7 +135,7 @@ export default function ImpastoMosque(props: TemplateProps) {
               weddingProfileId={props.wedding_profile_id}
               guestId={props.guest_id}
               guestName={props.guest_name}
-              title={tc.wishes_title || "LIVE WISHES & DOA"}
+              title={tc.wishes_title || t("secWishes", lang)}
               intro={tc.wishes_intro}
               hideTrigger
             />

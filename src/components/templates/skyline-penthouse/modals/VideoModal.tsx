@@ -1,6 +1,6 @@
 "use client"
 
-import { normalizeLanguage } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import ModalShell from "./ModalShell"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
@@ -29,7 +29,7 @@ export default function VideoModal({ data, onClose, language = "id", templateCon
 
   if (data.state === "none") {
     return (
-      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || "OUR MOMENTS"} onClose={onClose}>
+      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || t("secVideo", lang)} onClose={onClose}>
         <p className="text-center text-sm text-slate-400">{lang === "en" ? "Video not available yet." : "Video belum tersedia."}</p>
       </ModalShell>
     )
@@ -37,7 +37,7 @@ export default function VideoModal({ data, onClose, language = "id", templateCon
 
   if (data.state === "loading") {
     return (
-      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || "OUR MOMENTS"} onClose={onClose}>
+      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || t("secVideo", lang)} onClose={onClose}>
         <p className="text-center text-sm text-slate-400">{lang === "en" ? "Loading video…" : "Memuat video…"}</p>
       </ModalShell>
     )
@@ -47,7 +47,7 @@ export default function VideoModal({ data, onClose, language = "id", templateCon
   const src = `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&mute=1&rel=0&playsinline=1`
 
   return (
-    <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || "OUR MOMENTS / TEASER"} onClose={onClose}>
+    <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || t("secVideo", lang)} onClose={onClose}>
       <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-[#38bdf8]/40 bg-black">
         <iframe
           src={src}

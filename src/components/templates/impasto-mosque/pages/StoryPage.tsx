@@ -2,14 +2,16 @@
 
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import type { StoryData } from "../../shared/lib"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
-export default function StoryPage({ stories, content }: { stories: StoryData[]; content?: Record<string, string> }) {
+export default function StoryPage({ stories, content , language}: { stories: StoryData[]; content?: Record<string, string> ; language?: string}) {
+  const lang = normalizeLanguage(language)
   const tc = content || {}
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto px-1 pt-2 pb-16">
       <div className="text-center mb-5 flex flex-col items-center">
         <h1 className="text-[26px] font-bold tracking-tight" style={{ ...FONT_DISPLAY, color: "#8C6212" }}>
-          {tc.love_story_title || "Our Journey"}
+          {tc.love_story_title || t("secStory", lang)}
         </h1>
         <div className="flex items-center justify-center gap-3 w-48 mt-3 text-[#d4af37]/50">
           <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#d4af37]/40" />

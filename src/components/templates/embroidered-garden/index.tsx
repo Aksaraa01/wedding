@@ -362,7 +362,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   // names and date), with `welcome_message` as the fallback for invitations
   // authored before this mapping existed.
   const welcomeMessage =
-    (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
+    (profile.opening_description || "").trim() || tc.welcome_message || (lang === "en" ? DEFAULT_WELCOME : "Dengan penuh rasa syukur kami mengundang Anda untuk berbagi hari dimulainya selamanya kami.")
   const openingTitle = (profile.opening_title || "").trim() || (lang === "en" ? "Together with their families" : "Bersama keluarga kami")
   const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")

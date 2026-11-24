@@ -159,7 +159,7 @@ export default function MinangRoyal(profile: TemplateProps) {
   const dateLong = dotDate(profile.estimated_wedding_date || events[0]?.date)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : "Keluarga & Sahabat. Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari besar kami. Kami sangat beruntung memiliki Anda dalam hidup kami.")
   const quoteText = profile.quote_text || ""
   const quoteSource = profile.quote_source || ""
   const monogram = ((profile.couple_initials || "").trim() || [profile.groom_name, profile.bride_name]
@@ -423,7 +423,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                   <h1 className="agenda-title">{tc.events_title || t("secEvent", lang)}</h1>
                   <p className="agenda-description">
                     {tc.events_intro ||
-                      "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:"}
+                      (lang === "en" ? "To fulfil Your religious law and follow the sunnah of Your Messenger in building a family of sakinah, mawaddah and warahmah, insya Allah we will hold our wedding on:" : "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:")}
                   </p>
                 </div>
                 <div className="agenda-body">

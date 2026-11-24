@@ -282,6 +282,22 @@ export type ExtraDefault = { en?: string; id?: string }
 export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = `
 const generated = `${header}${JSON.stringify(result, null, 2).replace(/\n/g, "\n")}\n`
 
+// Every template extra must exist in BOTH languages: the couple can switch the
+// invitation language at any time, and a one-language default would show the
+// wrong copy in the other language.
+const oneSided = []
+for (const [code, fields] of Object.entries(result)) {
+  for (const [key, v] of Object.entries(fields)) {
+    if (!v.en || !v.id) oneSided.push(`${code}.${key} (${v.en ? "id" : "en"} missing)`)
+  }
+}
+if (oneSided.length) {
+  console.error(`✗ ${oneSided.length} extra default(s) missing a language:`)
+  for (const line of oneSided.slice(0, 20)) console.error(`  - ${line}`)
+  if (oneSided.length > 20) console.error(`  …and ${oneSided.length - 20} more`)
+  process.exit(1)
+}
+
 // --check: the registry is generated, so a stale file means the editor shows a
 // hint the invitation no longer prints. The deploy guard runs this mode.
 if (process.argv.includes("--check")) {

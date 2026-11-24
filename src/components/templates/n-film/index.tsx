@@ -149,7 +149,7 @@ export default function NFilm(profile: TemplateProps) {
     meta: (tc.hero_meta || "").trim(),
     openingTitle: (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE,
     openingDescription: (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION,
-    galleryIntro: (tc.gallery_intro || "").trim() || "click to preview",
+    galleryIntro: (tc.gallery_intro || "").trim() || (lang === "en" ? "click to preview" : "klik untuk melihat"),
     giftIntroTitle: (tc.gift_intro_title || "").trim() || t("secGift", lang),
     giftIntro: (tc.gift_intro_description || "").trim(),
     wishesIntro: (tc.wishes_intro || "").trim(),

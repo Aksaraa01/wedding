@@ -5,6 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
 import type { GiftAccountData } from "../lib"
 import { copyPlainText } from "@/lib/clipboard"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
@@ -50,7 +51,7 @@ export default function GiftModal({ lang = "id",
 }) {
   const tc = templateContent || {}
   return (
-    <ModalShell icon="redeem" iconFill eyebrow={lang === "en" ? "WITH A JOYFUL HEART" : "DENGAN PENUH SENANG HATI"} title={tc.gift_intro_title || "WEDDING GIFT"} onClose={onClose}>
+    <ModalShell icon="redeem" iconFill eyebrow={lang === "en" ? "WITH A JOYFUL HEART" : "DENGAN PENUH SENANG HATI"} title={tc.gift_intro_title || t("secGift", lang)} onClose={onClose}>
       {accounts.map((a, i) => {
         const provider = (a.provider_name || "").trim()
         const num = (a.account_number || "").trim()

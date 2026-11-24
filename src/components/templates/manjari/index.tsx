@@ -213,7 +213,7 @@ export default function Manjari(profile: TemplateProps) {
           </section>
 
           <section className="love-story ivory" data-section="love-story">
-            <h2 className="reveal">{tc.love_story_title || "A Love Written in Time"}</h2>
+            <h2 className="reveal">{tc.love_story_title || t("secStory", lang)}</h2>
             <div className="story-stage reveal">
               <div className="story-carousel" aria-label={`${coupleLabel}'s story gallery`}>
                 {loveStoryPhotos.slice(0, 4).map((src, index) => (
@@ -298,7 +298,7 @@ export default function Manjari(profile: TemplateProps) {
               )}
               {(tc.gallery_quote || profile.display_name) && (
                 <figure className="gallery__quote reveal">
-                  <blockquote>“{tc.gallery_quote || "A lifetime with you is the most beautiful story I could ever choose."}”</blockquote>
+                  <blockquote>“{tc.gallery_quote || (lang === "en" ? "A lifetime with you is the most beautiful story I could ever choose." : "Hidup bersamamu adalah kisah terindah yang pernah kupilih.")}”</blockquote>
                   <figcaption>, {coupleLabel}</figcaption>
                 </figure>
               )}

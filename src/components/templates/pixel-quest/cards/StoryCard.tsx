@@ -4,6 +4,7 @@ import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
 import type { StoryData } from "../../shared/lib"
 import CardShell from "./CardShell"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const ACCENTS = [
   { text: "text-cyan-300", border: "border-cyan-400/40", bar: "bg-cyan-400" },
@@ -13,9 +14,10 @@ const ACCENTS = [
 
 export default function StoryCard({ profile, onHide }: { profile: TemplateProps; onHide: () => void }) {
   const stories: StoryData[] = Array.isArray(profile.stories) ? profile.stories : []
+  const lang = normalizeLanguage(profile.language)
   const tc = profile.template_content || {}
   return (
-    <CardShell icon="videogame_asset" iconClassName="bg-pink-500/20 border-pink-400/50 text-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]" eyebrow="STOP 1: TIMELINE" title={tc.love_story_title || "Metropolitan Love Story"} badge="MEMORIES" badgeClassName="bg-pink-950/80 border-pink-500/40 text-pink-400" onHide={onHide}>
+    <CardShell icon="videogame_asset" iconClassName="bg-pink-500/20 border-pink-400/50 text-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]" eyebrow="STOP 1: TIMELINE" title={tc.love_story_title || t("secStory", lang)} badge="MEMORIES" badgeClassName="bg-pink-950/80 border-pink-500/40 text-pink-400" onHide={onHide}>
       {stories.map((s, i) => {
         const a = ACCENTS[i % ACCENTS.length]
         return (

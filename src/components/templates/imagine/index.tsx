@@ -1074,7 +1074,7 @@ export default function Imagine(props: TemplateProps) {
                     </h1>
                     <p className="wedding-gift-description" data-aos="fade-up" data-aos-duration="1000">
                       {tc.gift_intro_description ||
-                        "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:"}
+                        (lang === "en" ? "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:" : "Kehadiran Anda adalah hadiah terindah bagi kami. Jika ingin mengirim tanda kasih, silakan gunakan detail di bawah ini:")}
                     </p>
                   </div>
                   <div className="wedding-gift-body">
@@ -1160,7 +1160,7 @@ export default function Imagine(props: TemplateProps) {
               <h4 className="note-title" data-aos="fade-up" data-aos-duration="1200">{tc.closing_title || t("thankYou", lang)}</h4>
               <p className="note-description" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200">
                 {tc.closing_message ||
-                  "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us."}
+                  (lang === "en" ? "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us." : "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari besar kami. Kami sangat beruntung memiliki Anda dalam hidup kami dan merasa terhormat atas kehadiran Anda.")}
               </p>
             </div>
           </section>

@@ -909,6 +909,13 @@ Couple-entered content is never translated; only shipped defaults and chrome swi
 - **Extras catalogue:** every `tc.<key>` a component reads must be registered for
   that template and vice versa. `npm run audit:extras` fails on duplicates,
   same-label collisions, uneditable reads and dead inputs; the guard runs it.
+- **Body copy stays per template, never in the glossary.** Intros, apologies,
+  gift/closing paragraphs are design-specific: express them as
+  `tc.<key> || (lang === "en" ? "…" : "…")` (or `tc.<key> || t(lockedKey, lang)`
+  when the locked sentence fits). Shared chrome only goes to `i18n.ts`.
+- **Every extra must exist in both languages.** A one-language default shows the
+  wrong copy when the couple switches language, so `generate:extra-defaults`
+  fails on any `{en}`-only or `{id}`-only entry.
 - **Generated defaults:** `src/lib/templateExtraDefaults.ts` is generated from the
   templates' own fallback copy. After editing a default, run
   `npm run generate:extra-defaults`; `npm run check:extra-defaults` (guard) fails

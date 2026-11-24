@@ -216,7 +216,7 @@ export default function Iris(profile: TemplateProps) {
   const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE
   const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION
   const quoteText = (profile.quote_text || "").trim()
-  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingMessage = (tc.closing_message || "").trim() || (lang === "en" ? "It is a joy for us if you would honour us with your presence and prayers. Thank you for being part of our story." : DEFAULT_CLOSING)
 
   const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)

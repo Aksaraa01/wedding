@@ -5,8 +5,10 @@ import { FONT_PIXEL } from "../../shared/Skin"
 import { countdownTarget, formatDotDate, formatLongDate, gcalLink, type SessionData } from "../../shared/lib"
 import { useCountdown } from "../../shared/useCountdown"
 import CardShell from "./CardShell"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function EventsCard({ profile, content, onHide }: { profile: TemplateProps; content?: Record<string, string>; onHide: () => void }) {
+  const lang = normalizeLanguage(profile.language)
   const tc = content || {}
   const sessions: SessionData[] = (Array.isArray(profile.sessions) ? profile.sessions : []).filter((s) => s && (s.date || s.venue))
   const target = countdownTarget(sessions, profile.estimated_wedding_date)
@@ -14,7 +16,7 @@ export default function EventsCard({ profile, content, onHide }: { profile: Temp
   const calLink = gcalLink(sessions[0], profile.groom_name, profile.bride_name)
   const pad2 = (n: number) => String(n).padStart(2, "0")
   return (
-    <CardShell icon="calendar_month" iconClassName="bg-pink-500/20 border-pink-400/50 text-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]" eyebrow={tc.save_date_label || "STOP 3: CEREMONY"} title={tc.events_title || "Waktu & Lokasi Acara"} badge="MAP 03" onHide={onHide}>
+    <CardShell icon="calendar_month" iconClassName="bg-pink-500/20 border-pink-400/50 text-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]" eyebrow={tc.save_date_label || "STOP 3: CEREMONY"} title={tc.events_title || t("secEvent", lang)} badge="MAP 03" onHide={onHide}>
       {sessions.length === 0 && (
         <p className="text-center text-sm text-slate-400">
           {profile.estimated_wedding_date ? formatLongDate(profile.estimated_wedding_date) : "Detail acara akan segera diumumkan."}

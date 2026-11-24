@@ -213,7 +213,7 @@ export default function PixelRoom({
         weddingProfileId={profile.wedding_profile_id}
         guestId={profile.guest_id}
         guestName={profile.guest_name}
-        title={tc.wishes_title || "LIVE WISHES & DOA"}
+        title={tc.wishes_title || t("secWishes", lang)}
         intro={tc.wishes_intro}
       />
     </div>

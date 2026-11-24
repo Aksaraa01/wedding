@@ -966,7 +966,7 @@ export default function Lace(profile: TemplateProps) {
                   <p className="lc-display lc-gift__lead">{lang === "en" ? "Your presence is our greatest gift." : "Kehadiran Anda adalah hadiah terindah bagi kami."}</p>
                   <p className="lc-body lc-gift__intro">
                     {tc.gift_intro_description ||
-                      "Should you wish to give a gift, you may do so in cash or by bank transfer."}
+                      (lang === "en" ? "Should you wish to give a gift, you may do so in cash or by bank transfer." : "Jika Anda ingin memberi hadiah, dapat melalui tunai atau transfer bank.")}
                   </p>
 
                   {accounts.length > 0 && (
@@ -1032,7 +1032,7 @@ export default function Lace(profile: TemplateProps) {
             <h2 className="lc-display lc-panel__title">{tc.wishes_title || t("secWishes", lang)}</h2>
             <p className="lc-body lc-wishes__intro">
               {tc.wishes_intro ||
-                "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish and let us know you are coming."}
+                (lang === "en" ? "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish and let us know you are coming." : "Tiada yang lebih membahagiakan bagi kami selain merayakan hari ini bersama orang-orang yang kami cintai. Tinggalkan ucapan dan kabari kami bahwa Anda akan hadir.")}
             </p>
             <Wishes
               weddingProfileId={profile.wedding_profile_id}
