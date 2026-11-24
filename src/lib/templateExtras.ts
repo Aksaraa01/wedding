@@ -3487,5 +3487,12 @@ export function templateContentWithDefaults(
   for (const field of getTemplateExtraFields(templateCode, lang)) {
     if (field.placeholder) out[field.key] = field.placeholder
   }
-  return { ...out, ...(content || {}) }
+  // A stored empty string is "the couple cleared the field", not "use this".
+  // Saving the editor writes "" for untouched inputs, so treating it as a value
+  // would suppress the hint that is supposed to render as the default.
+  for (const [key, value] of Object.entries(content || {})) {
+    if (typeof value !== "string" || value.trim() === "") continue
+    out[key] = value
+  }
+  return out
 }
