@@ -1,5 +1,6 @@
 import { EXTRA_DEFAULTS } from "./templateExtraDefaults"
 import { I18N } from "./i18n"
+import { EXTRA_HINTS } from "./extraHints/index"
 
 // Templates that render nothing when a field is empty still need a locator in
 // the extras accordion, so those few fields get an explicit example in both
@@ -3458,3 +3459,15 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
   }
 }
 
+// Authored hints (body copy the generator cannot attribute). Applied last so an
+// explicit pin wins over a glossary fallback; every entry carries both
+// languages, matching the guard's rule for generated defaults.
+for (const field of TEMPLATE_EXTRA_FIELDS) {
+  for (const raw of field.templates) {
+    const code = EXTRA_ALIASES[raw] ?? raw
+    const hint = EXTRA_HINTS[code]?.[field.key]
+    if (!hint) continue
+    if (hint.id) field.placeholders = { ...(field.placeholders || {}), [raw]: hint.id }
+    if (hint.en) field.placeholdersEn = { ...(field.placeholdersEn || {}), [raw]: hint.en }
+  }
+}
