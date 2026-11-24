@@ -7,6 +7,7 @@ import { CouplePhoto } from "./MainPage"
 
 export default function ClosingPage({ profile, onWishOpenChange }: { profile: TemplateProps; onWishOpenChange: (open: boolean) => void }) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content || {}
   return (
     <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col items-center justify-start text-center px-6 pt-12 pb-8">
       <div className="relative w-full max-w-[360px] flex flex-col items-center p-8">
@@ -18,7 +19,7 @@ export default function ClosingPage({ profile, onWishOpenChange }: { profile: Te
             <div className="absolute -inset-1 rounded-t-full rounded-b-lg border border-[#d4af37]/30 pointer-events-none" />
           </div>
           <h1 className="italic text-[30px] leading-tight mb-1.5 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-            {lang === "en" ? "Thank You & Blessings" : "Terima Kasih & Doa Restu"}
+            {tc.closing_message || (lang === "en" ? "Thank You & Blessings" : "Terima Kasih & Doa Restu")}
           </h1>
           <div className="flex items-center gap-2 mb-2 w-full max-w-[280px] justify-center">
             <span className="h-px w-6 bg-[#8E6B3D]/40" />

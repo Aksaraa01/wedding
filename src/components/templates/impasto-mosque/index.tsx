@@ -55,6 +55,7 @@ function useImpastoReady(profile: TemplateProps) {
 
 export default function ImpastoMosque(props: TemplateProps) {
   const lang = normalizeLanguage(props.language)
+  const tc = props.template_content || {}
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -109,7 +110,7 @@ export default function ImpastoMosque(props: TemplateProps) {
                   {initials}
                 </span>
                 <span className="text-[11px] uppercase font-medium" style={{ ...FONT_BODY, letterSpacing: "0.3em", color: "#E5DEC9", animation: "imLoadPulse 1.6s ease-in-out infinite" }}>
-                  Menyiapkan Undangan
+                  {lang === "en" ? "Preparing Invitation" : "Menyiapkan Undangan"}
                 </span>
               </div>
             </div>
@@ -121,6 +122,7 @@ export default function ImpastoMosque(props: TemplateProps) {
               guest_name={props.guest_name}
               estimated_wedding_date={props.estimated_wedding_date}
               onOpen={openInvitation}
+              templateContent={props.template_content}
             />
           ) : (
             <ImpastoPages profile={props} onWishOpenChange={onWishOpenChange} />
@@ -133,6 +135,8 @@ export default function ImpastoMosque(props: TemplateProps) {
               weddingProfileId={props.wedding_profile_id}
               guestId={props.guest_id}
               guestName={props.guest_name}
+              title={tc.wishes_title || t("secWishes", lang)}
+              intro={tc.wishes_intro}
               hideTrigger
             />
           )}
@@ -161,7 +165,7 @@ export default function ImpastoMosque(props: TemplateProps) {
           <button
             type="button"
             onClick={toggleMusic}
-            aria-label="Putar atau jeda musik"
+            aria-label={lang === "en" ? "Play or pause music" : "Putar atau jeda musik"}
             title="Putar atau jeda musik"
             className="fixed right-4 z-[95] w-11 h-11 rounded-full bg-white text-[#111827] shadow-lg border border-black/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
             style={{

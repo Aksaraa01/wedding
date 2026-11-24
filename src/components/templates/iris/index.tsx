@@ -105,7 +105,7 @@ function OvalPhoto({ src, alt }: { src: string; alt: string }) {
   )
 }
 
-function Clock({ target }: { target: Date | null }) {
+function Clock({ target, lang }: { target: Date | null; lang: "id" | "en" }) {
   const [now, setNow] = useState<number | null>(null)
   useEffect(() => {
     if (!target) return
@@ -116,10 +116,10 @@ function Clock({ target }: { target: Date | null }) {
 
   const diff = target && now !== null ? Math.max(0, target.getTime() - now) : 0
   const units = [
-    { value: pad2(Math.floor(diff / 86400000)), label: "Hari" },
-    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: "Jam" },
-    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: "Menit" },
-    { value: pad2(Math.floor((diff % 60000) / 1000)), label: "Detik" },
+    { value: pad2(Math.floor(diff / 86400000)), label: t("days", lang) },
+    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: t("hours", lang) },
+    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: t("minutes", lang) },
+    { value: pad2(Math.floor((diff % 60000) / 1000)), label: t("seconds", lang) },
   ]
   return (
     <div className="ir-clock" aria-label="Hitung mundur menuju hari bahagia">
@@ -216,7 +216,7 @@ export default function Iris(profile: TemplateProps) {
   const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE
   const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION
   const quoteText = (profile.quote_text || "").trim()
-  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingMessage = (tc.closing_message || "").trim() || (lang === "en" ? "It is a joy for us if you would honour us with your presence and prayers. Thank you for being part of our story." : DEFAULT_CLOSING)
 
   const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
@@ -396,9 +396,13 @@ export default function Iris(profile: TemplateProps) {
           </div>
           <div className="ir-cover__foot">
             <p className="ir-cover__to" {...ON_LOAD("fade", 0.22)}>
-              Kepada Yth.
-              <br />
-              Bapak/ Ibu/ Saudara/ i
+              {lang === "en" ? "Dear Mr./Mrs./Ms." : "Kepada Yth."}
+              {lang !== "en" && (
+                <>
+                  <br />
+                  Bapak/ Ibu/ Saudara/ i
+                </>
+              )}
             </p>
             <p className="ir-cover__guest" {...ON_LOAD("fade", 0.26)}>{guestName}</p>
             <button type="button" className="ir-btn ir-btn--gold" onClick={openInvitation} {...ON_LOAD("up", 0.32)}>
@@ -533,7 +537,7 @@ export default function Iris(profile: TemplateProps) {
           <p className="ir-save__heading" {...IN("up")}>
             <SaveDateLabel text={saveDateLabel} />
           </p>
-          {target && <div {...IN("up", 0.08)}><Clock target={target} /></div>}
+          {target && <div {...IN("up", 0.08)}><Clock target={target} lang={lang} /></div>}
 
           <div className="ir-events">
             {eventsIntro && <p className="ir-body" {...IN("fade", 0.1)}>{eventsIntro}</p>}

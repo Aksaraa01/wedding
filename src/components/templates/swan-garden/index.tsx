@@ -86,7 +86,7 @@ const COPY_ID: Record<keyof typeof COPY_EN, string> = {
   gallery_title: "Potret Kami",
   video_title: "Video Kami",
   video_intro: "Film singkat dari hari-hari sebelum pernikahan.",
-  video_caption: "Film",
+  video_caption: "Video",
   story_title: "Kisah Kami",
   gift_title: "Hadiah Pernikahan",
   gift_intro:
@@ -127,11 +127,49 @@ function instagramValue(value?: string): string {
 
 export default function SwanGardenTemplate(profile: TemplateProps) {
   const lang = normalizeLanguage(profile.language)
-  const extras = (profile.template_content || {}) as Record<string, string>
-  // A blank EKSTRA field must fall back to the design's own copy: a real
-  // invitation should never show a bare heading where a sentence belongs.
-  const defaults = lang === "en" ? COPY_EN : COPY_ID
-  const copy = (key: keyof typeof COPY_EN) => ((extras[key] || "").trim() || defaults[key]) as string
+  const extras = profile.template_content || {}
+  // Language-aware house copy. A blank EKSTRA field must fall back to it: a
+  // real invitation should never show a bare heading where a sentence belongs.
+  const C = lang === "en" ? COPY_EN : COPY_ID
+  // Every EKSTRA this template renders, normalised once, then read as
+  // `tc.<key> || C.<key>` at the element that shows it. Property reads (not
+  // dynamic lookups) are what lets `npm run audit:extras` prove each editable
+  // field actually reaches the page.
+  const extra = (value?: string) => (typeof value === "string" ? value.trim() : "")
+  const tc = {
+    cover_kicker: extra(extras.cover_kicker),
+    open_button: extra(extras.open_button),
+    mempelai_title: extra(extras.mempelai_title),
+    mempelai_intro: extra(extras.mempelai_intro),
+    countdown_title: extra(extras.countdown_title),
+    save_date_label: extra(extras.save_date_label),
+    events_title: extra(extras.events_title),
+    maps_label: extra(extras.maps_label),
+    dresscode_title: extra(extras.dresscode_title),
+    dresscode_note: extra(extras.dresscode_note),
+    rundown_title: extra(extras.rundown_title),
+    rundown_event_title: extra(extras.rundown_event_title),
+    inviting_title: extra(extras.inviting_title),
+    inviting_intro: extra(extras.inviting_intro),
+    gallery_title: extra(extras.gallery_title),
+    video_title: extra(extras.video_title),
+    video_intro: extra(extras.video_intro),
+    video_caption: extra(extras.video_caption),
+    story_title: extra(extras.story_title),
+    gift_title: extra(extras.gift_title),
+    gift_intro: extra(extras.gift_intro),
+    gift_address_title: extra(extras.gift_address_title),
+    copy_label: extra(extras.copy_label),
+    copied_label: extra(extras.copied_label),
+    wishes_title: extra(extras.wishes_title),
+    wishes_intro: extra(extras.wishes_intro),
+    wishes_name_placeholder: extra(extras.wishes_name_placeholder),
+    wishes_message_placeholder: extra(extras.wishes_message_placeholder),
+    wishes_submit: extra(extras.wishes_submit),
+    wishes_empty: extra(extras.wishes_empty),
+    closing_title: extra(extras.closing_title),
+    closing_message: extra(extras.closing_message),
+  }
 
   const [opened, setOpened] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
@@ -302,7 +340,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
         <PrimaryPane
           coupleLabel={coupleLabel}
           guestLabel={guestLabel}
-          openLabel={copy("open_button")}
+          openLabel={tc.open_button || C.open_button}
           opened={opened}
           onOpen={openInvitation}
         />
@@ -312,65 +350,65 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             onOpen={openInvitation}
             coupleLabel={coupleLabel}
             guestLabel={guestLabel}
-            openLabel={copy("open_button")}
+            openLabel={tc.open_button || C.open_button}
             photo={gatePhoto}
           />
           <Cover
             profile={profile}
             coupleLabel={coupleLabel}
-            kicker={copy("cover_kicker")}
+            kicker={tc.cover_kicker || C.cover_kicker}
             hashtag={hashtag}
             photo={coverPhoto}
           />
           <Quote text={profile.quote_text || ""} source={profile.quote_source || ""} />
           <Couple
             profile={profile}
-            title={copy("mempelai_title")}
-            description={copy("mempelai_intro")}
+            title={tc.mempelai_title || C.mempelai_title}
+            description={tc.mempelai_intro || C.mempelai_intro}
             onPhoto={openLightbox}
           />
           {target ? (
-            <SaveDate target={target} calendarUrl={calendarUrl} title={copy("countdown_title")} addLabel={copy("save_date_label")} lang={lang} />
+            <SaveDate target={target} calendarUrl={calendarUrl} title={tc.countdown_title || C.countdown_title} addLabel={tc.save_date_label || C.save_date_label} lang={lang} />
           ) : null}
           <Agenda
             profile={profile}
-            title={copy("events_title")}
-            mapsLabel={copy("maps_label")}
-            dressTitle={copy("dresscode_title")}
-            dressNote={copy("dresscode_note")}
+            title={tc.events_title || C.events_title}
+            mapsLabel={tc.maps_label || C.maps_label}
+            dressTitle={tc.dresscode_title || C.dresscode_title}
+            dressNote={tc.dresscode_note || C.dresscode_note}
             showDresscode={profile.dresscode_visible !== false && Boolean((profile.dresscode?.colors || []).length || profile.dresscode?.title)}
             dressIcons={{ man: "", woman: "" }}
             lang={lang}
           />
           <Rundown
             items={profile.rundown || []}
-            title={copy("rundown_title")}
-            eventTitle={copy("rundown_event_title")}
+            title={tc.rundown_title || C.rundown_title}
+            eventTitle={tc.rundown_event_title || C.rundown_event_title}
           />
-          <Families families={families} title={copy("inviting_title")} intro={copy("inviting_intro")} />
+          <Families families={families} title={tc.inviting_title || C.inviting_title} intro={tc.inviting_intro || C.inviting_intro} />
           {profile.livestream_visible !== false && liveUrl ? (
             <Live
-              title={live.title || copy("live_title")}
-              description={(live.description || "").trim() || copy("live_description")}
-              buttonLabel={live.buttonLabel || copy("live_button")}
+              title={live.title || C.live_title}
+              description={(live.description || "").trim() || C.live_description}
+              buttonLabel={live.buttonLabel || C.live_button}
               url={liveUrl}
               youtubeId={youtubeId(liveUrl)}
               poster={coverPhoto}
             />
           ) : null}
-          <Gallery photos={galleryPhotos} title={copy("gallery_title")} onPhoto={openLightbox} />
+          <Gallery photos={galleryPhotos} title={tc.gallery_title || t("secGallery", lang)} onPhoto={openLightbox} />
           {hasVideo ? (
             <Film
               videoUrl={profile.video_url || ""}
-              title={copy("video_title")}
-              intro={copy("video_intro")}
-              caption={copy("video_caption")}
+              title={tc.video_title || t("secVideo", lang)}
+              intro={tc.video_intro || C.video_intro}
+              caption={tc.video_caption || C.video_caption}
               poster={galleryPhotos[0] || ""}
             />
           ) : null}
           <Story
             stories={stories}
-            title={copy("story_title")}
+            title={tc.story_title || C.story_title}
             coverPhoto={coverPhoto}
             onPhoto={openLightbox}
           />
@@ -378,11 +416,11 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             accounts={giftAccounts}
             addressName={profile.gift_address_name || ""}
             address={giftAddress}
-            title={copy("gift_title")}
-            intro={copy("gift_intro")}
-            addressTitle={copy("gift_address_title")}
-            copyLabel={copy("copy_label")}
-            copiedLabel={copy("copied_label")}
+            title={tc.gift_title || C.gift_title}
+            intro={tc.gift_intro || C.gift_intro}
+            addressTitle={tc.gift_address_title || C.gift_address_title}
+            copyLabel={tc.copy_label || C.copy_label}
+            copiedLabel={tc.copied_label || C.copied_label}
             showAddress={gates.gift_address !== false}
             lang={lang}
           />
@@ -391,15 +429,15 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             guestId={profile.guest_id}
             guestName={profile.guest_name}
             guestLinkStrict={profile.guest_link_strict}
-            title={copy("wishes_title")}
-            intro={copy("wishes_intro")}
-            namePlaceholder={copy("wishes_name_placeholder")}
-            messagePlaceholder={copy("wishes_message_placeholder")}
-            submitLabel={copy("wishes_submit")}
-            emptyLabel={copy("wishes_empty")} language={lang}
+            title={tc.wishes_title || C.wishes_title}
+            intro={tc.wishes_intro || C.wishes_intro}
+            namePlaceholder={tc.wishes_name_placeholder || C.wishes_name_placeholder}
+            messagePlaceholder={tc.wishes_message_placeholder || C.wishes_message_placeholder}
+            submitLabel={tc.wishes_submit || C.wishes_submit}
+            emptyLabel={tc.wishes_empty || C.wishes_empty} language={lang}
           />
-          <Closing title={copy("closing_title")} message={copy("closing_message")} />
-          <Footnote coupleLabel={coupleLabel} kicker={copy("cover_kicker")} hashtag={hashtag} />
+          <Closing title={tc.closing_title || C.closing_title} message={tc.closing_message || C.closing_message} />
+          <Footnote coupleLabel={coupleLabel} kicker={tc.cover_kicker || C.cover_kicker} hashtag={hashtag} />
         </section>
       </section>
 

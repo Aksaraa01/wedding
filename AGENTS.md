@@ -63,7 +63,18 @@ Two install/upgrade traps on this repo:
 - Prod subdomain pattern: `{slug}.wedding.aksaraa.com` → `/w/{slug}`. Staging B1 uses path mode; `coupleUrl()` handles this via env (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SITE_ENV`/`APP_ENV`, `NEXT_PUBLIC_COUPLE_URL_MODE`, optional `NEXT_PUBLIC_COUPLE_APEX_DOMAIN`).
 - Node.js 22 via nvm (`/home/askaraa/.nvm/versions/node/v22.23.2/bin/node`)
 - Standalone output: `.next/standalone/server.js` + `.next/standalone/.next/static/` + `.next/standalone/public/`
-- PM2 env vars must be injected via ecosystem config (`.env.local` not loaded in standalone mode)
+- PM2 env: the server `.env.production` (chmod 600) is loaded with `node_args: ["--env-file=…/.env.production"]`; `.env.local` is NOT loaded in standalone mode. The versioned templates are `ecosystem.prod.config.cjs` / `ecosystem.staging.config.cjs`.
+- **PM2 env shadowing (2026-11-23 incident).** Node's `--env-file` does **not**
+  override variables already present in the process environment, and PM2 keeps
+  the env snapshot it captured when the app first started. The old ecosystem
+  injected secrets inline, so after rotating `WP_INTERNAL_SECRET` the process
+  kept the old value and every WP sync returned 401 while the file on disk was
+  correct. Fix: never put secrets in the ecosystem `env` block (only
+  `NODE_ENV`/`PORT`/`HOSTNAME`), and after editing `.env.production` do a one-time
+  `pm2 delete <app> && pm2 start ecosystem.config.js --only <app> --update-env`
+  so PM2 drops the stale snapshot. `startOrRestart` alone preserves stored values.
+  `npm run deploy` now does **delete + start** on every reload and then asserts
+  that PM2 stores 0 secret variables, so this cannot regress silently.
 
 ### Supabase Storage
 - Bucket: `media`, folder prefix: `seeded/`
@@ -82,6 +93,16 @@ Two install/upgrade traps on this repo:
 - A guest name keeps `[A-Za-z0-9 .,()&]` (`sanitizeGuestName`); everything else is stripped there, so name → slug never disagrees. Link builders must still use `guest.slug || slugifyName(guest.name)` **and always `encodeURIComponent`** — a slug containing `&` is truncated by the query parser if pasted raw.
 - Raw `&` inside a pasted `?to=` is repaired in `guestToFromParams()` (`src/lib/guest-slug.ts`), called by `/w/[slug]`: the query parser splits "?to=Sindy Sihombing&/Partner" into `to` plus an empty-valued fake param, and those fragments are rejoined with `&` before resolution. `src/proxy.ts` cannot do it — Caddy rewrites subdomains to `/w/{slug}` before Next sees them, so the proxy's host branch never runs in production.
 - WP guestbook/RSVP (WeddingPress comment-kit/kit2) validates the author with `/^[^?%$=\/]{1,30}$/` and answers “Mohon maaf! Khusus untuk tamu undangan”. The mu-plugin's `wp_footer` script fills the field with `aksaraa_clean_guest_name()` (`/` → ` & `, drops `? % $ =`); keep the PHP and JS rules in sync (`&` is allowed by WP, so it is left alone).
+
+### Repository visibility & rulesets
+- The repo is **public** (`Aksaraa01/wedding`). Public visibility is what makes
+  rulesets free; a paid Team plan is no longer needed for them.
+- Active rulesets: `prod` (deletion, force-push, linear history) and `main`
+  (deletion, force-push). Both allow **direct pushes** (no PR requirement), so
+  the release train (`release:pick` -> `git push origin prod`) keeps working.
+- Because the repo is public, `AGENTS.md`, `docs/`, the ledger and the commit
+  history are world-readable. Never add a credential, internal token, or private
+  customer data here — see "Credentials — never in git" above.
 
 ### Git
 - Commit directly to `origin main`
@@ -123,6 +144,38 @@ secret that ever appeared in git is compromised: **rotate it**, then purge.
   key in old clones, forks, and backups.
 - Never paste a PAT/token into chat or code; if one is exposed, revoke it in
   GitHub and let Keychain hold the replacement.
+
+### Known open security items (rotate before they expire)
+
+- **Supabase `service_role` (prod) — RESOLVED 2026-11-23.** The leaked legacy JWT
+  was replaced with a **secret key** (`sb_secret_…`) in
+  `/var/www/aksara-wedding/.env.production`, `.env.runtime.prod` and
+  `.env.local.prod`, then the legacy keys were disabled for the project
+  (`PUT /api-keys/legacy {enabled:false}`). The leaked JWT now answers
+  `401 Legacy API keys are disabled`; the old legacy `anon` JWT also 401s. The
+  app never uses the anon key (0 client/server `supabase.from` calls outside
+  `supabaseAdmin`), which is why no rebuild was needed. **Staging is still on
+  legacy keys** — migrate it with the same procedure before Supabase's end-2026
+  deprecation.
+- **Cloudflare API token** for Caddy's DNS-01 is invalid (401). Certificates
+  expire 2027-01-27; renewal starts ~2026-12-28. Create a token with
+  `Zone:Read` + `DNS:Edit` on `aksaraa.com`, install it in
+  `/etc/systemd/system/caddy.service.d/override.conf`, then
+  `systemctl daemon-reload && systemctl restart caddy`.
+- Delete `../wedding-prerewrite-*.bundle` (pre-rewrite history with the old
+  secrets) once both rotations above are confirmed.
+- The GitHub PAT used for automation should be short-lived and revoked when the
+  task is done; it is stored in `~/.config/aksaraa/github-token` and Keychain.
+
+### Bilingual invitations (id/en)
+The i18n engine (`src/lib/i18n.ts`, `language` column) is merged; values are `id` | `en`.
+Couple-entered content is never translated — only shipped defaults and chrome switch.
+The couple-facing switcher is **opt-in per environment**:
+`NEXT_PUBLIC_LANGUAGE_UI === "true"` in the editor (`renderSection("bahasa", …)`).
+Staging sets it; prod does not, so prod couples only see Bahasa Indonesia. An
+already-English profile still gets the selector so it can switch back. The
+build-time flag is declared in `env/contract.mjs` `optionalPublic`; changing it
+requires a rebuild (it is inlined), not just a runtime env update.
 
 ### WordPress Integration (Live WP as Source of Truth)
 WP hosts the Elementor template masters. Each couple gets a **duplicate** of the master (post + linked popups) that is patched with their data via the mu-plugin REST API.
@@ -435,8 +488,8 @@ output, then restart PM2 — all handled by `npm run deploy`.
 git add -A && git commit -m "feat: describe_change"
 git push origin main
 git fetch origin && git status -sb        # HEAD must be exactly origin/main
-set -a; source .env.build.prod; set +a   # NEXT_PUBLIC_* only; never source .env.local
-npm run build:env -- --env prod
+cp /path/to/repo/.env.runtime.prod .      # service role + DB password (600)
+npm run build:env -- --env prod           # self-loads .env.build.prod + .env.runtime.prod
 npm run deploy -- --target prod --branch prod
 ```
 
@@ -531,8 +584,67 @@ Notes:
 - Pick to prod: `git switch prod && git pull --ff-only && npm run release:pick -- <sha...>` (cherry-pick -x; conflict => abort, fix on main).
 - **Mandatory rehearsal**: build/deploy the composed `prod` branch to staging (`--target staging --branch prod`), verify, then deploy prod.
 - Prod deploy gate: commit must be ancestor of latest verified staging tip and not rejected; `--allow-unverified` is emergency-only.
+- **No-downgrade guard** (`predeploy-guard`, prod only): reads the server's
+  `RELEASE.json` and refuses a bundle whose commit does **not** contain the build
+  that is live, i.e. a deploy that moves prod backwards. A server it cannot read
+  (ssh down, first deploy) or a live commit missing from the clone only **warns** —
+  this check must never block a healthy deploy. Deliberate rollback to an older
+  build: `npm run deploy -- --allow-downgrade`. Why it exists: on 2026-11-23
+  promoting `prod`'s branch tip (81 commits behind the live `136156b8` commit)
+  silently reverted the film-roll/shared YouTube-shorts normalisation; smoke stayed
+  green because the loss was behavioural (video gone), not a non-200.
+- Drift report before releasing: `npm run release:doctor` cross-checks
+  `origin/prod` ↔ the last `deployed` ledger entry ↔ live `RELEASE.json`.
+  Report-only (exit 0); `--strict` exits 1, `--offline` / `--live-release <file>`
+  for dry runs.
+- **Recommended: promote by tag, not by branch.** `main` is always releasable and
+  staging runs its tip. To release: `npm run release:tag -- --env prod --commit <sha>`
+  (refuses unless the SHA is verified), then build from the tag and deploy with
+  `npm run deploy -- --target prod --commit <tag>`. `--commit` skips the branch
+  comparison and pins the tree, so a tag can never be "N commits behind".
+  Rollback = deploy an older verified tag; no history rewrite, no force-push.
+- The legacy `prod` branch still works (`release:pick`), but every cherry-pick adds
+  a prod-only commit, so a `main`-based prod build will always report "behind".
+  Prefer tags; keep cherry-picks for backports that must not ship all of `main`.
 - Status: `npm run release:status`. Drain WP queue explicitly only when needed: `npm run release:drain -- --env prod --profile <id> --dry-run`.
 - Rollback: restore snapshot or redeploy previous verified release; also revert `prod` so branch == live. Migrations are expand/contract; never drop a column in the same release that stops using it.
+
+#### Release operations — the details that bite
+
+- **Ledger location:** `releases/ledger.jsonl` on **`main`** (not on `prod`).
+  The guard reads `origin/main:releases/ledger.jsonl` (`--ledger-ref`); a
+  verification is only visible to the gate after it is **committed and pushed to
+  `main`**. `release:verify` writes the file, it does not commit it.
+- **Schema gate:** `build:env` runs `npm run check:schema -- --env <env>` first and
+  **refuses** when the target database is missing a migration from
+  `supabase/migrations/`. This exists because prod was missing
+  `20261121000001_wedding_profile_language` while staging had it: the editor's
+  API selected `wedding_profiles.language`, PostgREST answered 42703, the route
+  surfaced "Profile not found", and every template smoke test still passed.
+  `--skip-schema-check` is emergency-only. Credentials come from
+  `.env.runtime.<env>` (ref/dbHost live in `env/contract.mjs`).
+- **Build prerequisite:** `SUPABASE_SERVICE_ROLE_KEY` must be exported even though
+  it is server-only — `src/lib/supabase.ts` calls `createClient()` at module scope,
+  so `next build` fails with `supabaseKey is required` without it. It comes from
+  `.env.runtime.<env>` / `.env.local.prod`, never from `.env.build.<env>`.
+- **Database access:** prod pooler is
+  `aws-0-ap-northeast-1.pooler.supabase.com`; staging is
+  **`aws-1-ap-south-1.pooler.supabase.com`** (`aws-0` answers
+  `tenant/user … not found`). Rotate a DB password with
+  `PATCH /v1/projects/{ref}/database/password` (`SUPABASE_ACCESS_TOKEN` from
+  `.env.ops`); the app itself uses the service-role key, so no restart is needed.
+- **Rulesets:** `prod` requires **linear history** — never merge `main` into
+  `prod`; cherry-pick (`release:pick`) or the push is rejected. Both `main` and
+  `prod` block force-push and deletion.
+- **Runtime health:** `curl -H "X-Health-Token: $HEALTH_TOKEN"   http://127.0.0.1:3002/api/health/env` (on the host; 3003 for staging) proves the
+  running process's env/commit/anon fingerprint. `HEALTH_TOKEN` falls back to
+  `CRON_SECRET` then `WP_INTERNAL_SECRET`.
+- **WP worker env:** `WP_QUEUE_CONCURRENCY` (default 6), `WP_POLL_MS` (800),
+  `WP_RECLAIM_ON_BOOT=false` only if the app is ever scaled beyond one instance
+  (boot reclaim assumes a single process).
+- **Ops tokens:** `.env.ops` is for management APIs/psql only. Never source it
+  before `build:env` or `deploy` — `build:env` rejects unknown `NEXT_PUBLIC_*`,
+  but a stray secret in the shell is still avoidable.
 
 #### Manual recovery only
 `npm run deploy` already reloads PM2. Use these by hand only when recovering:

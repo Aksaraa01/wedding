@@ -33,10 +33,11 @@ SSH_OPTS=(-i "$SSH_KEY" -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o TC
 SERVER="${SERVER:-askaraa@103.93.135.176}"
 
 TARGET="prod"
-SKIP_GUARD=0; NO_ROLLBACK=0
+SKIP_GUARD=0; NO_ROLLBACK=0; ALLOW_DOWNGRADE=0
 GUARD_REF=""
 GUARD_SITE_URL=""
 GUARD_BRANCH="${GUARD_BRANCH:-}"
+GUARD_COMMIT=""
 SMOKE_BASE=""
 
 args=("$@")
@@ -46,6 +47,7 @@ while [ $i -lt ${#args[@]} ]; do
   case "$a" in
     --skip-build-check) SKIP_GUARD=1 ;;
     --no-rollback) NO_ROLLBACK=1 ;;
+    --allow-downgrade) ALLOW_DOWNGRADE=1 ;;
     --target)
       i=$((i + 1)); TARGET="${args[$i]:-prod}" ;;
     --ref)
@@ -54,6 +56,8 @@ while [ $i -lt ${#args[@]} ]; do
       i=$((i + 1)); GUARD_SITE_URL="${args[$i]:-}" ;;
     --branch)
       i=$((i + 1)); GUARD_BRANCH="${args[$i]:-}" ;;
+    --commit)
+      i=$((i + 1)); GUARD_COMMIT="${args[$i]:-}" ;;
     --base)
       i=$((i + 1)); SMOKE_BASE="${args[$i]:-}" ;;
   esac
@@ -98,7 +102,9 @@ trap cleanup_lock EXIT
 if [ "$SKIP_GUARD" = "0" ]; then
   step "Pre-deploy guard"
   guard_args=(--target "$TARGET" --branch "$GUARD_BRANCH" --ref "$GUARD_REF")
+  [ -n "$GUARD_COMMIT" ] && guard_args+=(--commit "$GUARD_COMMIT")
   [ -n "$GUARD_SITE_URL" ] && guard_args+=(--site-url "$GUARD_SITE_URL")
+  [ "$ALLOW_DOWNGRADE" = "1" ] && guard_args+=(--allow-downgrade)
   node scripts/predeploy-guard.mjs "${guard_args[@]}"
 fi
 
@@ -322,7 +328,7 @@ fi
 # The pre-deploy guard ran before the copy. A push that lands during the sync
 # makes this build stale. Re-check under the lock before switching the server over.
 step "Re-verify origin/${GUARD_BRANCH} did not move during the sync"
-if ! node scripts/predeploy-guard.mjs --sync-only --branch "$GUARD_BRANCH"; then
+if ! node scripts/predeploy-guard.mjs --sync-only --branch "$GUARD_BRANCH" ${GUARD_COMMIT:+--commit "$GUARD_COMMIT"}; then
   echo "✗ Another agent pushed to origin/main while this build was syncing."
   echo "  This build is stale — restoring the previous bundle instead of switching to it."
   rollback
@@ -385,8 +391,22 @@ EOS
 }
 drain_wp_worker
 
-step "Reload PM2 (ecosystem, --update-env)"
-ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
+# delete + start, not startOrRestart: PM2 keeps the env snapshot from the first
+# start, and Node's --env-file never overrides an existing variable. A stale
+# snapshot (the old ecosystem injected secrets inline) makes the process run
+# values that differ from .env.production — the 2026-11-23 WP 401 incident.
+step "Reload PM2 (delete + start so .env.production is authoritative)"
+ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 delete '$PM2_APP' >/dev/null 2>&1 || true; pm2 start ecosystem.config.js --only '$PM2_APP' --update-env >/dev/null && sleep 4 && pm2 list | grep '$PM2_APP'"
+
+step "Assert PM2 stores no secret env (would shadow .env.production)"
+PM2_SECRET_COUNT="$(ssh "${SSH_OPTS[@]}" "$SERVER" "id=\$(pm2 id '$PM2_APP' 2>/dev/null | grep -o '[0-9]\+' | head -1); pm2 env \$id 2>/dev/null | grep -cE '^(SUPABASE_SERVICE_ROLE_KEY|WP_INTERNAL_SECRET|SCANNER_JWT_SECRET|AUTH_SESSION_SECRET|CRON_SECRET|HEALTH_TOKEN|WA_TARGET_GROUP_JID|OPENROUTER_API_KEY)[[:space:]]*[:=]' || true")"
+if [ "${PM2_SECRET_COUNT:-0}" != "0" ]; then
+  echo "✗ PM2 stores ${PM2_SECRET_COUNT} secret variable(s) for ${PM2_APP}; they shadow .env.production."
+  echo "  Run once: pm2 delete ${PM2_APP} && pm2 start ecosystem.config.js --only ${PM2_APP} --update-env"
+  rollback
+  exit 1
+fi
+echo "  PM2 env is clean (0 stored secrets)"
 
 # Prove the running process is the bundle we just reloaded. The bundle can be on
 # disk while the process is still on the old env/commit (bad reload, wrong env

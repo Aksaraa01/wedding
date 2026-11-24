@@ -33,6 +33,10 @@ type Props = {
   guestId?: string
   guestName?: string
   language?: string
+  // Couple-editable copy (`template_content.wishes_title` / `wishes_intro`).
+  // Defaults keep every existing caller rendering exactly as before.
+  title?: string
+  intro?: string
   // Override the sticky button offset (quest footer needs more clearance).
   stickyClassName?: string
   // Hide the sticky trigger (caller provides its own entry point, e.g. header).
@@ -42,7 +46,7 @@ type Props = {
 // Shared live wishes experience for in-house templates: a sticky button that
 // opens the LIVE WISHES & DOA modal (approved feed + input). Same design & UX
 // for Skyline Penthouse, Pixel Paradise and Pixel Quest.
-export default function LiveWishes({ open, onOpenChange, weddingProfileId, guestId, guestName, language, stickyClassName = "bottom-3 left-3", hideTrigger = false }: Props) {
+export default function LiveWishes({ open, onOpenChange, weddingProfileId, guestId, guestName, language, title, intro, stickyClassName = "bottom-3 left-3", hideTrigger = false }: Props) {
   const lang = normalizeLanguage(language)
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
@@ -128,8 +132,8 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
             <div className="flex items-center justify-between px-3 py-2.5 border-b border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 to-slate-900 shrink-0">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(56,239,255,1)]" />
-                <h3 className="text-[11px] text-cyan-300 tracking-widest" style={{ ...FONT_PIXEL, textShadow: "0 0 5px rgba(56,239,255,0.8)" }}>
-                  LIVE WISHES &amp; DOA
+                <h3 className="text-[11px] text-cyan-300 tracking-widest truncate max-w-[250px]" style={{ ...FONT_PIXEL, textShadow: "0 0 5px rgba(56,239,255,0.8)" }}>
+                  {title || (lang === "en" ? "LIVE WISHES & DOA" : "UCAPAN & DOA")}
                 </h3>
               </div>
               <button
@@ -143,6 +147,11 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
             </div>
 
             <div className="flex-1 flex flex-col min-h-0">
+              {intro && (
+                <p className="px-3 pt-2.5 pb-1 text-[10px] leading-relaxed text-slate-300 text-center border-b border-cyan-500/20" style={FONT_BODY}>
+                  {intro}
+                </p>
+              )}
               <div className="h-[38vh] overflow-y-auto p-3 space-y-2 select-text">
                 {!loaded && weddingProfileId ? (
                   <p className="text-center text-[10px] text-slate-500 py-6" style={FONT_BODY}>

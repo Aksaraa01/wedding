@@ -24,6 +24,7 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 const WISH_ME = "Dear Guest"
 
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const ID_DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 const EN_MONTHS = [
   "January",
   "February",
@@ -37,6 +38,10 @@ const EN_MONTHS = [
   "October",
   "November",
   "December",
+]
+const ID_MONTHS = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ]
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
@@ -63,15 +68,17 @@ function tightDate(value?: string | null): string {
   return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()}`
 }
 
-function longDate(value?: string | null): string {
+function longDate(value?: string | null, lang: "id" | "en" = "id"): string {
   const d = parseDate(value)
   if (!d) return ""
-  return `${EN_DAYS[d.getDay()]}, ${d.getDate()} ${EN_MONTHS[d.getMonth()]} ${d.getFullYear()}`
+  const days = lang === "en" ? EN_DAYS : ID_DAYS
+  const months = lang === "en" ? EN_MONTHS : ID_MONTHS
+  return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 
-function dayName(value?: string | null): string {
+function dayName(value?: string | null, lang: "id" | "en" = "id"): string {
   const d = parseDate(value)
-  return d ? EN_DAYS[d.getDay()] : ""
+  return d ? (lang === "en" ? EN_DAYS : ID_DAYS)[d.getDay()] : ""
 }
 
 function ordinal(n: number): string {
@@ -384,7 +391,7 @@ function StarRow() {
   return <span className="fr-stars" aria-hidden="true">★★★★★</span>
 }
 
-function Clock({ target }: { target: Date | null }) {
+function Clock({ target, lang }: { target: Date | null; lang: "id" | "en" }) {
   const [now, setNow] = useState<number | null>(null)
 
   useEffect(() => {
@@ -396,10 +403,10 @@ function Clock({ target }: { target: Date | null }) {
 
   const diff = target && now !== null ? Math.max(0, target.getTime() - now) : 0
   const units = [
-    { value: pad2(Math.floor(diff / 86400000)), label: "Days" },
-    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: "Hours" },
-    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: "Minutes" },
-    { value: pad2(Math.floor((diff % 60000) / 1000)), label: "Seconds" },
+    { value: pad2(Math.floor(diff / 86400000)), label: t("days", lang) },
+    { value: pad2(Math.floor((diff % 86400000) / 3600000)), label: t("hours", lang) },
+    { value: pad2(Math.floor((diff % 3600000) / 60000)), label: t("minutes", lang) },
+    { value: pad2(Math.floor((diff % 60000) / 1000)), label: t("seconds", lang) },
   ]
 
   return (
@@ -511,7 +518,7 @@ export default function FilmRoll(profile: TemplateProps) {
   const dateObject = parseDate(profile.estimated_wedding_date)
   const dateDots = dotDate(profile.estimated_wedding_date)
   const dateTight = tightDate(profile.estimated_wedding_date)
-  const dateLongText = longDate(profile.estimated_wedding_date)
+  const dateLongText = longDate(profile.estimated_wedding_date, lang)
   const mainEvent = events[0]
   const calendarSession =
     mainEvent && (mainEvent.date || "").trim()
@@ -532,7 +539,9 @@ export default function FilmRoll(profile: TemplateProps) {
   const openingKicker = (tc.opening_kicker || "").trim() || (lang === "en" ? "Prologue" : "Prolog")
   const openingBody =
     (tc.welcome_message || "").trim() ||
-    "Before the credits roll and the lights come up, there was a first look, a first laugh, and a promise we kept rehearsing until it became a life."
+    (lang === "en"
+      ? "Before the credits roll and the lights come up, there was a first look, a first laugh, and a promise we kept rehearsing until it became a life."
+      : "Sebelum tirai dibuka dan lampu menyala, ada tatapan pertama, tawa pertama, dan janji yang kami latih hingga menjadi hidup.")
   // The kutipan renders under the opening prose; it is skipped when it is just
   // a copy of it.
   const quoteCopy = (profile.quote_text || "").trim()
@@ -563,7 +572,9 @@ export default function FilmRoll(profile: TemplateProps) {
   const giftTitle = splitTitle((tc.gift_intro_title || "").trim() || t("secGift", lang))
   const giftLead =
     (tc.gift_intro_description || "").trim() ||
-    "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here."
+    (lang === "en"
+      ? "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here."
+      : "Doa restu Anda adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, Anda dapat melakukannya di sini.")
   const giftSignature = (tc.gift_signature || "").trim() || (lang === "en" ? "With love and gratitude" : "Dengan cinta dan terima kasih")
   const dressKicker = (tc.dresscode_kicker || "").trim() || (lang === "en" ? "Dresscode" : "Busana")
   const dressHeading = dressTitleWritten || (lang === "en" ? "What to Wear" : "Busana")
@@ -613,7 +624,7 @@ export default function FilmRoll(profile: TemplateProps) {
       dim: 1,
       facts: [
         dateDots
-          ? { label: saveDateLabel, value: `${dayName(profile.estimated_wedding_date)}\n${dateTight}` }
+          ? { label: saveDateLabel, value: `${dayName(profile.estimated_wedding_date, lang)}\n${dateTight}` }
           : null,
         hasGuest ? { label: dearLabel, value: shorten(guestName, 40) } : null,
         mainEvent?.venue || mainEvent?.address
@@ -624,8 +635,8 @@ export default function FilmRoll(profile: TemplateProps) {
           : null,
       ].filter(Boolean) as { label: string; value: string }[],
       meta: [
-        ["Date", dateTight],
-        ["Day", dayName(profile.estimated_wedding_date)],
+        [lang === "en" ? "Date" : "Tanggal", dateTight],
+        [lang === "en" ? "Day" : "Hari", dayName(profile.estimated_wedding_date, lang)],
       ].filter((row) => !!row[1]) as [string, string][],
     })
 
@@ -1579,7 +1590,7 @@ export default function FilmRoll(profile: TemplateProps) {
                       </div>
                     ))}
                   </div>
-                  <Clock target={target} />
+                  <Clock target={target} lang={lang} />
                   {calendarUrl && (
                     <a
                       className="fr-link fr-eyeb fr-cd__cal"
@@ -1903,7 +1914,9 @@ export default function FilmRoll(profile: TemplateProps) {
                   <div className="fr-scroll fr-end__t">
                     <span className="fr-serif fr-pre">
                       {(tc.closing_message || "").trim() ||
-                        "It is an honour and a happiness for us to have you with us on our wedding day."}
+                        (lang === "en"
+                          ? "It is an honour and a happiness for us to have you with us on our wedding day."
+                          : "Merupakan suatu kehormatan dan kebahagiaan bagi kami bila Anda hadir di hari pernikahan kami.")}
                     </span>
                     {honored.length > 0 && (
                       <ul className="fr-credits fr-credits--c">

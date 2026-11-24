@@ -629,7 +629,7 @@ export default function LunarBlossom(profile: TemplateProps) {
       case "event-1-address":
         return event1?.address || ""
       case "rsvp-title":
-        return tc.rsvp_title || t("rsvpTitle", lang)
+        return t("rsvpTitle", lang)
       case "wishes-title":
         return tc.wishes_title || t("secWishes", lang)
       case "gift-title":

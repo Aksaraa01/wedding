@@ -12,6 +12,7 @@ type Props = {
   gcal?: string
   coupleLabel: string
   language?: string
+  label?: string
 }
 
 function Cell({ value, label }: { value: number; label: string }) {
@@ -27,8 +28,10 @@ function Cell({ value, label }: { value: number; label: string }) {
   )
 }
 
-export default function SaveTheDate({ photos, target, gcal, coupleLabel, language }: Props) {
+export default function SaveTheDate({ photos, target, gcal, coupleLabel, language, label }: Props) {
   const lang = normalizeLanguage(language)
+  const customLabel = (label || "").trim()
+  const resolvedLabel = customLabel || t("saveTheDate", lang)
   const { days, hours, minutes, seconds } = useCountdown(target)
 
   return (
@@ -36,14 +39,19 @@ export default function SaveTheDate({ photos, target, gcal, coupleLabel, languag
       {photos.length > 0 && (
         <Slideshow images={photos} className="h-[46vh] w-full" overlayClassName="bg-black/40">
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[20px] uppercase text-white" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-              {t("saveTheDate", lang)}
+            <span className="text-[20px] uppercase text-white whitespace-pre-line" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
+              {resolvedLabel}
             </span>
           </div>
         </Slideshow>
       )}
 
       <div className="pt-10 text-center text-white">
+        {photos.length === 0 && customLabel && (
+          <p className="mb-8 text-[20px] uppercase text-white whitespace-pre-line" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
+            {customLabel}
+          </p>
+        )}
         {target && (
           <div className="mx-auto grid w-[285px] grid-cols-4 gap-5">
             <Cell value={days} label={t("days", lang)} />

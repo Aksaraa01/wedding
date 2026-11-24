@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height, event_type, subject_gender, children")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height, event_type, subject_gender, children, language")
     .ilike("slug", slug)
     .single()
 
@@ -75,9 +75,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name1 = (profile.groom_full_name || profile.groom_name || "").trim()
   const name2 = (profile.bride_full_name || profile.bride_name || "").trim()
 
-  // Ceriavite (kids) shares carry the rite and the child's name, not a wedding
-  // title. Absolute title so the root layout does not append "| Aksaraa Wedding".
-  const view = profileView(profile)
+  // Template code decides what `language = "default"` resolves to, so it must be
+  // known before any copy is chosen.
+  let noCoverSlots = false
+  let metaTemplateCode: string | null = null
+  if ((profile as any).selected_template_id) {
+    const { data: tplRow } = await supabaseAdmin
+      .from("web_templates")
+      .select("code, no_photo, wp_manifest")
+      .eq("id", (profile as any).selected_template_id)
+      .maybeSingle()
+    metaTemplateCode = (tplRow as any)?.code || null
+    const specSlots = getTemplateContentSpec((tplRow as any)?.code || null)?.cover_slots
+    const manifestSlots = Array.isArray((tplRow as any)?.wp_manifest?.cover_photos)
+      ? (tplRow as any).wp_manifest.cover_photos.length
+      : 0
+    noCoverSlots = (tplRow as any)?.no_photo === true || (specSlots ?? manifestSlots) === 0
+  }
+  const lang = normalizeLanguage(profile.language)
+  const view = profileView({ ...profile, language: lang })
   const kids = view.kids
   const labels = view.labels
   // One ceremony can introduce several ananda (siblings). The share card names
@@ -86,7 +102,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const kidsNames = kids ? childFullNamesLine(resolveChildren(profile)) || name1 : ""
   const title: Metadata["title"] = kids
     ? { absolute: `${labels.eventKicker} ${kidsNames} | ${labels.brand}` }
-    : `The Wedding of ${name1}-${name2}`
+    : lang === "en"
+      ? `The Wedding of ${name1} & ${name2}`
+      : `Pernikahan ${name1} & ${name2}`
 
   const tagline = kids
     ? kidsNames
@@ -95,8 +113,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : ""
   const description = kids
-    ? [tagline, date, `Undangan ${labels.eventNoun.toLowerCase()}. Detail acara dan konfirmasi kehadiran tersedia di tautan ini.`].filter(Boolean).join(" • ")
-    : [tagline, date, "Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan."].filter(Boolean).join(" • ")
+    ? [tagline, date, lang === "en" ? `Invitation to the ${labels.eventNoun.toLowerCase()}. Event details and RSVP are available in this link.` : `Undangan ${labels.eventNoun.toLowerCase()}. Detail acara dan konfirmasi kehadiran tersedia di tautan ini.`].filter(Boolean).join(" • ")
+    : [tagline, date, lang === "en" ? "Thank you for your prayers and blessings; event details and RSVP are in this invitation." : "Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan."].filter(Boolean).join(" • ")
 
   let covers: string[] = []
   if (Array.isArray(profile.cover_photos)) covers = profile.cover_photos.filter((c: unknown) => typeof c === "string" && c.trim())
@@ -121,19 +139,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // A design with no cover slot must never fall back to the couple's stored
   // cover/illustration (those are hidden by the template). Only the uploaded
   // link thumbnail is valid there; otherwise the generic default is used.
-  let noCoverSlots = false
-  if ((profile as any).selected_template_id) {
-    const { data: tplRow } = await supabaseAdmin
-      .from("web_templates")
-      .select("code, no_photo, wp_manifest")
-      .eq("id", (profile as any).selected_template_id)
-      .maybeSingle()
-    const specSlots = getTemplateContentSpec((tplRow as any)?.code || null)?.cover_slots
-    const manifestSlots = Array.isArray((tplRow as any)?.wp_manifest?.cover_photos)
-      ? (tplRow as any).wp_manifest.cover_photos.length
-      : 0
-    noCoverSlots = (tplRow as any)?.no_photo === true || (specSlots ?? manifestSlots) === 0
-  }
   // "Tanpa foto thumbnail": the couple opted out of a personal photo entirely.
   // That means NO og:image at all (title + description only) — never the couple
   // portrait and not a stock placeholder either.
@@ -331,7 +336,6 @@ export default async function WeddingInvitation({
     }
   }
 
-  const guestName = guestContext?.name || prettifyGuestSlug(to) || (linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
   const visibleSessions = filterSessionsByScope(
     (profile.sessions as any[] | null) || [],
     guestContext?.invited_session_indexes ?? null,
@@ -381,6 +385,8 @@ export default async function WeddingInvitation({
       templateDemoUrl = tmpl.demo_url
     }
   }
+  const lang = normalizeLanguage(profile.language)
+  const guestName = guestContext?.name || prettifyGuestSlug(to) || (lang === "en" ? "Guest" : linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
 
   // In-house templates default to "An Everlasting Love" when the couple has not
   // picked a track yet (they can override it in the editor music section).
@@ -431,7 +437,7 @@ export default async function WeddingInvitation({
             guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
-            language={normalizeLanguage(profile.language)}
+            language={lang}
           />
         )}
       </>
@@ -465,7 +471,7 @@ export default async function WeddingInvitation({
             guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
-            language={normalizeLanguage(profile.language)}
+            language={lang}
           />
         )}
       </>
@@ -526,8 +532,8 @@ export default async function WeddingInvitation({
         wedding_profile_id={profile.id}
         event_type={profile.event_type || "wedding"}
         subject_gender={profile.subject_gender || undefined}
-        language={normalizeLanguage(profile.language)}
-        event_labels={profileView(profile).labels}
+        language={lang}
+        event_labels={profileView({ ...profile, language: lang }).labels}
         guest_id={guestContext?.id}
         guest_link_strict={linkStrict}
         guest_slug={to || undefined}
@@ -596,7 +602,7 @@ feature_gates={{
         color: "#444748",
         marginBottom: "32px",
       }}>
-        Kepada Yth. {guestName}
+        {lang === "en" ? "Dear" : "Kepada Yth."} {guestName}
       </p>
       {weddingDate && (
         <p style={{

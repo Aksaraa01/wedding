@@ -12,6 +12,7 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 
 export default function PixelQuest(props: TemplateProps) {
   const lang = normalizeLanguage(props.language)
+  const tc = props.template_content || {}
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
@@ -65,6 +66,8 @@ export default function PixelQuest(props: TemplateProps) {
               couple_initials={props.couple_initials}
               onOpen={openInvitation}
               backgroundUrl={ASSETS.pixelQuest.coverBg}
+              templateContent={tc}
+              coverKicker={tc.cover_kicker}
             />
           ) : (
             <Quest

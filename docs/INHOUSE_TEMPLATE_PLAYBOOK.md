@@ -880,8 +880,9 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 ## 8.8 Bilingual (id/en) — mandatory for all in-house templates
 
 Every in-house template must render in Bahasa Indonesia (`id`) and English (`en`).
-Language is **couple-selected** in editor/ops (`wedding_profiles.language`, default `id`);
-every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect.
+Language is **couple-selected** in editor/ops (`wedding_profiles.language`, `id` or `en`).
+Every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect.
+Couple-entered content is never translated; only shipped defaults and chrome switch.
 
 ### Rules
 
@@ -905,6 +906,88 @@ every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect
   `templateExtrasLabel(name, lang)` are lang-aware; pass current language.
 - **Guards:** `node scripts/check-i18n.mjs` must pass; `predeploy-guard.mjs` runs it.
   Every `t()/tf()` key must exist in `src/lib/i18n.ts`.
+- **Extras catalogue:** every `tc.<key>` a component reads must be registered for
+  that template and vice versa. `npm run audit:extras` fails on duplicates,
+  same-label collisions, uneditable reads and dead inputs; the guard runs it.
+- **Body copy stays per template, never in the glossary.** Intros, apologies,
+  gift/closing paragraphs are design-specific: express them as
+  `tc.<key> || (lang === "en" ? "…" : "…")` (or `tc.<key> || t(lockedKey, lang)`
+  when the locked sentence fits). Shared chrome only goes to `i18n.ts`.
+- **Every extra must exist in both languages.** A one-language default shows the
+  wrong copy when the couple switches language, so `generate:extra-defaults`
+  fails on any `{en}`-only or `{id}`-only entry.
+- **Generated defaults:** `src/lib/templateExtraDefaults.ts` is generated from the
+  templates' own fallback copy. After editing a default, run
+  `npm run generate:extra-defaults`; `npm run check:extra-defaults` (guard) fails
+  when the file is stale.
+
+### Mixed-language check (mandatory, before review)
+
+A template is **not** bilingual because it imports `t()`; it is bilingual when the
+rendered page contains no text in the wrong language. Static greps cannot see
+which branch actually rendered (several templates ship English sample copy in
+`COPY_EN`/`placeholders`), so run the render scan:
+
+```bash
+node scripts/scan-template-language.mjs \
+  --env-file .env.staging \
+  --base https://wedding-stg.aksaraa.com \
+  --profile <staging-test-profile-id> \
+  --json /tmp/template-language.json
+```
+
+- It temporarily sets the test profile's `selected_template_id` + `language`,
+  renders `/preview/{id}` for every in-house template in `id` and `en`, and
+  restores the profile.
+- `--strict` exits 1 on any hit — use it for new templates.
+- **Allowed content** (never translated): guest-submitted wishes, couple-typed
+  values (names, quote/ayat, opening), Arabic ayat, and brand strings
+  (`Wedding by Aksaraa`). Everything else must be 0.
+- A new template is rejected at review if it prints `id>0` or `en>0`.
+
+The 2026-11 audit used this and found English defaults rendering inside
+Indonesian invitations (film-roll, lace, ivory-lace, silver-gelatin, imagine,
+minang-royal, still-ever, fresco, nihara-mist, …). Each pass fixes the defaults
+and re-runs the scan until the count reaches 0.
+
+### Extras + placeholders (the editor hints)
+
+Extras are **invitation text**, not samples. When a field is empty the template's
+own fallback renders; the `placeholder` is only the grey hint in the editor.
+
+- Field sets are **per template** (`templates: [code]`); olan ≠ fresco ≠ teatro.
+  Shared keys may share a label because the meaning is identical.
+- Every field carries `label` (Indonesian) and `labelEn` / `EXTRA_LABEL_EN`
+  (English). Add a key to `EXTRA_LABEL_EN` when the auto-translated label would
+  be a hybrid (e.g. `welcome_message` → "Welcome Message", not "Message Sambutan").
+- `placeholders` are the Indonesian hints; `placeholdersEn` / `placeholderEn`
+  are the English ones. **Never show an English placeholder in `id` or an
+  Indonesian one in `en`** — `EXTRA_PLACEHOLDER_ID` maps the common English
+  sources, and anything untranslated is omitted rather than mixed.
+- Guest-submitted wishes keep the guest's original text in both languages.
+
+- **Placeholder source of truth:** `src/lib/templateExtraDefaults.ts` is generated from
+  the templates (`npm run generate:extra-defaults`) and holds each template's default
+  copy per language. `getTemplateExtraFields(code, lang)` uses it, so the accordion
+  hint matches what the invitation renders. Re-run the generator after adding or
+  changing a template default.
+- **Precedence:** explicit `placeholders[code]` → generated default in the active
+  language → legacy shared `placeholder`. An explicit `""` means "no hint", not an
+  override. A default that exists only in the other language hides the hint
+  (never show Indonesian copy in `en` or the reverse) — the fix is to make the
+  template default bilingual, not to translate the hint.
+- **Locator examples:** a field the template renders nothing for would be
+  un-findable in the accordion, so 22 such fields carry an explicit
+  `EXTRA_EXAMPLE_HINTS` entry prefixed `Contoh:` / `e.g.` in `templateExtras.ts`.
+  Add one there when a new field has no template default; keep the prefix so it
+  reads as an example, not as shipped copy.
+- The generator reads the AST: it attributes only copy inside the
+  `tc.<key> || … || (lang === "en" ? EN : ID)` chain (or a resolved `t()` key /
+  local constant). A regex over the file pairs aliases and JSX with the wrong
+  field — do not reintroduce one.
+- Coverage today: **1016/1016 Indonesian hints**, **785/1016 English** — the
+  remainder are template defaults written in Indonesian only, which the render
+  scan already lists; translating them is a reviewed copy task.
 
 ### Minimum wiring checklist for a new template
 
@@ -913,7 +996,8 @@ every guest sees the same language. No guest toggle, no `?lang=`, no auto-detect
 3. Pass `language={profile.language}` to `<Wishes ... />` and `<InvitationOverlay ... />`.
 4. Register heading/copy extras in `templateExtras.ts` for the template code, with section/order/placeholder.
 5. `npm run audit:copy -- <code>` and `node scripts/check-i18n.mjs` clean.
-6. Smoke in both `id` and `en` (editor language selector / profile.language).
+6. `node scripts/scan-template-language.mjs ... --strict` prints `id=0 en=0` for the new code.
+7. Smoke in both `id` and `en` (editor language selector / profile.language).
 
 ## 9. Failure catalogue (symptom → cause → fix)
 

@@ -23,6 +23,8 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
+const DEFAULT_CLOSING_ID =
+  "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat yang Anda tinggalkan berarti lebih dari yang dapat kami ungkapkan."
 
 // Art-directed stills shipped with the template. Used only as fallbacks for
 // decorative surfaces (never as demo couple data).
@@ -172,7 +174,7 @@ export default function StillEver(profile: TemplateProps) {
   const monogram = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "S&E"
   const monogramCount = initialsGlyphs(monogram).length
   const guestName = profile.guest_name || t("honoredGuest", lang)
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID)
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
 
   // Guest dock (QR + RSVP) is a per-guest affair: only real invitation links
@@ -412,7 +414,7 @@ export default function StillEver(profile: TemplateProps) {
         {profile.quote_text && (
           <section className="se-section se-quote" data-section="quote">
             <div className="se-wrap se-quote__inner" data-se-reveal>
-              <p className="se-eyebrow">{tc.quote_title || "A Word From Us"}</p>
+              <p className="se-eyebrow">{tc.quote_title || t("secQuote", lang)}</p>
               <blockquote className="se-quote__text">{profile.quote_text}</blockquote>
               {profile.quote_source && <cite className="se-quote__source">{profile.quote_source}</cite>}
             </div>
@@ -466,7 +468,7 @@ export default function StillEver(profile: TemplateProps) {
         {honored.length > 0 && (
           <section className="se-section se-honored" data-section="inviting">
             <div className="se-wrap se-honored__inner" data-se-reveal>
-              <h2 className="se-display se-heading">With Honour</h2>
+              <h2 className="se-display se-heading">{t("secInviting", lang)}</h2>
               <span className="se-rule-short se-rule-short--center" aria-hidden="true" />
               <p className="se-text se-honored__intro">
                 With deep gratitude we also present the families who extend this invitation alongside us.
@@ -528,7 +530,7 @@ export default function StillEver(profile: TemplateProps) {
               <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="se-pill se-countdown__cta" href={calendarUrl} target="_blank" rel="noreferrer">
-                  Save the date
+                  {lang === "en" ? "Save the date" : "Simpan Tanggal"}
                 </a>
               )}
             </div>
@@ -540,8 +542,8 @@ export default function StillEver(profile: TemplateProps) {
           <section className="se-section se-events" data-section="events">
             <div className="se-wrap">
               <header className="se-events__head" data-se-reveal>
-                <p className="se-eyebrow">The Celebration</p>
-                <h2 className="se-display se-heading">When We Say Yes</h2>
+                <p className="se-eyebrow">{lang === "en" ? "The Celebration" : "Rangkaian Acara"}</p>
+                <h2 className="se-display se-heading">{tc.events_title || t("secEvent", lang)}</h2>
               </header>
 
               <div className="se-events__list">
@@ -588,7 +590,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
                 <p className="se-eyebrow">Rundown</p>
-                <h2 className="se-display se-heading">The Order of the Day</h2>
+                <h2 className="se-display se-heading">{tc.rundown_title || t("secRundown", lang)}</h2>
               </header>
 
               <ol className="se-rundown__list">
@@ -648,7 +650,7 @@ export default function StillEver(profile: TemplateProps) {
               {(tc.gallery_quote || coupleLabel) && (
                 <figure className="se-gallery__quote" data-se-reveal>
                   <blockquote>
-                    “{tc.gallery_quote || "A lifetime with you is the story I would choose again and again."}”
+                    “{tc.gallery_quote || (lang === "en" ? "A lifetime with you is the story I would choose again and again." : "Hidup bersamamu adalah kisah yang akan kupilih lagi dan lagi.")}”
                   </blockquote>
                   <figcaption>, {coupleLabel}</figcaption>
                 </figure>
@@ -663,7 +665,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
                 <p className="se-eyebrow">{t("secLivestream", lang)}</p>
-                <h2 className="se-display se-heading">Join From Anywhere</h2>
+                <h2 className="se-display se-heading">{tc.livestream_title || t("secLivestream", lang)}</h2>
               </header>
 
               <div className="se-frame" data-se-reveal>
@@ -690,7 +692,7 @@ export default function StillEver(profile: TemplateProps) {
             <div className="se-wrap">
               <header className="se-section__head" data-se-reveal>
                 <p className="se-eyebrow">In Motion</p>
-                <h2 className="se-display se-heading">A Piece Of Our Story</h2>
+                <h2 className="se-display se-heading">{tc.gallery_title || t("secGallery", lang)}</h2>
               </header>
 
               <div className="se-frame se-frame--video" data-se-reveal>
@@ -732,7 +734,7 @@ export default function StillEver(profile: TemplateProps) {
               <h2 className="se-display se-heading">{tc.gift_intro_title || t("secGift", lang)}</h2>
               <p className="se-text se-gift__intro">
                 {tc.gift_intro_description ||
-                  "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
+                  (lang === "en" ? "Your presence is the greatest gift. Should you wish to send a token of love, the details are below." : "Kehadiran Anda adalah hadiah terindah. Bila berkenan mengirimkan tanda kasih, detailnya tersedia di bawah ini.")}
               </p>
 
               {giftTabs && (
@@ -789,7 +791,7 @@ export default function StillEver(profile: TemplateProps) {
           <div className="se-wrap">
             <header className="se-section__head" data-se-reveal>
               <p className="se-eyebrow">With Love</p>
-              <h2 className="se-display se-heading">A Word For Us</h2>
+              <h2 className="se-display se-heading">{tc.wishes_title || t("secWishes", lang)}</h2>
               <p className="se-text se-wishes__intro">
                 {tc.wishes_intro || (lang === "en" ? "Leave a wish, a prayer, or a memory for us to keep." : "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.")}
               </p>
@@ -810,7 +812,7 @@ export default function StillEver(profile: TemplateProps) {
           <div className="se-closing__body">
             <div className="se-closing__inner" data-se-reveal>
               <p className="se-eyebrow">With All Our Hearts</p>
-              <h2 className="se-display se-closing__title">Until We Meet</h2>
+              <h2 className="se-display se-closing__title">{tc.closing_title || t("thankYou", lang)}</h2>
               <p className="se-text se-closing__message">{closingMessage}</p>
               <p className="se-closing__names">{coupleLabel}</p>
               {profile.display_name && <p className="se-closing__hashtag">{profile.display_name}</p>}
@@ -884,7 +886,7 @@ export default function StillEver(profile: TemplateProps) {
 
               <div className="se-gate__card">
                 <p className="se-gate__guest">
-                  Dear,
+                  {lang === "en" ? "Dear," : "Kepada Yth.,"}
                   <strong>{guestName}</strong>
                 </p>
                 <p className="se-gate__kicker">{t("theWeddingOf", lang)}</p>

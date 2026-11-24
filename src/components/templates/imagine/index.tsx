@@ -742,7 +742,7 @@ export default function Imagine(props: TemplateProps) {
               </div>
               {calHref && (
                 <div className="add-to-calendar-wrap" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="1100">
-                  <a className="add-to-calendar" href={calHref} target="_blank" rel="noreferrer">Add to Calendar</a>
+                  <a className="add-to-calendar" href={calHref} target="_blank" rel="noreferrer">{lang === "en" ? "Add to Calendar" : "Simpan ke Kalender"}</a>
                 </div>
               )}
             </section>
@@ -754,9 +754,9 @@ export default function Imagine(props: TemplateProps) {
               <section className="agenda-wrap">
                 <div className="agenda-inner">
                   <div className="agenda-head">
-                    <h2 className="agenda-title" data-aos="zoom-in" data-aos-duration="1500">It&rsquo;s Wedding Day</h2>
+                    <h2 className="agenda-title" data-aos="zoom-in" data-aos-duration="1500">{lang === "en" ? "It’s Wedding Day" : "Hari Pernikahan"}</h2>
                     <p className="agenda-description" data-aos="fade-up" data-aos-duration="1200">
-                      We cordially invite you to attend our wedding
+                      {lang === "en" ? "We cordially invite you to attend our wedding" : "Dengan penuh sukacita, kami mengundang Anda untuk menghadiri pernikahan kami"}
                     </p>
                   </div>
                   <div className="agenda-body">
@@ -876,7 +876,7 @@ export default function Imagine(props: TemplateProps) {
           {hasRundown && (
             <section className="tpl-rundown" data-section-order="rundown" aria-label={t("rundownTitle", lang)}>
               <div className="tpl-rundown__card" data-aos="fade-up" data-aos-duration="1000">
-                <h2 className="tpl-rundown__title" data-aos="zoom-in" data-aos-duration="1000">Rundown Acara</h2>
+                <h2 className="tpl-rundown__title" data-aos="zoom-in" data-aos-duration="1000">{tc.rundown_title || t("secRundown", lang)}</h2>
                 <div className="tpl-rundown__list">
                   {rundownItems.map((item, index) => (
                     <article
@@ -998,7 +998,7 @@ export default function Imagine(props: TemplateProps) {
             <section className="video-gallery" data-section-order="gallery_video">
               <div className="inner">
                 <div className="title" data-aos="zoom-out" data-aos-duration="1000">
-                  <h1 data-aos="zoom-out-up" data-aos-duration="1000">Our Footage</h1>
+                  <h1 data-aos="zoom-out-up" data-aos-duration="1000">{t("secVideo", lang)}</h1>
                 </div>
                 <div className="video-outer">
                   <div className="video">
@@ -1074,7 +1074,7 @@ export default function Imagine(props: TemplateProps) {
                     </h1>
                     <p className="wedding-gift-description" data-aos="fade-up" data-aos-duration="1000">
                       {tc.gift_intro_description ||
-                        "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:"}
+                        (lang === "en" ? "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:" : "Kehadiran Anda adalah hadiah terindah bagi kami. Jika ingin mengirim tanda kasih, silakan gunakan detail di bawah ini:")}
                     </p>
                   </div>
                   <div className="wedding-gift-body">
@@ -1135,7 +1135,7 @@ export default function Imagine(props: TemplateProps) {
             </div>
             <div className="wedding-wish-inner">
               <div className="wedding-wish-head">
-                <h1 className="wedding-wish-title" data-aos="fade-up" data-aos-duration="1200">Best Wishes</h1>
+                <h1 className="wedding-wish-title" data-aos="fade-up" data-aos-duration="1200">{tc.wishes_title || t("secWishes", lang)}</h1>
                 {tc.wishes_intro && (
                   <p className="wedding-wish-description" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200">
                     {tc.wishes_intro}
@@ -1157,10 +1157,10 @@ export default function Imagine(props: TemplateProps) {
           {/* THANK YOU NOTE */}
           <section className="notes-container" data-section-order="greet_thanks">
             <div className="note">
-              <h4 className="note-title" data-aos="fade-up" data-aos-duration="1200">Thank You</h4>
+              <h4 className="note-title" data-aos="fade-up" data-aos-duration="1200">{tc.closing_title || t("thankYou", lang)}</h4>
               <p className="note-description" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="200">
                 {tc.closing_message ||
-                  "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us."}
+                  (lang === "en" ? "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us." : "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari besar kami. Kami sangat beruntung memiliki Anda dalam hidup kami dan merasa terhormat atas kehadiran Anda.")}
               </p>
             </div>
           </section>

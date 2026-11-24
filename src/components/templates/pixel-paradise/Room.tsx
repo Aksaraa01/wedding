@@ -69,6 +69,7 @@ export default function PixelRoom({
   onWishOpenChange,
 }: RoomProps) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content || {}
   const [hint, setHint] = useState(true)
   // Art box is measured (never overflows): full image always visible, hotspots aligned.
   const { boxRef, boxStyle, onArtLoad } = useSceneFit(124, "768 / 1376")
@@ -212,6 +213,8 @@ export default function PixelRoom({
         weddingProfileId={profile.wedding_profile_id}
         guestId={profile.guest_id}
         guestName={profile.guest_name}
+        title={tc.wishes_title || t("secWishes", lang)}
+        intro={tc.wishes_intro}
       />
     </div>
   )

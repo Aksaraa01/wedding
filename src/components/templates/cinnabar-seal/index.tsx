@@ -235,7 +235,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE
   const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION
   const quoteText = (profile.quote_text || "").trim()
-  const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingMessage = (tc.closing_message || "").trim() || (lang === "en" ? "It is a joy for us if you would honour us with your presence and prayers. Thank you for being part of our story." : DEFAULT_CLOSING)
 
   const coverKicker = (tc.cover_kicker || "").trim() || t("theWeddingOf", lang)
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
@@ -260,7 +260,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const rundownTitle = (tc.rundown_title || "").trim() || t("rundownTitle", lang)
   const rundownIntro = (tc.rundown_intro || "").trim()
   const galleryKicker = (tc.gallery_kicker || "").trim() || (lang === "en" ? "Precious" : "Momen")
-  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Momen Kami")
+  const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Galeri")
   const galleryIntro = (tc.gallery_intro || "").trim()
   const videoKicker = (tc.video_kicker || "").trim() || t("secVideo", lang)
   const videoTitle = (tc.video_title || "").trim() || t("secVideo", lang)
@@ -1070,7 +1070,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
           type="button"
           className={`cn-music${playing ? " is-on" : " is-off"}`}
           onClick={toggleMusic}
-          aria-label={playing ? "Jeda musik" : "Putar musik"}
+          aria-label={playing ? (lang === "en" ? "Pause music" : "Jeda musik") : (lang === "en" ? "Play music" : "Putar musik")}
           aria-pressed={playing}
         >
           <span className="cn-music__bar" aria-hidden="true" />

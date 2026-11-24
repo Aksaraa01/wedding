@@ -1,0 +1,679 @@
+/* NOIR — authored layer on top of the ported reference theme
+   (noir-reference.css). Only what the reference gets from its page/JS bundle
+   lives here: the palette variables it injects on <body>, the pieces our
+   runtime replaces (slick → scroll-snap, lightgallery → our lightbox,
+   Katsudoto's gift/wish backends → our endpoints), and the four extra section
+   surfaces the minimum-section contract requires. */
+
+.noir-root {
+  --background-primary: #000000;
+  --background-primary-rgb: 0, 0, 0;
+  --background-secondary: #ffffff;
+  --background-secondary-rgb: 255, 255, 255;
+  --background-tertiary: #e6d8d5;
+  --background-tertiary-rgb: 230, 216, 213;
+  --text-primary: #e6d8d5;
+  --text-primary-rgb: 230, 216, 213;
+  --text-secondary: #ffffff;
+  --text-secondary-rgb: 255, 255, 255;
+  --text-tertiary: #000000;
+  --text-tertiary-rgb: 0, 0, 0;
+  --text-rgb-sc: 0, 0, 0;
+  --title-clr: #ffffff;
+  --button-background-primary: #ffffff;
+  --button-background-primary-rgb: 255, 255, 255;
+  --button-background-secondary: #000000;
+  --button-background-secondary-rgb: 0, 0, 0;
+  --button-text-primary: #000000;
+  --button-text-primary-rgb: 0, 0, 0;
+  --button-text-secondary: #ffffff;
+  --button-text-secondary-rgb: 255, 255, 255;
+  --light-clr: #ffffff;
+  --light-rgb: 255, 255, 255;
+  --dark-clr: #000000;
+  --dark-rgb: 0, 0, 0;
+  --roboto: var(--font-inter, "Inter"), sans-serif;
+  --shadow-01: 0 10px 40px rgba(0, 0, 0, 0.35);
+  --body-height: 100vh;
+  --heading-family: var(--font-unicase, "Cormorant Unicase"), serif;
+  --body-text-family: var(--font-newsreader, "Newsreader"), serif;
+  --bg-cover: none;
+
+  position: relative;
+  background: var(--background-primary);
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  isolation: isolate;
+}
+
+/* The reference relies on its own body reset; Tailwind's preflight already
+   handles margins, so only the parts the theme assumes are restored. */
+.noir-root .kat-page__side-to-side {
+  min-height: var(--body-height);
+}
+
+.noir-root .primary-pane .inner .highlight,
+.noir-root .hero .inner .highlight {
+  background-color: var(--background-primary);
+}
+
+.noir-root .preview-container .picture {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* ── gate: the reference slides the whole section away, not just a class ─── */
+.noir-root section.top-cover.hide {
+  pointer-events: none;
+}
+
+/* ── added surfaces, built from the reference's own blocks ───────────────── */
+
+.noir-root section.welcome-wrap .couple-head {
+  padding: 60px 24px 40px;
+}
+
+.noir-root section.welcome-wrap .couple-head .date {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  margin-top: 6px;
+}
+
+.noir-root .dresscode-wrap .dresscode-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  list-style: none;
+  margin: 8px 24px 0;
+  padding: 0;
+}
+
+.noir-root .dresscode-wrap .dresscode-item {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 72px;
+}
+
+.noir-root .dresscode-wrap .dresscode-dot {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  display: block;
+  height: 44px;
+  width: 44px;
+}
+
+.noir-root .dresscode-wrap .dresscode-name {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.noir-root .inviting-wrap .inviting-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 24px 40px;
+  text-align: center;
+}
+
+.noir-root .inviting-wrap .inviting-name {
+  border-bottom: 1px solid rgba(230, 216, 213, 0.16);
+  color: var(--text-primary);
+  font-family: var(--heading-family);
+  font-size: calc(var(--body-text-size) + var(--fs-extra-1));
+  padding: 14px 0;
+}
+
+/* ── gallery: reference markup, slick replaced by a snap track ───────────── */
+
+.noir-root .gallery__single-slider .slider-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 40px 24px;
+  gap: 12px;
+}
+
+.noir-root .gallery__single-slider .slider-container::-webkit-scrollbar {
+  display: none;
+}
+
+.noir-root .gallery__single-slider .slider-item {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}
+
+.noir-root .gallery__single-slider .slider-item .preview,
+.noir-root .gallery__single-slider .slider-item .preview .anchor,
+.noir-root .gallery__single-slider .slider-item .preview .img {
+  display: block;
+  width: 100%;
+}
+
+.noir-root .gallery__single-slider .slider-item .preview .img {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.noir-root .gallery__nav {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+.noir-root .gallery__arrow {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.noir-root .gallery__arrow svg {
+  display: block;
+  height: 18px;
+  width: 10px;
+}
+
+.noir-root .gallery__arrow path {
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 1.4;
+}
+
+.noir-root .gallery__dots {
+  display: flex;
+  gap: 5px;
+}
+
+.noir-root .gallery__dot {
+  background-color: rgba(var(--light-rgb), 0.4);
+  border: 0;
+  cursor: pointer;
+  height: 3px;
+  padding: 0;
+  transition: background-color 0.25s ease;
+  width: 26px;
+}
+
+.noir-root .gallery__dot.is-active {
+  background-color: var(--light-clr);
+}
+
+/* love story: reference markup, slick replaced by stacked slides */
+.noir-root .story-chitra__slider-for {
+  position: relative;
+}
+
+.noir-root .story-chitra__slider-for__item {
+  display: none;
+}
+
+.noir-root .story-chitra__slider-for__item.is-active {
+  display: flex;
+}
+
+.noir-root .story-chitra__slider-nav__item__manual {
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ── video: click-to-mount player keeps the reference poster + play button ── */
+.noir-root .video-gallery .preview .autoplay-video,
+.noir-root .video-gallery .preview iframe,
+.noir-root .video-gallery .preview video {
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.noir-root .video-gallery .preview.is-playing > img,
+.noir-root .video-gallery .preview.is-playing .play-btn {
+  display: none;
+}
+
+/* ── wish list (the reference fills .comment-wrap from its API) ──────────── */
+.noir-root .comment-wrap .wish-item {
+  border-bottom: 1px solid rgba(230, 216, 213, 0.14);
+  padding: 18px 24px;
+}
+
+.noir-root .comment-wrap .wish-head {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.noir-root .comment-wrap .wish-name {
+  color: var(--text-primary);
+  font-family: var(--heading-family);
+  font-size: calc(var(--body-text-size) + var(--fs-extra-1));
+}
+
+.noir-root .comment-wrap .wish-time {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.noir-root .comment-wrap .wish-text {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.noir-root .comment-wrap .wish-empty {
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 18px 24px;
+}
+
+.noir-root .wedding-wish-feedback {
+  font-size: 13px;
+  padding: 10px 24px 0;
+}
+
+.noir-root .wedding-wish-feedback.is-error {
+  color: #e8a6a0;
+}
+
+/* ── music + toast + lightbox (our runtime, reference palette) ───────────── */
+.noir-root .noir-music {
+  align-items: center;
+  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(230, 216, 213, 0.4);
+  border-radius: 50%;
+  bottom: 18px;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  left: 18px;
+  position: fixed;
+  width: 44px;
+  z-index: 40;
+}
+
+.noir-root .noir-music__bars {
+  align-items: flex-end;
+  display: flex;
+  gap: 3px;
+  height: 14px;
+}
+
+.noir-root .noir-music__bars i {
+  background: currentColor;
+  display: block;
+  height: 5px;
+  transition: height 0.3s ease;
+  width: 2px;
+}
+
+.noir-root .noir-music.is-playing .noir-music__bars i {
+  animation: noir-eq 1.1s ease-in-out infinite;
+}
+
+.noir-root .noir-music.is-playing .noir-music__bars i:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.noir-root .noir-music.is-playing .noir-music__bars i:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+@keyframes noir-eq {
+  0%,
+  100% {
+    height: 4px;
+  }
+  50% {
+    height: 13px;
+  }
+}
+
+.noir-root .noir-toast {
+  background: var(--background-tertiary);
+  bottom: 84px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  left: 50%;
+  opacity: 0;
+  padding: 10px 18px;
+  pointer-events: none;
+  position: fixed;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  z-index: 70;
+}
+
+.noir-root .noir-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.noir-root .noir-lightbox {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.96);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 40px 48px;
+  position: fixed;
+  z-index: 80;
+}
+
+.noir-root .noir-lightbox__img {
+  height: auto;
+  max-height: 82vh;
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
+
+.noir-root .noir-lightbox__close,
+.noir-root .noir-lightbox__arrow {
+  align-items: center;
+  background: transparent;
+  border: 1px solid rgba(230, 216, 213, 0.4);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  position: absolute;
+  width: 40px;
+}
+
+.noir-root .noir-lightbox__close {
+  right: 16px;
+  top: 16px;
+}
+
+.noir-root .noir-lightbox__arrow {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.noir-root .noir-lightbox__arrow--prev {
+  left: 10px;
+}
+
+.noir-root .noir-lightbox__arrow--next {
+  right: 10px;
+}
+
+.noir-root .noir-lightbox__count {
+  bottom: 18px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+/* ── reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .noir-root [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .noir-root *,
+  .noir-root *::before,
+  .noir-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ── gaps the reference fills from its page/JS, authored here ─────────────── */
+
+.noir-root .notes-container {
+  background-color: var(--background-primary);
+  padding: 70px 24px 30px;
+  text-align: center;
+}
+
+.noir-root .notes-container .note-title {
+  font-family: var(--heading-family);
+  font-size: calc(var(--heading-size) + var(--fs-extra-2));
+  font-weight: var(--heading-weight);
+  color: var(--text-primary);
+  line-height: normal;
+}
+
+.noir-root .notes-container .note-description {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  line-height: 1.6;
+  margin: 10px auto 0;
+  max-width: 34rem;
+}
+
+.noir-root .wedding-wish-description,
+.noir-root .gallery-description {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 8px 24px 0;
+}
+
+.noir-root .wedding-gift-select-bank-wrap .noir-gift-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-family: var(--body-text-family);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  margin-right: 24px;
+  padding: 0 0 10px;
+  text-transform: uppercase;
+}
+
+.noir-root .wedding-gift-select-bank-wrap .noir-gift-tab.is-active {
+  border-bottom-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.noir-root .wedding-gift-bank-wrap {
+  margin-top: 20px;
+}
+
+.noir-root .wedding-gift-bank-wrap .copy-wrap {
+  margin-top: 14px;
+}
+
+.noir-root .gift-address-text {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 6px;
+  white-space: pre-line;
+}
+
+.noir-root .more-comment-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 10px 24px 40px;
+}
+
+/* The reference's .hero is a fixed photo layer behind the scroll pane. Put it
+   under every section without turning the gate's fixed positioning into flow. */
+.noir-root .hero {
+  z-index: -1;
+}
+
+/* ── rundown timeline (the reference's .rundown-* rules ship in a section
+   stylesheet that is not part of the theme bundle; rebuilt from the rendered
+   reference) ─────────────────────────────────────────────────────────────── */
+
+.noir-root .rundown-container {
+  padding: 44px 24px 56px;
+  text-align: center;
+}
+
+.noir-root .rundown-title {
+  font-family: var(--heading-family);
+  font-size: calc(var(--heading-size) - var(--fs-extra-2));
+  font-weight: var(--heading-weight);
+  color: var(--text-primary);
+  line-height: normal;
+  margin: 0;
+}
+
+.noir-root .rundown-event-title {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: 13px;
+  font-weight: 400;
+  margin: 4px 0 20px;
+}
+
+.noir-root .rundown-agenda-list {
+  margin: 0 auto;
+  max-width: 420px;
+  text-align: left;
+}
+
+.noir-root .rundown-agenda {
+  display: grid;
+  grid-template-columns: 88px 22px 1fr;
+  padding: 5px 0;
+}
+
+.noir-root .rundown-agenda-time {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: 14px;
+  padding-top: 1px;
+  text-align: right;
+}
+
+.noir-root .rundown-divider {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+}
+
+.noir-root .rundown-line {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 0);
+  background-position: 0 8px;
+  background-repeat: repeat-y;
+  background-size: 1px 7px;
+  width: 1px;
+}
+
+.noir-root .rundown-circle {
+  background: var(--light-clr);
+  border-radius: 50%;
+  height: 7px;
+  left: 50%;
+  position: absolute;
+  top: 6px;
+  transform: translateX(-50%);
+  width: 7px;
+}
+
+.noir-root .rundown-agenda-text {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: 14px;
+  padding-left: 12px;
+  padding-top: 1px;
+}
+
+/* one story slide at a time (the theme forces display:flex for slick) */
+.noir-root .story-chitra__slider-for__item:not(.is-active) {
+  display: none !important;
+}
+
+.noir-root .story-chitra__slider-for {
+  display: flex;
+  justify-content: center;
+}
+
+/* rundown connector: a dashed rule between the dots, as in the reference */
+.noir-root .rundown-line {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.55) 0 3px, rgba(255, 255, 255, 0) 3px 7px);
+}
+
+/* ── AOS, the reference's separate plugin stylesheet (aos.css) ───────────── */
+.noir-root [data-aos] {
+  opacity: 0;
+  transition-property: opacity, transform;
+  transition-duration: 1000ms;
+  transition-timing-function: ease;
+  will-change: opacity, transform;
+}
+
+.noir-root [data-aos="fade-up"] {
+  transform: translate3d(0, 100px, 0);
+}
+
+.noir-root [data-aos="fade-down"] {
+  transform: translate3d(0, -100px, 0);
+}
+
+.noir-root [data-aos="fade-right"] {
+  transform: translate3d(-100px, 0, 0);
+}
+
+.noir-root [data-aos="fade-left"] {
+  transform: translate3d(100px, 0, 0);
+}
+
+.noir-root [data-aos="zoom-in"] {
+  transform: scale(0.6);
+}
+
+.noir-root [data-aos="zoom-out"] {
+  transform: scale(1.2);
+}
+
+.noir-root [data-aos="zoom-out-up"] {
+  transform: translate3d(0, 100px, 0) scale(1.2);
+}
+
+.noir-root [data-aos="fade-in"] {
+  transform: none;
+}
+
+.noir-root [data-aos].aos-animate {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* The cover photo is the couple's own; a soft bottom scrim keeps the countdown
+   and the calendar link legible on a bright dress without changing the design. */
+.noir-root section.cover .inner::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.62) 100%);
+  bottom: 0;
+  content: "";
+  height: 40%;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: 2;
+}

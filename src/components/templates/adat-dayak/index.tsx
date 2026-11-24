@@ -707,9 +707,7 @@ export default function AdatDayak(profile: TemplateProps) {
           {honored.length > 0 && (
             <section className="inviting-section parallax-section" data-aos="fade-up" aria-label={t("secInviting", lang)}>
               <div className="inviting-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
-                <h2 className="script inviting-title garden-text-reveal" data-aos="fade-down">
-                  Turut Mengundang
-                </h2>
+                <h2 className="script inviting-title garden-text-reveal" data-aos="fade-down">{tc.inviting_title || t("secInviting", lang)}</h2>
                 <ul className="inviting-list">
                   {honored.map((name, index) => (
                     <li
@@ -729,9 +727,7 @@ export default function AdatDayak(profile: TemplateProps) {
 
           <section className="events-section" data-aos="fade-up" aria-label={t("secEvent", lang)}>
             <img className="bouquet" src={ASSET("bouquet.webp")} alt="" data-aos="leaf-in" />
-            <h2 className="script section-title garden-text-reveal" data-aos="fade-down">
-              Save The Date
-            </h2>
+            <h2 className="script section-title garden-text-reveal" data-aos="fade-down">{tc.save_date_label || t("saveTheDate", lang)}</h2>
             <div className="countdown" aria-label={t("countdown", lang)} data-aos="scale-in">
               <div data-aos="flip-in" data-aos-delay="0" className="garden-text-reveal" style={delay(0)}>
                 <strong>{countdown?.d ?? "00"}</strong>
@@ -915,9 +911,7 @@ export default function AdatDayak(profile: TemplateProps) {
 
           {hasGallery && (
             <section className="our-gallery-section" data-aos="fade-up" aria-label={tc.gallery_title || t("secGallery", lang)}>
-              <h2 className="script section-title garden-text-reveal" data-aos="fade-down">
-                Our Gallery
-              </h2>
+              <h2 className="script section-title garden-text-reveal" data-aos="fade-down">{tc.gallery_title || t("secGallery", lang)}</h2>
               {galleryIntro && <p className="gallery-description">{galleryIntro}</p>}
 
               {galleryRows.map((row, rowIndex) => {
@@ -967,9 +961,7 @@ export default function AdatDayak(profile: TemplateProps) {
             <section className="love-story-section parallax-section" data-aos="fade-up" aria-label={tc.love_story_title || t("secStory", lang)}>
               <div className="story-card" data-aos="fade-up">
                 <img className="story-bouquet" src={ASSET("bouquet.webp")} alt="" data-aos="leaf-in" />
-                <h2 className="script garden-text-reveal" data-aos="fade-down">
-                  Love Story
-                </h2>
+                <h2 className="script garden-text-reveal" data-aos="fade-down">{tc.love_story_title || t("secStory", lang)}</h2>
                 <div className="story-list">
                   {stories.map((story, index) => (
                     <article key={`${story.title || "story"}-${index}`}>
@@ -1062,9 +1054,7 @@ export default function AdatDayak(profile: TemplateProps) {
           )}
 
           <section className="rsvp-wishes-section parallax-section" data-aos="fade-up" aria-label={tc.wishes_title || t("secWishes", lang)}>
-            <h2 className="script garden-text-reveal" data-aos="fade-down">
-              Wishes
-            </h2>
+            <h2 className="script garden-text-reveal" data-aos="fade-down">{tc.wishes_title || t("secWishes", lang)}</h2>
             <p className="wishes-subtitle garden-text-reveal" data-aos="fade-up" data-aos-delay="100" style={delay(100)}>
               {wishesSubtitle}
             </p>

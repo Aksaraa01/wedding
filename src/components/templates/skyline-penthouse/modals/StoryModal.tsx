@@ -3,6 +3,7 @@
 import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
 import type { StoryData } from "../lib"
+import { normalizeLanguage } from "@/lib/i18n"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
@@ -38,10 +39,12 @@ function Milestone({ story }: { story: StoryData }) {
   )
 }
 
-export default function StoryModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+export default function StoryModal({ profile, templateContent, onClose }: { profile: TemplateProps; templateContent?: Record<string, string>; onClose: () => void }) {
   const stories: StoryData[] = Array.isArray(profile.stories) ? profile.stories : []
+  const lang = normalizeLanguage(profile.language)
+  const tc = templateContent || {}
   return (
-    <ModalShell icon="auto_stories" iconFill eyebrow="OUR JOURNEY" title="KISAH CINTA KAMI" onClose={onClose}>
+    <ModalShell icon="auto_stories" iconFill eyebrow="OUR JOURNEY" title={tc.love_story_title || (lang === "en" ? "OUR LOVE STORY" : "KISAH CINTA KAMI")} onClose={onClose}>
       <div className="space-y-5 relative">
         <div className="absolute left-[15px] top-2 bottom-2 w-px bg-[#38bdf8]/30" />
         {stories.map((s, i) => (

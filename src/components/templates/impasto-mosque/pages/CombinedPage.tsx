@@ -26,6 +26,7 @@ export default function CombinedPage({
   language?: string
 }) {
   const lang = (language === "en" ? "en" : "id") as "id" | "en"
+  const tc = profile.template_content || {}
   const videoEmbed = normalizeVideoUrl(profile.video_url)
 
   return (
@@ -36,11 +37,11 @@ export default function CombinedPage({
           <div className="inline-flex items-center gap-1.5 mb-2.5 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
             <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">videocam</span>
             <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ ...FONT_BODY, color: "#8E6B3D" }}>
-              {lang === "en" ? "Our Footage" : "Rekaman Kami"}
+              {t("secVideo", lang)}
             </span>
           </div>
           <h2 className="text-[20px] font-bold tracking-tight mb-2" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-            {lang === "en" ? "Our Sacred Moments" : "Momen Sakral Kami"}
+            {t("secGallery", lang)}
           </h2>
           <div className="relative rounded-2xl overflow-hidden border border-[#d4af37]/35 bg-black/90 aspect-video">
             <iframe
@@ -65,7 +66,7 @@ export default function CombinedPage({
               </span>
             </div>
             <h2 className="text-[20px] font-bold tracking-tight" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-              {t("secInviting", lang)}
+              {tc.inviting_title || t("secInviting", lang)}
             </h2>
           </div>
           <div className="bg-white/95 rounded-2xl p-4 border border-[#d4af37]/35 shadow-sm">
@@ -89,8 +90,13 @@ export default function CombinedPage({
               </span>
             </div>
             <h2 className="italic font-bold text-[19px]" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
-              {t("secGift", lang)}
+              {tc.gift_intro_title || t("secGift", lang)}
             </h2>
+            {tc.gift_intro_description && (
+              <p className="text-[12px] leading-relaxed mt-1.5" style={{ ...FONT_BODY, color: "#574E45" }}>
+                {tc.gift_intro_description}
+              </p>
+            )}
           </div>
           <div className="space-y-3">
             {accounts.map((a, i) => {

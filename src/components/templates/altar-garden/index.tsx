@@ -658,22 +658,25 @@ export default function AltarGarden(profile: TemplateProps) {
             <h2 className="script section-title garden-text-reveal" data-aos="fade-down">
               {tc.events_title || t("secEvent", lang)}
             </h2>
-            <div className="countdown" aria-label={t("secCountdown", lang)} data-aos="scale-in">
+            {tc.countdown_title && (
+              <h3 className="countdown-title garden-text-reveal" data-aos="fade-up">{tc.countdown_title}</h3>
+            )}
+            <div className="countdown" aria-label={tc.countdown_title || t("secCountdown", lang)} data-aos="scale-in">
               <div data-aos="flip-in" data-aos-delay="0" className="garden-text-reveal" style={delay(0)}>
                 <strong>{countdown?.d ?? "00"}</strong>
-                <span>{t("days", lang)}</span>
+                <span>{tc.countdown_days || t("days", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="70" className="garden-text-reveal" style={delay(70)}>
                 <strong>{countdown?.h ?? "00"}</strong>
-                <span>{t("hours", lang)}</span>
+                <span>{tc.countdown_hours || t("hours", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="140" className="garden-text-reveal" style={delay(140)}>
                 <strong>{countdown?.m ?? "00"}</strong>
-                <span>{t("minutes", lang)}</span>
+                <span>{tc.countdown_minutes || t("minutes", lang)}</span>
               </div>
               <div data-aos="flip-in" data-aos-delay="210" className="garden-text-reveal" style={delay(210)}>
                 <strong>{countdown?.s ?? "00"}</strong>
-                <span>{t("seconds", lang)}</span>
+                <span>{tc.countdown_seconds || t("seconds", lang)}</span>
               </div>
             </div>
             <div className="events-intro" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>

@@ -4,6 +4,7 @@ import { requireOpsEmployee } from "@/lib/ops-auth"
 import { resolveDerivedStatus } from "@/lib/opsStatus"
 import { hasVipQuotaBase } from "@/lib/packages"
 import { getFeatureIncluded } from "@/lib/featureGates"
+import { normalizeLanguage } from "@/lib/i18n"
 
 export async function GET(
   _req: Request,
@@ -233,7 +234,7 @@ export async function GET(
         groom_name: wp.groom_name,
         event_type: (wp as any).event_type || "wedding",
         subject_gender: (wp as any).subject_gender || null,
-        language: (wp as any).language === "en" ? "en" : "id",
+        language: normalizeLanguage((wp as any).language),
         bride_full_name: (wp as any).bride_full_name || null,
         groom_full_name: (wp as any).groom_full_name || null,
         display_name: wp.display_name,

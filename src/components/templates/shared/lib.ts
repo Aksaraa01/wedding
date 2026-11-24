@@ -194,24 +194,33 @@ export function bridePhoto(v: string | string[] | null | undefined): string {
   return photoList(v)[0] || DEFAULT_BRIDE
 }
 
-// Convert watch links to embeddable URLs so an <iframe> can play them.
+// YouTube's 11-character video id from any of the URL shapes it hands out.
+// The phone app's Share button produces `youtube.com/shorts/{id}`, and a Shorts
+// (or /live/, or /v/) page is not an embed: YouTube answers
+// `X-Frame-Options: sameorigin` and the player stays a black frame. Every shape
+// therefore has to be rewritten to `/embed/{id}` before it reaches an iframe.
+function youtubeVideoId(url: URL): string {
+  const host = url.hostname.toLowerCase().replace(/^(www|m|music)\./, "")
+  const valid = (id?: string | null) => (id && /^[A-Za-z0-9_-]{11}$/.test(id) ? id : "")
+  if (host === "youtu.be") return valid(url.pathname.split("/").filter(Boolean)[0]?.split("?")[0])
+  if (host !== "youtube.com" && host !== "youtube-nocookie.com") return ""
+  const query = valid((url.searchParams.get("v") || "").split(/[&#?]/)[0])
+  if (query) return query
+  const path = /^\/(?:embed|shorts|live|v)\/([^/?#]+)/.exec(url.pathname)
+  return path ? valid(path[1]) : ""
+}
+
+// Convert watch/shorts/live links to embeddable URLs so an <iframe> can play them.
 export function normalizeVideoUrl(url?: string | null): string {
   if (!url || typeof url !== "string") return ""
   const t = url.trim()
   try {
-    const u = new URL(t)
-    if (u.hostname.includes("youtube.com") && u.searchParams.has("v")) {
-      const id = u.searchParams.get("v")?.split("&")[0]?.split("?")[0]
-      if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return `https://www.youtube.com/embed/${id}`
-    }
-    if (u.hostname === "youtu.be") {
-      const id = u.pathname.split("/").filter(Boolean)[0]?.split("?")[0]
-      if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return `https://www.youtube.com/embed/${id}`
-    }
-    return /^https?:|^\/\//i.test(t) ? t : ""
+    const id = youtubeVideoId(new URL(t))
+    if (id) return `https://www.youtube.com/embed/${id}`
   } catch {
-    return /^https?:|^\/\//i.test(t) ? t : ""
+    /* not an absolute URL — fall through to the scheme check */
   }
+  return /^https?:|^\/\//i.test(t) ? t : ""
 }
 
 // A couple's video URL resolved into something we can actually play inline.

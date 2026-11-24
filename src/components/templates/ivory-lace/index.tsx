@@ -233,7 +233,7 @@ export default function IvoryLace(profile: TemplateProps) {
     : `#${`${groom}${bride}`.replace(/[^A-Za-z0-9]/g, "")}`
 
   const welcomeTitle = (profile.opening_title || "").trim() || tc.welcome_invite || (lang === "en" ? "Dear Family & Friends" : "Keluarga & Sahabat Tercinta")
-  const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
+  const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || (lang === "en" ? DEFAULT_WELCOME : "Kami sangat bahagia dapat berbagi hari ini dengan Anda, dikelilingi orang-orang yang paling kami cintai.")
 
   const showGuestDock =
     !profile.preview_mode &&
@@ -397,7 +397,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {/* ── 5. Mempelai ──────────────────────────────────────── */}
         <section className="il-section il-couple" data-section="couple">
           <div className="il-wrap il-couple__head" data-il-reveal>
-            <h2 className="il-display il-heading">The Bride &amp; Groom</h2>
+            <h2 className="il-display il-heading">{t("secCouple", lang)}</h2>
             {tc.profiles_intro && <p className="il-body il-couple__intro">{tc.profiles_intro}</p>}
           </div>
 
@@ -468,8 +468,8 @@ export default function IvoryLace(profile: TemplateProps) {
         {events.length > 0 && (
           <section className="il-section il-events" data-section="events">
             <div className="il-wrap il-events__head" data-il-reveal>
-              <h2 className="il-display il-heading">Ceremony &amp; Reception</h2>
-              <p className="il-body il-events__intro">{tc.events_intro || DEFAULT_EVENTS_INTRO}</p>
+              <h2 className="il-display il-heading">{t("secEvent", lang)}</h2>
+              <p className="il-body il-events__intro">{tc.events_intro || (lang === "en" ? DEFAULT_EVENTS_INTRO : "Merupakan kehormatan bagi kami bila Anda hadir saat kami mengucapkan janji.")}</p>
             </div>
 
             {events.map((event, index) => {
@@ -565,7 +565,7 @@ export default function IvoryLace(profile: TemplateProps) {
 
             {calendarUrl && (
               <a className="il-btn il-btn--ghost il-countdown__cal" href={calendarUrl} target="_blank" rel="noreferrer">
-                Add to calendar
+                {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
               </a>
             )}
           </section>
@@ -575,8 +575,8 @@ export default function IvoryLace(profile: TemplateProps) {
         {honored.length > 0 && (
           <section className="il-section il-inviting" data-section="inviting">
             <div className="il-wrap il-inviting__body" data-il-reveal>
-              <h2 className="il-script il-inviting__title">With Honour</h2>
-              <p className="il-body il-inviting__intro">{tc.inviting_intro || DEFAULT_INVITING}</p>
+              <h2 className="il-script il-inviting__title">{tc.inviting_title || t("secInviting", lang)}</h2>
+              <p className="il-body il-inviting__intro">{tc.inviting_intro || (lang === "en" ? DEFAULT_INVITING : "Bersama keluarga yang turut mengundang dalam undangan ini.")}</p>
               <ul className="il-inviting__list">
                 {honored.map((family, index) => (
                   <li key={`${family}-${index}`}>{family}</li>
@@ -672,7 +672,7 @@ export default function IvoryLace(profile: TemplateProps) {
               <h2 className="il-display il-heading il-gift__heading">{tc.gift_intro_title || t("secGift", lang)}</h2>
               <p className="il-body il-gift__intro">
                 {tc.gift_intro_description ||
-                  "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
+                  (lang === "en" ? "Your presence is the greatest gift. Should you wish to send a token of love, the details are below." : "Kehadiran Anda adalah hadiah terindah. Bila berkenan mengirimkan tanda kasih, detailnya tersedia di bawah ini.")}
               </p>
 
               {accounts.length > 0 && (
@@ -726,7 +726,7 @@ export default function IvoryLace(profile: TemplateProps) {
         {hasDresscode && (
           <section className="il-section il-dress" data-section="dresscode">
             <div className="il-wrap il-dress__body" data-il-reveal>
-              <h2 className="il-display il-heading">Attire</h2>
+              <h2 className="il-display il-heading">{tc.dresscode_title || t("secDresscode", lang)}</h2>
               {profile.dresscode?.title && <p className="il-script il-dress__title">{profile.dresscode.title}</p>}
               {profile.dresscode?.description && (
                 <p className="il-body il-dress__note">{profile.dresscode.description}</p>
@@ -748,10 +748,10 @@ export default function IvoryLace(profile: TemplateProps) {
         {/* ── 15. Wishes ───────────────────────────────────────── */}
         <section className="il-section il-wishes" data-section="wishes">
           <div className="il-wrap il-wishes__body" data-il-reveal>
-            <h2 className="il-display il-heading">Wishes</h2>
+            <h2 className="il-display il-heading">{tc.wishes_title || t("secWishes", lang)}</h2>
             <p className="il-body il-wishes__intro">
               {tc.wishes_intro ||
-                "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish, and let us know you are coming."}
+                (lang === "en" ? "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish, and let us know you are coming." : "Tidak ada yang lebih membahagiakan bagi kami selain merayakan hari ini bersama orang-orang yang kami cintai. Tinggalkan ucapan dan beri tahu kami bahwa Anda akan hadir.")}
             </p>
             <Wishes
               weddingProfileId={profile.wedding_profile_id}

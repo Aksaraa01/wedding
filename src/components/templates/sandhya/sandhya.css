@@ -217,3 +217,4 @@ animation:none
 .sandhya-root .opening__text{max-width:32ch;margin:0 auto;font-size:clamp(15px,3.6vw,17px);line-height:1.75;color:var(--ink-dim)}
 .sandhya-root .opening__flower{display:block;width:clamp(72px,18vw,110px);height:auto;margin:22px auto 0;opacity:.9}
 
+.sandhya-root .gallery__intro{max-width:36ch;margin:-12px auto 26px;font-size:clamp(13px,3.6vw,15px);line-height:1.7;color:var(--ink-dim);text-shadow:0 1px 14px rgba(0,0,0,.6)}

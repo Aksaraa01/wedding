@@ -12,8 +12,29 @@ import { normalizeLanguage } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const { data } = await supabaseAdmin
+    .from("wedding_profiles")
+    .select("bride_name, groom_name, language, selected_template_id")
+    .eq("id", id)
+    .single()
+  let metaCode: string | null = null
+  if (data?.selected_template_id) {
+    const { data: tpl } = await supabaseAdmin
+      .from("web_templates")
+      .select("code")
+      .eq("id", data.selected_template_id)
+      .maybeSingle()
+    metaCode = tpl?.code || null
+  }
+  const lang = normalizeLanguage(data?.language)
+  const couple = [data?.groom_name, data?.bride_name].filter(Boolean).join(" & ")
+  return {
+    title: lang === "en" ? `Invitation Preview — ${couple}` : `Pratinjau Undangan — ${couple}`,
+    description: lang === "en" ? "Private preview of your invitation." : "Pratinjau undangan Anda.",
+    robots: { index: false, follow: false },
+  }
 }
 
 // GET /preview/[id] — couple preview of an IN-HOUSE invitation, rendered from
@@ -75,7 +96,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       groom_name={profile.groom_name}
       estimated_wedding_date={profile.estimated_wedding_date}
       slug={profile.slug || ""}
-      guest_name="Tamu Undangan"
+      guest_name={normalizeLanguage(profile.language) === "en" ? "Guest" : "Tamu Undangan"}
       couple_illustration_url={(thumbUrl(profile.couple_illustration_url, 800) as string) || undefined}
       cover_photos={(thumbUrl(profile.cover_photos, 1200) as typeof profile.cover_photos) || undefined}
       couple_initials={profile.couple_initials || undefined}

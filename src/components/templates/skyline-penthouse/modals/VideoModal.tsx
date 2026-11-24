@@ -1,6 +1,6 @@
 "use client"
 
-import { normalizeLanguage } from "@/lib/i18n"
+import { normalizeLanguage, t } from "@/lib/i18n"
 import ModalShell from "./ModalShell"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
@@ -17,17 +17,19 @@ type Props = {
   data: VideoModalData | null
   onClose: () => void
   language?: string
+  templateContent?: Record<string, string>
 }
 
 // Autoplays as soon as the modal opens (opening it is a user gesture, and the
 // iframe is created on mount with autoplay=1), so the teaser starts immediately.
-export default function VideoModal({ data, onClose, language = "id" }: Props) {
+export default function VideoModal({ data, onClose, language = "id", templateContent }: Props) {
   const lang = normalizeLanguage(language)
+  const tc = templateContent || {}
   if (!data) return null
 
   if (data.state === "none") {
     return (
-      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title="OUR MOMENTS" onClose={onClose}>
+      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || t("secVideo", lang)} onClose={onClose}>
         <p className="text-center text-sm text-slate-400">{lang === "en" ? "Video not available yet." : "Video belum tersedia."}</p>
       </ModalShell>
     )
@@ -35,7 +37,7 @@ export default function VideoModal({ data, onClose, language = "id" }: Props) {
 
   if (data.state === "loading") {
     return (
-      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title="OUR MOMENTS" onClose={onClose}>
+      <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || t("secVideo", lang)} onClose={onClose}>
         <p className="text-center text-sm text-slate-400">{lang === "en" ? "Loading video…" : "Memuat video…"}</p>
       </ModalShell>
     )
@@ -45,7 +47,7 @@ export default function VideoModal({ data, onClose, language = "id" }: Props) {
   const src = `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&mute=1&rel=0&playsinline=1`
 
   return (
-    <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title="OUR MOMENTS / TEASER" onClose={onClose}>
+    <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title={tc.livestream_title || t("secVideo", lang)} onClose={onClose}>
       <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-[#38bdf8]/40 bg-black">
         <iframe
           src={src}

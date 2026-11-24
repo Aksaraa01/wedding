@@ -77,7 +77,7 @@ export default function CoupleCard({ profile, onHide }: { profile: TemplateProps
 
   return (
     <CardShell icon="favorite" eyebrow="STAGE: SOULMATES" title="The Bride & The Groom" badge="LVL.100" onHide={onHide}>
-      {person("groom", groomPhotoUrl, groomTag, profile.groom_full_name || undefined, profile.groom_name || undefined, profile.groom_parents || undefined, "Putra dari", profile.groom_instagram || undefined)}
+      {person("groom", groomPhotoUrl, groomTag, profile.groom_full_name || undefined, profile.groom_name || undefined, profile.groom_parents || undefined, lang === "en" ? "Son of" : "Putra dari", profile.groom_instagram || undefined)}
       <div className="flex items-center justify-center">
         <div className="flex-grow border-t border-dashed border-slate-700/80" />
         <div className="mx-2.5 px-2.5 py-0.5 rounded-full bg-[#161b2a] border border-pink-400/50 text-[9px] font-bold text-pink-400 shadow-[0_0_10px_rgba(244,114,182,0.35)] flex items-center gap-1" style={FONT_PIXEL}>
@@ -86,7 +86,7 @@ export default function CoupleCard({ profile, onHide }: { profile: TemplateProps
         </div>
         <div className="flex-grow border-t border-dashed border-slate-700/80" />
       </div>
-      {person("bride", bridePhotoUrl, brideTag, profile.bride_full_name || undefined, profile.bride_name || undefined, profile.bride_parents || undefined, "Putri dari", profile.bride_instagram || undefined)}
+      {person("bride", bridePhotoUrl, brideTag, profile.bride_full_name || undefined, profile.bride_name || undefined, profile.bride_parents || undefined, lang === "en" ? "Daughter of" : "Putri dari", profile.bride_instagram || undefined)}
       {profile.quote_text && (
         <div className="rounded-xl bg-[#090e1c]/90 border border-dashed border-cyan-400/40 p-2.5 text-center">
           <div className="flex items-center justify-center gap-1 mb-1">

@@ -14,6 +14,7 @@ export default function ImpastoCover({
   estimated_wedding_date,
   onOpen,
   language,
+  templateContent,
 }: {
   groom_name?: string
   bride_name?: string
@@ -21,8 +22,10 @@ export default function ImpastoCover({
   estimated_wedding_date?: string | null
   onOpen: () => void
   language?: string
+  templateContent?: Record<string, string>
 }) {
   const lang = normalizeLanguage(language)
+  const tc = templateContent || {}
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
@@ -58,13 +61,18 @@ export default function ImpastoCover({
               style={{ background: "radial-gradient(circle, rgba(255,244,220,0.55) 0%, rgba(255,244,220,0.18) 45%, transparent 70%)" }}
             />
             <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6)" }}>
-              {t("theWeddingOf", lang).toUpperCase()}
+              {tc.cover_kicker || t("theWeddingOf", lang).toUpperCase()}
             </h2>
             <h1 className="relative text-[3.4rem] leading-[1.08] py-1 px-2" style={{ ...FONT_SCRIPT, color: "#FFFFFF", textShadow: "0 2px 6px rgba(74,52,39,0.45), 0 1px 2px rgba(74,52,39,0.35)" }}>
               <span className="block">{groom_name || (lang === "en" ? "Groom" : "Mempelai")} &amp;</span>
               <span className="block">{bride_name || (lang === "en" ? "Bride" : "Mempelai")}</span>
             </h1>
           </div>
+          {tc.save_date_label && (
+            <p className="text-[0.7rem] tracking-[0.32em] font-semibold uppercase mt-3 text-[#F8F5EE]/90" style={{ ...FONT_BODY, textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>
+              {tc.save_date_label}
+            </p>
+          )}
           <p className="text-[0.88rem] tracking-[0.26em] font-semibold uppercase mt-1.5 text-[#F8F5EE]" style={{ ...FONT_DISPLAY, textShadow: "0 1px 3px rgba(0,0,0,0.9), 0 0 12px rgba(242,202,80,0.35)" }}>
             {formatLongDate(estimated_wedding_date) || (lang === "en" ? "Coming Soon" : "Segera Hadir")}
           </p>

@@ -139,6 +139,8 @@ const DEFAULT_WELCOME =
   "We are so happy to celebrate this day with you, surrounded by the people we love most."
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
+const DEFAULT_CLOSING_ID =
+  "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat yang Anda tinggalkan berarti lebih dari yang dapat kami ungkapkan."
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
@@ -360,9 +362,9 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   // names and date), with `welcome_message` as the fallback for invitations
   // authored before this mapping existed.
   const welcomeMessage =
-    (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
+    (profile.opening_description || "").trim() || tc.welcome_message || (lang === "en" ? DEFAULT_WELCOME : "Dengan penuh rasa syukur kami mengundang Anda untuk berbagi hari dimulainya selamanya kami.")
   const openingTitle = (profile.opening_title || "").trim() || (lang === "en" ? "Together with their families" : "Bersama keluarga kami")
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -770,11 +772,11 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <section className="eg-section eg-countdown" data-section="countdown">
             <div className="eg-countdown__frame" style={{ backgroundImage: `url(${ART_COUNTDOWN_FRAME})` }} aria-hidden="true" />
             <div className="eg-wrap eg-countdown__body" data-eg-reveal>
-              <h2 className="eg-display eg-heading">Countdown</h2>
+              <h2 className="eg-display eg-heading">{t("secCountdown", lang)}</h2>
               <CountdownClock iso={profile.estimated_wedding_date} sessions={profile.sessions} lang={lang} />
               {calendarUrl && (
                 <a className="eg-link" href={calendarUrl} target="_blank" rel="noreferrer">
-                  Add to calendar
+                  {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
                 </a>
               )}
             </div>
@@ -850,7 +852,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <section className="eg-section eg-honored" data-section="inviting">
             <div className="eg-garland" style={{ backgroundImage: `url(${ART_GARLAND})` }} aria-hidden="true" />
             <div className="eg-wrap eg-honored__body" data-eg-reveal>
-              <h2 className="eg-display eg-heading">With Honour</h2>
+              <h2 className="eg-display eg-heading">{t("secInviting", lang)}</h2>
               {tc.inviting_intro && <p className="eg-body eg-honored__intro">{tc.inviting_intro}</p>}
               <ul className="eg-honored__list">
                 {honored.map((family, index) => (
@@ -870,7 +872,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             >
               <div className="eg-card__frame" data-eg-reveal>
               <p className="eg-kicker">Where we celebrate</p>
-              <h2 className="eg-display eg-heading">The Wedding Day</h2>
+              <h2 className="eg-display eg-heading">{t("secEvent", lang)}</h2>
               {tc.events_intro && <p className="eg-body eg-events__intro">{tc.events_intro}</p>}
               <div className="eg-events__list">
                 {events.map((event, index) => (
@@ -1080,7 +1082,9 @@ export default function EmbroideredGarden(profile: TemplateProps) {
                   <p className="eg-kicker">{tc.gift_intro_title || t("secGift", lang)}</p>
                   <p className="eg-body eg-gift__intro">
                     {tc.gift_intro_description ||
-                      "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."}
+                      (lang === "en"
+                        ? "Your presence is the greatest gift. Should you wish to send a token of love, the details are below."
+                        : "Kehadiran Anda adalah hadiah terindah. Bila berkenan memberikan tanda kasih, detailnya tersedia di bawah ini.")}
                   </p>
 
                   {giftTabs && (

@@ -319,21 +319,25 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     const sh = g.h / cover
     const sx = Math.max(0, Math.min(vw - sw, (g.x - offX) / cover))
     const sy = Math.max(0, Math.min(vh - sh, (g.y - offY) / cover))
-    // Cap the long edge at 2100px — the same budget the upload cap expects.
-    const out = Math.min(1, 2100 / Math.max(sw, sh))
+    // Cap the long edge at 3000px — the same budget the upload cap expects.
+    const out = Math.min(1, 3000 / Math.max(sw, sh))
     canvas.width = Math.round(sw * out)
     canvas.height = Math.round(sh * out)
     const ctx = canvas.getContext("2d")
     if (!ctx) return null
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
-    const blob = await new Promise<Blob | null>((res) => canvas.toBlob((b) => res(b), "image/jpeg", 0.88))
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob((b) => res(b), "image/jpeg", 0.95))
     if (!blob) return null
     const aspect = canvas.width / Math.max(1, canvas.height)
     return { file: new File([blob], `capture-${Date.now()}.jpg`, { type: "image/jpeg" }), aspect }
   }
 
   const takeShot = async (file: File, aspect: number) => {
-    const compressed = await compressImage(file)
+    const compressed = await compressImage(file, {
+      maxDimension: 3000,
+      maxBytes: 1.75 * 1024 * 1024,
+      initialQuality: 0.95,
+    })
     setShot({ file: compressed, previewUrl: URL.createObjectURL(compressed), captureId: newCaptureId(), aspect })
     setCaption("")
     setError("")
@@ -387,9 +391,9 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
       // Baking the frame can re-encode at source size; normalize once more so
       // the server's 1.75MB guest cap is met without a rejected upload.
       const upload = await compressImage(framed, {
-        maxDimension: 2100,
+        maxDimension: 3000,
         maxBytes: 1.75 * 1024 * 1024,
-        initialQuality: 0.88,
+        initialQuality: 0.95,
       })
       const result = await uploadShot({ file: upload, caption: caption.trim(), captureId: shot.captureId })
       setUsed(result.used)

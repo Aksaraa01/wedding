@@ -603,7 +603,7 @@ export default function Teatro(profile: TemplateProps) {
   const revealHint = (tc.reveal_hint || "").trim() || (lang === "en" ? "Scratch to discover the date" : "Gosok untuk melihat tanggal")
   const revealScratchHint = (tc.reveal_scratch_hint || "").trim() || (lang === "en" ? "Scratch all three circles to continue" : "Gosok ketiga lingkaran untuk melanjutkan")
   const scrollLabel = (tc.scroll_label || "").trim() || (lang === "en" ? "Scroll" : "Gulir")
-  const countdownIntro = (tc.countdown_intro || "").trim() || "until the big day"
+  const countdownIntro = (tc.countdown_intro || "").trim() || (lang === "en" ? "until the big day" : "menuju hari bahagia")
   const invitingKicker = (tc.inviting_kicker || "").trim() || (lang === "en" ? "With the blessing of" : "Dengan restu")
   const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Our Families" : "Keluarga Kami")
   const invitingIntro = (tc.inviting_intro || "").trim() || (lang === "en" ? "With deep gratitude we also present the families who extend this invitation alongside us." : "Dengan penuh rasa syukur kami hadirkan pula keluarga yang turut mengundang bersama kami.")
@@ -614,7 +614,7 @@ export default function Teatro(profile: TemplateProps) {
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Scenes" : "Momen")
   const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "Frames from the days that led us here, kept like programmes from a favourite show." : "Potret dari hari-hari yang membawa kami ke sini, disimpan seperti kenangan pertunjukan favorit.")
   const galleryQuote = (tc.gallery_quote || "").trim() || (lang === "en" ? "Every love story is beautiful, but ours is my favourite." : "Setiap kisah cinta itu indah, tapi kisah kami adalah favorit saya.")
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Film")
+  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Video")
   const videoTitle = (tc.video_title || "").trim() || ""
   const videoIntro = (tc.video_intro || "").trim() || (lang === "en" ? "The day as it happened, kept in motion." : "Hari itu sebagaimana terjadi, tersimpan dalam gerak.")
   const giftKicker = (tc.gift_kicker || "").trim() || (lang === "en" ? "Wedding Registry" : "Hadiah Pernikahan")
@@ -974,7 +974,7 @@ export default function Teatro(profile: TemplateProps) {
 
           {phase === "idle" && (
             <button type="button" className="te-gate" onClick={openInvitation} aria-label="Open the invitation">
-              <span className="te-gate__to">Dear,</span>
+              <span className="te-gate__to">{lang === "en" ? "Dear," : "Kepada Yth.,"}</span>
               <span className="te-gate__guest">{guestName}</span>
               <span className="te-gate__ring" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false">
@@ -1058,7 +1058,7 @@ export default function Teatro(profile: TemplateProps) {
               rel="noopener noreferrer"
               {...IN("up", 0.1)}
             >
-              Add to calendar
+              {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
             </a>
             <p className="te-hint" {...IN("fade", 0.1)}>{countdownIntro}</p>
           </section>

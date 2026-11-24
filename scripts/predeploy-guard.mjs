@@ -8,19 +8,28 @@
  *     other agents cannot see), or has uncommitted changes (another agent's WIP
  *     would be compiled into the bundle),
  *  2. NEXT_PUBLIC_* env baked into the bundle points at the wrong Supabase project,
- *  3. a registered in-house template is missing from the built bundle.
+ *  3. a registered in-house template is missing from the built bundle,
+ *  4. (prod only) the bundle is OLDER than the build that is live on the server.
+ *     This one exists because a "verified" deploy of prod's branch tip silently
+ *     reverted 81 commits that were live but never cherry-picked onto `prod`
+ *     (2026-11-23, film-roll video). The check reads the server's RELEASE.json;
+ *     when it cannot be read (ssh down, first deploy) it warns and continues —
+ *     it must never become a deploy blocker on its own.
  *
  * Usage:
  *   node scripts/predeploy-guard.mjs                 # prod (default)
  *   node scripts/predeploy-guard.mjs --ref jclolnjkjhyjilvymagr   # staging
  *   node scripts/predeploy-guard.mjs --allow-stale   # skip the git sync check
  *   node scripts/predeploy-guard.mjs --allow-dirty   # skip the clean-tree check
+ *   node scripts/predeploy-guard.mjs --allow-downgrade  # ship an older commit anyway
+ *   node scripts/predeploy-guard.mjs --live-release <file>  # evaluate a fixture instead of ssh
  *   node scripts/predeploy-guard.mjs --sync-only     # git checks only (post-rsync)
  */
 import { execSync } from "node:child_process"
 import { createHash } from "node:crypto"
 import { readFileSync, existsSync } from "node:fs"
 import { CONTRACT } from "../env/contract.mjs"
+import { evaluateDowngrade } from "./lib/release-guards.mjs"
 
 const args = process.argv.slice(2)
 const allowStale = args.includes("--allow-stale")
@@ -54,27 +63,90 @@ const fail = (msg) => {
   process.exit(1)
 }
 const ok = (msg) => console.log(`✓ ${msg}`)
+const warn = (msg) => console.warn(`! ${msg}`)
+
+/**
+ * Read the RELEASE.json of the build that is currently live on prod. Any failure
+ * (ssh down, missing file, bad JSON) returns `{ commit: null }` so the caller can
+ * skip instead of blocking: this guard must never make a healthy deploy fail.
+ */
+function readLiveRelease(argv) {
+  const fileIdx = argv.indexOf("--live-release")
+  if (fileIdx >= 0) {
+    const file = argv[fileIdx + 1]
+    try {
+      const j = JSON.parse(readFileSync(file, "utf8"))
+      return { commit: j.commit || null, source: file }
+    } catch (e) {
+      return { commit: null, source: `${file}: ${e.message}` }
+    }
+  }
+  const server = process.env.DEPLOY_SERVER || "askaraa@103.93.135.176"
+  const key = process.env.SSH_KEY || `${process.env.HOME}/.ssh/aksaraa_deploy`
+  const remote = process.env.LIVE_REMOTE || "/var/www/aksara-wedding"
+  const timeout = Number(process.env.DOWNGRADE_CHECK_TIMEOUT_MS || 12000)
+  try {
+    const raw = execSync(
+      `ssh -i "${key}" -o BatchMode=yes -o ConnectTimeout=8 -o ServerAliveInterval=15 -o ServerAliveCountMax=2 ` +
+        `${server} 'cat ${remote}/.next/standalone/RELEASE.json'`,
+      { encoding: "utf8", timeout, stdio: ["ignore", "pipe", "ignore"] },
+    )
+    const j = JSON.parse(raw)
+    return { commit: j.commit || null, source: `${server}:${remote}` }
+  } catch (e) {
+    return { commit: null, source: `ssh ${server} failed (${String(e.message).split("\n")[0]})` }
+  }
+}
 
 // ---------- 1. git must not be behind origin/<expectBranch> ----------
 if (!allowStale) {
   try {
     execSync("git fetch origin --quiet", { stdio: "ignore", env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" } })
+    // A tag/commit build skips the branch comparison: the tag is immutable and
+    // `--commit` pins exactly which tree must be in the working directory.
+    const commitIdx2 = args.indexOf("--commit")
+    const expectCommit = commitIdx2 >= 0 ? args[commitIdx2 + 1] : null
+    if (expectCommit) {
+      const want = execSync(`git rev-parse ${expectCommit}^{commit}`, {
+        encoding: "utf8",
+        env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
+      }).trim()
+      const headFull = execSync("git rev-parse HEAD", {
+        encoding: "utf8",
+        env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
+      }).trim()
+      if (want !== headFull) {
+        fail(`working tree is at ${headFull.slice(0, 7)} but --commit ${expectCommit} is ${want.slice(0, 7)}.\n  Build from that ref: git worktree add --detach /tmp/build ${expectCommit}`)
+      }
+      ok(`tree matches --commit ${expectCommit} (${headFull.slice(0, 7)})`)
+    } else {
     const upstream = `origin/${expectBranch}`
     const behind = execSync(`git rev-list --count HEAD..${upstream}`, {
       encoding: "utf8",
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
-    if (Number(behind) > 0) {
-      fail(
-        `local HEAD is ${behind} commit(s) behind ${upstream}.\n` +
-          `  A deploy from this tree would overwrite newer work (this is what wiped adat-jawa-2).\n` +
-          `  Run: git pull --rebase origin ${expectBranch}   (or pass --allow-stale if intentional)`,
-      )
-    }
     const ahead = execSync(`git rev-list --count ${upstream}..HEAD`, {
       encoding: "utf8",
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
+    if (Number(behind) > 0) {
+      // "Behind" is an ancestry count, not a timeline: a cherry-picked branch
+      // always has commits the other line does not. Say that, with the numbers,
+      // and point at the fix instead of a misleading "git pull --rebase".
+      const hint =
+        expectBranch === "prod"
+          ? `  A prod deploy must be built from ${upstream}. Promote first:\n` +
+            `    - cherry-pick model: git switch prod && npm run release:pick -- <sha>\n` +
+            `    - trunk model: tag the verified main commit (npm run release:tag) and build that tag\n` +
+            `  Never build prod from main: NEXT_PUBLIC_* is baked per environment.`
+          : `  Run: git pull --rebase origin ${expectBranch}   (or pass --allow-stale if intentional)`
+      fail(
+        `HEAD is not ${upstream}.\n` +
+          `  diverged: HEAD-only ${ahead} commit(s), ${upstream}-only ${behind} commit(s).\n` +
+          `  "${behind} behind" means ${upstream} contains ${behind} commit(s) this build does not.\n` +
+          hint,
+      )
+    }
     if (!allowAhead && Number(ahead) > 0) {
       fail(
         `local HEAD is ${ahead} commit(s) ahead of ${upstream}.\n` +
@@ -87,6 +159,7 @@ if (!allowStale) {
       env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
     }).trim()
     ok(`tree in sync with ${upstream} (HEAD ${head})`)
+    }
   } catch (e) {
     if (String(e.message).includes("PREDEPLOY")) throw e
     console.warn("! could not verify git sync (git unavailable) — continuing")
@@ -270,6 +343,63 @@ if (expectTarget === "prod") {
   }
 }
 
+// ---------- 2a2. prod must never move backwards ----------
+// The verified-staging gate above proves a commit was *tested*; it does not prove
+// it is *newer* than the build users are on. On 2026-11-23 that gap shipped prod
+// backwards 81 commits (branch `prod` never got the commits that had been deployed
+// from main) and the loss was invisible to the smoke test.
+if (expectTarget === "prod" && !syncOnly) {
+  const allowDowngrade = args.includes("--allow-downgrade")
+  const GIT_ENV = { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" }
+  const live = readLiveRelease(args)
+  if (!live.commit) {
+    warn(`live prod build unreadable (${live.source}) — downgrade check skipped`)
+  } else {
+    const hasCommit = (sha) => {
+      try {
+        execSync(`git cat-file -e ${sha}^{commit}`, { stdio: "ignore", env: GIT_ENV })
+        return true
+      } catch {
+        return false
+      }
+    }
+    // A live commit that predates our clone (a fresh shallow checkout) must not
+    // be reported as a downgrade: fetch first, then decide.
+    if (!hasCommit(live.commit)) {
+      try {
+        execSync("git fetch origin --quiet", { stdio: "ignore", env: GIT_ENV, timeout: 30_000 })
+      } catch {
+        /* offline: evaluateDowngrade() reports "skip" */
+      }
+    }
+    const localHasLive = hasCommit(live.commit)
+    const liveIsAncestor = localHasLive && manifest.commit
+      ? (() => {
+          try {
+            execSync(`git merge-base --is-ancestor ${live.commit} ${manifest.commit}`, { stdio: "ignore", env: GIT_ENV })
+            return true
+          } catch {
+            return false
+          }
+        })()
+      : false
+    const verdict = evaluateDowngrade({
+      liveCommit: live.commit,
+      targetCommit: manifest.commit,
+      localHasLiveCommit: localHasLive,
+      liveIsAncestorOfTarget: liveIsAncestor,
+    })
+    if (verdict.level === "fail") {
+      if (allowDowngrade) warn(`${verdict.message}\n  (shipping anyway: --allow-downgrade)`)
+      else fail(verdict.message)
+    } else if (verdict.level === "ok") {
+      ok(`prod downgrade check: ${verdict.message}`)
+    } else {
+      warn(verdict.message)
+    }
+  }
+}
+
 // ---------- 2b. baked Supabase env (defence in depth) ----------
 const chunkDir = ".next/standalone/.next/server/chunks"
 if (!existsSync(chunkDir)) fail("no .next/standalone build found — run `npm run build` first")
@@ -356,6 +486,33 @@ try {
   ok(line)
 } catch {
   console.warn("! could not check i18n keys")
+}
+
+// ---------- 3b3. extras catalogue ----------
+// A registered field the template never renders is a dead input, and a
+// `tc.<key>` read with no field is copy the couple cannot edit. Both were
+// found by hand on 2026-11-24; the check makes that class of regression a
+// deploy blocker instead of a support ticket.
+try {
+  const out = execSync("npm run audit:extras 2>&1 || true", { encoding: "utf8" })
+  if (out.includes("✗")) fail(`extra-field catalogue is inconsistent:
+${out.slice(-2500)}`)
+  ok("extra-field catalogue consistent")
+} catch {
+  console.warn("! could not run audit:extras")
+}
+
+// ---------- 3b4. generated extras defaults ----------
+// EXTRA_DEFAULTS is generated from the templates' own fallback copy. Stale
+// means the editor hints the wrong string in one language.
+try {
+  const out = execSync("npm run check:extra-defaults 2>&1 || true", { encoding: "utf8" })
+  const line = out.trim().split("\n").pop() || ""
+  if (out.includes("✗")) fail(`generated extra defaults are stale:
+${out}`)
+  ok(line)
+} catch {
+  console.warn("! could not check generated extra defaults")
 }
 
 // ---------- 3c. one copy path ----------

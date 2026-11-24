@@ -48,6 +48,7 @@ import Olan from "./olan"
 import Majestic from "./majestic"
 import EmeraldHeirloom from "./emerald-heirloom"
 import SwanGarden from "./swan-garden"
+import Noir from "./noir"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -99,6 +100,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   majestic: Majestic,
   "emerald-heirloom": EmeraldHeirloom,
   "swan-garden": SwanGarden,
+  noir: Noir,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -2068,6 +2070,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gift: true,
         dresscode: true,
         livestream: true,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "noir",
+    name: "Noir",
+    description:
+      "Undangan hitam sinematik: foto sampul di panel kiri, tipografi Cormorant Unicase, hitung mundur berukuran poster, galeri bergaya majalah, cerita cinta layar penuh, dan penutup yang tenang.",
+    theme: {
+      fonts: { display: "Cormorant Unicase", script: "Cormorant Unicase", body: "Newsreader" },
+      colors: {
+        surface: "#000000",
+        text: "#ffffff",
+        accent: "#e6d8d5",
+        accentMuted: "#2a2321",
+        overlay: "#000000",
+        dark: "#000000",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.08 },
+    },
+    content: {
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Foto Penutup"],
+      groom_photo: "single",
+      bride_photo: "single",
+      person_photos: true,
+      story_photo: true,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
         rundown: true,
         contacts: false,
       },

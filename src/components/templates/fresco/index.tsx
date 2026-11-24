@@ -305,7 +305,9 @@ export default function Fresco(profile: TemplateProps) {
   const dressBody =
     (profile.dresscode?.description || "").trim() ||
     (tc.dresscode_intro || "").trim() ||
-    "We would be delighted if you joined us in the palette below."
+    (lang === "en"
+      ? "We would be delighted if you joined us in the palette below."
+      : "Kami akan senang bila Anda hadir dengan palet warna di bawah ini.")
   const dressNote = (tc.dresscode_note || "").trim()
   const hasDresscode = profile.dresscode_visible !== false && (!!dressTitle || !!dressBody || dressColors.length > 0)
 
@@ -355,9 +357,9 @@ export default function Fresco(profile: TemplateProps) {
   const rundownKicker = (tc.rundown_kicker || "").trim() || (lang === "en" ? "Program" : "Susunan Acara")
   const rundownIntro = (tc.rundown_intro || "").trim() || (lang === "en" ? "The order of our celebration, from the first arrival to the last dance." : "Urutan perayaan kami, dari kedatangan pertama hingga tarian terakhir.")
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Gallery" : "Galeri")
-  const galleryIntro = (tc.gallery_intro || "").trim() || "A few frames from the days that led us here."
+  const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "A few frames from the days that led us here." : "Beberapa potret dari hari-hari yang membawa kami ke sini.")
   const galleryQuote = (tc.gallery_quote || "").trim()
-  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Film")
+  const videoKicker = (tc.video_kicker || "").trim() || (lang === "en" ? "The Film" : "Video")
   const videoTitle = (tc.video_title || "").trim()
   const videoIntro = (tc.video_intro || "").trim() || (lang === "en" ? "The day as it happened, kept in motion." : "Hari itu sebagaimana terjadi, tersimpan dalam gerak.")
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)

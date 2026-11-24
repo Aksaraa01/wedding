@@ -2,14 +2,27 @@
 
 import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
 
-export default function FamilyModal({ families, onClose }: { families: string[]; onClose: () => void }) {
+export default function FamilyModal({
+  families,
+  templateContent,
+  language,
+  onClose,
+}: {
+  families: string[]
+  templateContent?: Record<string, string>
+  language?: string
+  onClose: () => void
+}) {
   if (!families || families.length === 0) return null
+  const lang = normalizeLanguage(language)
+  const tc = templateContent || {}
   return (
-    <ModalShell icon="diversity_3" iconFill eyebrow="FAMILY HONORS" title="TURUT MENGUNDANG" onClose={onClose}>
+    <ModalShell icon="diversity_3" iconFill eyebrow="FAMILY HONORS" title={tc.inviting_title || t("secInviting", lang).toUpperCase()} onClose={onClose}>
       <div className="text-center px-2 space-y-1.5">
         <p className="text-[13px] text-[#8ed5ff] font-medium tracking-wide" style={BODY}>
           Keluarga Besar Yang Turut Mengundang:
@@ -32,7 +45,9 @@ export default function FamilyModal({ families, onClose }: { families: string[];
           favorite
         </span>
         <p className="text-[13px] text-[#bdc8d1] italic leading-relaxed" style={DISPLAY}>
-          &ldquo;Ungkapan terima kasih yang tulus dari segenap keluarga besar kedua mempelai atas doa, perhatian, dan kehadiran Anda.&rdquo;
+          &ldquo;{tc.closing_message || (lang === "en"
+            ? "A heartfelt thank you from the families of both the bride and groom for your prayers, attention, and presence."
+            : "Ungkapan terima kasih yang tulus dari segenap keluarga besar kedua mempelai atas doa, perhatian, dan kehadiran Anda.")}&rdquo;
         </p>
       </div>
     </ModalShell>

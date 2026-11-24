@@ -596,7 +596,7 @@ export default function Olan(profile: TemplateProps) {
               <div className="photo-inner">
                 <div className="photo-head">
                   <h1 className="photo-title" data-aos="fade-up" data-aos-duration="1000">
-                    {content.gallery_title || (lang === "en" ? "Portraits of Us" : "Potret Kami")}
+                    {content.gallery_title || t("secGallery", lang)}
                   </h1>
                   <p className="photo-description">{content.gallery_intro || (lang === "en" ? "A glimpse of our moments together." : "Sekilas momen kebersamaan kami.")}</p>
                 </div>
@@ -610,7 +610,7 @@ export default function Olan(profile: TemplateProps) {
                           e.preventDefault()
                           setLightbox(i)
                         }}
-                        aria-label={`${content.gallery_title || (lang === "en" ? "Portraits of Us" : "Potret Kami")} ${i + 1}`}
+                        aria-label={`${content.gallery_title || t("secGallery", lang)} ${i + 1}`}
                       >
                         <img src={src} alt="" loading="lazy" />
                       </a>
@@ -627,7 +627,7 @@ export default function Olan(profile: TemplateProps) {
               <div className="inner">
                 <div className="title">
                   <h1 data-aos="zoom-out-up" data-aos-duration="1000">
-                    {content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")}
+                    {content.video_title || t("secVideo", lang)}
                   </h1>
                   <p data-aos="fade-up" data-aos-duration="1000">
                     {content.video_caption || (lang === "en" ? "A short film of our story." : "Cuplikan singkat kisah kami.")}
@@ -652,12 +652,12 @@ export default function Olan(profile: TemplateProps) {
                             preload="auto"
                           />
                         ) : youtubeId(video.src) ? (
-                          <AutoplayYouTube videoId={youtubeId(video.src)} title={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")} />
+                          <AutoplayYouTube videoId={youtubeId(video.src)} title={content.video_title || t("secVideo", lang)} />
                         ) : (
-                          <iframe src={video.src} title={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")} allow="autoplay; encrypted-media" />
+                          <iframe src={video.src} title={content.video_title || t("secVideo", lang)} allow="autoplay; encrypted-media" />
                         )}
                       </div>
-                      <button type="button" className="play-btn" onClick={() => setVideoLive(video)} aria-label={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")}>
+                      <button type="button" className="play-btn" onClick={() => setVideoLive(video)} aria-label={content.video_title || t("secVideo", lang)}>
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
                           <path d="M8 5v14l11-7z" />
                         </svg>
@@ -1269,7 +1269,9 @@ export default function Olan(profile: TemplateProps) {
               <h4 className="note-title">{content.closing_title || t("thankYou", lang)}</h4>
               <p className="note-description">
                 {content.closing_message ||
-                  "From the bottom of our hearts we thank you for being part of our big day. We are beyond lucky to have each of you in our lives."}
+                  (lang === "en"
+                    ? "From the bottom of our hearts we thank you for being part of our big day. We are beyond lucky to have each of you in our lives."
+                    : "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari besar kami. Kami sangat beruntung memiliki Anda semua dalam hidup kami.")}
               </p>
             </div>
           </section>
@@ -1510,7 +1512,7 @@ export default function Olan(profile: TemplateProps) {
             {videoLive.kind === "file" ? (
               <video src={videoLive.src} controls autoPlay playsInline />
             ) : (
-              <iframe src={videoLive.src} title={content.video_title || (lang === "en" ? "Our Footage" : "Cuplikan Kami")} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+              <iframe src={videoLive.src} title={content.video_title || t("secVideo", lang)} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
             )}
           </div>
         </div>

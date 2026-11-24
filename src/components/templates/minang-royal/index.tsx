@@ -159,7 +159,7 @@ export default function MinangRoyal(profile: TemplateProps) {
   const dateLong = dotDate(profile.estimated_wedding_date || events[0]?.date)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const closingMessage = tc.closing_message || (lang === "en" ? DEFAULT_CLOSING : "Keluarga & Sahabat. Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari besar kami. Kami sangat beruntung memiliki Anda dalam hidup kami.")
   const quoteText = profile.quote_text || ""
   const quoteSource = profile.quote_source || ""
   const monogram = ((profile.couple_initials || "").trim() || [profile.groom_name, profile.bride_name]
@@ -383,7 +383,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                 </div>
                 {calendarUrl && (
                   <div className="add-to-calendar-wrap">
-                    <a className="add-to-calendar" href={calendarUrl} target="_blank" rel="noreferrer">Add to Calendar</a>
+                    <a className="add-to-calendar" href={calendarUrl} target="_blank" rel="noreferrer">{lang === "en" ? "Add to Calendar" : "Simpan ke Kalender"}</a>
                   </div>
                 )}
               </div>
@@ -423,7 +423,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                   <h1 className="agenda-title">{tc.events_title || t("secEvent", lang)}</h1>
                   <p className="agenda-description">
                     {tc.events_intro ||
-                      "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:"}
+                      (lang === "en" ? "To fulfil Your religious law and follow the sunnah of Your Messenger in building a family of sakinah, mawaddah and warahmah, insya Allah we will hold our wedding on:" : "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:")}
                   </p>
                 </div>
                 <div className="agenda-body">
@@ -542,7 +542,7 @@ export default function MinangRoyal(profile: TemplateProps) {
               <section className="photo-wrap">
                 <div className="photo-inner">
                   <div className="photo-head">
-                    <h1 className="photo-title">Photo Gallery</h1>
+                    <h1 className="photo-title">{tc.gallery_title || t("secGallery", lang)}</h1>
                     {tc.gallery_intro && <p className="photo-description">{tc.gallery_intro}</p>}
                   </div>
                   <div className="photo-body">
@@ -591,7 +591,7 @@ export default function MinangRoyal(profile: TemplateProps) {
           {hasVideo && (
             <section className="video-gallery">
               <div className="inner">
-                <div className="title"><h1>Our Video</h1></div>
+                <div className="title"><h1>{tc.video_title || t("secVideo", lang)}</h1></div>
                 <div className="video-outer">
                   <div className="video">
                     <div className="preview">
@@ -672,7 +672,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                             <div className="wedding-gift-bank-wrap mr-gift-address">
                               <div className="bank-item show">
                                 <div className="bank-detail">
-                                  <h3 className="bank-name">Send a Gift</h3>
+                                  <h3 className="bank-name">{tc.gift_intro_title || t("secGift", lang)}</h3>
                                   {profile.gift_address_name && (
                                     <div>
                                       <small className="bank-account-name-label">Recipient</small>
@@ -699,7 +699,7 @@ export default function MinangRoyal(profile: TemplateProps) {
           <section className="wedding-wish-wrap" data-section-order="wedding_wish">
             <div className="wedding-wish-inner">
               <div className="wedding-wish-head">
-                <h1 className="wedding-wish-title">Wedding Wish</h1>
+                <h1 className="wedding-wish-title">{tc.wishes_title || t("secWishes", lang)}</h1>
                 {tc.wishes_intro && <p className="wedding-wish-description">{tc.wishes_intro}</p>}
               </div>
               <div className="wedding-wish-body">
@@ -727,7 +727,7 @@ export default function MinangRoyal(profile: TemplateProps) {
               <div className="mr-thanks-photo"><img src={closingPhoto} alt="" /></div>
             )}
             <div className="note">
-              <h4 className="note-title">Thank You</h4>
+              <h4 className="note-title">{tc.closing_title || t("thankYou", lang)}</h4>
               <p className="note-description">{closingMessage}</p>
               {tc.cover_apology && <p className="note-description note-apology">{tc.cover_apology}</p>}
             </div>

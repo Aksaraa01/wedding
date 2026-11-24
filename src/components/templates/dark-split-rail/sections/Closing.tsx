@@ -11,10 +11,13 @@ type Props = {
   photos: string[]
   coupleLabel: string
   language?: string
+  message?: string
 }
 
-export default function Closing({ photos, coupleLabel, language }: Props) {
+export default function Closing({ photos, coupleLabel, language, message }: Props) {
   const lang = normalizeLanguage(language)
+  const closingMessage = (message || "").trim() ||
+    (lang === "en" ? "It is our joy and honor to have you join us and give your blessing on our special day." : "Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kami.")
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent(
     lang === "en" ? "Hello Aksaraa Wedding, I'm interested in creating a digital invitation" : "Halo Aksaraa Wedding, saya tertarik membuat undangan digital"
   )}`
@@ -32,8 +35,8 @@ export default function Closing({ photos, coupleLabel, language }: Props) {
       )}
 
       <div className="pt-10 text-center text-white">
-        <p className="mx-auto max-w-[340px] text-[13px] leading-relaxed" style={{ ...FONT_BODY, color: "rgba(255,255,255,0.85)" }}>
-          {lang === "en" ? "It is our joy and honor to have you join us and give your blessing on our special day." : "Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kami."}
+        <p className="mx-auto max-w-[340px] text-[13px] leading-relaxed whitespace-pre-line" style={{ ...FONT_BODY, color: "rgba(255,255,255,0.85)" }}>
+          {closingMessage}
         </p>
         <p className="mt-6 text-[20px]" style={{ ...FONT_DISPLAY, letterSpacing: "1.5px" }}>
           {coupleLabel}

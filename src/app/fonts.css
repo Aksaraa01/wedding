@@ -39,6 +39,8 @@
   --font-urbanist: 'Urbanist', sans-serif;
   --font-dafoe: 'Mr Dafoe', cursive;
   --font-abhaya: 'Abhaya Libre', serif;
+  --font-unicase: 'Cormorant Unicase', serif;
+  --font-newsreader: 'Newsreader', serif;
 }
 @font-face {
   font-family: 'Inter';
@@ -1096,4 +1098,53 @@
   font-weight: 600;
   font-display: swap;
   src: url('/fonts/cormorantinfant-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Unicase';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/cormorantunicase-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Unicase';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cormorantunicase-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Unicase';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/cormorantunicase-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Unicase';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/cormorantunicase-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Unicase';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cormorantunicase-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/newsreader-400-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/newsreader-400.woff2') format('woff2');
 }

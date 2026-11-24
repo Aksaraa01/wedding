@@ -56,8 +56,9 @@ function SessionCard({ session, lang = "id" }: { session: SessionData; lang?: "i
   )
 }
 
-export default function EventsModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+export default function EventsModal({ profile, templateContent, onClose }: { profile: TemplateProps; templateContent?: Record<string, string>; onClose: () => void }) {
   const lang = normalizeLanguage(profile.language)
+  const tc = templateContent || {}
   const sessions: SessionData[] = (Array.isArray(profile.sessions) ? profile.sessions : []).filter(
     (s) => s && (s.date || s.venue)
   )
@@ -70,7 +71,7 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
   const pad2 = (n: number) => String(n).padStart(2, "0")
 
   return (
-    <ModalShell icon="event" eyebrow={t("saveTheDate", lang).toUpperCase()} title={lang === "en" ? "DATE & VENUE" : "TANGGAL & LOKASI"} onClose={onClose}>
+    <ModalShell icon="event" eyebrow={(tc.save_date_label || t("saveTheDate", lang)).toUpperCase()} title={tc.events_title || (lang === "en" ? "DATE & VENUE" : "TANGGAL & LOKASI")} onClose={onClose}>
       <div className="relative rounded-2xl overflow-hidden border border-[#38bdf8]/35 group shadow-lg bg-[#090e1c]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={cover} alt="Venue" className="w-full h-44 object-contain" />
@@ -120,6 +121,19 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
       {sessions.map((s, i) => (
         <SessionCard key={i} session={s} />
       ))}
+
+      {(profile.dresscode_visible !== false && (tc.dresscode_title || profile.dresscode?.description)) && (
+        <section className="p-3.5 rounded-2xl bg-[#0a1222]/90 border border-[#38bdf8]/30 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8ed5ff]" style={BODY}>
+            {tc.dresscode_title || t("secDresscode", lang)}
+          </p>
+          {profile.dresscode?.description && (
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed" style={BODY}>
+              {profile.dresscode.description}
+            </p>
+          )}
+        </section>
+      )}
 
       {calLink && (
         <a

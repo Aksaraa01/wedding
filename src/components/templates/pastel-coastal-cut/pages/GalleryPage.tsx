@@ -2,16 +2,18 @@
 
 import { FONT_DISPLAY } from "../../shared/Skin"
 import { toTransformedUrl } from "@/lib/storageUrl"
+import { t } from "@/lib/i18n"
 
 const HEIGHTS = ["h-52", "h-40", "h-44", "h-60", "h-48"]
 const BOBS = ["pc-bob-1", "pc-bob-2", "pc-bob-3", "pc-bob-4", "pc-bob-5"]
 
-export default function GalleryPage({ photos }: { photos: string[] }) {
+export default function GalleryPage({ photos, title, lang = "id" }: { photos: string[]; title?: string; lang?: "id" | "en" }) {
+  const resolvedTitle = (title || "").trim() || t("secGallery", lang)
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto px-1 pt-5 pb-16">
       <div className="text-center mt-2 mb-4 flex flex-col items-center">
-        <h1 className="italic text-[30px] leading-tight drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#2c221a" }}>
-          Our Moments
+        <h1 className="italic text-[30px] leading-tight drop-shadow-sm whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#2c221a" }}>
+          {resolvedTitle}
         </h1>
         <div className="flex items-center justify-center gap-2 mt-2">
           <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-[#8E6B3D]" />

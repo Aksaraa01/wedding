@@ -257,11 +257,13 @@ export default function SilverGelatin(profile: TemplateProps) {
   const rundownIntro = (tc.rundown_intro || "").trim()
   const galleryTitle = (tc.gallery_title || "").trim() || (lang === "en" ? "Moments" : "Momen")
   const galleryIntro = (tc.gallery_intro || "").trim() || (lang === "en" ? "Little snippets of our journey" : "Cuplikan kecil perjalanan kami")
-  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "Our Film" : "Film Kami")
+  const videoTitle = (tc.video_title || "").trim() || (lang === "en" ? "Our Film" : "Video")
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
   const giftIntro = (tc.gift_intro_description || "").trim() ||
-    "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:"
+    (lang === "en"
+      ? "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:"
+      : "Doa restu Anda adalah hadiah terindah bagi kami. Namun bila berkenan memberikan tanda kasih, Anda dapat melakukannya melalui:")
   const giftTransferLabel = (tc.gift_button || "").trim() || (lang === "en" ? "Direct Transfer" : "Transfer Langsung")
   const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const giftTransferNote = (tc.gift_transfer_note || "").trim() || (lang === "en" ? "Transfer directly to the account below:" : "Transfer langsung ke rekening di bawah ini:")
@@ -271,7 +273,9 @@ export default function SilverGelatin(profile: TemplateProps) {
   const wishesTitle = (tc.wishes_title || "").trim() || (lang === "en" ? "Wishes" : "Ucapan")
   const wishesIntro = (tc.wishes_intro || "").trim() || (lang === "en" ? "Write your best prayers and wishes for us." : "Tulis doa dan ucapan terbaik Anda untuk kami.")
   const closingMessage = (tc.closing_message || "").trim() ||
-    "Thank you for your prayers and presence. It is an honour for us to celebrate this day with you."
+    (lang === "en"
+      ? "Thank you for your prayers and presence. It is an honour for us to celebrate this day with you."
+      : "Terima kasih atas doa dan kehadiran Anda. Merupakan kehormatan bagi kami dapat merayakan hari ini bersama Anda.")
   const closingSee = (tc.closing_see || "").trim() || (lang === "en" ? "See you!" : "Sampai jumpa!")
   const accountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening tersalin")
   const addressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat tersalin")
@@ -682,7 +686,7 @@ export default function SilverGelatin(profile: TemplateProps) {
               </div>
               {calendarUrl && (
                 <a className="sg-link sg-count__cal" href={calendarUrl} target="_blank" rel="noopener noreferrer" {...IN("fade", 0.1)}>
-                  Add to calendar
+                  {lang === "en" ? "Add to calendar" : "Simpan ke kalender"}
                 </a>
               )}
             </section>

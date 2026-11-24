@@ -1,13 +1,18 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
-import { normalizeLanguage, t } from "@/lib/i18n"
+import { normalizeLanguage } from "@/lib/i18n"
 import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { CouplePhoto } from "./MainPage"
 
 export default function ClosingPage({ profile, onWishOpenChange }: { profile: TemplateProps; onWishOpenChange: (open: boolean) => void }) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content ?? {}
+  const closingMessage = (tc.closing_message || "").trim() ||
+    (lang === "en" ? "It is an honor and joy for us to have your presence and blessings on our special day." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara/i sekalian.")
+  const wishesTitle = (tc.wishes_title || "").trim()
+  const wishesIntro = (tc.wishes_intro || "").trim()
   return (
     <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col items-center justify-start text-center px-6 pt-12 pb-8">
       <div className="relative w-full max-w-[360px] flex flex-col items-center p-8 overflow-hidden">
@@ -27,11 +32,25 @@ export default function ClosingPage({ profile, onWishOpenChange }: { profile: Te
           </h1>
           <div className="flex items-center gap-2 mb-2 w-full max-w-[280px] justify-center">
             <span className="h-px w-6 bg-[#8E6B3D]/40" />
-            <span className="text-[11px] italic leading-relaxed text-center" style={{ ...FONT_DISPLAY, color: "#4A3427" }}>
-              {lang === "en" ? "It is an honor and joy for us to have your presence and blessings on our special day." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara/i sekalian."}
+            <span className="text-[11px] italic leading-relaxed text-center whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#4A3427" }}>
+              {closingMessage}
             </span>
             <span className="h-px w-6 bg-[#8E6B3D]/40" />
           </div>
+          {(wishesTitle || wishesIntro) && (
+            <div className="mb-3 flex w-full max-w-[280px] flex-col items-center gap-1.5">
+              {wishesTitle && (
+                <h2 className="italic text-[18px] leading-tight whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
+                  {wishesTitle}
+                </h2>
+              )}
+              {wishesIntro && (
+                <p className="text-[11px] leading-relaxed text-center whitespace-pre-line" style={{ ...FONT_DISPLAY, color: "#4A3427" }}>
+                  {wishesIntro}
+                </p>
+              )}
+            </div>
+          )}
           <button
             type="button"
             onClick={() => onWishOpenChange(true)}

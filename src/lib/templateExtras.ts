@@ -1,3 +1,81 @@
+import { EXTRA_DEFAULTS } from "./templateExtraDefaults"
+
+// Templates that render nothing when a field is empty still need a locator in
+// the extras accordion, so those few fields get an explicit example in both
+// languages. The "Contoh:"/"e.g." prefix keeps them visibly examples rather
+// than default copy. Only fields with no template default belong here; anything
+// the template itself prints is covered by EXTRA_DEFAULTS.
+const EXTRA_EXAMPLE_HINTS: Record<string, Record<string, { id: string; en: string }>> = {
+  "altar-garden": { countdown_title: { id: "Contoh: Menuju Hari Bahagia", en: "e.g. Counting Down" } },
+  "piano-garden": { countdown_title: { id: "Contoh: Menuju Hari Bahagia", en: "e.g. Counting Down" } },
+  evermore: {
+    events_intro: {
+      id: "Contoh: Kami menantikan kehadiran Anda di acara kami.",
+      en: "e.g. We look forward to celebrating with you.",
+    },
+  },
+  iris: {
+    cover_apology: {
+      id: "Contoh: Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
+      en: "e.g. We apologize for any misspelling of your name or title.",
+    },
+    events_intro: {
+      id: "Contoh: Dengan hormat, berikut waktu dan tempat acara kami.",
+      en: "e.g. With due respect, here are the details of our event.",
+    },
+    inviting_intro: {
+      id: "Contoh: Kami turut mengundang keluarga dan sahabat tercinta.",
+      en: "e.g. We also invite our beloved family and friends.",
+    },
+    rundown_intro: {
+      id: "Contoh: Berikut susunan acara di hari bahagia kami.",
+      en: "e.g. Here is the order of events on our big day.",
+    },
+    gallery_intro: {
+      id: "Contoh: Sekilas momen kebersamaan kami.",
+      en: "e.g. A glimpse of our moments together.",
+    },
+    video_intro: { id: "Contoh: Video singkat kisah kami.", en: "e.g. A short video of our story." },
+    dresscode_intro: {
+      id: "Contoh: Kami akan senang bila Anda hadir dengan palet warna di bawah ini.",
+      en: "e.g. We would be delighted if you joined us in the palette below.",
+    },
+    gift_intro_description: {
+      id: "Contoh: Doa restu Anda adalah hadiah terindah bagi kami.",
+      en: "e.g. Your blessings are the most beautiful gift to us.",
+    },
+    wishes_title: { id: "Contoh: Ucapan & Doa", en: "e.g. Wishes & Prayers" },
+    wishes_intro: {
+      id: "Contoh: Kirimkan ucapan dan doa terbaik Anda untuk kami.",
+      en: "e.g. Send us your warmest wishes and prayers.",
+    },
+  },
+  "love-line": {
+    person_one_label: { id: "Contoh: Mempelai Wanita", en: "e.g. The Bride" },
+    person_two_label: { id: "Contoh: Mempelai Pria", en: "e.g. The Groom" },
+    parents_label_male: { id: "Contoh: Putra dari Bapak & Ibu", en: "e.g. Son of Mr. & Mrs." },
+    parents_label_female: { id: "Contoh: Putri dari Bapak & Ibu", en: "e.g. Daughter of Mr. & Mrs." },
+  },
+  noir: {
+    gallery_intro: {
+      id: "Contoh: Sekilas momen kebersamaan kami.",
+      en: "e.g. A glimpse of our moments together.",
+    },
+    video_caption: { id: "Contoh: Video singkat kisah kami.", en: "e.g. A short video of our story." },
+  },
+  sandhya: {
+    gallery_title: { id: "Contoh: Galeri", en: "e.g. Gallery" },
+    gallery_intro: {
+      id: "Contoh: Sekilas momen kebersamaan kami.",
+      en: "e.g. A glimpse of our moments together.",
+    },
+    wishes_intro: {
+      id: "Contoh: Kirimkan ucapan dan doa terbaik Anda untuk kami.",
+      en: "e.g. Send us your warmest wishes and prayers.",
+    },
+  },
+}
+
 export interface TemplateExtraField {
   key: string
   label: string
@@ -439,7 +517,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 3,
     placeholders: {
-      "film-roll": "The stills we keep closest.",
+      "film-roll": "Setiap kisah cinta itu indah, tapi kisah kami adalah favorit kami.",
       "silver-gelatin": "Little snippets of our journey",
       teatro: "Scenes from the days that led us here, kept like programmes from a favourite show.",
       "cinnabar-seal": "Bingkai kecil dari perjalanan kami, disimpan untuk dikenang bersama.",
@@ -466,6 +544,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Oleh-oleh dari perjalanan kami, bingkai yang paling kami simpan.",
     },
+    placeholdersEn: { "film-roll": "Every love story is beautiful, but ours is our favourite." },
     templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "nihara-mist", "sandhya", "dark-split-rail"],
   },
   {
@@ -622,7 +701,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 3,
     placeholders: { "ubin-ottoman": "Doa dan kehadiran Anda sudah lebih dari cukup. Bila ingin memberi tanda kasih, dapat melalui:", "love-line": "Your blessings are more than enough. If you'd like to give more, we'll receive it with deep gratitude.",
-      "film-roll": "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here.",
+      "film-roll": "Doa restu Anda adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, Anda dapat melakukannya di sini.",
       "silver-gelatin": "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:",
       teatro: "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
       "cinnabar-seal": "Doa restu Anda adalah hadiah terindah. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
@@ -656,6 +735,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Doa restu Anda adalah bekal terbaik untuk perjalanan kami. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
     },
+    placeholdersEn: { "film-roll": "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here." },
     templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman", "nihara-mist", "minang-royal", "dark-split-rail", "impasto-mosque", "pastel-dream-cathedral", "pastel-coastal-cut", "skyline-penthouse", "pixel-paradise", "pixel-quest"],
   },
   {
@@ -1074,7 +1154,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "closing_see",
     label: "Teks Perpisahan Penutup",
-    placeholders: { "film-roll": "See you at the pictures.", teatro: "See you on our wedding day!" , "silver-gelatin": "See you!" },
+    placeholders: { "film-roll": "Sampai jumpa di sana.", teatro: "See you on our wedding day!" , "silver-gelatin": "See you!" },
+    placeholdersEn: { "film-roll": "See you at the pictures." },
     placeholder: "See you on our wedding day!",
     templates: ["silver-gelatin", "iris", "teatro", "film-roll"],
   },
@@ -1116,7 +1197,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Catatan Dress Code",
     multiline: true,
     rows: 2,
-    placeholders: { "film-roll": "Please avoid white and bright patterns.", teatro: "Please avoid white and burgundy, reserved for the couple." , "silver-gelatin": "Please avoid white and bright patterns." },
+    placeholders: { "film-roll": "Contoh: Mohon hindari warna putih.", teatro: "Please avoid white and burgundy, reserved for the couple." , "silver-gelatin": "Please avoid white and bright patterns." },
+    placeholdersEn: { "film-roll": "e.g. Please avoid white." },
     templates: ["silver-gelatin", "teatro", "film-roll"],
   },
   {
@@ -1910,6 +1992,67 @@ const EXTRA_SECTION_LABEL_ID: Record<string, string> = {
 }
 
 const EXTRA_LABEL_EN: Record<string, string> = {
+  countdown_title: "Countdown Title",
+  countdown_days: "Days Label",
+  countdown_hours: "Hours Label",
+  countdown_minutes: "Minutes Label",
+  countdown_seconds: "Seconds Label",
+  agenda_kicker: "Order of Events Kicker",
+  calendar_button: "Calendar Button Text",
+  closing_family: "Closing Family Name",
+  closing_kicker: "Closing Kicker",
+  closing_see: "Closing Farewell Text",
+  closing_thanks: "Closing Thank You",
+  copy_account_button: "Copy Account Button",
+  copy_address_button: "Copy Address Button",
+  copy_label: "Copy Button Text",
+  cover_apology: "Cover Apology Note",
+  cover_guest_label: "Cover Guest Label",
+  doa_arabic: "Prayer (Arabic text)",
+  events_kicker: "Event Kicker",
+  events_note: "Event Note",
+  gallery_kicker: "Gallery Kicker",
+  gate_hint: "Open Invitation Hint",
+  gift_account_label: "Account Number Label",
+  gift_button: "Gift Button Text",
+  gift_name_label: "Account Holder Label",
+  gift_send_label: "Send Gift Tab Label",
+  hero_badge: "Badge Label",
+  inviting_kicker: "Inviting Kicker",
+  livestream_cta: "Live Stream Button Text",
+  maps_label: "Map Button Text",
+  mempelai_kicker: "Couple Kicker",
+  parents_label: "Parents Label",
+  parents_label_female: "Bride's Parents Label",
+  parents_label_male: "Groom's Parents Label",
+  person_one_label: "First Person Label",
+  person_two_label: "Second Person Label",
+  story_kicker: "Love Story Kicker",
+  welcome_invite: "Cover Invitation Text",
+  welcome_message: "Welcome Message",
+  wishes_empty: "Empty Wishes Text",
+  wishes_kicker: "Wishes Kicker",
+  wishes_message_label: "Wishes Message Field Label",
+  wishes_more: "Load More Wishes Text",
+  wishes_name_label: "Name Field Label",
+  wishes_submit: "Send Button Text",
+  basmalah: "Basmalah (Arabic text)",
+  board_footer: "Boarding Board Note",
+  copied_label: "Text After Copying",
+  dresscode_kicker: "Dress Code Kicker",
+  dresscode_note: "Dress Code Note",
+  dresscode_title: "Dress Code Title",
+  gift_kicker: "Gift Kicker",
+  hero_meta: "Poster Meta Line",
+  reveal_scratch_hint: "Scratch Hint (Hand Icon)",
+  rundown_kicker: "Rundown Kicker",
+  save_date_kicker: "Save the Date Kicker",
+  save_date_label: "Save the Date Button Text",
+  scroll_label: "Scroll Prompt",
+  seat_class: "Seat Class",
+  video_kicker: "Video Kicker",
+  wishes_loading: "Loading Text",
+  wishes_name_placeholder: "Name Placeholder",
   inviting_intro: "Inviting Introduction",
   inviting_title: "Inviting Title",
   contacts_title: "Contact Title",
@@ -1926,6 +2069,25 @@ const EXTRA_LABEL_EN: Record<string, string> = {
 }
 
 const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
+  "The Wedding Day": "Hari Pernikahan",
+  "The Celebration": "Rangkaian Acara",
+  "The Wedding Gift": "Hadiah Pernikahan",
+  "Gallery of Us": "Galeri Kami",
+  "The Film": "Video",
+  "With Blessings": "Dengan Restu",
+  "With Honour": "Dengan Hormat",
+  "Counting the Days": "Menghitung Hari",
+  "Counting Down To Forever": "Menuju Selamanya",
+  "Order of the Day": "Susunan Acara",
+  "Join Us Online": "Saksikan Daring",
+  "We Are Getting Married": "Kami Akan Menikah",
+  "Welcome to our wedding": "Selamat datang di pernikahan kami",
+  "You are invited to the wedding of": "Anda diundang ke pernikahan",
+  "Press play to hear it again": "Tekan putar untuk mendengarnya lagi",
+  "Tap to continue": "Ketuk untuk melanjutkan",
+  "Scratch all three circles to continue": "Gosok ketiga lingkaran untuk melanjutkan",
+  "Save to calendar": "Simpan ke Kalender",
+  "Tap to open": "Ketuk untuk membuka",
   "Countdown": "Hitung Mundur",
   "Save the Date": "Simpan Tanggal",
   "Days": "Hari",
@@ -1971,6 +2133,16 @@ const EXTRA_PLACEHOLDER_ID: Record<string, string> = {
   "We also present the families who extend this invitation alongside us.": "Dengan hormat, kami turut mengundang keluarga besar yang telah mendampingi perjalanan kami.",
   "Together with the families who make this day possible.": "Bersama keluarga yang membuat hari ini terwujud.",
 }
+
+// Reverse of EXTRA_PLACEHOLDER_ID: Indonesian label -> English source. Used to
+// keep an English placeholder in `en` mode and to detect Indonesian prose that
+// has no English counterpart (those are dropped rather than shown mixed).
+const EN_PLACEHOLDER_RE = /\b(the|your|our|and|with|for|you|we|will|welcome|dear|guest|love|story|wedding|gift|wishes|please|join|us|of|in|on|is|are|before|after|every|day|days|first|look|lights|come|up|there)\b/i
+const ID_PLACEHOLDER_RE = /\b(dan|yang|dengan|untuk|kami|anda|nama|tanggal|acara|hadiah|ucapan|undangan|mempelai|tamu|kirim|tulis|salin|lihat|buka|simpan|kasih|doa|cerita|galeri|foto|hari|keluarga|besar)\b/i
+
+const EXTRA_PLACEHOLDER_EN_FROM_ID = new Map(
+  Object.entries(EXTRA_PLACEHOLDER_ID).map(([en, id]) => [id, en]),
+)
 
 const EXTRA_LABEL_EN_RE: Array<[RegExp, string]> = [
   [/^Judul Hitung Mundur$/i, "Countdown Title"],
@@ -2049,19 +2221,43 @@ function translateExtraLabelToEn(label: string): string {
 }
 
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
+  // Hint precedence: the copy the template actually prints (generated from its
+  // source), then a hand-written per-template placeholder, then the shared
+  // legacy placeholder. A default that only exists in the other language must
+  // not leak into this one — better no hint than copy the guest will not see.
+  const generated = EXTRA_DEFAULTS[code]?.[field.key]
+  const example = EXTRA_EXAMPLE_HINTS[code]?.[field.key]
+  const override = lang === "en" ? field.placeholdersEn?.[code] : field.placeholders?.[code]
+  // An empty string is "no hint", not an override.
+  const explicit = override && override.trim() ? override : undefined
+  const hasTemplateDefault = !!(generated || example)
+  const legacyPlaceholder = hasTemplateDefault ? undefined : field.placeholder
   const base = {
     ...field,
     section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
     order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
-    placeholder: field.placeholders?.[code] ?? field.placeholder,
   }
   if (lang !== "en") {
-    if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
-      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
+    const hint = generated?.id ?? example?.id ?? explicit ?? legacyPlaceholder
+    const mapped = hint && EXTRA_PLACEHOLDER_ID[hint] ? EXTRA_PLACEHOLDER_ID[hint] : hint
+    // No Indonesian default for this key (template ships a COPY object the
+    // generator cannot read): hide an English-only hint rather than show the
+    // couple copy the invitation will not print in their language.
+    const hasIdDefault = !!(generated?.id || example?.id)
+    if (mapped && !hasIdDefault && EN_PLACEHOLDER_RE.test(mapped) && !ID_PLACEHOLDER_RE.test(mapped)) {
+      return { ...base, placeholder: undefined }
     }
-    return base
+    return { ...base, placeholder: mapped }
   }
-  const enPlaceholder = field.placeholdersEn?.[code] ?? field.placeholderEn ?? base.placeholder
+  const enPlaceholder =
+    explicit ??
+    generated?.en ??
+    example?.en ??
+    field.placeholderEn ??
+    (legacyPlaceholder
+      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(legacyPlaceholder) ??
+        (EXTRA_PLACEHOLDER_ID[legacyPlaceholder] ? legacyPlaceholder : undefined)
+      : undefined)
   const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
   return {
     ...base,
@@ -2072,7 +2268,8 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
 
 export function getTemplateExtraFields(templateCode: string | null | undefined, lang: "id" | "en" = "id"): TemplateExtraField[] {
   if (!templateCode) return []
-  const code = templateCode.toLowerCase()
+  const raw = templateCode.toLowerCase()
+  const code = EXTRA_ALIASES[raw] ?? raw
   const sectionOrder = new Map(TEMPLATE_EXTRA_SECTIONS.map((s, i) => [s.key, i]))
   return TEMPLATE_EXTRA_FIELDS
     .filter((field) => field.templates.includes(code))
@@ -2983,3 +3180,135 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "closing_title", label: "Judul Penutup", section: "closing", order: 10, templates: ["swan-garden"], placeholders: { "swan-garden": "Thank You" } },
   { key: "closing_message", label: "Pesan Penutup", section: "closing", order: 20, multiline: true, rows: 4, templates: ["swan-garden"], placeholders: { "swan-garden": "From the bottom of our hearts we just want to thank you for being part of our big day." } },
 )
+
+// Noir — the black poster invitation. Hints follow the language of the couple:
+// the ID hint is what the component renders in Bahasa, the EN hint what it
+// renders in English, so an empty field never surprises the editor.
+TEMPLATE_EXTRA_FIELDS.push(
+  { key: "cover_kicker", label: "Label Kecil Sampul", labelEn: "Cover Kicker", section: "sampul", order: 10, templates: ["noir"], placeholders: { noir: "Undangan Pernikahan" }, placeholdersEn: { noir: "Wedding Invitation" } },
+  { key: "cover_guest_label", label: "Sapaan Tamu", labelEn: "Guest Greeting", section: "sampul", order: 11, templates: ["noir"], placeholders: { noir: "Kepada Bapak/Ibu/Saudara/i" }, placeholdersEn: { noir: "Dear" } },
+  { key: "open_button", label: "Teks Tombol Buka", labelEn: "Open Button", section: "sampul", order: 12, templates: ["noir"], placeholders: { noir: "Buka Undangan" }, placeholdersEn: { noir: "Open Invitation" } },
+  { key: "welcome_title", label: "Judul Sambutan", labelEn: "Welcome Heading", section: "pembuka", order: 5, templates: ["noir"], placeholders: { noir: "Fikri & Dinda" }, placeholdersEn: { noir: "Alden & Vera" } },
+  { key: "welcome_note", label: "Kalimat Sambutan", labelEn: "Welcome Note", section: "pembuka", order: 10, multiline: true, rows: 3, templates: ["noir"], placeholders: { noir: "Dengan penuh sukacita kami mengundang Anda untuk berbagi hari dimulainya selamanya kami." }, placeholdersEn: { noir: "With great joy we invite you to share the day we begin our forever." } },
+  { key: "groom_label", label: "Label Mempelai Pria", labelEn: "Groom Label", section: "mempelai", order: 5, templates: ["noir"], placeholders: { noir: "Mempelai Pria" }, placeholdersEn: { noir: "The Groom" } },
+  { key: "bride_label", label: "Label Mempelai Wanita", labelEn: "Bride Label", section: "mempelai", order: 6, templates: ["noir"], placeholders: { noir: "Mempelai Wanita" }, placeholdersEn: { noir: "The Bride" } },
+  { key: "mempelai_title", label: "Judul Mempelai", labelEn: "Couple Heading", section: "mempelai", order: 10, templates: ["noir"], placeholders: { noir: "Kedua Mempelai" }, placeholdersEn: { noir: "The Bride & Groom" } },
+  { key: "mempelai_intro", label: "Pengantar Mempelai", labelEn: "Couple Intro", section: "mempelai", order: 20, multiline: true, rows: 2, templates: ["noir"], placeholders: { noir: "Dua keluarga, satu perayaan — dengan cinta, kami memperkenalkan diri." }, placeholdersEn: { noir: "Two families, one celebration — with love, we introduce ourselves." } },
+  { key: "agenda_title", label: "Judul Acara", labelEn: "Event Heading", section: "acara", order: 20, templates: ["noir"], placeholders: { noir: "Rangkaian Acara" }, placeholdersEn: { noir: "The Celebration" } },
+  { key: "events_intro", label: "Kalimat Pengantar Acara", labelEn: "Event Intro", section: "acara", order: 30, multiline: true, rows: 3, templates: ["noir"], placeholders: { noir: "Dengan restu keluarga, kami mengundang Anda untuk merayakan awal perjalanan hidup kami bersama." }, placeholdersEn: { noir: "With the blessing of our families, we invite you to celebrate the beginning of our life together." } },
+  { key: "maps_label", label: "Teks Tautan Peta", labelEn: "Maps Link", section: "acara", order: 40, templates: ["noir"], placeholders: { noir: "Lihat Lokasi" }, placeholdersEn: { noir: "View Maps" } },
+  { key: "countdown_title", label: "Judul Hitung Mundur", labelEn: "Countdown Heading", section: "acara", order: 10, templates: ["noir"], placeholders: { noir: "Hitung Mundur" }, placeholdersEn: { noir: "Counting Down" } },
+  { key: "countdown_days", label: "Label Hari", labelEn: "Days Label", section: "acara", order: 11, templates: ["noir"], placeholders: { noir: "Hari" }, placeholdersEn: { noir: "Days" } },
+  { key: "countdown_hours", label: "Label Jam", labelEn: "Hours Label", section: "acara", order: 12, templates: ["noir"], placeholders: { noir: "Jam" }, placeholdersEn: { noir: "Hours" } },
+  { key: "countdown_minutes", label: "Label Menit", labelEn: "Minutes Label", section: "acara", order: 13, templates: ["noir"], placeholders: { noir: "Menit" }, placeholdersEn: { noir: "Minutes" } },
+  { key: "countdown_seconds", label: "Label Detik", labelEn: "Seconds Label", section: "acara", order: 14, templates: ["noir"], placeholders: { noir: "Detik" }, placeholdersEn: { noir: "Seconds" } },
+  { key: "calendar_button", label: "Teks Tombol Kalender", labelEn: "Calendar Button", section: "acara", order: 15, templates: ["noir"], placeholders: { noir: "Simpan ke Kalender" }, placeholdersEn: { noir: "Add to Calendar" } },
+  { key: "love_story_title", label: "Judul Cerita Cinta", labelEn: "Story Heading", section: "cerita", order: 10, templates: ["noir"], placeholders: { noir: "Perjalanan Cinta" }, placeholdersEn: { noir: "Our Story" } },
+  { key: "rundown_title", label: "Judul Rundown", labelEn: "Rundown Heading", section: "rundown", order: 10, templates: ["noir"], placeholders: { noir: "Susunan Acara" }, placeholdersEn: { noir: "Order of Events" } },
+  { key: "gallery_title", label: "Judul Galeri", labelEn: "Gallery Heading", section: "galeri", order: 10, templates: ["noir"], placeholders: { noir: "Momen Kami" }, placeholdersEn: { noir: "Moments" } },
+  { key: "gallery_intro", label: "Pengantar Galeri", labelEn: "Gallery Intro", section: "galeri", order: 20, multiline: true, rows: 2, templates: ["noir"], placeholders: { noir: "" }, placeholdersEn: { noir: "" } },
+  { key: "video_title", label: "Judul Video", labelEn: "Video Heading", section: "video", order: 10, templates: ["noir"], placeholders: { noir: "Film Kami" }, placeholdersEn: { noir: "Our Film" } },
+  { key: "video_caption", label: "Keterangan Video", labelEn: "Video Caption", section: "video", order: 20, templates: ["noir"], placeholders: { noir: "" }, placeholdersEn: { noir: "The days before the wedding" } },
+  { key: "gift_intro_title", label: "Judul Hadiah", labelEn: "Gift Heading", section: "gift", order: 10, templates: ["noir"], placeholders: { noir: "Tanda Kasih" }, placeholdersEn: { noir: "Wedding Gift" } },
+  { key: "gift_intro_description", label: "Pengantar Hadiah", labelEn: "Gift Intro", section: "gift", order: 20, multiline: true, rows: 3, templates: ["noir"], placeholders: { noir: "Kehadiran dan doa Anda adalah hadiah terbesar bagi kami. Bila Anda ingin memberi tanda kasih, kami menyiapkan amplop digital di bawah ini." }, placeholdersEn: { noir: "Your presence and your prayers are the greatest gift. If you wish to send a token of love, we have prepared a digital envelope below." } },
+  { key: "copy_account_button", label: "Teks Tombol Salin Rekening", labelEn: "Copy Number Button", section: "gift", order: 30, templates: ["noir"], placeholders: { noir: "Salin Nomor" }, placeholdersEn: { noir: "Copy Number" } },
+  { key: "gift_address_title", label: "Judul Kirim Hadiah", labelEn: "Gift Address Heading", section: "gift", order: 40, templates: ["noir"], placeholders: { noir: "Kirim Hadiah" }, placeholdersEn: { noir: "Send a Gift" } },
+  { key: "copy_address_button", label: "Teks Tombol Salin Alamat", labelEn: "Copy Address Button", section: "gift", order: 50, templates: ["noir"], placeholders: { noir: "Salin Alamat" }, placeholdersEn: { noir: "Copy Address" } },
+  { key: "copy_account_toast", label: "Notifikasi Salin Rekening", labelEn: "Copy Number Toast", section: "gift", order: 60, templates: ["noir"], placeholders: { noir: "Nomor rekening tersalin" }, placeholdersEn: { noir: "Account number copied" } },
+  { key: "copy_address_toast", label: "Notifikasi Salin Alamat", labelEn: "Copy Address Toast", section: "gift", order: 70, templates: ["noir"], placeholders: { noir: "Alamat tersalin" }, placeholdersEn: { noir: "Address copied" } },
+  { key: "dresscode_title", label: "Judul Dress Code", labelEn: "Dress Code Heading", section: "dresscode", order: 10, templates: ["noir"], placeholders: { noir: "Tema Busana" }, placeholdersEn: { noir: "Dress Code" } },
+  { key: "dresscode_intro", label: "Pengantar Dress Code", labelEn: "Dress Code Intro", section: "dresscode", order: 20, multiline: true, rows: 2, templates: ["noir"], placeholders: { noir: "Busana formal dalam nuansa netral hangat — mohon sisakan warna putih untuk kedua mempelai." }, placeholdersEn: { noir: "Black tie in warm neutrals — please leave white for the couple." } },
+  { key: "wishes_title", label: "Judul Ucapan", labelEn: "Wishes Heading", section: "wishes", order: 10, templates: ["noir"], placeholders: { noir: "Ucapan & Doa" }, placeholdersEn: { noir: "Wishes & Prayers" } },
+  { key: "wishes_intro", label: "Pengantar Ucapan", labelEn: "Wishes Intro", section: "wishes", order: 20, multiline: true, rows: 2, templates: ["noir"], placeholders: { noir: "Tinggalkan ucapan atau doa untuk kami simpan." }, placeholdersEn: { noir: "Leave a wish or a prayer for us to keep." } },
+  { key: "wishes_name_label", label: "Label Nama Pengirim", labelEn: "Name Label", section: "wishes", order: 30, templates: ["noir"], placeholders: { noir: "Nama" }, placeholdersEn: { noir: "Name" } },
+  { key: "wishes_name_placeholder", label: "Placeholder Nama", labelEn: "Name Placeholder", section: "wishes", order: 40, templates: ["noir"], placeholders: { noir: "Nama Anda" }, placeholdersEn: { noir: "Your name" } },
+  { key: "wishes_message_label", label: "Label Pesan", labelEn: "Message Label", section: "wishes", order: 50, templates: ["noir"], placeholders: { noir: "Pesan" }, placeholdersEn: { noir: "Message" } },
+  { key: "wishes_message_placeholder", label: "Placeholder Pesan", labelEn: "Message Placeholder", section: "wishes", order: 60, templates: ["noir"], placeholders: { noir: "Tulis ucapan Anda..." }, placeholdersEn: { noir: "Write your wish..." } },
+  { key: "wishes_submit", label: "Teks Tombol Kirim", labelEn: "Submit Button", section: "wishes", order: 70, templates: ["noir"], placeholders: { noir: "Kirim Ucapan" }, placeholdersEn: { noir: "Send" } },
+  { key: "wishes_empty", label: "Teks Ucapan Kosong", labelEn: "Empty Wishes", section: "wishes", order: 80, templates: ["noir"], placeholders: { noir: "Belum ada ucapan. Jadilah yang pertama." }, placeholdersEn: { noir: "Be the first to leave a wish." } },
+  { key: "wishes_more", label: "Teks Muat Ucapan Lain", labelEn: "Load More", section: "wishes", order: 90, templates: ["noir"], placeholders: { noir: "Tampilkan ucapan lainnya" }, placeholdersEn: { noir: "Show more wishes" } },
+  { key: "wishes_loading", label: "Teks Memuat", labelEn: "Loading", section: "wishes", order: 100, templates: ["noir"], placeholders: { noir: "Memuat ucapan…" }, placeholdersEn: { noir: "Loading wishes" } },
+  { key: "inviting_title", label: "Judul Turut Mengundang", labelEn: "Inviting Heading", section: "inviting", order: 10, templates: ["noir"], placeholders: { noir: "Turut Mengundang" }, placeholdersEn: { noir: "With Honor" } },
+  { key: "inviting_intro", label: "Pengantar Turut Mengundang", labelEn: "Inviting Intro", section: "inviting", order: 20, multiline: true, rows: 2, templates: ["noir"], placeholders: { noir: "Kami turut menghadirkan keluarga yang menyertai undangan ini." }, placeholdersEn: { noir: "We also present the families who extend this invitation alongside us." } },
+  { key: "closing_title", label: "Judul Penutup", labelEn: "Closing Heading", section: "closing", order: 10, templates: ["noir"], placeholders: { noir: "Terima Kasih" }, placeholdersEn: { noir: "Thank You" } },
+  { key: "closing_message", label: "Pesan Penutup", labelEn: "Closing Message", section: "closing", order: 20, multiline: true, rows: 4, templates: ["noir"], placeholders: { noir: "Dari lubuk hati kami, terima kasih telah menjadi bagian dari hari kami." }, placeholdersEn: { noir: "From the bottom of our hearts, thank you for being part of our day." } },
+  { key: "closing_brand", label: "Baris Merek di Penutup", labelEn: "Closing Brand Line", section: "closing", order: 30, templates: ["noir"], placeholders: { noir: "Undangan Pernikahan Digital" }, placeholdersEn: { noir: "Aksaraa — Digital Wedding Invitation" } },
+)
+
+// Headings that individual ports render but the shared table never declared.
+TEMPLATE_EXTRA_FIELDS.push(
+  { key: "couple_order", label: "Urutan Mempelai", labelEn: "Couple Order", section: "mempelai", order: 8, templates: ["noir"] },
+  { key: "hero_kicker", label: "Label Kecil Hero", labelEn: "Hero Kicker", section: "sampul", order: 11, templates: [] },
+  { key: "couple_title", label: "Judul Mempelai", labelEn: "Couple Heading", section: "mempelai", order: 10, templates: [] },
+  { key: "gallery_caption", label: "Keterangan Galeri", labelEn: "Gallery Caption", section: "galeri", order: 30, multiline: true, rows: 2, templates: [] },
+)
+
+// ── Per-template registration reconciliation ──────────────────────────────
+// The table above lists, per field, the templates that render it. These maps
+// are the audited delta between that table and what each component actually
+// reads (`tc.<key>`). `npm run audit:extras` fails if either side drifts:
+//   • ADD  = key a component reads but no field is registered for → uneditable
+//   • DROP = field registered for a template that never reads it → dead input
+// Code aliases cover the two templates whose map code differs from the folder
+// that holds their extras (and their generated defaults).
+export const EXTRA_ALIASES: Record<string, string> = {
+  "impasto-mosque-dark-gold": "impasto-mosque",
+  pixel_quest: "pixel-quest",
+}
+
+// Fields that exist for other templates but were never registered here.
+const EXTRA_ADD_TEMPLATES: Record<string, string[]> = {
+  "adat-banjar": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-betawi": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-dayak": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-jawa": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-jawa-2": ["closing_title", "cover_kicker", "gallery_title", "gift_title", "hero_kicker", "inviting_title", "love_story_title", "video_title", "wishes_title"],
+  "adat-minang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "adat-palembang": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
+  "boarding-pass": ["dresscode_title", "wishes_title"],
+  "imagine": ["rundown_title", "wishes_title", "closing_title"],
+  "ivory-lace": ["inviting_title", "dresscode_title", "wishes_title"],
+  "lace": ["inviting_title", "wishes_title"],
+  "lunar-blossom": ["closing_title", "countdown_title", "couple_title", "events_title", "gallery_caption", "gallery_title", "gift_title", "hero_kicker", "inviting_title", "love_story_title", "rsvp_title", "wishes_title"],
+  "minang-royal": ["cover_apology", "dresscode_note", "gallery_intro", "wishes_intro", "gallery_title", "video_title", "wishes_title", "closing_title"],
+  "n-film": ["rundown_title", "gallery_title", "wishes_title"],
+  "still-ever": ["events_title", "rundown_title", "livestream_title", "wishes_title", "closing_title"],
+  "traditional-bugis-pinishi": ["events_intro", "love_story_title", "gallery_title", "save_date_label", "wishes_title"],
+}
+
+// Registered but never rendered by the template: the couple would edit a field
+// that changes nothing. Contact headings are read by the 11 adat templates,
+// not by the rest.
+const CONTACT_TITLE_READERS = new Set([
+  "adat-bali", "adat-banjar", "adat-batak", "adat-betawi", "adat-bugis", "adat-dayak",
+  "adat-jawa", "adat-melayu", "adat-minang", "adat-palembang", "traditional-bugis-pinishi",
+])
+const EXTRA_DROP_TEMPLATES: Record<string, string[]> = {
+  evermore: ["countdown_days", "countdown_hours", "countdown_minutes", "countdown_seconds", "events_intro", "events_title"],
+  "altar-garden": ["inviting_kicker", "opening_kicker"],
+  "piano-garden": ["inviting_kicker", "opening_kicker"],
+  noir: ["mempelai_intro", "mempelai_title"],
+  "adat-jawa-2": ["contacts_title"],
+}
+
+for (const [code, keys] of Object.entries(EXTRA_ADD_TEMPLATES)) {
+  for (const key of keys) {
+    const fields = TEMPLATE_EXTRA_FIELDS.filter((f) => f.key === key)
+    // Register on the shared field when one exists, else on the first override.
+    const target = fields.find((f) => !f.templates.includes(code))
+    if (target) target.templates.push(code)
+  }
+}
+for (const [code, keys] of Object.entries(EXTRA_DROP_TEMPLATES)) {
+  for (const key of keys) {
+    for (const field of TEMPLATE_EXTRA_FIELDS) {
+      if (field.key !== key) continue
+      field.templates = field.templates.filter((t) => t !== code)
+    }
+  }
+}
+for (const field of TEMPLATE_EXTRA_FIELDS) {
+  if (field.key !== "contacts_title") continue
+  const drop = field.templates.filter((code) => !CONTACT_TITLE_READERS.has(code))
+  if (drop.length) field.templates = field.templates.filter((code) => CONTACT_TITLE_READERS.has(code))
+}

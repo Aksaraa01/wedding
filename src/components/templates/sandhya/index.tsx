@@ -191,6 +191,8 @@ export default function Sandhya(profile: TemplateProps) {
   const themeValue = SANDHYA_THEMES.find((t) => t.id === themeId)?.value || SANDHYA_THEMES[0].value
   const coverApology = tc.cover_apology || (lang === "en" ? "We apologize for any error in the writing of names & titles" : "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.")
   const galleryQuote = tc.gallery_quote || (lang === "en" ? "Every love story is beautiful, but ours is my favorite." : "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.")
+  const galleryTitle = tc.gallery_title || t("secGallery", lang)
+  const galleryIntro = (tc.gallery_intro || "").trim()
   const giftIntroTitle = tc.gift_intro_title || t("secGift", lang)
   const giftIntroDescription = tc.gift_intro_description || (lang === "en" ? "Your presence is the greatest gift. If you would like to send a token of love, the details are available below." : "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.")
   const closingMessage = tc.closing_message || (lang === "en" ? "It is an honor and a joy for us if you would be pleased to attend and give your blessing on our wedding day." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.")
@@ -719,13 +721,13 @@ export default function Sandhya(profile: TemplateProps) {
             <div className="finale__hero">
               <h2 className="display finale__std reveal">{tc.countdown_title || t("secCountdown", lang)}</h2>
               <div className="countdown reveal">
-                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>{t("days", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>{tc.countdown_days || t("days", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>{t("hours", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.h ?? "00"}</b><span>{tc.countdown_hours || t("hours", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>{t("minutes", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.m ?? "00"}</b><span>{tc.countdown_minutes || t("minutes", lang)}</span></div>
                 <i />
-                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>{t("seconds", lang)}</span></div>
+                <div className="countdown__cell"><b>{countdown?.s ?? "00"}</b><span>{tc.countdown_seconds || t("seconds", lang)}</span></div>
               </div>
               {calUrl && (
                 <a className="btn-open finale__cal reveal" href={calUrl} target="_blank" rel="noopener noreferrer">
@@ -768,7 +770,8 @@ export default function Sandhya(profile: TemplateProps) {
 
               {hasGallery && (
                 <section className="sheet__section sheet__section--gallery" data-io>
-                  <h3 className="display gallery__title">{t("secGallery", lang)}</h3>
+                  <h3 className="display gallery__title">{galleryTitle}</h3>
+                  {galleryIntro && <p className="gallery__intro serif-i">{galleryIntro}</p>}
                   {gallery.length > 0 && (
                     <div className="car-row">
                       <div className="car-track" style={{ "--dur": `${Math.max(36, gallery.length * 8)}s` } as React.CSSProperties}>

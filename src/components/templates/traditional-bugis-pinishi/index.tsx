@@ -657,9 +657,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
               <img className="pinishi-deco pinishi-story-flower-two" src={ASSET("decor-mitos-2.webp")} alt="" aria-hidden="true" />
               <img className="pinishi-deco pinishi-story-flower-three" src={ASSET("decor-mitos-3.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-story-inner">
-                <h2 className="pinishi-title" data-aos="fade-up">
-                  Our Love Story
-                </h2>
+                <h2 className="pinishi-title" data-aos="fade-up">{tc.love_story_title || t("secStory", lang)}</h2>
                 <div className="pinishi-story-panel" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
                   <div className="pinishi-story-track">
                     {stories.map((story, index) => {
@@ -690,9 +688,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                   <img className="pinishi-gallery-orn pinishi-gallery-orn--one" src={ASSET("decor-dup-1.webp")} alt="" aria-hidden="true" />
                   <img className="pinishi-gallery-orn pinishi-gallery-orn--two" src={ASSET("decor-untitled-13-2.webp")} alt="" aria-hidden="true" />
                   <img className="pinishi-gallery-orn pinishi-gallery-orn--three" src={ASSET("decor-dup-2.webp")} alt="" aria-hidden="true" />
-                  <h2 className="pinishi-title pinishi-title--left" data-aos="fade-up">
-                    Precious Moment
-                  </h2>
+                  <h2 className="pinishi-title pinishi-title--left" data-aos="fade-up">{tc.gallery_title || t("secGallery", lang)}</h2>
                   {galleryQuote && (
                     <p className="pinishi-gallery-quote" data-aos="fade-up" data-aos-delay="40" style={delay(40)}>
                       {galleryQuote}
@@ -745,9 +741,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           <section className="pinishi-savedate" aria-label={t("saveTheDate", lang)}>
             <div className="pinishi-savedate-inner">
-              <h2 className="pinishi-title" data-aos="fade-up">
-                Save the Date
-              </h2>
+              <h2 className="pinishi-title" data-aos="fade-up">{tc.save_date_label || t("saveTheDate", lang)}</h2>
               <ul className="pinishi-countdown" data-aos="fade-up" data-aos-delay="40" style={delay(40)}>
                 <li>
                   <span>{countdown?.d ?? "00"}</span>
@@ -975,9 +969,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           <section className="pinishi-wishes" aria-label={t("secWishes", lang)}>
             <img className="pinishi-deco pinishi-deco--wishes-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-wishes-inner" data-aos="fade-in">
-              <h2 className="pinishi-title" data-aos="fade-up">
-                Wishes
-              </h2>
+              <h2 className="pinishi-title" data-aos="fade-up">{tc.wishes_title || t("secWishes", lang)}</h2>
               <p className="pinishi-wishes-subtitle" data-aos="fade-up" data-aos-delay="40" style={delay(40)}>
                 {wishesSubtitle}
               </p>

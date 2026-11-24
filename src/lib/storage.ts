@@ -37,10 +37,61 @@ const BUCKET_ALLOWED_MIME_TYPES = [
 
 // Guest photos: sharp normalizes server-side so the stored original stays
 // sharp enough for download/share/keepsake book while keeping storage + egress
-// sane. 2100px is ~290dpi at A5; 1.75MB keeps compression artifacts modest.
-export const GUEST_PHOTO_MAX_DIMENSION = 2100
+// sane. 3000px keeps the full phone frame; 1.75MB caps storage/egress.
+export const GUEST_PHOTO_MAX_DIMENSION = 3000
 export const GUEST_PHOTO_MAX_BYTES = 1.75 * 1024 * 1024
+// Decode ceiling: 60MP covers a 48MP phone photo, while a corrupt/giant file
+// is rejected instead of decoding hundreds of MB inside a request.
+const GUEST_PHOTO_MAX_INPUT_PIXELS = 60_000_000
 const THUMB_QUALITY = 72
+
+// sharp is the memory hog in this app (a 12MP decode is ~36-48MB of raw
+// pixels). The process is a single PM2 fork, so an in-process semaphore is
+// enough to bound it: at most 2 sharp pipelines at once, each with one libvips
+// thread. Without this, 10 concurrent over-limit uploads pushed staging to
+// 840MB and killed the process (2026-11-23).
+const SHARP_CONCURRENCY = 2
+type SharpGate = { active: number; queue: Array<() => void> }
+// globalThis so a duplicated module chunk (route bundles) still shares the
+// gate; two semaphores in one process would double the real concurrency.
+const globalForSharp = globalThis as typeof globalThis & { __aksaraSharpGate?: SharpGate }
+const sharpGate = (globalForSharp.__aksaraSharpGate ??= { active: 0, queue: [] })
+
+async function acquireSharpSlot(): Promise<void> {
+  if (sharpGate.active < SHARP_CONCURRENCY) {
+    sharpGate.active += 1
+    return
+  }
+  await new Promise<void>((resolve) => sharpGate.queue.push(resolve))
+}
+
+function releaseSharpSlot(): void {
+  const next = sharpGate.queue.shift()
+  if (next) next()
+  else sharpGate.active = Math.max(0, sharpGate.active - 1)
+}
+
+async function withSharpSlot<T>(fn: () => Promise<T>): Promise<T> {
+  await acquireSharpSlot()
+  try {
+    return await fn()
+  } finally {
+    releaseSharpSlot()
+  }
+}
+
+let sharpConfigured = false
+async function getSharp() {
+  const { default: sharp } = await import("sharp")
+  if (!sharpConfigured) {
+    // Do not keep decoded-image caches around between requests; the upload
+    // path is one-shot and the RSS never needs to grow with event traffic.
+    sharp.cache(false)
+    sharp.concurrency(1)
+    sharpConfigured = true
+  }
+  return sharp
+}
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif|bmp|tiff?|heic|heif)$/i
 
@@ -71,23 +122,68 @@ async function normalizeGuestPhoto(
   file: File
 ): Promise<{ buffer: Buffer; ext: string; contentType: string } | null> {
   try {
-    const { default: sharp } = await import("sharp")
+    const sharp = await getSharp()
     const input = Buffer.from(await file.arrayBuffer())
-    let width = GUEST_PHOTO_MAX_DIMENSION
-    let quality = 88
-    for (let attempt = 0; attempt < 6; attempt++) {
-      const out = await sharp(input)
+    // Already within both limits (and upright): upload the original untouched
+    // instead of paying a re-encode (and losing detail) for nothing.
+    const meta = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS }).metadata()
+    const longEdge = Math.max(meta.width || 0, meta.height || 0)
+    const format = meta.format || ""
+    const orientation = meta.orientation || 1
+    if (
+      ["jpeg", "png", "webp"].includes(format) &&
+      orientation === 1 &&
+      file.size <= GUEST_PHOTO_MAX_BYTES &&
+      longEdge > 0 &&
+      longEdge <= GUEST_PHOTO_MAX_DIMENSION
+    ) {
+      return null
+    }
+    if ((meta.width || 0) * (meta.height || 0) > GUEST_PHOTO_MAX_INPUT_PIXELS) {
+      // Too many pixels to decode safely inside a request; the caller's byte
+      // check turns this into a clear "too large" response instead of an OOM.
+      return null
+    }
+
+    const overBytes = input.length > GUEST_PHOTO_MAX_BYTES
+    let width = Math.min(GUEST_PHOTO_MAX_DIMENSION, longEdge || GUEST_PHOTO_MAX_DIMENSION)
+    if (overBytes && longEdge > 0) {
+      // Estimate the long edge that lands near the byte cap, with headroom so
+      // the first encode usually fits. A 3.67MB/12MP noisy source lands around
+      // 2200-2300px (still above the old 2100px cap) instead of 2800px, which
+      // cut the passes and the 100s+ queue latency measured on 2026-11-23.
+      const scale = Math.sqrt(GUEST_PHOTO_MAX_BYTES / input.length) * 0.8
+      width = Math.max(1280, Math.min(width, Math.round(longEdge * scale)))
+    }
+    // Start below q95 for anything that needs an encode; the byte cap is the
+    // real constraint and a q95 pass on a 12MP source is what spiked CPU/RAM.
+    let quality = overBytes ? 75 : 80
+
+    return await withSharpSlot(async () => {
+      // Decode + resize exactly once. Re-encoding the raw pixels avoids
+      // re-decoding the 12MP source (and re-allocating it) on every quality
+      // attempt, which is what spiked RSS to 776MB under 10 concurrent uploads.
+      const { data, info } = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS })
         .rotate()
         .resize({ width, height: width, fit: "inside", withoutEnlargement: true })
-        .jpeg({ quality, mozjpeg: true })
-        .toBuffer()
-      if (out.length <= GUEST_PHOTO_MAX_BYTES) {
-        return { buffer: out, ext: "jpg", contentType: "image/jpeg" }
+        .flatten({ background: "#ffffff" })
+        .toColourspace("srgb")
+        .raw()
+        .toBuffer({ resolveWithObject: true })
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const out = await sharp(data, {
+          raw: { width: info.width, height: info.height, channels: info.channels },
+        })
+          .jpeg({ quality, mozjpeg: true })
+          .toBuffer()
+        if (out.length <= GUEST_PHOTO_MAX_BYTES) {
+          return { buffer: out, ext: "jpg", contentType: "image/jpeg" }
+        }
+        if (quality <= 65) break
+        quality = Math.max(65, quality - 5)
       }
-      if (quality > 78) quality = Math.max(78, quality - 8)
-      else width = Math.max(1280, Math.round(width * 0.85))
-    }
-    return null
+      return null
+    })
   } catch (err) {
     console.warn("[storage] guest normalize failed:", err instanceof Error ? err.message : String(err))
     return null
@@ -100,31 +196,33 @@ async function generateThumbnails(body: File | Buffer, path: string) {
   const widths = thumbWidthsForPath(path)
   if (!widths.length) return
   try {
-    const { default: sharp } = await import("sharp")
     const input = body instanceof File ? Buffer.from(await body.arrayBuffer()) : body
-    for (const width of widths) {
-      const thumbPath = thumbPathFor(path, width)
-      if (!thumbPath) continue
-      const out = await sharp(input)
-        .rotate()
-        .resize({ width, withoutEnlargement: true })
-        .webp({ quality: THUMB_QUALITY, effort: 4 })
-        .toBuffer()
-      const { error } = await supabaseAdmin.storage.from(BUCKET).upload(
-        thumbPath,
-        uploadBody(out, "image/webp"),
-        {
-          upsert: false,
-          contentType: "image/webp",
-          cacheControl: "31536000",
+    const sharp = await getSharp()
+    await withSharpSlot(async () => {
+      for (const width of widths) {
+        const thumbPath = thumbPathFor(path, width)
+        if (!thumbPath) continue
+        const out = await sharp(input, { limitInputPixels: GUEST_PHOTO_MAX_INPUT_PIXELS })
+          .rotate()
+          .resize({ width, withoutEnlargement: true })
+          .webp({ quality: THUMB_QUALITY, effort: 4 })
+          .toBuffer()
+        const { error } = await supabaseAdmin.storage.from(BUCKET).upload(
+          thumbPath,
+          uploadBody(out, "image/webp"),
+          {
+            upsert: false,
+            contentType: "image/webp",
+            cacheControl: "31536000",
+          }
+        )
+        // Concurrent/duplicate uploads are harmless — the derivative already
+        // exists with identical content (timestamped source names).
+        if (error && !/already exists|duplicate/i.test(error.message)) {
+          console.warn(`[storage] thumb ${thumbPath} failed:`, error.message)
         }
-      )
-      // Concurrent/duplicate uploads are harmless — the derivative already
-      // exists with identical content (timestamped source names).
-      if (error && !/already exists|duplicate/i.test(error.message)) {
-        console.warn(`[storage] thumb ${thumbPath} failed:`, error.message)
       }
-    }
+    })
   } catch (err) {
     console.warn("[storage] thumbnail generation failed:", err instanceof Error ? err.message : String(err))
   }

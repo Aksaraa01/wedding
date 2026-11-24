@@ -146,7 +146,7 @@
 .film-roll-root .fr-slide__dots button.is-on{background:#faf7ef;transform:scale(1.15)}
 .film-roll-root .fr-stub__title{padding-top:18px;padding-bottom:16px}
 .film-roll-root .fr-stub__title .fr-name{font-size:24px;line-height:21px}
-.film-roll-root .fr-stub__addr{font-size:13.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
+.film-roll-root .fr-stub__addr{font-size:13.5px;line-height:1.45;max-width:100%}
 .film-roll-root .fr-item--strip .fr-item__c{overflow:hidden;border-radius:28px}
 .film-roll-root .fr-strip{--fr-th:min(46vw,180px);display:flex;flex-direction:column;grid-gap:6px;gap:6px;flex:none}
 .film-roll-root .fr-strip__row{overflow:hidden}
@@ -319,7 +319,11 @@ body:has(.film-roll-root){overflow:hidden;background:#000}
 .film-roll-root .fr-player__box iframe, .film-roll-root .fr-player__box video{display:block;width:100%;height:100%;border:0;-o-object-fit:contain;object-fit:contain;background:#000}
 .film-roll-root .fr-player__x{position:absolute;top:20px;right:20px;width:42px;height:42px;z-index:2}
 @media(max-width:991.98px){
-.film-roll-root .fr-player__box{width:100vw}
+/* The film is a phone picture: a 16:9 cinema box letterboxes a vertical video
+   into a thin strip in the middle of the screen. On a handset the player takes
+   the whole screen (the way YouTube's own full-screen does), so a portrait film
+   fills it edge to edge and a landscape one simply gets the usual bars. */
+.film-roll-root .fr-player__box{width:100vw;height:100dvh;max-height:100dvh;aspect-ratio:auto}
 .film-roll-root .fr-player__x{top:14px;right:14px}
 }
 
@@ -371,6 +375,12 @@ body:has(.film-roll-root){overflow:hidden;background:#000}
 @media(min-width:992px){
 .film-roll-root .fr-item--rundown .fr-in{align-self:center}
 .film-roll-root .fr-dress{max-width:440px}
+/* The venue address is free text from the editor and now wraps onto as many
+   lines as it needs (no line clamp). On a short desktop frame the ticket can
+   outgrow the scene, so let the card itself scroll — the deck's gesture router
+   already hands the wheel/touch to `.fr-scrollable` at its edges. */
+.film-roll-root .fr-item--event .fr-in{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.film-roll-root .fr-item--event .fr-in::-webkit-scrollbar{display:none}
 }
 
 /* Prologue copy (opening prose + kutipan): free text from the editor, never

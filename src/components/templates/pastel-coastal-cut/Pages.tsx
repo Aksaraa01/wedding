@@ -51,6 +51,7 @@ const ATMO: Record<PastelPageKey, AtmoMix> = {
 import { normalizeLanguage } from "@/lib/i18n"
 export default function PastelPages({ profile, onWishOpenChange }: Props) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content ?? {}
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
   const sessions = Array.isArray(profile.sessions) ? profile.sessions : []
@@ -122,11 +123,11 @@ export default function PastelPages({ profile, onWishOpenChange }: Props) {
       case "bride":
         return <PersonPage profile={profile} side="bride" language={profile.language} />
       case "gallery":
-        return <GalleryPage photos={galleryPhotos} />
+        return <GalleryPage photos={galleryPhotos} title={tc.gallery_title} lang={lang} />
       case "story":
-        return <StoryPage stories={stories} />
+        return <StoryPage stories={stories} title={tc.love_story_title} lang={lang} />
       case "events":
-        return <EventPage sessions={sessions as any} lang={lang} />
+        return <EventPage sessions={sessions as any} lang={lang} title={tc.events_title} />
       case "countdown":
         return <CountdownPage profile={profile} sessions={sessions as any} />
       case "combined":

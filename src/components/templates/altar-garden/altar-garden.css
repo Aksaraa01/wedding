@@ -155,6 +155,7 @@
 .altar-garden-root .bouquet { position: relative; z-index: 1; display: block; width: 150px; height: 150px; margin: 0px auto 28px; object-fit: contain; --aos-base-transform: translateZ(0); }
 .altar-garden-root .section-title { margin: 0px; font-size: 38px; line-height: 49px; text-align: center; }
 .altar-garden-root .events-section > .section-title { position: relative; z-index: 1; margin: 0px 0px 16px; }
+.altar-garden-root .events-section > .countdown-title { position: relative; z-index: 1; margin: 0px 40px 10px; font-family: var(--serif); font-size: 19px; font-weight: 500; line-height: 26px; text-align: center; color: var(--brown); }
 .altar-garden-root .countdown { position: relative; z-index: 1; margin: 0px 40px 19px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .altar-garden-root .countdown div { height: 65px; border-radius: 10px; background: var(--paper); color: var(--altar-primary-text); text-align: center; }
 .altar-garden-root .countdown span, .altar-garden-root .countdown strong { display: block; }
@@ -294,7 +295,7 @@
 .altar-garden-root.no-photo .groom-bride-section { min-height: 100svh; }
 .altar-garden-root.no-photo .events-section { height: auto; min-height: 0px; padding: 72px 30px 64px; }
 .altar-garden-root.no-photo .events-section:has(.event-extra) { min-height: 0px; }
-.altar-garden-root.no-photo .countdown, .altar-garden-root.no-photo .events-intro, .altar-garden-root.no-photo .events-section > .bouquet, .altar-garden-root.no-photo .events-section > .section-title { position: static; }
+.altar-garden-root.no-photo .countdown, .altar-garden-root.no-photo .events-intro, .altar-garden-root.no-photo .events-section > .bouquet, .altar-garden-root.no-photo .events-section > .section-title, .altar-garden-root.no-photo .events-section > .countdown-title { position: static; }
 .altar-garden-root.no-photo .bouquet { display: block; margin: 0px auto 24px; --aos-base-transform: translateZ(0); }
 .altar-garden-root.no-photo .events-section > .section-title { margin-bottom: 24px; }
 .altar-garden-root.no-photo .countdown, .altar-garden-root.no-photo .events-intro { margin: 0px 0px 28px; }

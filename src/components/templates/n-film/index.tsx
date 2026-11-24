@@ -19,6 +19,8 @@ import { normalizeLanguage, t } from "@/lib/i18n"
 
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say."
+const DEFAULT_CLOSING_ID =
+  "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat yang Anda tinggalkan berarti lebih dari yang dapat kami ungkapkan."
 
 const DEFAULT_OPENING_TITLE = "Warmest Greetings"
 const DEFAULT_OPENING_DESCRIPTION =
@@ -147,11 +149,11 @@ export default function NFilm(profile: TemplateProps) {
     meta: (tc.hero_meta || "").trim(),
     openingTitle: (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE,
     openingDescription: (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION,
-    galleryIntro: (tc.gallery_intro || "").trim() || "click to preview",
+    galleryIntro: (tc.gallery_intro || "").trim() || (lang === "en" ? "click to preview" : "klik untuk melihat"),
     giftIntroTitle: (tc.gift_intro_title || "").trim() || t("secGift", lang),
     giftIntro: (tc.gift_intro_description || "").trim(),
     wishesIntro: (tc.wishes_intro || "").trim(),
-    closing: (tc.closing_message || "").trim() || DEFAULT_CLOSING,
+    closing: (tc.closing_message || "").trim() || (lang === "en" ? DEFAULT_CLOSING : DEFAULT_CLOSING_ID),
     invitingIntro: (tc.inviting_intro || "").trim(),
   }
 
@@ -479,7 +481,7 @@ export default function NFilm(profile: TemplateProps) {
         {stories.length > 0 && (
           <section className="nf-section" data-section="story" aria-label="Love story">
             <div className="nf-head" data-nf-reveal>
-              <h2 className="nf-title">Episodes</h2>
+              <h2 className="nf-title">{t("secStory", lang)}</h2>
               <p className="nf-eyebrow">Love Story · Season 1</p>
             </div>
             <div className="nf-episodes">
@@ -503,7 +505,7 @@ export default function NFilm(profile: TemplateProps) {
         {events.length > 0 && (
           <section className="nf-section" id="nf-events" data-section="acara" aria-label="Time and place">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">Time &amp; Place</h2>
+              <h2 className="nf-title">{t("secEvent", lang)}</h2>
             </div>
             <div className="nf-events">
               {events.map((event, index) => (
@@ -558,7 +560,7 @@ export default function NFilm(profile: TemplateProps) {
         {rundown.length > 0 && (
           <section className="nf-section" data-section="rundown" aria-label="Run of show">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">Run of Show</h2>
+              <h2 className="nf-title">{tc.rundown_title || t("secRundown", lang)}</h2>
             </div>
             <div className="nf-rundown">
               {rundown.map((item, index) => (
@@ -575,7 +577,7 @@ export default function NFilm(profile: TemplateProps) {
         {gallery.length > 0 && (
           <section className="nf-section" data-section="galeri" aria-label="Our moment">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">Our Moment</h2>
+              <h2 className="nf-title">{tc.gallery_title || t("secGallery", lang)}</h2>
               <p className="nf-eyebrow" style={{ textTransform: "lowercase", letterSpacing: "1.2px" }}>
                 {texts.galleryIntro}
               </p>
@@ -608,7 +610,7 @@ export default function NFilm(profile: TemplateProps) {
         {hasVideo && (
           <section className="nf-section" data-section="video" aria-label="The film">
             <div className="nf-head nf-head--center" data-nf-reveal>
-              <h2 className="nf-title">The Film</h2>
+              <h2 className="nf-title">{lang === "en" ? "The Film" : "Video"}</h2>
             </div>
             <div className="nf-film" data-nf-reveal>
               <button type="button" className="nf-film__plate" onClick={() => setVideoOpen(true)} aria-label="Play the film">
@@ -707,9 +709,7 @@ export default function NFilm(profile: TemplateProps) {
         {/* 15 — wishes. RSVP is the floating dock, never a section. */}
         <section className="nf-section" id="nf-wishes" data-section="wishes" aria-labelledby="nf-wishes-title">
           <div className="nf-head nf-head--center" data-nf-reveal>
-            <h2 className="nf-title" id="nf-wishes-title">
-              Wishes
-            </h2>
+            <h2 className="nf-title" id="nf-wishes-title">{tc.wishes_title || t("secWishes", lang)}</h2>
           </div>
           <Wishes
             weddingProfileId={profile.wedding_profile_id}

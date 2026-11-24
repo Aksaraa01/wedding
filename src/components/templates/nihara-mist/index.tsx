@@ -127,6 +127,7 @@ function youtubeId(url?: string) {
 
 export default function NiharaMist(profile: TemplateProps) {
   const lang = normalizeLanguage(profile.language)
+  const tc = profile.template_content ?? {}
   const gates = profile.feature_gates || {}
   const dresscode = profile.dresscode
   const hasDresscode = profile.dresscode_visible !== false && !!dresscode && (dresscode.colors?.length ?? 0) > 0
@@ -194,6 +195,24 @@ export default function NiharaMist(profile: TemplateProps) {
     ? (profile.inviting_families || []).filter(Boolean)
     : []
   const guestName = profile.guest_name || t("honoredGuest", lang)
+  // Per-couple EKSTRA copy (template_content) with language-aware defaults, so
+  // an empty field renders exactly the shipped invitation.
+  const coverApology = (tc.cover_apology || "").trim() ||
+    (lang === "en" ? "We apologize for any error in the writing of names & titles" : "Kami mohon maaf apabila ada kesalahan penulisan nama dan gelar")
+  const saveDateLabel = (tc.save_date_label || "").trim() || t("saveTheDate", lang)
+  const countdownTitle = (tc.countdown_title || "").trim() || (lang === "en" ? "Counting the Days" : "Menghitung Hari")
+  const storyTitle = (tc.love_story_title || "").trim() || t("secStory", lang)
+  const galleryTitle = (tc.gallery_title || "").trim() || t("secGallery", lang)
+  const galleryIntro = (tc.gallery_intro || "").trim()
+  const dresscodeTitle = (tc.dresscode_title || "").trim() || t("secDresscode", lang)
+  const giftTitle = (tc.gift_intro_title || "").trim() || t("secGift", lang)
+  const giftIntro = (tc.gift_intro_description || "").trim() ||
+    (lang === "en" ? "Your presence is the greatest gift. If you would like to send a token of love, you can find the details below." : "Kehadiran Anda adalah hadiah terindah. Bila ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.")
+  const wishesTitle = (tc.wishes_title || "").trim() || t("secWishes", lang)
+  const wishesIntro = (tc.wishes_intro || "").trim() ||
+    (lang === "en" ? "Share your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua.")
+  const closingMessage = (tc.closing_message || "").trim() ||
+    (lang === "en" ? "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day." : "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari bahagia kami.")
   const dateLong = longDate(profile.estimated_wedding_date)
   const dateShort = shortDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date)
@@ -485,7 +504,7 @@ export default function NiharaMist(profile: TemplateProps) {
           className={`tpl-preload-root${preloadLeaving ? " is-leaving" : ""}`}
           role="status"
           aria-live="polite"
-          aria-label="Memuat undangan"
+          aria-label={lang === "en" ? "Loading invitation" : "Memuat undangan"}
           style={{ "--tpl-preload-font-display": "var(--nihara-font-heading)", "--tpl-preload-accent": "var(--warm)" } as React.CSSProperties}
         >
           <div className="tpl-preload-vignette" aria-hidden="true" />
@@ -534,9 +553,9 @@ export default function NiharaMist(profile: TemplateProps) {
             </header>
             <footer className="cover__bottom">
               <div className="cover__guest reveal" style={{ "--d": "1s" } as React.CSSProperties}>
-                <p className="label cover__greeting">Dear,</p>
+                <p className="label cover__greeting">{lang === "en" ? "Dear," : "Kepada Yth.,"}</p>
                 <p className="cover__guest-name">{guestName}</p>
-                <p className="cover__apology">We apologize for any error in the writing of names &amp; titles</p>
+                <p className="cover__apology">{coverApology}</p>
               </div>
               <button type="button" className="btn-open reveal" style={{ "--d": "1.25s" } as React.CSSProperties} onClick={openInvitation}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
@@ -644,14 +663,14 @@ export default function NiharaMist(profile: TemplateProps) {
                         <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" />
                         <circle cx="12" cy="10" r="2.5" />
                       </svg>
-                      <span>OPEN MAPS</span>
+                      <span>{lang === "en" ? "OPEN MAPS" : "BUKA PETA"}</span>
                     </a>
                   )}
                 </article>
               ))}
               {hasLivestream && (
                 <article className={`event-card event-card--pos${events.length % 3}${isActive("events") && step === events.length ? " is-current" : ""}`}>
-                  <h3 className="event-card__title">Live Streaming</h3>
+                  <h3 className="event-card__title">{t("secLivestream", lang)}</h3>
                   <p className="event-card__venue serif-i">Join us virtually as we exchange our vows, for beloved family and friends who cannot be with us in person.</p>
                   <a className="btn-map" href={livestream.url} target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -672,7 +691,7 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="scene__bg"><div className="scene__zoom">{bgDress && <img src={bgDress} alt="" decoding="async" />}</div></div>
             <div className="scene__veil scene__veil--top" />
             <div className="scene__content dresscode">
-              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>Dress Code</h3>
+              <h3 className="dresscode__title reveal" style={{ "--d": ".45s" } as React.CSSProperties}>{dresscodeTitle}</h3>
               {dressDescription && (
                 <p className="dresscode__desc serif-i reveal" style={{ "--d": ".65s" } as React.CSSProperties}>{dressDescription}</p>
               )}
@@ -698,7 +717,7 @@ export default function NiharaMist(profile: TemplateProps) {
                   ref={finaleIframeRef}
                   id="niharaFinaleVideo"
                   src={"https://www.youtube-nocookie.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId + "&controls=0&modestbranding=1&showinfo=0&cc_load_policy=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1"}
-                  title="Video pernikahan"
+                  title={lang === "en" ? "Wedding video" : "Video pernikahan"}
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                   style={{ position: "absolute", top: "50%", left: "50%", width: "177.78vh", height: "100vh", minWidth: "100%", minHeight: "100%", transform: "translate(-50%, -50%) scale(1.18)", border: 0, pointerEvents: "none", filter: "contrast(1.03) brightness(.86) saturate(.88)" }}
                   referrerPolicy="strict-origin-when-cross-origin"
@@ -710,7 +729,7 @@ export default function NiharaMist(profile: TemplateProps) {
           </div>          <div className="scene__veil scene__veil--deep" />
           <div className="finale__scroll" id="niharaFinaleScroll" ref={finaleScrollRef}>
             <div className="finale__hero">
-              <h2 className="display finale__std reveal">Counting the Days</h2>
+              <h2 className="display finale__std reveal">{countdownTitle}</h2>
               <div className="countdown reveal">
                 <div className="countdown__cell"><b>{countdown?.d ?? "00"}</b><span>Days</span></div>
                 <i />
@@ -726,7 +745,7 @@ export default function NiharaMist(profile: TemplateProps) {
                     <rect x="3" y="4.5" width="18" height="16" rx="2" />
                     <path d="M3 9h18M8 2.5v4M16 2.5v4" />
                   </svg>
-                  <span>SAVE THE DATE</span>
+                  <span>{saveDateLabel.toUpperCase()}</span>
                 </a>
               )}
             </div>
@@ -734,7 +753,7 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="sheet">
               {stories.length > 0 && (
                 <section className="sheet__section sheet__section--story" data-io>
-                  <h3 className="display story__heading">Love Story</h3>
+                  <h3 className="display story__heading">{storyTitle}</h3>
                   <div className="chapters">
                     {stories.map((s, i) => (
                       <article key={i} className={`chapter${i % 2 === 1 ? " chapter--alt" : ""}`}>
@@ -755,19 +774,22 @@ export default function NiharaMist(profile: TemplateProps) {
 
               {gallery.length > 0 && (
                 <section className="sheet__section sheet__section--gallery" data-io>
-                  <h3 className="display gallery__title">{t("secGallery", lang)}</h3>
+                  <h3 className="display gallery__title">{galleryTitle}</h3>
+                  {galleryIntro && (
+                    <p className="gallery__intro serif-i">{galleryIntro}</p>
+                  )}
                   {hasVideo && (
                     <div className="nihara-video">
                       <AutoplayYouTube
                         videoId={videoId}
-                        title="Video pernikahan"
+                        title={lang === "en" ? "Wedding video" : "Video pernikahan"}
                         signal={opened ? 1 : 0}
                       />
                       <button
                         type="button"
                         className="nihara-video__hit"
                         onClick={() => setVideoModal(true)}
-                        aria-label="Buka video pasangan"
+                        aria-label={lang === "en" ? "Open the couple's video" : "Buka video pasangan"}
                       />
                     </div>
                   )}
@@ -786,9 +808,9 @@ export default function NiharaMist(profile: TemplateProps) {
 
               {accounts.length > 0 && (
                 <section className="sheet__section sheet__section--gift" data-io>
-                  <h3 className="display story__heading">A Token of Love</h3>
+                  <h3 className="display story__heading">{giftTitle}</h3>
                   <p className="gift__intro serif-i">
-                    Your presence is the greatest gift. If you would like to send a token of love, you can find the details below.
+                    {giftIntro}
                   </p>
                   {!giftOpen ? (
                     <button type="button" className="btn-open gift__open" onClick={() => setGiftOpen(true)}>
@@ -844,6 +866,8 @@ export default function NiharaMist(profile: TemplateProps) {
                 guestId={profile.guest_id}
                 guestName={profile.guest_name}
                 guestLinkStrict={profile.guest_link_strict} language={profile.language}
+                title={wishesTitle}
+                intro={wishesIntro}
               />
 
               <section className="sheet__section sheet__closing" data-io>
@@ -858,7 +882,7 @@ export default function NiharaMist(profile: TemplateProps) {
                   </p>
                 </div>
                 <p className="serif-i sheet__pray">
-                  It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day.
+                  {closingMessage}
                 </p>
                 {profile.display_name && <p className="hand sheet__tag">{profile.display_name}</p>}
               </section>

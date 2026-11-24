@@ -5,13 +5,25 @@ import ModalShell from "./ModalShell"
 
 const BULLETS = ["text-[#f472b6]", "text-[#38bdf8]", "text-[#ffc640]"]
 
-export default function FamilyModal({ families, onClose }: { families: string[]; onClose: () => void }) {
+export default function FamilyModal({
+  families,
+  templateContent,
+  onClose,
+  language,
+}: {
+  families: string[]
+  templateContent?: Record<string, string>
+  onClose: () => void
+  language?: string
+}) {
+  const lang = language === "en" ? "en" : "id"
+  const tc = templateContent || {}
   if (!families || families.length === 0) return null
   return (
-    <ModalShell icon="videogame_asset" iconColor="pink" eyebrow="FAMILY HONORS" eyebrowColor="cyan" title="TURUT MENGUNDANG" onClose={onClose}>
+    <ModalShell icon="videogame_asset" iconColor="pink" eyebrow="FAMILY HONORS" eyebrowColor="cyan" title={tc.inviting_title || (lang === "en" ? "WITH THE BLESSING OF" : "TURUT MENGUNDANG")} onClose={onClose}>
       <div className="text-center px-2 py-1 bg-[#090e1c]/80 border border-[#38bdf8]/30 rounded-xl">
         <p className="text-[10px] text-[#38bdf8] tracking-widest uppercase" style={{ ...FONT_PIXEL, lineHeight: 1.6 }}>
-          ✦ KELUARGA BESAR TURUT MENGUNDANG ✦
+          {lang === "en" ? "✦ WITH THE BLESSING OF OUR FAMILIES ✦" : "✦ KELUARGA BESAR TURUT MENGUNDANG ✦"}
         </p>
       </div>
       <div className="bg-[#090e1c]/95 rounded-2xl p-5 border-2 border-[#38bdf8] shadow-[0_0_18px_rgba(56,189,248,0.25)] relative overflow-hidden">
@@ -34,7 +46,9 @@ export default function FamilyModal({ families, onClose }: { families: string[];
           <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
         </div>
         <p className="text-[14px] text-[#bdc8d1] italic leading-relaxed">
-          “Ungkapan terima kasih yang tulus dari segenap keluarga besar kedua mempelai atas doa, perhatian, dan kehadiran Anda.”
+          “{tc.closing_message || (lang === "en"
+            ? "A heartfelt thank you from the families of both the bride and groom for your prayers, attention, and presence."
+            : "Ungkapan terima kasih yang tulus dari segenap keluarga besar kedua mempelai atas doa, perhatian, dan kehadiran Anda.")}”
         </p>
       </div>
     </ModalShell>

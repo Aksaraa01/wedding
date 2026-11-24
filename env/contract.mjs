@@ -13,6 +13,9 @@
 export const CONTRACT = {
   prod: {
     ref: "ylmfgorryxzpdckkebnr",
+    // Pooler used by scripts/check-schema.mjs and psql. `aws-0` is the wrong
+    // region for staging (it answers "tenant/user … not found").
+    dbHost: "aws-0-ap-northeast-1.pooler.supabase.com",
     // sha256 of NEXT_PUBLIC_SUPABASE_ANON_KEY. The anon key is public (it ships
     // in the browser bundle); the hash is what makes "the right project was
     // baked" provable, because a hardcoded URL literal in source cannot satisfy
@@ -29,6 +32,7 @@ export const CONTRACT = {
       "NEXT_PUBLIC_SUPABASE_ANON_KEY",
       "NEXT_PUBLIC_COUPLE_APEX_DOMAIN",
       "NEXT_PUBLIC_CS_WIDGET",
+      "NEXT_PUBLIC_LANGUAGE_UI",
     ],
     forbiddenPublic: {
       NEXT_PUBLIC_SITE_URL: "https://wedding-stg.aksaraa.com",
@@ -50,6 +54,7 @@ export const CONTRACT = {
 
   staging: {
     ref: "jclolnjkjhyjilvymagr",
+    dbHost: "aws-1-ap-south-1.pooler.supabase.com",
     anonKeySha256: "fb107ea953f6db46d1fdd1edcc953e8879610bd475c245f5d6b41a2e4264493a",
     buildPublic: {
       NEXT_PUBLIC_SUPABASE_URL: "https://jclolnjkjhyjilvymagr.supabase.co",
@@ -62,6 +67,7 @@ export const CONTRACT = {
       "NEXT_PUBLIC_WP_ORIGIN",
       "NEXT_PUBLIC_COUPLE_APEX_DOMAIN",
       "NEXT_PUBLIC_CS_WIDGET",
+      "NEXT_PUBLIC_LANGUAGE_UI",
     ],
     forbiddenPublic: {},
     runtimeRequired: ["SUPABASE_SERVICE_ROLE_KEY", "WP_INTERNAL_SECRET", "SCANNER_JWT_SECRET"],

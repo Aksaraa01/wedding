@@ -89,6 +89,7 @@ export default function PastelCoastal(props: TemplateProps) {
 
   const showGuestDock = opened && !wishOpen && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
   const coupleName = resolveCoupleName(props)
+  const tc = props.template_content ?? {}
 
   return (
     <Skin display="Cormorant Garamond" body="Montserrat" script="Alex Brush">
@@ -105,7 +106,7 @@ export default function PastelCoastal(props: TemplateProps) {
                   {initials}
                 </span>
                 <span className="text-[11px] uppercase font-medium" style={{ ...FONT_BODY, letterSpacing: "0.3em", color: "#5D4A3E", animation: "pcLoadPulse 1.6s ease-in-out infinite" }}>
-                  Menyiapkan Undangan
+                  {lang === "en" ? "Preparing Invitation" : "Menyiapkan Undangan"}
                 </span>
               </div>
             </div>
@@ -116,6 +117,7 @@ export default function PastelCoastal(props: TemplateProps) {
               bride_name={props.bride_name}
               guest_name={props.guest_name}
               estimated_wedding_date={props.estimated_wedding_date}
+              kicker={tc.cover_kicker}
               onOpen={openInvitation}
             />
           ) : (

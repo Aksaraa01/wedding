@@ -6,6 +6,7 @@ import { FONT_BODY, FONT_PIXEL } from "../../shared/Skin"
 import type { GiftAccountData } from "../../shared/lib"
 import ModalShell from "./ModalShell"
 import { copyPlainText } from "@/lib/clipboard"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const MONO = { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" } as const
 
@@ -36,20 +37,26 @@ export default function GiftModal({
   accounts,
   giftAddress,
   giftAddressName,
+  templateContent,
+  language,
   onClose,
 }: {
   accounts: GiftAccountData[]
   giftAddress?: string
   giftAddressName?: string
+  templateContent?: Record<string, string>
+  language?: string
   onClose: () => void
 }) {
+  const lang = normalizeLanguage(language)
+  const tc = templateContent || {}
   return (
     <ModalShell
       icon="featured_seasonal_and_gifts"
       iconColor="pink"
       eyebrow="GIFT SHOP"
       eyebrowColor="cyan"
-      title="WEDDING GIFT ♥"
+      title={tc.gift_intro_title || t("secGift", lang)}
       onClose={onClose}
     >
       {accounts.map((a, i) => {
@@ -124,7 +131,7 @@ export default function GiftModal({
           THANK YOU
         </div>
         <p className="text-[13px] text-slate-200" style={FONT_BODY}>
-          Terima kasih atas doa restu &amp; tanda kasih Anda untuk petualangan baru kami.
+          {tc.gift_intro_description || (lang === "en" ? "Thank you for your prayers and gifts for our new adventure." : "Terima kasih atas doa restu & tanda kasih Anda untuk petualangan baru kami.")}
         </p>
       </div>
     </ModalShell>

@@ -2,14 +2,17 @@
 
 import { FONT_DISPLAY } from "../../shared/Skin"
 import { toTransformedUrl } from "@/lib/storageUrl"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const HEIGHTS = ["h-52", "h-40", "h-44", "h-48"]
 
-export default function GalleryPage({ photos }: { photos: string[] }) {
+export default function GalleryPage({ photos, content, language }: { photos: string[]; content?: Record<string, string>; language?: string }) {
+  const lang = normalizeLanguage(language)
+  const tc = content || {}
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto px-1 pt-5 pb-16">
       <h1 className="text-center italic text-[30px] leading-tight mt-2 mb-4 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-        Our Moments
+        {tc.gallery_title || t("secGallery", lang)}
       </h1>
       <div className="columns-2 gap-3 space-y-3">
         {photos.map((src, i) => (

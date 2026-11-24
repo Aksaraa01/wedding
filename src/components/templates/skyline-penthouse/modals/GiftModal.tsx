@@ -5,6 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
 import type { GiftAccountData } from "../lib"
 import { copyPlainText } from "@/lib/clipboard"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
@@ -34,19 +35,23 @@ function CopyButton({ value, display }: { value: string; display: string }) {
   )
 }
 
-export default function GiftModal({
+export default function GiftModal({ lang = "id",
   accounts,
   giftAddress,
   giftAddressName,
+  templateContent,
   onClose,
 }: {
+  lang?: "id" | "en"
   accounts: GiftAccountData[]
   giftAddress?: string
   giftAddressName?: string
+  templateContent?: Record<string, string>
   onClose: () => void
 }) {
+  const tc = templateContent || {}
   return (
-    <ModalShell icon="redeem" iconFill eyebrow="DENGAN PENUH SENANG HATI" title="WEDDING GIFT" onClose={onClose}>
+    <ModalShell icon="redeem" iconFill eyebrow={lang === "en" ? "WITH A JOYFUL HEART" : "DENGAN PENUH SENANG HATI"} title={tc.gift_intro_title || t("secGift", lang)} onClose={onClose}>
       {accounts.map((a, i) => {
         const provider = (a.provider_name || "").trim()
         const num = (a.account_number || "").trim()
@@ -116,7 +121,9 @@ export default function GiftModal({
           favorite
         </span>
         <p className="text-[15px] text-[#dee2f6] font-medium italic mt-1.5" style={DISPLAY}>
-          &ldquo;Terima kasih atas doa restu &amp; tanda kasih Anda&rdquo;
+          &ldquo;{tc.gift_intro_description || (lang === "en"
+            ? "Thank you for your prayers, blessings, and tokens of love."
+            : "Terima kasih atas doa restu & tanda kasih Anda")}&rdquo;
         </p>
       </div>
     </ModalShell>

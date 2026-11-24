@@ -4,17 +4,28 @@ import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
+import { normalizeLanguage, t } from "@/lib/i18n"
 
 const frame = (i: number) =>
   i % 2 === 0
     ? "from-cyan-400 via-slate-800 to-pink-500 shadow-[0_0_12px_rgba(6,182,212,0.35)]"
     : "from-pink-500 via-slate-800 to-cyan-400 shadow-[0_0_12px_rgba(236,72,153,0.35)]"
 
-export default function GalleryModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
+export default function GalleryModal({
+  profile,
+  templateContent,
+  onClose,
+}: {
+  profile: TemplateProps
+  templateContent?: Record<string, string>
+  onClose: () => void
+}) {
   const photos: string[] = (Array.isArray(profile.gallery_photos) ? profile.gallery_photos : []).filter(Boolean)
   if (photos.length === 0) return null
+  const lang = normalizeLanguage(profile.language)
+  const tc = templateContent || {}
   return (
-    <ModalShell icon="photo_library" eyebrow="LEVEL SELECT" title="OUR GALLERY" onClose={onClose}>
+    <ModalShell icon="photo_library" eyebrow="LEVEL SELECT" title={tc.gallery_title || t("secGallery", lang)} onClose={onClose}>
       <div className="grid grid-cols-2 gap-3">
         {photos.map((src, i) => (
           <div key={i} className={`relative p-[2px] rounded-lg bg-gradient-to-br ${frame(i)}`}>

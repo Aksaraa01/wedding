@@ -18,12 +18,17 @@ type Props = {
   guestName?: string
   guestLinkStrict?: boolean
   language?: string
+  // Per-couple EKSTRA copy; resolved by the caller with a language-aware default.
+  title?: string
+  intro?: string
 }
 
 const PAGE_SIZE = 10
 
-export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, language = "id" }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, language = "id", title, intro }: Props) {
   const lang = normalizeLanguage(language)
+  const resolvedTitle = (title || "").trim() || t("secWishes", lang)
+  const resolvedIntro = (intro || "").trim() || (lang === "en" ? "Share your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua.")
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
@@ -102,8 +107,8 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
 
   return (
     <section className="sheet__section sheet__section--wishes" data-io>
-      <h3 className="display story__heading">{t("secWishes", lang)}</h3>
-      <p className="wishes__intro serif-i">{lang === "en" ? "Share your best wishes and prayers for us here." : "Berikan harapan dan doa terbaikmu di sini untuk kami berdua."}</p>
+      <h3 className="display story__heading">{resolvedTitle}</h3>
+      <p className="wishes__intro serif-i">{resolvedIntro}</p>
 
       <form
         className="wishes__form"

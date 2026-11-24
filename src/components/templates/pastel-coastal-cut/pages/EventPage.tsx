@@ -51,11 +51,17 @@ function EventBlock({ session, align, lang = "id" }: { session: SessionData; ali
 
 // Renders all invited sessions on one page. With two sessions, keeps the
 // top-left / bottom-right composition; with one or more, alternates sides.
-export default function EventPage({ sessions, lang = "id" }: { sessions: SessionData[]; lang?: "id" | "en" }) {
+export default function EventPage({ sessions, lang = "id", title }: { sessions: SessionData[]; lang?: "id" | "en"; title?: string }) {
   const list = (sessions || []).filter((s) => s && (s.date || s.venue || s.time || s.name || s.address))
+  const resolvedTitle = (title || "").trim()
   return (
     <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col px-6 pt-10 pb-16 pointer-events-auto select-none">
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/10 via-transparent to-black/15" />
+      {resolvedTitle && (
+        <h1 className="relative text-center text-[38px] leading-[1.1] mb-4 drop-shadow-sm whitespace-pre-line" style={{ ...FONT_SCRIPT, color: "#332a24", textShadow: "0 1px 2px rgba(255,255,255,0.4)" }}>
+          {resolvedTitle}
+        </h1>
+      )}
       <div className="relative flex-1 w-full h-full flex flex-col justify-between px-3 pt-6 pb-2 gap-4">
         {list.length > 0 ? (
           list.map((session, i) => (

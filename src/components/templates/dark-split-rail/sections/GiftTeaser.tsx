@@ -4,14 +4,17 @@ import { FONT_BODY, FONT_BTN } from "../fonts"
 import Section, { SectionHeading } from "../Section"
 import { normalizeLanguage, t } from "@/lib/i18n"
 
-export default function GiftTeaser({ onOpen, language = "id" }: { onOpen: () => void; language?: string }) {
+export default function GiftTeaser({ onOpen, language = "id", title, description }: { onOpen: () => void; language?: string; title?: string; description?: string }) {
   const lang = normalizeLanguage(language)
+  const resolvedTitle = (title || "").trim() || t("secGift", lang)
+  const resolvedDescription = (description || "").trim() ||
+    (lang === "en" ? "Your blessing is a precious gift to us. If you wish to send a cashless gift, we have provided the details for you." : "Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberi kado secara cashless, kami menyediakannya untuk Anda.")
   return (
     <Section id="gift" className="bg-black/[0.06]">
       <div className="text-center text-white">
-        <SectionHeading>{t("secGift", lang)}</SectionHeading>
-        <p className="mx-auto mt-5 max-w-[340px] text-[14px] leading-relaxed" style={{ ...FONT_BODY, color: "rgba(255,255,255,0.85)" }}>
-          {lang === "en" ? "Your blessing is a precious gift to us. If you wish to send a cashless gift, we have provided the details for you." : "Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberi kado secara cashless, kami menyediakannya untuk Anda."}
+        <SectionHeading>{resolvedTitle}</SectionHeading>
+        <p className="mx-auto mt-5 max-w-[340px] text-[14px] leading-relaxed whitespace-pre-line" style={{ ...FONT_BODY, color: "rgba(255,255,255,0.85)" }}>
+          {resolvedDescription}
         </p>
         <button
           type="button"

@@ -47,6 +47,20 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   const lang = normalizeLanguage(profile.language)
   useTibraBlur()
 
+  const tc = profile.template_content ?? {}
+  const openingKicker = (tc.opening_kicker || "").trim()
+  const storyTitle = (tc.story_title || "").trim() || (tc.love_story_title || "").trim()
+  const eventsTitle = (tc.events_title || "").trim()
+  const invitingTitle = (tc.inviting_title || "").trim()
+  const saveDateLabel = (tc.save_date_label || "").trim()
+  const galleryTitle = (tc.gallery_title || "").trim()
+  const galleryIntro = (tc.gallery_intro || "").trim()
+  const giftTitle = (tc.gift_intro_title || "").trim()
+  const giftIntro = (tc.gift_intro_description || "").trim()
+  const wishesTitle = (tc.wishes_title || "").trim()
+  const wishesIntro = (tc.wishes_intro || "").trim()
+  const closingMessage = (tc.closing_message || "").trim()
+
   const coupleLabel = resolveCoupleName(profile)
   const initials =
     (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "VF"
@@ -113,6 +127,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   return (
     <div className="w-full bg-black/5 lg:w-[450px] lg:shrink-0">
       <Opening
+        eyebrow={openingKicker || undefined}
         coupleLabel={coupleLabel}
         hashtag={hashtag}
         dateShort={dotShort(profile.estimated_wedding_date)}
@@ -143,32 +158,36 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
         language={lang}
       />
 
-      <Events sessions={sessions} language={lang} />
+      <Events sessions={sessions} language={lang} title={eventsTitle} />
 
-      <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} language={lang} />
+      <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} language={lang} label={saveDateLabel} />
 
-      {giftOn && <GiftTeaser onOpen={onOpenGift} language={lang} />}
+      {giftOn && <GiftTeaser onOpen={onOpenGift} language={lang} title={giftTitle} description={giftIntro} />}
 
-      {storyOn && <Story stories={stories} coupleLabel={coupleLabel} language={lang} />}
+      {storyOn && <Story stories={stories} coupleLabel={coupleLabel} language={lang} title={storyTitle} />}
 
       {(videoOn || gallery.length > 0) && (
         <Portrait
           videoEmbed={videoOn ? videoEmbed : undefined}
           photos={gallery}
           language={lang}
+          title={galleryTitle}
+          intro={galleryIntro}
         />
       )}
 
-      {invitingOn && <Inviting families={inviting} language={lang} />}
+      {invitingOn && <Inviting families={inviting} language={lang} title={invitingTitle} />}
 
       <Wishes
         weddingProfileId={profile.wedding_profile_id}
         guestId={profile.guest_id}
         guestName={profile.guest_name}
         guestLinkStrict={profile.guest_link_strict} language={profile.language}
+        title={wishesTitle}
+        intro={wishesIntro}
       />
 
-      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} language={lang} />
+      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} language={lang} message={closingMessage} />
     </div>
   )
 }

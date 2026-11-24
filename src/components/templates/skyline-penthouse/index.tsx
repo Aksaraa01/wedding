@@ -88,30 +88,37 @@ export default function SkylinePenthouse(props: TemplateProps) {
               guest_name={props.guest_name}
               couple_initials={props.couple_initials}
               onOpen={openInvitation}
+              templateContent={props.template_content}
             />
           ) : (
             <Room profile={props} musicPlaying={playing} onToggleMusic={toggleMusic} onOpenModal={setModal} modalActive={modal !== null} wishOpen={wishOpen} onWishOpenChange={setWishOpen} />
           )}
 
-          {opened && modal === "gallery" && <GalleryModal profile={props} onClose={closeModal} />}
-          {opened && modal === "story" && <StoryModal profile={props} onClose={closeModal} />}
-          {opened && modal === "events" && <EventsModal profile={props} onClose={closeModal} />}
+          {opened && modal === "gallery" && <GalleryModal profile={props} templateContent={props.template_content} onClose={closeModal} />}
+          {opened && modal === "story" && <StoryModal profile={props} templateContent={props.template_content} onClose={closeModal} />}
+          {opened && modal === "events" && <EventsModal profile={props} templateContent={props.template_content} onClose={closeModal} />}
           {opened && modal === "couple" && <CoupleModal profile={props} onClose={closeModal} />}
           {opened && modal === "gift" && (
             <GiftModal
+              lang={lang}
               accounts={Array.isArray(props.gift_accounts) ? props.gift_accounts : []}
               giftAddress={props.gift_address}
               giftAddressName={props.gift_address_name}
+              templateContent={props.template_content}
               onClose={closeModal}
             />
           )}
           {opened && modal === "family" && (
             <FamilyModal
               families={Array.isArray(props.inviting_families) ? props.inviting_families : []}
+              templateContent={props.template_content}
+              language={props.language}
               onClose={closeModal}
             />
           )}
-          {opened && modal === "video" && <VideoModal data={videoData} onClose={closeModal} language={props.language} />}
+          {opened && modal === "video" && (
+            <VideoModal data={videoData} onClose={closeModal} language={props.language} templateContent={props.template_content} />
+          )}
         </div>
 
         {showGuestDock && (

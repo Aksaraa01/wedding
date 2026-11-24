@@ -93,6 +93,7 @@ export default function PastelDreamCathedral(props: TemplateProps) {
   // guests, and hides while the wishes feed is open.
   const showGuestDock = opened && !wishOpen && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
   const coupleName = resolveCoupleName(props)
+  const tc = props.template_content ?? {}
 
   return (
     <Skin display="Cormorant Garamond" body="Montserrat" script="Alex Brush">
@@ -109,7 +110,7 @@ export default function PastelDreamCathedral(props: TemplateProps) {
                   {initials}
                 </span>
                 <span className="text-[11px] uppercase font-medium" style={{ ...FONT_BODY, letterSpacing: "0.3em", color: "#E5DEC9", animation: "imLoadPulse 1.6s ease-in-out infinite" }}>
-                  Menyiapkan Undangan
+                  {lang === "en" ? "Preparing Invitation" : "Menyiapkan Undangan"}
                 </span>
               </div>
             </div>
@@ -120,6 +121,7 @@ export default function PastelDreamCathedral(props: TemplateProps) {
               bride_name={props.bride_name}
               guest_name={props.guest_name}
               estimated_wedding_date={props.estimated_wedding_date}
+              kicker={tc.cover_kicker}
               onOpen={openInvitation}
             />
           ) : (

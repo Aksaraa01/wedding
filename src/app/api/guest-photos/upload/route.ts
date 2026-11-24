@@ -85,8 +85,15 @@ async function handleGalleryUpload(
     return NextResponse.json({ error: "Kategori wajib dipilih" }, { status: 400 })
   }
 
-  const rl = checkRateLimit(`gallery-upload:${ip}:${galleryToken}`, 20, 60 * 60 * 1000)
-  if (!rl.ok) return rateLimited(rl.retryAfterMs || 60 * 60 * 1000)
+  // Venue reality: dozens of guests share one public Wi-Fi IP. The old
+  // per-IP+token bucket (20/h) turned guest #21 into a 429 even though every
+  // device was legitimate. Scope the tight bucket to the device (the same
+  // identity the per-guest quota uses) and keep a much looser per-IP ceiling
+  // as an abuse backstop.
+  const deviceRl = checkRateLimit(`gallery-upload:device:${deviceId}`, 12, 60 * 60 * 1000)
+  if (!deviceRl.ok) return rateLimited(deviceRl.retryAfterMs || 60 * 60 * 1000)
+  const ipRl = checkRateLimit(`gallery-upload:ip:${ip}`, 1000, 60 * 60 * 1000)
+  if (!ipRl.ok) return rateLimited(ipRl.retryAfterMs || 60 * 60 * 1000)
 
   const event = await getGalleryEventByToken(galleryToken)
   if (!event) {

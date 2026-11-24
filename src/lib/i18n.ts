@@ -26,6 +26,7 @@ export const LANGUAGE_OPTIONS: { value: Language; label: string }[] = [
   { value: "en", label: "English" },
 ]
 
+
 // ---------------------------------------------------------------------------
 // Shared chrome dictionary. Keys are stable identifiers; values are the
 // guest-facing strings in each language. Use t(key, lang).
@@ -42,6 +43,8 @@ export const I18N = {
   // Section headings (locked, artful-but-clear — see plan §7)
   secOpening: { id: "Sepatah Kata", en: "A Few Words" },
   secCouple: { id: "Kedua Mempelai", en: "The Couple" },
+  groomLabel: { id: "Mempelai Pria", en: "The Groom" },
+  brideLabel: { id: "Mempelai Wanita", en: "The Bride" },
   secQuote: { id: "Untaian Doa", en: "A Verse of Prayer" },
   secQuoteReligious: { id: "Ayat Suci", en: "A Sacred Verse" },
   secInviting: { id: "Turut Mengundang", en: "With the Blessing of" },
@@ -55,8 +58,8 @@ export const I18N = {
   minutes: { id: "Menit", en: "Minutes" },
   seconds: { id: "Detik", en: "Seconds" },
   secRundown: { id: "Susunan Acara", en: "Order of Events" },
-  secGallery: { id: "Momen Kami", en: "Our Moments" },
-  secVideo: { id: "Film Kami", en: "Our Film" },
+  secGallery: { id: "Galeri", en: "Gallery" },
+  secVideo: { id: "Video", en: "Video" },
   secDresscode: { id: "Tema Busana", en: "Dress Code" },
   secLivestream: { id: "Siaran Langsung", en: "Live Stream" },
   secGift: { id: "Tanda Kasih", en: "Wedding Gift" },
@@ -71,7 +74,7 @@ export const I18N = {
   openEnvelope: { id: "Buka Amplop", en: "Open Envelope" },
   copy: { id: "Salin", en: "Copy" },
   copied: { id: "Tersalin", en: "Copied" },
-  copiedToClipboard: { id: "Disalin ke clipboard", en: "Copied to clipboard" },
+  copiedToClipboard: { id: "Berhasil disalin", en: "Copied to clipboard" },
   failedToCopy: { id: "Gagal menyalin", en: "Failed to copy" },
   sendWishes: { id: "Kirim Ucapan", en: "Send Wishes" },
   writeWish: { id: "Tulis Ucapan", en: "Write a Wish" },
@@ -123,7 +126,7 @@ export const I18N = {
   nextPage: { id: "Halaman berikutnya", en: "Next page" },
   playMusic: { id: "Putar musik", en: "Play music" },
   pauseMusic: { id: "Jeda musik", en: "Pause music" },
-  photoViewer: { id: "Penampil foto", en: "Photo viewer" },
+  photoViewer: { id: "Lihat foto", en: "Photo viewer" },
   closeViewer: { id: "Tutup", en: "Close" },
   previousPhoto: { id: "Foto sebelumnya", en: "Previous photo" },
   nextPhoto: { id: "Foto berikutnya", en: "Next photo" },
@@ -150,7 +153,7 @@ export const I18N = {
   viewPhoto: { id: "Lihat foto {n}", en: "View photo {n}" },
   dearGuest: { id: "Tamu Terhormat", en: "Dear Guest" },
   weddingEventFallback: { id: "Acara Pernikahan", en: "Wedding Event" },
-  weddingInvitationByAksaraa: { id: "Undangan Pernikahan by Aksaraa", en: "Wedding Invitation by Aksaraa" },
+  weddingInvitationByAksaraa: { id: "Undangan Pernikahan oleh Aksaraa", en: "Wedding Invitation by Aksaraa" },
   digitalWeddingInvitation: { id: "Undangan Pernikahan Digital", en: "Digital Wedding Invitation" },
   watchLivestream: { id: "Tonton Siaran Langsung", en: "Watch Livestream" },
   rundownTitle: { id: "Susunan Acara", en: "Order of Events" },
