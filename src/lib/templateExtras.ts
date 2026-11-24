@@ -1993,6 +1993,11 @@ const EXTRA_SECTION_LABEL_ID: Record<string, string> = {
 }
 
 const EXTRA_LABEL_EN: Record<string, string> = {
+  countdown_title: "Countdown Title",
+  countdown_days: "Days Label",
+  countdown_hours: "Hours Label",
+  countdown_minutes: "Minutes Label",
+  countdown_seconds: "Seconds Label",
   agenda_kicker: "Order of Events Kicker",
   calendar_button: "Calendar Button Text",
   closing_family: "Closing Family Name",
@@ -2002,10 +2007,6 @@ const EXTRA_LABEL_EN: Record<string, string> = {
   copy_account_button: "Copy Account Button",
   copy_address_button: "Copy Address Button",
   copy_label: "Copy Button Text",
-  countdown_days: "Countdown Days Label",
-  countdown_hours: "Countdown Hours Label",
-  countdown_minutes: "Countdown Minutes Label",
-  countdown_seconds: "Countdown Seconds Label",
   cover_apology: "Cover Apology Note",
   cover_guest_label: "Cover Guest Label",
   doa_arabic: "Prayer (Arabic text)",
@@ -2221,42 +2222,42 @@ function translateExtraLabelToEn(label: string): string {
 }
 
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
-  // Hint precedence: an explicit per-template placeholder on the field, then the
-  // template's own fallback copy (generated from its source), then the shared
-  // legacy placeholder. A template default that only exists in the other
-  // language hides the hint instead of showing copy the guest will not see.
+  // Hint precedence: the copy the template actually prints (generated from its
+  // source), then a hand-written per-template placeholder, then the shared
+  // legacy placeholder. A default that only exists in the other language must
+  // not leak into this one — better no hint than copy the guest will not see.
   const generated = EXTRA_DEFAULTS[code]?.[field.key]
   const example = EXTRA_EXAMPLE_HINTS[code]?.[field.key]
-  // The example fills a language the template default does not have.
-  const templateHint = (lang === "en" ? generated?.en : generated?.id) ?? example?.[lang]
-  const hasTemplateDefault = !!(generated || example)
   const override = lang === "en" ? field.placeholdersEn?.[code] : field.placeholders?.[code]
   // An empty string is "no hint", not an override.
   const explicit = override && override.trim() ? override : undefined
+  const hasTemplateDefault = !!(generated || example)
   const legacyPlaceholder = hasTemplateDefault ? undefined : field.placeholder
   const base = {
     ...field,
     section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
     order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
-    placeholder: explicit ?? templateHint ?? legacyPlaceholder,
   }
   if (lang !== "en") {
-    if (explicit || templateHint) return base
-    if (base.placeholder && EXTRA_PLACEHOLDER_ID[base.placeholder]) {
-      return { ...base, placeholder: EXTRA_PLACEHOLDER_ID[base.placeholder] }
-    }
-    if (base.placeholder && EN_PLACEHOLDER_RE.test(base.placeholder) && !ID_PLACEHOLDER_RE.test(base.placeholder)) {
+    const hint = generated?.id ?? example?.id ?? explicit ?? legacyPlaceholder
+    const mapped = hint && EXTRA_PLACEHOLDER_ID[hint] ? EXTRA_PLACEHOLDER_ID[hint] : hint
+    // No Indonesian default for this key (template ships a COPY object the
+    // generator cannot read): hide an English-only hint rather than show the
+    // couple copy the invitation will not print in their language.
+    const hasIdDefault = !!(generated?.id || example?.id)
+    if (mapped && !hasIdDefault && EN_PLACEHOLDER_RE.test(mapped) && !ID_PLACEHOLDER_RE.test(mapped)) {
       return { ...base, placeholder: undefined }
     }
-    return base
+    return { ...base, placeholder: mapped }
   }
   const enPlaceholder =
     explicit ??
-    templateHint ??
+    generated?.en ??
+    example?.en ??
     field.placeholderEn ??
-    (base.placeholder
-      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(base.placeholder) ??
-        (EXTRA_PLACEHOLDER_ID[base.placeholder] ? base.placeholder : undefined)
+    (legacyPlaceholder
+      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(legacyPlaceholder) ??
+        (EXTRA_PLACEHOLDER_ID[legacyPlaceholder] ? legacyPlaceholder : undefined)
       : undefined)
   const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
   return {
