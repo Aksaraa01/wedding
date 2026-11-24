@@ -264,3 +264,7 @@ animation:none
 .sandhya-ivory-root .wishes__submit:hover:not(:disabled){color:var(--warm-fg,#fff)}
 .sandhya-ivory-root .deskcover__names .label{color:var(--ink-dim);text-shadow:0 1px 14px rgba(255,253,248,.9)}
 .sandhya-ivory-root .deskcover__names h2{color:var(--ink);text-shadow:0 2px 26px rgba(255,253,248,.92),0 0 8px rgba(255,253,248,.7)}
+/* Keep Sandhya's finale background video visible through the entire scroll.
+   The ivory sheet is a readable scrim, not an opaque page. */
+.sandhya-ivory-root .sheet{background:linear-gradient(180deg,rgba(247,243,234,.9) 0,rgba(247,243,234,.78) 22%,rgba(247,243,234,.64) 100%)}
+.sandhya-ivory-root .sheet__closing{background:rgba(241,237,227,.72)}

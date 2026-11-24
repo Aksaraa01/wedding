@@ -12,7 +12,8 @@ existing dark Sandhya design remains unchanged for current couples.
 - Botanical sage accent: `#7C8D6D`
 - Cormorant + Allura display/script, Inter body
 - Full-bleed couple photography with layered ivory veils
-- Opaque ivory sheet below the countdown
+- Translucent ivory scrim below the countdown, so Sandhya's YouTube background
+  remains visible and playing through story, gallery, gift, wishes, and closing
 - Dark lightbox and video modal for media focus
 
 The two transparent baby's-breath illustrations are copied from Sandhya into
