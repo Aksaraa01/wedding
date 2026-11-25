@@ -25,3 +25,15 @@ export function resolveCoupleName(p: CoupleNameInput): string {
   if (g && b) return `${g} & ${b}`
   return g || b
 }
+
+// Nickname-first label for the one-line couple slots of a template (cover,
+// opening, closing). The per-person sections keep the full name, so a couple
+// whose `*_full_name` is filled does not get a long name repeated in every
+// heading. Falls back to resolveCoupleName() when only full names exist.
+export function resolveCoupleShortName(p: CoupleNameInput): string {
+  const g = clean(p.groom_name)
+  const b = clean(p.bride_name)
+  if (g && b) return `${g} & ${b}`
+  if (g || b) return g || b
+  return resolveCoupleName(p)
+}

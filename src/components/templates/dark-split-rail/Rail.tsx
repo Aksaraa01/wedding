@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react"
 import type { TemplateProps } from "@/types/template"
 import { normalizeLanguage, t } from "@/lib/i18n"
-import { resolveCoupleName } from "@/lib/coupleName"
+import { resolveCoupleShortName } from "@/lib/coupleName"
 import {
   countdownTarget,
   flattenPhotos,
@@ -61,7 +61,9 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   const wishesIntro = (tc.wishes_intro || "").trim()
   const closingMessage = (tc.closing_message || "").trim()
 
-  const coupleLabel = resolveCoupleName(profile)
+  // Section headings read the nicknames; each Person section still prints the
+  // full name under the short one.
+  const coupleLabel = resolveCoupleShortName(profile)
   const initials =
     (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "VF"
   const hashtag = (profile.display_name || "").trim()
