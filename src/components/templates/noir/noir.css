@@ -603,14 +603,24 @@
   padding-top: 1px;
 }
 
-/* one story slide at a time (the theme forces display:flex for slick) */
-.noir-root .story-chitra__slider-for__item:not(.is-active) {
-  display: none !important;
-}
-
+/* story: a horizontal swipe track (the theme expects slick's transform) */
 .noir-root .story-chitra__slider-for {
   display: flex;
-  justify-content: center;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.noir-root .story-chitra__slider-for::-webkit-scrollbar {
+  display: none;
+}
+
+.noir-root .story-chitra__slider-for__item {
+  flex: 0 0 100%;
+  margin: 0;
+  scroll-snap-align: center;
 }
 
 /* rundown connector: a dashed rule between the dots, as in the reference */
@@ -676,4 +686,54 @@
   position: absolute;
   right: 0;
   z-index: 2;
+}
+
+.noir-root .gallery__single-slider .slider-container,
+.noir-root .story-chitra__slider-for {
+  cursor: grab;
+  touch-action: pan-x;
+}
+
+.noir-root .gallery__single-slider .slider-container:active,
+.noir-root .story-chitra__slider-for:active {
+  cursor: grabbing;
+}
+
+/* Thank You blends into the page, like the reference's greet_thanks block */
+.noir-root .notes-container {
+  background-color: transparent;
+}
+
+/* event card: the reference's big day numeral and its rhythm */
+.noir-root .activity-head .event-date {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.noir-root .activity-head .event-date span {
+  line-height: 0.9;
+}
+
+.noir-root .activity-head .activity-title {
+  margin-bottom: 6px;
+}
+
+.noir-root .activity-head .activity-time {
+  margin-bottom: 10px;
+}
+
+.noir-root .activity-details {
+  padding-top: 10px;
+}
+
+.noir-root .activity-details .activity-hall {
+  margin-bottom: 10px;
+}
+
+.noir-root .activity-details .activity-address {
+  margin-bottom: 12px;
+}
+
+.noir-root .activity-link-wrap {
+  margin-top: 18px;
 }

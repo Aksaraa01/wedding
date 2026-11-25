@@ -1,6 +1,14 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react"
 import type { TemplateProps } from "@/types/template"
 import { copyPlainText } from "@/lib/clipboard"
 import { resolveCoupleName } from "@/lib/coupleName"
@@ -111,6 +119,9 @@ export default function Noir(profile: TemplateProps) {
   const paneRef = useRef<HTMLElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const galleryRef = useRef<HTMLDivElement | null>(null)
+  const storyRef = useRef<HTMLDivElement | null>(null)
+  // Mouse drag: touch already scrolls natively, a desktop guest expects to drag.
+  const dragRef = useRef({ active: false, startX: 0, startLeft: 0, moved: false })
   const toastTimer = useRef<number | null>(null)
 
   const [opened, setOpened] = useState(false)
@@ -321,7 +332,9 @@ export default function Noir(profile: TemplateProps) {
       for (const el of els) el.classList.add("aos-animate")
       return
     }
-    const observe = els.filter((el) => !el.classList.contains("aos-animate") && !el.closest(".top-cover"))
+    const observe = els.filter(
+      (el) => !el.classList.contains("aos-animate") && !el.closest(".top-cover") && !el.closest(".cover")
+    )
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -355,6 +368,30 @@ export default function Noir(profile: TemplateProps) {
     return () => window.clearTimeout(id)
   }, [opened])
 
+  // The cover is the first screen after the gate. Its photo zooms out over 2 s and
+  // the countdown items stagger in — replayed on every open, like the reference.
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const cover = root.querySelector(".cover")
+    if (!cover) return
+    const els = Array.from(cover.querySelectorAll<HTMLElement>("[data-aos]"))
+    for (const el of els) {
+      const dur = el.dataset.aosDuration
+      const delay = el.dataset.aosDelay
+      if (dur) el.style.transitionDuration = `${dur}ms`
+      if (delay) el.style.transitionDelay = `${delay}ms`
+    }
+    if (!opened) {
+      for (const el of els) el.classList.remove("aos-animate")
+      return
+    }
+    const id = window.setTimeout(() => {
+      for (const el of els) el.classList.add("aos-animate")
+    }, 260)
+    return () => window.clearTimeout(id)
+  }, [opened])
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (lightbox !== null) {
@@ -377,6 +414,37 @@ export default function Noir(profile: TemplateProps) {
     lightbox === null &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
+
+  const dragHandlers = (ref: React.RefObject<HTMLDivElement | null>) => ({
+    onPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (event.pointerType !== "mouse") return
+      const el = ref.current
+      if (!el) return
+      dragRef.current = { active: true, startX: event.clientX, startLeft: el.scrollLeft, moved: false }
+    },
+    onPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current
+      const el = ref.current
+      if (!drag.active || !el) return
+      const dx = event.clientX - drag.startX
+      if (Math.abs(dx) > 6) {
+        drag.moved = true
+        el.scrollLeft = drag.startLeft - dx
+      }
+    },
+    onPointerUp: () => {
+      dragRef.current.active = false
+    },
+    onPointerLeave: () => {
+      dragRef.current.active = false
+    },
+  })
+
+  const scrollStory = (dir: number) => {
+    const el = storyRef.current
+    if (!el) return
+    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" })
+  }
 
   const scrollGallery = (dir: number) => {
     const el = galleryRef.current
@@ -511,9 +579,20 @@ export default function Noir(profile: TemplateProps) {
                   {guestLabel}
                 </p>
                 <div className="link-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="850">
-                  <button type="button" className="link" onClick={openInvitation}>
+                  <a
+                    className="link"
+                    role="button"
+                    tabIndex={0}
+                    onClick={openInvitation}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        openInvitation()
+                      }
+                    }}
+                  >
                     {openLabel}
-                  </button>
+                  </a>
                 </div>
               </div>
               <div className="highlight">
@@ -577,34 +656,10 @@ export default function Noir(profile: TemplateProps) {
 
           {/* 2 — Opening video: the design opens on a still cover (REA_NOIR §3). */}
 
-          {/* 3 — Welcome (the reference's couple-head block) */}
-          <section className="couple-wrap welcome-wrap">
-            <div className="couple">
-              <div className="couple-head">
-                <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">
-                  {welcomeTitle}
-                </h1>
-                <p className="couple-description" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-                  {welcomeNote}
-                </p>
-                {coverDate ? (
-                  <p className="date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="350">
-                    {coverDate}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          </section>
-
-          {/* 4 — Kalimat pembuka + the reference's quote card */}
-          {openingTitle || openingDescription || quoteText ? (
+          {/* 3 — Kalimat pembuka + the reference's quote card (first block after cover) */}
+          {openingDescription || quoteText ? (
             <section className="quote-wrap">
               <div className="quote">
-                {openingTitle ? (
-                  <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">
-                    {openingTitle}
-                  </h1>
-                ) : null}
                 {openingDescription ? (
                   <p className="quote-caption" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
                     {openingDescription}
@@ -625,6 +680,25 @@ export default function Noir(profile: TemplateProps) {
               </div>
             </section>
           ) : null}
+
+          {/* 4 — Welcome (the reference's couple-head block) */}
+          <section className="couple-wrap welcome-wrap">
+            <div className="couple">
+              <div className="couple-head">
+                <h1 className="couple-title" data-aos="zoom-in" data-aos-duration="1000">
+                  {welcomeTitle}
+                </h1>
+                <p className="couple-description" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                  {welcomeNote}
+                </p>
+                {coverDate ? (
+                  <p className="date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="350">
+                    {coverDate}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </section>
 
           {/* 5 — Mempelai */}
           <section className="couple-wrap">
@@ -685,7 +759,8 @@ export default function Noir(profile: TemplateProps) {
                                     </>
                                   ) : (
                                     <>
-                                      {p.weekday}, {p.day} {p.month} {p.year}
+                                      {p.weekday},{" "}
+                                      <span>{p.day}</span> {p.month} {p.year}
                                     </>
                                   )}
                                 </p>
@@ -729,6 +804,33 @@ export default function Noir(profile: TemplateProps) {
 
           {/* 7 — Countdown lives on the cover foot, exactly like the reference. */}
 
+          {/* 6 — Rundown (right after the events, like the reference) */}
+          {rundown.length > 0 ? (
+            <section className="rundown-container">
+              <div className="rundown-inner">
+                <h3 className="rundown-title">{rundownTitle}</h3>
+                <div className="rundown-event-list">
+                  <div className="rundown-event">
+                    <div className="rundown-agenda-list">
+                      {rundown.map((row, index) => (
+                        <div className="rundown-agenda" key={`${row.time || "row"}-${index}`}>
+                          <p className="rundown-agenda-time">{row.time}</p>
+                          <div className="rundown-divider">
+                            <div className="rundown-line" />
+                            <div className="rundown-circle" />
+                          </div>
+                          <div className="rundown-agenda-content">
+                            <p className="rundown-agenda-text">{row.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          ) : null}
+
           {/* 8 — Love story */}
           {stories.length > 0 ? (
             <section className="love-story-wrap">
@@ -738,10 +840,19 @@ export default function Noir(profile: TemplateProps) {
                 </div>
                 <div className="love-story-body">
                   <div className="story-chitra__slider-wrap">
-                    <div className="story-chitra__slider-for">
+                    <div
+                      className="story-chitra__slider-for"
+                      ref={storyRef}
+                      onScroll={(event) => {
+                        const el = event.currentTarget
+                        if (!el.clientWidth) return
+                        setStoryIndex(Math.min(stories.length - 1, Math.round(el.scrollLeft / el.clientWidth)))
+                      }}
+                      {...dragHandlers(storyRef)}
+                    >
                       {stories.map((story, index) => (
                         <div
-                          className={`story-chitra__slider-for__item${index === storyIndex ? " is-active" : ""}`}
+                          className="story-chitra__slider-for__item"
                           key={`${story.title || "story"}-${index}`}
                           style={
                             {
@@ -776,7 +887,7 @@ export default function Noir(profile: TemplateProps) {
                         <button
                           type="button"
                           className="story-chitra__arrow-btn prev"
-                          onClick={() => setStoryIndex((i) => (i - 1 + stories.length) % stories.length)}
+                          onClick={() => scrollStory(-1)}
                           aria-label={t("previousPhoto", lang)}
                         >
                           <svg viewBox="0 0 12 22" aria-hidden>
@@ -788,14 +899,17 @@ export default function Noir(profile: TemplateProps) {
                             type="button"
                             key={`${story.title || "bar"}-${index}`}
                             className={`story-chitra__slider-nav__item__manual${index === storyIndex ? " is-active" : ""}`}
-                            onClick={() => setStoryIndex(index)}
+                            onClick={() => {
+                              const el = storyRef.current
+                              if (el) el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" })
+                            }}
                             aria-label={t("storyPart", lang).replace("{n}", pad2(index + 1))}
                           />
                         ))}
                         <button
                           type="button"
                           className="story-chitra__arrow-btn next"
-                          onClick={() => setStoryIndex((i) => (i + 1) % stories.length)}
+                          onClick={() => scrollStory(1)}
                           aria-label={t("nextPhoto", lang)}
                         >
                           <svg viewBox="0 0 12 22" aria-hidden>
@@ -804,33 +918,6 @@ export default function Noir(profile: TemplateProps) {
                         </button>
                       </div>
                     ) : null}
-                  </div>
-                </div>
-              </div>
-            </section>
-          ) : null}
-
-          {/* 9 — Rundown */}
-          {rundown.length > 0 ? (
-            <section className="rundown-container">
-              <div className="rundown-inner">
-                <h3 className="rundown-title">{rundownTitle}</h3>
-                <div className="rundown-event-list">
-                  <div className="rundown-event">
-                    <div className="rundown-agenda-list">
-                      {rundown.map((row, index) => (
-                        <div className="rundown-agenda" key={`${row.time || "row"}-${index}`}>
-                          <p className="rundown-agenda-time">{row.time}</p>
-                          <div className="rundown-divider">
-                            <div className="rundown-line" />
-                            <div className="rundown-circle" />
-                          </div>
-                          <div className="rundown-agenda-content">
-                            <p className="rundown-agenda-text">{row.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -852,6 +939,7 @@ export default function Noir(profile: TemplateProps) {
                     <div
                       className="slider-container"
                       ref={galleryRef}
+                      {...dragHandlers(galleryRef)}
                       onScroll={(event) => {
                         const el = event.currentTarget
                         if (!el.clientWidth) return
@@ -864,7 +952,13 @@ export default function Noir(profile: TemplateProps) {
                             <button
                               type="button"
                               className="anchor"
-                              onClick={() => setLightbox(index)}
+                              onClick={() => {
+                                if (dragRef.current.moved) {
+                                  dragRef.current.moved = false
+                                  return
+                                }
+                                setLightbox(index)
+                              }}
                               aria-label={t("photoGallery", lang)}
                             >
                               <img src={src} alt="" className="img" loading="lazy" />
