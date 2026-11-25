@@ -2289,8 +2289,8 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "id": "Perjalanan Cinta"
     },
     "rundown_title": {
-      "en": "Order of Events",
-      "id": "Susunan Acara"
+      "en": "Rundown",
+      "id": "Rundown"
     },
     "gallery_title": {
       "en": "Gallery",
