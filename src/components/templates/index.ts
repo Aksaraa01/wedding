@@ -181,6 +181,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
       },
+      extras: true,
     },
   },
   {
@@ -214,6 +215,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
       },
+      extras: true,
     },
   },
   {
@@ -247,6 +249,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
       },
+      extras: true,
     },
   },
   {
@@ -280,6 +283,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
       },
+      extras: true,
     },
   },
   {
@@ -313,6 +317,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
       },
+      extras: true,
     },
   },
   {
@@ -346,6 +351,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
       },
+      extras: true,
     },
   },
   {
@@ -380,6 +386,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
       },
+      extras: true,
     },
   },
   {
@@ -416,6 +423,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         dresscode: true,
         livestream: true,
       },
+      extras: true,
     },
   },
   {
