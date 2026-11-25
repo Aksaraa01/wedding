@@ -58,6 +58,7 @@ export const I18N = {
   minutes: { id: "Menit", en: "Minutes" },
   seconds: { id: "Detik", en: "Seconds" },
   secRundown: { id: "Susunan Acara", en: "Order of Events" },
+  rundownHeading: { id: "Rundown", en: "Rundown" },
   secGallery: { id: "Galeri", en: "Gallery" },
   secVideo: { id: "Video", en: "Video" },
   secDresscode: { id: "Tema Busana", en: "Dress Code" },

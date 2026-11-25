@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
-import { timeAgo } from "../shared/lib"
 import { wishNameState } from "../shared/wishName"
 import { normalizeLanguage } from "@/lib/i18n"
 
@@ -31,6 +30,19 @@ type Props = {
   nameFallback: string
   copy: Copy
   language?: "id" | "en"
+}
+
+const MONTHS_SHORT_ID = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+const MONTHS_SHORT_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+// The reference prints an absolute stamp under each name: "10 Feb 2024, 18:00".
+function wishDate(iso: string, lang: "id" | "en"): string {
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return ""
+  const months = lang === "en" ? MONTHS_SHORT_EN : MONTHS_SHORT_ID
+  const hh = String(date.getHours()).padStart(2, "0")
+  const mm = String(date.getMinutes()).padStart(2, "0")
+  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}, ${hh}:${mm}`
 }
 
 const MAX_CHARS = 500
@@ -204,23 +216,27 @@ export default function Wishes({
         ) : null}
       </div>
 
-      <div className="comment-wrap">
-        {!loaded ? <p className="wish-empty">{copy.loading}</p> : null}
-        {loaded && wishes.length === 0 ? <p className="wish-empty">{copy.empty}</p> : null}
+      <div className="comment-wrap show">
+        {!loaded ? <p className="comment-empty">{copy.loading}</p> : null}
+        {loaded && wishes.length === 0 ? <p className="comment-empty">{copy.empty}</p> : null}
         {shown.map((wish) => (
-          <article className="wish-item" key={wish.id}>
-            <header className="wish-head">
-              <p className="wish-name">{wish.name || nameFallback}</p>
-              <p className="wish-time">{timeAgo(wish.created_at, lang)}</p>
-            </header>
-            <p className="wish-text">{wish.message}</p>
-          </article>
+          <div className="comment-item" key={wish.id}>
+            <div className="comment-head">
+              <div className="ch-name-wrap">
+                <h3 className="comment-name">{wish.name || nameFallback}</h3>
+              </div>
+              <small className="comment-date">{wishDate(wish.created_at, lang)}</small>
+            </div>
+            <div className="comment-body">
+              <p className="comment-caption">{wish.message}</p>
+            </div>
+          </div>
         ))}
       </div>
 
       {wishes.length > visible ? (
-        <div className="more-comment-wrap">
-          <button type="button" onClick={() => setVisible((v) => v + PAGE)}>
+        <div className="more-comment-wrap show">
+          <button type="button" id="moreComment" onClick={() => setVisible((v) => v + PAGE)}>
             {copy.more}
           </button>
         </div>

@@ -10,6 +10,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react"
 import type { TemplateProps } from "@/types/template"
+import { ASSETS } from "@/lib/assets"
 import { copyPlainText } from "@/lib/clipboard"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { normalizeLanguage, t } from "@/lib/i18n"
@@ -200,7 +201,7 @@ export default function Noir(profile: TemplateProps) {
   const countdownTitle = tc.countdown_title || t("countdown", lang)
   const calendarLabel = tc.calendar_button || t("saveToCalendar", lang)
   const storyTitle = tc.love_story_title || t("secStory", lang)
-  const rundownTitle = tc.rundown_title || t("secRundown", lang)
+  const rundownTitle = tc.rundown_title || t("rundownHeading", lang)
   const galleryTitle = tc.gallery_title || t("secGallery", lang)
   const galleryIntro = tc.gallery_intro || ""
   const videoTitle = tc.video_title || t("secVideo", lang)
@@ -502,7 +503,15 @@ export default function Noir(profile: TemplateProps) {
                   target="_blank"
                   rel="noreferrer noopener"
                   className="couple-link"
+                  aria-label={`Instagram ${instagram.replace(/^@/, "")}`}
                 >
+                  <i className="noir-instagram" aria-hidden>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <rect x="3" y="3" width="18" height="18" rx="5" />
+                      <circle cx="12" cy="12" r="4" />
+                      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+                    </svg>
+                  </i>{" "}
                   {instagram}
                 </a>
               </div>
@@ -1087,7 +1096,7 @@ export default function Noir(profile: TemplateProps) {
                     {accounts.length > 0 && (giftTab === "account" || !giftAddress) ? (
                       <div className="wedding-gift-bank-wrap">
                         {accounts.map((account, index) => (
-                          <div className="bank-item" key={`${account.account_number || "acc"}-${index}`}>
+                          <div className="bank-item show" key={`${account.account_number || "acc"}-${index}`}>
                             <div className="bank-detail">
                               <div>
                                 {account.provider_name ? (
@@ -1117,7 +1126,7 @@ export default function Noir(profile: TemplateProps) {
 
                     {giftAddress && (giftTab === "address" || accounts.length === 0) ? (
                       <div className="wedding-gift-bank-wrap">
-                        <div className="bank-item">
+                        <div className="bank-item show">
                           <div className="bank-detail">
                             <div>
                               <span className="bank-account-number-label">{addressTitle}</span>
@@ -1259,6 +1268,20 @@ export default function Noir(profile: TemplateProps) {
               <div className="footer" data-aos="zoom-out" data-aos-duration="1200" data-aos-delay="500">
                 <div className="footer-inner flex-column">
                   <p>{closingBrand}</p>
+                  <a
+                    className="footer-brand"
+                    href="https://aksaraa.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Aksaraa Wedding"
+                  >
+                    <img
+                      className="footer-logo"
+                      src={ASSETS.galeriEnvelope.aksaraaLogo}
+                      alt="Aksaraa Wedding"
+                      loading="lazy"
+                    />
+                  </a>
                 </div>
               </div>
             </div>

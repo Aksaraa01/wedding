@@ -243,40 +243,17 @@
 }
 
 /* ── wish list (the reference fills .comment-wrap from its API) ──────────── */
-.noir-root .comment-wrap .wish-item {
-  border-bottom: 1px solid rgba(230, 216, 213, 0.14);
-  padding: 18px 24px;
-}
-
-.noir-root .comment-wrap .wish-head {
-  align-items: baseline;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-}
-
-.noir-root .comment-wrap .wish-name {
-  color: var(--text-primary);
-  font-family: var(--heading-family);
-  font-size: calc(var(--body-text-size) + var(--fs-extra-1));
-}
-
-.noir-root .comment-wrap .wish-time {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.noir-root .comment-wrap .wish-text {
+.noir-root .comment-wrap .comment-empty {
   color: var(--text-secondary);
-  font-size: 13px;
-  margin-top: 6px;
-}
-
-.noir-root .comment-wrap .wish-empty {
-  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
   font-style: italic;
-  padding: 18px 24px;
+  padding: 8px 0;
+}
+
+.noir-root .comment-wrap .comment-caption {
+  white-space: pre-line;
+  word-break: break-word;
 }
 
 .noir-root .wedding-wish-feedback {
@@ -511,96 +488,116 @@
   white-space: pre-line;
 }
 
-.noir-root .more-comment-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 10px 24px 40px;
-}
-
 /* The reference's .hero is a fixed photo layer behind the scroll pane. Put it
    under every section without turning the gate's fixed positioning into flow. */
 .noir-root .hero {
   z-index: -1;
 }
 
-/* ── rundown timeline (the reference's .rundown-* rules ship in a section
-   stylesheet that is not part of the theme bundle; rebuilt from the rendered
-   reference) ─────────────────────────────────────────────────────────────── */
+/* ── rundown timeline — the reference's own rules, from its section
+   stylesheet (not part of the theme bundle) ───────────────────────────────── */
 
 .noir-root .rundown-container {
-  padding: 44px 24px 56px;
-  text-align: center;
-}
-
-.noir-root .rundown-title {
-  font-family: var(--heading-family);
-  font-size: calc(var(--heading-size) - var(--fs-extra-2));
-  font-weight: var(--heading-weight);
-  color: var(--text-primary);
-  line-height: normal;
-  margin: 0;
-}
-
-.noir-root .rundown-event-title {
-  color: var(--text-secondary);
-  font-family: var(--body-text-family);
-  font-size: 13px;
-  font-weight: 400;
-  margin: 4px 0 20px;
-}
-
-.noir-root .rundown-agenda-list {
-  margin: 0 auto;
-  max-width: 420px;
-  text-align: left;
-}
-
-.noir-root .rundown-agenda {
-  display: grid;
-  grid-template-columns: 88px 22px 1fr;
-  padding: 5px 0;
-}
-
-.noir-root .rundown-agenda-time {
-  color: var(--text-secondary);
-  font-family: var(--body-text-family);
-  font-size: 14px;
-  padding-top: 1px;
-  text-align: right;
-}
-
-.noir-root .rundown-divider {
-  display: flex;
-  height: 100%;
-  justify-content: center;
+  overflow: hidden;
   position: relative;
 }
 
-.noir-root .rundown-line {
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 0);
-  background-position: 0 8px;
-  background-repeat: repeat-y;
-  background-size: 1px 7px;
-  width: 1px;
+.noir-root .rundown-container .rundown-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 40px 24px;
+  position: relative;
 }
 
-.noir-root .rundown-circle {
-  background: var(--light-clr);
+.noir-root .rundown-inner .rundown-title {
+  text-align: center;
+}
+
+.noir-root .rundown-inner .rundown-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.noir-root .rundown-event-list .rundown-event {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noir-root .rundown-event .rundown-event-title {
+  font-size: calc(var(--heading-size) / 1.6);
+}
+
+.noir-root .rundown-event .rundown-agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 100%;
+  min-width: 100%;
+  width: 100%;
+}
+
+.noir-root .rundown-agenda-list .rundown-agenda {
+  display: flex;
+  gap: 16px;
+  min-height: 45px;
+  min-width: 100%;
+}
+
+.noir-root .rundown-agenda .rundown-agenda-time {
+  align-self: center;
+  max-width: 80px;
+  width: 100%;
+}
+
+.noir-root .rundown-agenda .rundown-divider {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.noir-root .rundown-agenda .rundown-divider .rundown-line {
+  border-left: 2px dashed var(--text-primary);
+  flex: 1 1 0%;
+  position: relative;
+}
+
+.noir-root .rundown-agenda .rundown-divider .rundown-circle {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--text-primary);
   border-radius: 50%;
-  height: 7px;
+  height: 12px;
   left: 50%;
   position: absolute;
-  top: 6px;
-  transform: translateX(-50%);
-  width: 7px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
 }
 
-.noir-root .rundown-agenda-text {
-  color: var(--text-secondary);
-  font-family: var(--body-text-family);
-  font-size: 14px;
-  padding-left: 12px;
-  padding-top: 1px;
+.noir-root .rundown-agenda .rundown-agenda-content {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.noir-root .rundown-agenda-content .rundown-agenda-text {
+  text-wrap: wrap;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .noir-root .rundown-container .rundown-inner {
+    gap: 16px;
+  }
 }
 
 /* story: a horizontal swipe track (the theme expects slick's transform) */
@@ -621,11 +618,6 @@
   flex: 0 0 100%;
   margin: 0;
   scroll-snap-align: center;
-}
-
-/* rundown connector: a dashed rule between the dots, as in the reference */
-.noir-root .rundown-line {
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.55) 0 3px, rgba(255, 255, 255, 0) 3px 7px);
 }
 
 /* ── AOS, the reference's separate plugin stylesheet (aos.css) ───────────── */
@@ -736,4 +728,50 @@
 
 .noir-root .activity-link-wrap {
   margin-top: 18px;
+}
+
+/* couple link: the reference prints an Instagram mark before the handle */
+.noir-root .couple-link > i.noir-instagram {
+  display: inline-block;
+  font-style: normal;
+  margin-right: 2px;
+  vertical-align: -2px;
+}
+
+.noir-root .couple-link > i.noir-instagram svg {
+  display: block;
+  height: 14px;
+  width: 14px;
+}
+
+/* closing: the Aksaraa seal under the brand line, like the other templates */
+.noir-root .footnote .footer .footer-inner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noir-root .footnote .footer .footer-brand {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  display: inline-flex;
+  height: 56px;
+  justify-content: center;
+  padding: 6px;
+  transition: transform 0.3s ease;
+  width: 56px;
+}
+
+.noir-root .footnote .footer .footer-brand:hover {
+  transform: scale(1.05);
+}
+
+.noir-root .footnote .footer .footer-logo {
+  border-radius: 999px;
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
 }

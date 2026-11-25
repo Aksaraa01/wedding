@@ -3208,7 +3208,7 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "countdown_seconds", label: "Label Detik", labelEn: "Seconds Label", section: "acara", order: 14, templates: ["noir"], placeholders: { noir: "Detik" }, placeholdersEn: { noir: "Seconds" } },
   { key: "calendar_button", label: "Teks Tombol Kalender", labelEn: "Calendar Button", section: "acara", order: 15, templates: ["noir"], placeholders: { noir: "Simpan ke Kalender" }, placeholdersEn: { noir: "Add to Calendar" } },
   { key: "love_story_title", label: "Judul Cerita Cinta", labelEn: "Story Heading", section: "cerita", order: 10, templates: ["noir"], placeholders: { noir: "Perjalanan Cinta" }, placeholdersEn: { noir: "Our Story" } },
-  { key: "rundown_title", label: "Judul Rundown", labelEn: "Rundown Heading", section: "rundown", order: 10, templates: ["noir"], placeholders: { noir: "Susunan Acara" }, placeholdersEn: { noir: "Order of Events" } },
+  { key: "rundown_title", label: "Judul Rundown", labelEn: "Rundown Heading", section: "rundown", order: 10, templates: ["noir"], placeholders: { noir: "Rundown" }, placeholdersEn: { noir: "Rundown" } },
   { key: "gallery_title", label: "Judul Galeri", labelEn: "Gallery Heading", section: "galeri", order: 10, templates: ["noir"], placeholders: { noir: "Momen Kami" }, placeholdersEn: { noir: "Moments" } },
   { key: "gallery_intro", label: "Pengantar Galeri", labelEn: "Gallery Intro", section: "galeri", order: 20, multiline: true, rows: 2, templates: ["noir"], placeholders: { noir: "" }, placeholdersEn: { noir: "" } },
   { key: "video_title", label: "Judul Video", labelEn: "Video Heading", section: "video", order: 10, templates: ["noir"], placeholders: { noir: "Film Kami" }, placeholdersEn: { noir: "Our Film" } },

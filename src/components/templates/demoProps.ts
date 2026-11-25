@@ -3875,7 +3875,7 @@ DEMO_PROPS_BY_CODE.noir = {
     calendar_button: "Add to Calendar",
     maps_label: "View Maps",
     love_story_title: "Our Story",
-    rundown_title: "Order of Events",
+    rundown_title: "Rundown",
     gallery_title: "Moments",
     gallery_intro: "",
     video_title: "Our Film",

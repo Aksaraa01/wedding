@@ -1944,9 +1944,14 @@
         "Close": "WCAG name for the lightbox close control",
         "Previous": "WCAG name for the lightbox previous control",
         "Next": "WCAG name for the lightbox next control",
-            "Play music": "WCAG name for the music toggle",
+        "Play music": "WCAG name for the music toggle",
         "Pause music": "WCAG name for the music toggle",
         "Hai": "guest salutation used by the reference on the gate"
+      }
+    },
+    "noir": {
+      "allow": {
+        "Aksaraa Wedding": "alt text + WCAG name for the vendor logo in the closing footer"
       }
     }
   }
