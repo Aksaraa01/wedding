@@ -88,7 +88,7 @@ with a lightbox that ignores the click that ends a drag.
 
 | Deviation | Reason |
 |---|---|
-| **Markup is the reference's** | `kat-page__side-to-side` shell, `top-cover` gate, `.cover` head/photo/foot, `.quote`, `.couple-info` + cream details card, `.agenda-wrap`, `.rundown-*` timeline, `.story-chitra__*`, `.gallery__single-slider`, `.video-gallery`, `.wedding-gift-*`, `.wedding-wish-*`, `.footnote`. Only the countdown is moved out of the cover (SOP #7 orders it after Event) and it reuses the cover's own `.cover-countdown` block. |
+| **Markup is the reference's** | `kat-page__side-to-side` shell, `top-cover` gate, `.cover` head/photo/foot, `.quote`, `.couple-info` + cream details card, `.agenda-wrap`, `.rundown-*` timeline, `.story-chitra__*`, `.gallery__single-slider`, `.video-gallery`, `.wedding-gift-*`, `.wedding-wish-*`, `.footnote`. The countdown stays in the cover's own `.cover-countdown` block (the reference position) and the rundown heading uses the reference's word, "Rundown", not the shared section label. |
 | **No opening video** | The design opens on a still cover, not a film. Section 2 is conditional ("only when the design opens with a film"); the couple's `video_url` still renders in section 11 under `feature_gates.video` + `video_section_visible`. |
 | **No inline RSVP** | Playbook rule: RSVP/QR is the floating dock, never a section. |
 | **Instagram filter dropped** | Outside the 16-section contract and no `wedding_profiles` column feeds it. Reported here instead of shipping a dead block. |
@@ -109,14 +109,14 @@ with a lightbox that ignores the click that ends a drag.
 | 6 | Event | `sessions[]` | always (publish blocked without it) | 1 event ⇒ one card; N ⇒ stacked cards; no `maps_url` ⇒ button absent | `tc.agenda_title`, `tc.events_intro`, `tc.maps_label` | `fade-up` 900 ms, 90 ms step |
 | 7 | Countdown | `estimated_wedding_date` (falls back to first session date) | always when a date exists | past date ⇒ zeros; 3-digit days fit | `tc.countdown_*`, `tc.calendar_button` | 1 s tick, no entrance animation |
 | 8 | Love story | `stories[]` | `feature_gates.story !== false` **and** `story_visible !== false` | 0 ⇒ section absent; 1 ⇒ slide without nav; a milestone without `image_url` becomes a typographic slide with its ordinal; photo per `story_photo` | `tc.love_story_title`, `t("storyPart")` | cross-fade 900 ms + bars |
-| 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ absent; 1 ⇒ single row | `tc.rundown_title` | none (list must stay scannable) |
+| 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ absent; 1 ⇒ single row | `tc.rundown_title` (default `t("rundownHeading")` = "Rundown") | none (list must stay scannable) |
 | 10 | Gallery | `gallery_photos[]` | `no_photo === false` + data | 1 photo ⇒ track without arrows; N ⇒ snap track + lightbox (keyboard + arrows) | `tc.gallery_title`, `tc.gallery_intro` | hover scale 0.9 s |
 | 11 | Video | `video_url` | `feature_gates.video !== false` **and** `video_section_visible !== false` | YouTube ⇒ poster + click-to-mount; file ⇒ `<video>`; no poster ⇒ black frame | `tc.video_title`, `tc.video_caption` | poster fades on hover; player mounts on click |
-| 12 | Wedding gift | `gift_accounts[]`, `gift_address_name`, `gift_address` | `gift_section_visible !== false`; address also needs `feature_gates.gift_address !== false` | accounts only ⇒ no tabs; address only ⇒ no tabs; both ⇒ tabs; none ⇒ absent | `tc.gift_*`, `tc.copy_*` | none |
+| 12 | Wedding gift | `gift_accounts[]`, `gift_address_name`, `gift_address` | `gift_section_visible !== false`; address also needs `feature_gates.gift_address !== false` | accounts only ⇒ no tabs; address only ⇒ no tabs; both ⇒ tabs; none ⇒ absent. Cards carry the reference's `.bank-item.show` markup + copy pill | `tc.gift_*`, `tc.copy_*` | none |
 | 13 | Dress code | `dresscode{title, description, colors[]}` | `dresscode_visible !== false` | colours only ⇒ swatches; text only ⇒ paragraph; neither ⇒ absent | `tc.dresscode_title`, `tc.dresscode_intro` | none |
-| 14 | Wishes | `/api/wishes` + form | always | 0 approved ⇒ empty state; >10 ⇒ "load more"; preview ⇒ demo feed | `tc.wishes_*` | none |
+| 14 | Wishes | `/api/wishes` + form | always | 0 approved ⇒ empty state; >10 ⇒ "load more"; preview ⇒ demo feed. Feed uses the reference's `.comment-item/.comment-head/.comment-caption` card and `.comment-wrap.show` | `tc.wishes_*` | none |
 | 15 | Turut mengundang | `inviting_families[]` | `feature_gates.inviting_families !== false` **and** `inviting_families_visible !== false` | 0 ⇒ absent; N ⇒ wrapped list with hairlines | `tc.inviting_title`, `tc.inviting_intro` | none |
-| 16 | Closing | `closing_message`, names, second cover slot | always | no closing message ⇒ `t("withLoveAndGratitude")`; no second cover slot ⇒ text-only closing | `tc.closing_title`, `tc.closing_message`, `tc.closing_brand` | none |
+| 16 | Closing | `closing_message`, names, second cover slot | always | no closing message ⇒ `t("withLoveAndGratitude")`; no second cover slot ⇒ text-only closing | `tc.closing_title`, `tc.closing_message`, `tc.closing_brand`; the Aksaraa mark closes the block (allowlisted vendor label) | none |
 
 Chrome: music toggle (`track_url` only), `InvitationOverlay` dock
 (`anchor="bottom"`), toast for copied account/address.
@@ -153,8 +153,11 @@ agreed staging couple `fikri-dinda` (real data: 2 events, 3 text-only stories,
   desktop), `scrollWidth === innerWidth` at 390×844 and 1440×900
 - gate opens and starts the track; gallery lightbox opens, pages and closes;
   story bars switch slides; video poster mounts the YouTube player; gift tabs
-  switch between accounts and address; "Salin Alamat" raises the toast; the
-  RSVP dock sits bottom-right; wish form + empty state render
+  switch between accounts and address with visible bank cards + copy pills;
+  "Salin Alamat" raises the toast; the RSVP dock sits bottom-right; wish form
+  and the reference's comment cards render (an empty feed shows the empty
+  line, never a blank block); the Instagram mark sits on both couple cards;
+  the Aksaraa seal closes the footnote
 - desktop keeps the fixed 61 % photo pane with the 39 % column exactly as the
   reference does, including the cover photograph continuing behind the scroll
   pane (`.hero`, painted under the sections)
@@ -178,7 +181,7 @@ agreed staging couple `fikri-dinda` (real data: 2 events, 3 text-only stories,
 ## 8. Checks
 
 ```bash
-npm run audit:copy -- noir        # 0 findings, no ledger entry
+npm run audit:copy -- noir        # 0 findings, one allowlisted vendor-logo label
 npx node --experimental-strip-types scripts/template-extras-check.mjs noir
 node scripts/check-material-icons.mjs
 npx tsc --noEmit
