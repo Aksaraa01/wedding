@@ -59,27 +59,28 @@ gallery_photo → gallery_video → event → rundown → rsvp → live_streamin
 love_story → filter_instagram → wedding_gift → wedding_wish → greet_thanks →
 footnote`. The minimum-section contract reorders it; the shipped order is:
 
-1. Cover
+1. Cover — with the countdown + "add to calendar" in its `.foot` (reference position)
 2. ~~Opening video~~ — **omitted by design** (see §3)
-3. Welcome
-4. Kalimat pembuka (+ the reference's quote card)
+3. Kalimat pembuka — the reference's quote block, first after the cover (no heading)
+4. Welcome — the reference's `.couple-head` band
 5. Mempelai
 6. Event
-7. Countdown
+7. Rundown — directly after the events, like the reference
 8. Love story
-9. Rundown
-10. Gallery
-11. Video
-12. Wedding gift
-13. Dress code
-14. Wishes
-15. Turut mengundang
-16. Closing
+9. Gallery
+10. Video
+11. Wedding gift
+12. Dress code
+13. Wishes
+14. Turut mengundang
+15. Closing (greet_thanks + footnote, no background of its own)
 
-Deliberate moves vs the reference: the countdown leaves the cover and becomes
-its own poster block after Event (contract #7); love story moves above Rundown
-(contract #8); Turut mengundang lands after Wishes (brief); the inline RSVP
-form is replaced by the shared `InvitationOverlay` dock (playbook §6).
+Deliberate moves vs the reference: the countdown stays on the cover foot (as
+in the reference) and the quote is the first block after it; Rundown follows
+the events; Turut mengundang lands after Wishes (brief); the inline RSVP form
+is replaced by the shared `InvitationOverlay` dock (playbook §6). Both sliders
+(love story, gallery) are swipe/drag tracks — the reference's slick behaviour —
+with a lightbox that ignores the click that ends a drag.
 
 ---
 
