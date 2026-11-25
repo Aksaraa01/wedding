@@ -12,9 +12,10 @@ type Props = {
   language?: string
   title?: string
   intro?: string
+  countLabel?: string
 }
 
-export default function Portrait({ videoEmbed, photos, language, title, intro }: Props) {
+export default function Portrait({ videoEmbed, photos, language, title, intro, countLabel }: Props) {
   const lang = normalizeLanguage(language)
   const gallery = photos.filter(Boolean)
   if (!videoEmbed && gallery.length === 0) return null
@@ -54,7 +55,7 @@ export default function Portrait({ videoEmbed, photos, language, title, intro }:
         )}
 
         <p className="mt-4 text-[12px] text-white/60" style={FONT_BODY}>
-          {gallery.length} {lang === "en" ? "Memories" : "Kenangan"}
+          {gallery.length} {(countLabel || "").trim() || (lang === "en" ? "Memories" : "Kenangan")}
         </p>
       </div>
     </Section>

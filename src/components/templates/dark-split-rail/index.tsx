@@ -151,6 +151,8 @@ export default function DarkSplitRail(profile: TemplateProps) {
             guestName={profile.guest_name}
             dateShort={coverDate}
             kicker={tc.cover_kicker}
+            guestLabel={tc.cover_guest_label}
+            openLabel={tc.open_button}
             objectPosition={profile.template_demo ? "58% 50%" : "50% 50%"}
             onOpen={openInvitation}
             language={profile.language}
@@ -187,6 +189,11 @@ export default function DarkSplitRail(profile: TemplateProps) {
             accounts={accounts}
             giftAddress={profile.gift_address}
             giftAddressName={profile.gift_address_name}
+            intro={tc.gift_transfer_note}
+            thanks={tc.gift_popup_thanks}
+            addressTitle={tc.gift_address_title}
+            copyAccountLabel={tc.copy_account_button}
+            copyAddressLabel={tc.copy_address_button}
             onClose={() => setGiftOpen(false)}
             language={profile.language}
           />

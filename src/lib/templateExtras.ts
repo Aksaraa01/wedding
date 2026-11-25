@@ -3293,6 +3293,32 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "closing_brand", label: "Baris Merek di Penutup", labelEn: "Closing Brand Line", section: "closing", order: 30, templates: ["noir"], placeholders: { noir: "Undangan Pernikahan Digital" }, placeholdersEn: { noir: "Aksaraa — Digital Wedding Invitation" } },
 )
 
+// Dark Split Rail — copy the split-rail sections print when a slot is empty.
+// Registered here (not in the shared table) so labels and hints match exactly
+// what this template renders in both languages; `audit:extras` ties every key
+// below to a `tc.<key>` read in the component.
+TEMPLATE_EXTRA_FIELDS.push(
+  { key: "cover_guest_label", label: "Sapaan Tamu", labelEn: "Guest Greeting", section: "sampul", order: 11, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Kepada Yth." }, placeholdersEn: { "dark-split-rail": "Dear," } },
+  { key: "open_button", label: "Teks Tombol Buka", labelEn: "Open Button", section: "sampul", order: 12, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Buka Undangan" }, placeholdersEn: { "dark-split-rail": "Open Invitation" } },
+  { key: "groom_label", label: "Label Mempelai Pria", labelEn: "Groom Label", section: "mempelai", order: 5, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Mempelai Pria" }, placeholdersEn: { "dark-split-rail": "The Groom" } },
+  { key: "bride_label", label: "Label Mempelai Wanita", labelEn: "Bride Label", section: "mempelai", order: 6, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Mempelai Wanita" }, placeholdersEn: { "dark-split-rail": "The Bride" } },
+  { key: "gift_button", label: "Teks Tombol Hadiah", labelEn: "Gift Button", section: "gift", order: 25, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Klik Disini" }, placeholdersEn: { "dark-split-rail": "Click Here" } },
+  { key: "gift_transfer_note", label: "Kalimat di Atas Rekening", labelEn: "Gift Popup Intro", section: "gift", order: 30, multiline: true, rows: 2, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Tanpa mengurangi rasa hormat, bagi Anda yang ingin memberikan tanda kasih untuk kami, dapat melalui:" }, placeholdersEn: { "dark-split-rail": "If you wish to send a gift, you may do so through:" } },
+  { key: "gift_address_title", label: "Judul Kirim Hadiah", labelEn: "Gift Address Heading", section: "gift", order: 40, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Kirim Hadiah" }, placeholdersEn: { "dark-split-rail": "Send Gift" } },
+  { key: "copy_account_button", label: "Teks Tombol Salin Rekening", labelEn: "Copy Account Button", section: "gift", order: 50, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Salin Rekening" }, placeholdersEn: { "dark-split-rail": "Copy Account" } },
+  { key: "copy_address_button", label: "Teks Tombol Salin Alamat", labelEn: "Copy Address Button", section: "gift", order: 60, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Salin Alamat" }, placeholdersEn: { "dark-split-rail": "Copy Address" } },
+  { key: "gift_popup_thanks", label: "Ucapan Terima Kasih Popup Hadiah", labelEn: "Gift Popup Thanks", section: "gift", order: 70, multiline: true, rows: 2, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Terima kasih atas doa restu & tanda kasih Anda." }, placeholdersEn: { "dark-split-rail": "Thank you for your prayers and gifts." } },
+  { key: "wishes_name_label", label: "Label Nama Pengirim", labelEn: "Name Label", section: "wishes", order: 30, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Nama" }, placeholdersEn: { "dark-split-rail": "Name" } },
+  { key: "wishes_name_placeholder", label: "Placeholder Nama", labelEn: "Name Placeholder", section: "wishes", order: 40, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Nama Anda" }, placeholdersEn: { "dark-split-rail": "Your name" } },
+  { key: "wishes_message_label", label: "Label Pesan", labelEn: "Message Label", section: "wishes", order: 50, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Ucapan & Doa" }, placeholdersEn: { "dark-split-rail": "Wishes & Prayers" } },
+  { key: "wishes_message_placeholder", label: "Placeholder Pesan", labelEn: "Message Placeholder", section: "wishes", order: 60, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Tulis Ucapan" }, placeholdersEn: { "dark-split-rail": "Write a Wish" } },
+  { key: "wishes_submit", label: "Teks Tombol Kirim", labelEn: "Submit Button", section: "wishes", order: 70, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Kirim Ucapan" }, placeholdersEn: { "dark-split-rail": "Send Wishes" } },
+  { key: "wishes_empty", label: "Teks Ucapan Kosong", labelEn: "Empty Wishes", section: "wishes", order: 80, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Belum ada doa & ucapan. Jadilah yang pertama!" }, placeholdersEn: { "dark-split-rail": "No wishes yet. Be the first!" } },
+  { key: "wishes_loading", label: "Teks Memuat", labelEn: "Loading", section: "wishes", order: 100, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Memuat doa & ucapan…" }, placeholdersEn: { "dark-split-rail": "Loading wishes & prayers…" } },
+  { key: "gallery_count_label", label: "Label Hitungan Foto Galeri", labelEn: "Gallery Count Label", section: "galeri", order: 30, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Kenangan" }, placeholdersEn: { "dark-split-rail": "Memories" } },
+  { key: "closing_title", label: "Judul Penutup", labelEn: "Closing Heading", section: "closing", order: 10, templates: ["dark-split-rail"], placeholders: { "dark-split-rail": "Terima Kasih" }, placeholdersEn: { "dark-split-rail": "Thank You" } },
+)
+
 // Headings that individual ports render but the shared table never declared.
 TEMPLATE_EXTRA_FIELDS.push(
   { key: "couple_order", label: "Urutan Mempelai", labelEn: "Couple Order", section: "mempelai", order: 8, templates: ["noir"] },
