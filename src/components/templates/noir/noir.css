@@ -479,6 +479,27 @@
   margin-top: 14px;
 }
 
+/* the copy pill: the reference styles it inside the old bank select block */
+.noir-root .wedding-gift-bank-wrap .copy-num {
+  background-color: var(--button-background-secondary);
+  border: 1px solid var(--button-background-primary);
+  border-radius: 100px;
+  color: var(--button-text-secondary);
+  cursor: pointer;
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  font-weight: 500;
+  line-height: 1.5;
+  outline: none;
+  padding: 8px 16px;
+  transition: all 0.25s ease-in-out;
+}
+
+.noir-root .wedding-gift-bank-wrap .copy-num:hover {
+  background-color: var(--button-background-primary);
+  color: var(--button-text-primary);
+}
+
 .noir-root .gift-address-text {
   color: var(--text-secondary);
   font-family: var(--body-text-family);
@@ -754,14 +775,15 @@
 
 .noir-root .footnote .footer .footer-brand {
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
   border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   display: inline-flex;
-  height: 56px;
+  height: 64px;
   justify-content: center;
-  padding: 6px;
+  padding: 5px;
   transition: transform 0.3s ease;
-  width: 56px;
+  width: 64px;
 }
 
 .noir-root .footnote .footer .footer-brand:hover {
