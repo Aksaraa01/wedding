@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
-import { resolveCoupleName } from "@/lib/coupleName"
+import { resolveCoupleName, resolveCoupleShortName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { coverPhoto, flattenPhotos, initialsOf, normalizeVideoUrl, photoList } from "../shared/lib"
 import { TIBRA_CSS } from "./Atmosphere"
@@ -94,9 +94,9 @@ export default function DarkSplitRail(profile: TemplateProps) {
 
   const coupleLabel = resolveCoupleName(profile)
   const tc = profile.template_content ?? {}
-  const shortCoupleLabel =
-    [profile.groom_name, profile.bride_name].map((n) => (n || "").trim()).filter(Boolean).join(" & ") ||
-    coupleLabel
+  // Splash, cover and the desktop media panel show the couple as one line, so
+  // they use the nicknames; the full names stay in the per-person sections.
+  const shortCoupleLabel = resolveCoupleShortName(profile)
   const initials =
     (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "VF"
   const iso = (profile.estimated_wedding_date || "").slice(0, 10)
@@ -139,7 +139,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
       <style>{TIBRA_CSS}</style>
       <div className="dsr-root relative w-full bg-black">
         {phase === "splash" && (
-          <Splash progress={progress} leaving={leaving} initials={initials} coupleLabel={coupleLabel} />
+          <Splash progress={progress} leaving={leaving} initials={initials} coupleLabel={shortCoupleLabel} />
         )}
 
         {/* Mounted under the splash so the "Buka Undangan" button is already
@@ -169,7 +169,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
               photos={panelPhotos}
               storyImage={profile.stories?.[0]?.image_url || (profile.gallery_photos || [])[0]}
               active={media}
-              coupleLabel={coupleLabel}
+              coupleLabel={shortCoupleLabel}
             />
             <Rail
               profile={profile}

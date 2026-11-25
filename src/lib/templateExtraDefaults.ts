@@ -2791,6 +2791,72 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "id": "Ucapan & Doa"
     }
   },
+  "sandhya-ivory": {
+    "cover_apology": {
+      "en": "We apologize for any error in the writing of names & titles.",
+      "id": "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar."
+    },
+    "gallery_quote": {
+      "en": "Every love story is beautiful, but ours is my favorite.",
+      "id": "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku."
+    },
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
+    },
+    "gift_intro_title": {
+      "en": "Wedding Gift",
+      "id": "Tanda Kasih"
+    },
+    "gift_intro_description": {
+      "en": "Your presence is the greatest gift. If you would like to send a token of love, the details are available below.",
+      "id": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini."
+    },
+    "closing_message": {
+      "en": "It is an honor and a joy for us if you would be pleased to attend and give your blessing on our wedding day.",
+      "id": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami."
+    },
+    "dresscode_title": {
+      "en": "Dress Code",
+      "id": "Tema Busana"
+    },
+    "countdown_title": {
+      "en": "Counting Down",
+      "id": "Menuju Hari Bahagia"
+    },
+    "countdown_days": {
+      "en": "Days",
+      "id": "Hari"
+    },
+    "countdown_hours": {
+      "en": "Hours",
+      "id": "Jam"
+    },
+    "countdown_minutes": {
+      "en": "Minutes",
+      "id": "Menit"
+    },
+    "countdown_seconds": {
+      "en": "Seconds",
+      "id": "Detik"
+    },
+    "opening_kicker": {
+      "en": "With Joy",
+      "id": "Dengan Sukacita"
+    },
+    "love_story_title": {
+      "en": "Our Love Story",
+      "id": "Perjalanan Cinta"
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
+    }
+  },
   "silver-gelatin": {
     "open_button": {
       "en": "Open Invitation",

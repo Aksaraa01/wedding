@@ -3319,7 +3319,11 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
   field.placeholdersEn = { ...(field.placeholdersEn || {}), "swan-garden": hint.en }
 }
 
-
+// Sandhya Ivory keeps the gallery introduction optional, matching Sandhya's
+// empty default instead of inheriting another template's sample sentence.
+TEMPLATE_EXTRA_FIELDS.push(
+  { key: "gallery_intro", label: "Pengantar Galeri", labelEn: "Gallery Introduction", section: "galeri", order: 20, multiline: true, rows: 2, templates: ["sandhya-ivory"], placeholder: "" },
+)
 
 // ── Per-template registration reconciliation ──────────────────────────────
 // The table above lists, per field, the templates that render it. These maps
@@ -3336,6 +3340,7 @@ export const EXTRA_ALIASES: Record<string, string> = {
 
 // Fields that exist for other templates but were never registered here.
 const EXTRA_ADD_TEMPLATES: Record<string, string[]> = {
+  "sandhya-ivory": ["cover_apology", "gallery_quote", "gallery_title", "gift_intro_title", "gift_intro_description", "closing_message", "dresscode_title", "countdown_title", "countdown_days", "countdown_hours", "countdown_minutes", "countdown_seconds", "save_date_label", "opening_kicker", "love_story_title", "inviting_title", "wishes_title", "wishes_intro"],
   "adat-banjar": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
   "adat-betawi": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
   "adat-dayak": ["dresscode_title", "gallery_title", "livestream_title", "love_story_title", "rundown_title", "wishes_title", "inviting_title", "save_date_label"],
@@ -3394,6 +3399,9 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
 // Templates whose copy lives in constants/COPY objects: pin the printed text so
 // every EKSTRA slot shows that copy in the couple's language.
 const EXTRA_HINT_PINS: Record<string, Record<string, { id: string; en: string }>> = {
+  "sandhya-ivory": {
+    wishes_intro: { id: "Tinggalkan pesan cinta dan doa untuk kami.", en: "Leave a message of love and a prayer for us." },
+  },
   "silver-gelatin": {
     story_intro: { id: "Bab-bab kecil yang membawa kami sampai ke hari ini.", en: "The small chapters that brought us to this day." },
     events_note: { id: "Kami menantikan kehadiran Anda.", en: "We look forward to celebrating with you." },
