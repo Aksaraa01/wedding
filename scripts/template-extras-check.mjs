@@ -67,6 +67,20 @@ const args = process.argv.slice(2).filter((a) => !a.startsWith("-"))
 const codes = args.length ? args : templateCodes()
 let failures = 0
 
+// The editor and the ops console only render the EKSTRA accordion when the
+// template config declares `content.extras`. A template can register a perfect
+// field catalogue and still show nothing, so tie the two together here: fields
+// without the flag are a broken control, not a design choice.
+function configHasExtrasFlag(code) {
+  const src = fs.readFileSync(INDEX_TS, "utf8")
+  const body = src.slice(src.indexOf("export const TEMPLATE_CONFIGS"))
+  const start = body.search(new RegExp(`\\n  \\{\\n    code: "${code}",`))
+  if (start < 0) return true // not a TEMPLATE_CONFIGS entry (WP catalog row)
+  const next = body.slice(start + 1).search(/\n  \{\n    code: "/)
+  const end = next >= 0 ? start + 1 + next : body.indexOf("\n]\n", start)
+  return /extras: true/.test(body.slice(start, end))
+}
+
 for (const code of codes) {
   const fields = getTemplateExtraFields(code)
   if (!fields.length) continue
@@ -102,13 +116,18 @@ for (const code of codes) {
     }
   }
 
+  if (fields.length && !configHasExtrasFlag(code)) {
+    problems.push(
+      `${fields.length} extra field(s) registered but the template config does not set content.extras = true — the editor/ops EKSTRA accordion stays hidden`,
+    )
+  }
+
   if (problems.length) {
     failures += problems.length
     console.error(`\n${code}`)
     for (const p of problems) console.error(`  ✗ ${p}`)
   }
 }
-
 if (failures) {
   console.error(`\n✗ ${failures} extra-field problem(s). Fix the catalogue, not the check.`)
   process.exit(1)
