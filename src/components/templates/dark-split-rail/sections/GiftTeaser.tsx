@@ -4,7 +4,7 @@ import { FONT_BODY, FONT_BTN } from "../fonts"
 import Section, { SectionHeading } from "../Section"
 import { normalizeLanguage, t } from "@/lib/i18n"
 
-export default function GiftTeaser({ onOpen, language = "id", title, description }: { onOpen: () => void; language?: string; title?: string; description?: string }) {
+export default function GiftTeaser({ onOpen, language = "id", title, description, buttonLabel }: { onOpen: () => void; language?: string; title?: string; description?: string; buttonLabel?: string }) {
   const lang = normalizeLanguage(language)
   const resolvedTitle = (title || "").trim() || t("secGift", lang)
   const resolvedDescription = (description || "").trim() ||
@@ -22,7 +22,7 @@ export default function GiftTeaser({ onOpen, language = "id", title, description
           className="mt-7 inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-[12px] uppercase transition-transform duration-300 hover:scale-105 active:scale-95"
           style={{ ...FONT_BTN, letterSpacing: "1px", backgroundColor: "#1B1B18", color: "#F2F1EE" }}
         >
-          <span>{lang === "en" ? "Click Here" : "Klik Disini"}</span>
+          <span>{(buttonLabel || "").trim() || (lang === "en" ? "Click Here" : "Klik Disini")}</span>
           <span className="material-symbols-outlined text-[16px]">arrow_right_alt</span>
         </button>
       </div>

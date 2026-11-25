@@ -12,9 +12,10 @@ type Props = {
   coupleLabel: string
   language?: string
   message?: string
+  title?: string
 }
 
-export default function Closing({ photos, coupleLabel, language, message }: Props) {
+export default function Closing({ photos, coupleLabel, language, message, title }: Props) {
   const lang = normalizeLanguage(language)
   const closingMessage = (message || "").trim() ||
     (lang === "en" ? "It is our joy and honor to have you join us and give your blessing on our special day." : "Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kami.")
@@ -28,7 +29,7 @@ export default function Closing({ photos, coupleLabel, language, message }: Prop
         <Slideshow images={photos} className="h-[46vh] w-full" overlayClassName="bg-black/45">
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-[20px] uppercase text-white" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-              {t("thankYou", lang)}
+              {(title || "").trim() || t("thankYou", lang)}
             </span>
           </div>
         </Slideshow>

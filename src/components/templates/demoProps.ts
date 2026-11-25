@@ -106,6 +106,9 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     ],
     wedding_profile_id: "demo-wedding-profile-id",
     guest_id: "demo-guest-id",
+    template_content: {
+      cover_kicker: "Undangan Pernikahan",
+    },
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },
   "skyline-penthouse": {

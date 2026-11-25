@@ -60,6 +60,18 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   const wishesTitle = (tc.wishes_title || "").trim()
   const wishesIntro = (tc.wishes_intro || "").trim()
   const closingMessage = (tc.closing_message || "").trim()
+  const groomTitle = (tc.groom_label || "").trim()
+  const brideTitle = (tc.bride_label || "").trim()
+  const giftButton = (tc.gift_button || "").trim()
+  const galleryCountLabel = (tc.gallery_count_label || "").trim()
+  const closingTitle = (tc.closing_title || "").trim()
+  const wishesNameLabel = (tc.wishes_name_label || "").trim()
+  const wishesNamePlaceholder = (tc.wishes_name_placeholder || "").trim()
+  const wishesMessageLabel = (tc.wishes_message_label || "").trim()
+  const wishesMessagePlaceholder = (tc.wishes_message_placeholder || "").trim()
+  const wishesSubmit = (tc.wishes_submit || "").trim()
+  const wishesEmpty = (tc.wishes_empty || "").trim()
+  const wishesLoading = (tc.wishes_loading || "").trim()
 
   // Section headings read the nicknames; each Person section still prints the
   // full name under the short one.
@@ -140,7 +152,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Person
         id="groom"
-        heading={lang === "en" ? "The Groom" : "Mempelai Pria"}
+        heading={groomTitle || (lang === "en" ? "The Groom" : "Mempelai Pria")}
         language={lang}
         shortName={profile.groom_name}
         fullName={profile.groom_full_name}
@@ -151,7 +163,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Person
         id="bride"
-        heading={lang === "en" ? "The Bride" : "Mempelai Wanita"}
+        heading={brideTitle || (lang === "en" ? "The Bride" : "Mempelai Wanita")}
         shortName={profile.bride_name}
         fullName={profile.bride_full_name}
         parents={profile.bride_parents}
@@ -164,7 +176,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} language={lang} label={saveDateLabel} />
 
-      {giftOn && <GiftTeaser onOpen={onOpenGift} language={lang} title={giftTitle} description={giftIntro} />}
+      {giftOn && <GiftTeaser onOpen={onOpenGift} language={lang} title={giftTitle} description={giftIntro} buttonLabel={giftButton} />}
 
       {storyOn && <Story stories={stories} coupleLabel={coupleLabel} language={lang} title={storyTitle} />}
 
@@ -175,6 +187,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
           language={lang}
           title={galleryTitle}
           intro={galleryIntro}
+          countLabel={galleryCountLabel}
         />
       )}
 
@@ -187,9 +200,16 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
         guestLinkStrict={profile.guest_link_strict} language={profile.language}
         title={wishesTitle}
         intro={wishesIntro}
+        nameLabel={wishesNameLabel}
+        namePlaceholder={wishesNamePlaceholder}
+        messageLabel={wishesMessageLabel}
+        messagePlaceholder={wishesMessagePlaceholder}
+        submitLabel={wishesSubmit}
+        emptyLabel={wishesEmpty}
+        loadingLabel={wishesLoading}
       />
 
-      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} language={lang} message={closingMessage} />
+      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} language={lang} message={closingMessage} title={closingTitle} />
     </div>
   )
 }

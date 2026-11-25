@@ -31,12 +31,13 @@ export const HINTS: HintMap = {
     },
   },
   // Dark Split Rail — fallback-free slots use the section defaults printed by
-  // GiftTeaser/Wishes/Closing; the gallery intro has no default, so it takes
-  // the shared sample and is marked as an example.
+  // GiftTeaser/Wishes/Closing; the cover kicker and gallery intro have their own
+  // copy so neither inherits another template's sample.
   "dark-split-rail": {
+    cover_kicker: { id: "Undangan Pernikahan", en: "Wedding Invitation" },
     gallery_intro: {
-      id: "Contoh: Sekilas momen kebersamaan kami.",
-      en: "e.g. A glimpse of our moments together.",
+      id: "Sekilas momen kebersamaan kami.",
+      en: "A glimpse of our moments together.",
     },
     gift_intro_title: { id: "Tanda Kasih", en: "Wedding Gift" },
     gift_intro_description: {
