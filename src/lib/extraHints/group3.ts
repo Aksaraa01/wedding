@@ -1,4 +1,4 @@
-export type HintMap = Record<string, Record<string, { id?: string; en?: string }>>
+export type HintMap = Record<string, Record<string, { id?: string; en?: string; example?: boolean }>>
 
 // Fresco — the painted-coast invitation. Several EKSTRA slots are optional
 // (the component prints nothing until the couple fills them), so those hints
@@ -8,26 +8,31 @@ export type HintMap = Record<string, Record<string, { id?: string; en?: string }
 export const HINTS: HintMap = {
   fresco: {
     cover_apology: {
-      id: "Contoh: Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
-      en: "e.g. We apologize for any misspelling of your name or title.",
+      id: "Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
+      en: "We apologize for any misspelling of your name or title.",
+      example: true,
     },
     events_note: {
-      id: "Contoh: Pintu dibuka tiga puluh menit sebelum acara.",
-      en: "e.g. Doors open thirty minutes before the ceremony.",
+      id: "Pintu dibuka tiga puluh menit sebelum acara.",
+      en: "Doors open thirty minutes before the ceremony.",
+      example: true,
     },
-    inviting_kicker: { id: "Contoh: Turut Mengundang", en: "e.g. With Honor" },
+    inviting_kicker: { id: "Turut Mengundang", en: "With Honor", example: true },
     gallery_quote: {
-      id: "Contoh: Setiap kisah cinta itu indah, tetapi kisah kami yang paling kusuka.",
-      en: "e.g. Every love story is beautiful, but ours is my favourite.",
+      id: "Setiap kisah cinta itu indah, tetapi kisah kami yang paling kusuka.",
+      en: "Every love story is beautiful, but ours is my favourite.",
+      example: true,
     },
     video_title: { id: "Video", en: "The Film" },
     dresscode_note: {
-      id: "Contoh: Mohon sisakan warna putih untuk kedua mempelai.",
-      en: "e.g. Please reserve white for the couple.",
+      id: "Mohon sisakan warna putih untuk kedua mempelai.",
+      en: "Please reserve white for the couple.",
+      example: true,
     },
     closing_message: {
-      id: "Contoh: Terima kasih telah menjadi bagian dari kisah kami.",
-      en: "e.g. Thank you for being part of our story.",
+      id: "Terima kasih telah menjadi bagian dari kisah kami.",
+      en: "Thank you for being part of our story.",
+      example: true,
     },
   },
   // Dark Split Rail — fallback-free slots use the section defaults printed by
@@ -64,20 +69,24 @@ export const HINTS: HintMap = {
     // dropped by the localizer's language guard.
     hero_meta: { id: "100% Kasih · 2027 · Selamanya · Romantis", en: "100% Love · 2027 · Forever · Romance" },
     cover_apology: {
-      id: "Contoh: Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
-      en: "e.g. We apologize for any misspelling of your name or title.",
+      id: "Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
+      en: "We apologize for any misspelling of your name or title.",
+      example: true,
     },
     inviting_intro: {
-      id: "Contoh: Dengan restu keluarga, kami mengundang Anda untuk merayakan bersama kami.",
-      en: "e.g. With the blessings of their families, we invite you to celebrate with us.",
+      id: "Dengan restu keluarga, kami mengundang Anda untuk merayakan bersama kami.",
+      en: "With the blessings of their families, we invite you to celebrate with us.",
+      example: true,
     },
     gift_intro_description: {
-      id: "Contoh: Kehadiran keluarga, sahabat, dan orang-orang terkasih di hari istimewa kami adalah hadiah terbesar. Jika Anda ingin memberi tanda kasih, detailnya kami sediakan di bawah ini.",
-      en: "e.g. Having our family, friends, and loved ones share in our special day is the greatest gift. If you would like to express your love through a gift, we have provided the details below.",
+      id: "Kehadiran keluarga, sahabat, dan orang-orang terkasih di hari istimewa kami adalah hadiah terbesar. Jika Anda ingin memberi tanda kasih, detailnya kami sediakan di bawah ini.",
+      en: "Having our family, friends, and loved ones share in our special day is the greatest gift. If you would like to express your love through a gift, we have provided the details below.",
+      example: true,
     },
     wishes_intro: {
-      id: "Contoh: Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.",
-      en: "e.g. Leave a wish, a prayer, or a memory for us to keep.",
+      id: "Tinggalkan ucapan, doa, atau kenangan untuk kami simpan.",
+      en: "Leave a wish, a prayer, or a memory for us to keep.",
+      example: true,
     },
     closing_message: {
       id: "Terima kasih telah menjadi bagian dari kisah kami. Kehadiran, doa, dan setiap ucapan hangat yang Anda tinggalkan berarti lebih dari yang dapat kami ungkapkan.",

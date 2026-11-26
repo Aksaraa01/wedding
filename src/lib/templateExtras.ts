@@ -2258,6 +2258,7 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
   // not leak into this one — better no hint than copy the guest will not see.
   const generated = EXTRA_DEFAULTS[code]?.[field.key]
   const example = EXTRA_EXAMPLE_HINTS[code]?.[field.key]
+  const authoredHint = EXTRA_HINTS[code]?.[field.key]
   const override = lang === "en" ? field.placeholdersEn?.[code] : field.placeholders?.[code]
   // An empty string is "no hint", not an override.
   const explicit = override && override.trim() ? override : undefined
@@ -2278,7 +2279,7 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
         : example?.id != null
           ? { text: example.id, example: true }
           : explicit != null
-            ? { text: explicit, example: isExampleHintText(explicit) }
+            ? { text: explicit, example: (!!authoredHint?.example && explicit === authoredHint.id) || isExampleHintText(explicit) }
             : legacyPlaceholder != null
               ? { text: legacyPlaceholder, example: isExampleHintText(legacyPlaceholder) }
               : gloss
@@ -2302,7 +2303,7 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
   }
   const source =
     explicit != null
-      ? { text: explicit, example: isExampleHintText(explicit) }
+      ? { text: explicit, example: (!!authoredHint?.example && explicit === authoredHint.en) || isExampleHintText(explicit) }
       : generated?.en != null
         ? { text: generated.en, example: false }
         : example?.en != null
