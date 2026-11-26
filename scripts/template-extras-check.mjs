@@ -143,7 +143,7 @@ for (const code of codes) {
 
   if (fields.length && !configHasExtrasFlag(code)) {
     problems.push(
-      `${fields.length} extra field(s) registered but the template config does not set content.extras = true — the editor/ops EKSTRA accordion stays hidden`,
+      `${fields.length} extra field(s) registered but the template config does not set content.extras = true — declare the EKSTRA surface for this template`,
     )
   }
 

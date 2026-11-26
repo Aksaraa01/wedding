@@ -3095,7 +3095,7 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               </>)}
-              {contentSpec?.extras && renderSection("extras", "auto_awesome", extrasLabel, (
+              {extraFields.length > 0 && renderSection("extras", "auto_awesome", extrasLabel, (
                 <div className="mt-6 space-y-4">
                   <p className="text-[11px] text-on-surface-variant italic">
                     Copy khusus template {template?.name}. Kosongkan untuk memakai teks bawaan.
