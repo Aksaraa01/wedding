@@ -582,7 +582,8 @@ html:has(body.jv-locked) {
 }
 
 .jv-welcome__title {
-  margin: 0;
+  width: 45%;
+  margin: 0 auto;
   font-family: var(--jv-serif);
   font-size: clamp(17px, 5.64cqw, 30px);
   font-weight: 500;
@@ -1795,8 +1796,8 @@ html:has(body.jv-locked) {
 .jv-inviting__card {
   position: relative;
   width: 100%;
-  padding: 12cqw 8cqw 14cqw;
-  background: url("/templates/jazz-vintage/card-cream.webp") center / 100% 100% no-repeat;
+  padding: 13cqw 11cqw;
+  background: url("/templates/jazz-vintage/frame-cream.webp") center / 100% 100% no-repeat;
   text-align: center;
 }
 

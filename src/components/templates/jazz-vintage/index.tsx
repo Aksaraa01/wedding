@@ -866,13 +866,11 @@ export default function JazzVintage(profile: TemplateProps) {
               {tc.inviting_intro || t("invitingIntro", lang)}
             </p>
             <div className="jv-inviting__card" data-jv-reveal>
-              <img className="jv-inviting__lace" src={JV.lace} alt="" aria-hidden="true" loading="lazy" />
               <ul>
                 {honored.map((family, index) => (
                   <li key={`${family}-${index}`}>{family}</li>
                 ))}
               </ul>
-              <img className="jv-inviting__garland" src={JV.garland} alt="" aria-hidden="true" loading="lazy" />
             </div>
             </div>
           </section>
@@ -1016,7 +1014,7 @@ export default function JazzVintage(profile: TemplateProps) {
           guestRsvpMessage={profile.guest_rsvp_message || undefined}
           rsvpMaxPax={profile.rsvp_max_pax ?? 2}
           qrEnabled={profile.feature_gates?.qr_code_book === true}
-          anchor="center"
+          anchor="bottom"
           language={lang}
         />
       )}
