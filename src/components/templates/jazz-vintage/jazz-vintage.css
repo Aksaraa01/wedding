@@ -576,15 +576,15 @@ html:has(body.jv-locked) {
   width: 85.31cqw;
   min-height: 108.3cqw;
   margin: 0 auto;
-  padding: 17% 22% 14%;
+  padding: 17% 16% 14%;
   background: url("/templates/jazz-vintage/card-cream.webp") center / 100% 100% no-repeat;
   text-align: center;
 }
 
 .jv-welcome__title {
-  width: 33cqw;
+  width: 36cqw;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0 auto 0 0;
   font-family: var(--jv-serif);
   font-size: clamp(17px, 5.64cqw, 30px);
   font-weight: 500;
@@ -1797,7 +1797,7 @@ html:has(body.jv-locked) {
 .jv-inviting__card {
   position: relative;
   width: 100%;
-  padding: 20cqw 18cqw;
+  padding: 20cqw 22cqw;
   background: url("/templates/jazz-vintage/frame-cream.webp") center / 100% 100% no-repeat;
   text-align: center;
 }
