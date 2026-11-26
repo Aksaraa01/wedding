@@ -630,7 +630,7 @@ html:has(body.jv-locked) {
   max-width: 84cqw;
   min-height: 116.8cqw;
   margin: 0 auto;
-  padding: 14% 11%;
+  padding: 17% 15%;
 }
 
 .jv-opening__card {
@@ -648,7 +648,7 @@ html:has(body.jv-locked) {
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  min-height: 88.8cqw;
+  min-height: 82.8cqw;
   text-align: center;
 }
 
@@ -682,7 +682,7 @@ html:has(body.jv-locked) {
   position: relative;
   width: 100%;
   aspect-ratio: 390 / 452;
-  margin: 0 0 3.6cqw;
+  margin: 9cqw 0 3.6cqw;
   container-type: inline-size;
 }
 
@@ -702,14 +702,14 @@ html:has(body.jv-locked) {
 
 .jv-portrait--groom {
   left: -14.46%;
-  top: -16.81%;
+  top: -8%;
   width: 77.15%;
   z-index: 2;
 }
 
 .jv-portrait--bride {
   left: 37.03%;
-  top: -12.37%;
+  top: -3.6%;
   width: 75.97%;
   z-index: 3;
 }
@@ -1796,7 +1796,7 @@ html:has(body.jv-locked) {
 .jv-inviting__card {
   position: relative;
   width: 100%;
-  padding: 13cqw 11cqw;
+  padding: 16cqw 12cqw;
   background: url("/templates/jazz-vintage/frame-cream.webp") center / 100% 100% no-repeat;
   text-align: center;
 }
@@ -1833,21 +1833,6 @@ html:has(body.jv-locked) {
   display: none;
 }
 
-.jv-inviting__lace {
-  position: absolute;
-  left: 6%;
-  top: -5%;
-  width: 88%;
-  pointer-events: none;
-}
-
-.jv-inviting__garland {
-  position: absolute;
-  left: -6%;
-  bottom: -9%;
-  width: 112%;
-  pointer-events: none;
-}
 
 /* ---------- closing ---------- */
 .jv-closing {
