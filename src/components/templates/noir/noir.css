@@ -830,3 +830,10 @@
   position: absolute;
   width: 100%;
 }
+
+/* React rewrites className when the player mounts, dropping the AOS class that
+   the entrance animation added; keep the frame at its final size once playing */
+.noir-root .video-gallery .preview.is-playing {
+  opacity: 1;
+  transform: none;
+}
