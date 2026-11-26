@@ -8,7 +8,7 @@ import { HINTS as G7 } from "./group7"
 import { HINTS as G8 } from "./group8"
 import { HINTS as G9 } from "./group9"
 
-export type HintMap = Record<string, Record<string, { id?: string; en?: string }>>
+export type HintMap = Record<string, Record<string, { id?: string; en?: string; example?: boolean }>>
 
 function merge(into: HintMap, from: HintMap) {
   for (const [code, fields] of Object.entries(from)) {
