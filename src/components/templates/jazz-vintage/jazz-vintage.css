@@ -582,7 +582,8 @@ html:has(body.jv-locked) {
 }
 
 .jv-welcome__title {
-  width: 45%;
+  width: 33cqw;
+  max-width: 100%;
   margin: 0 auto;
   font-family: var(--jv-serif);
   font-size: clamp(17px, 5.64cqw, 30px);
@@ -615,7 +616,7 @@ html:has(body.jv-locked) {
   left: 63.51%;
   bottom: 5cqw;
   width: 41.46%;
-  z-index: 4;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -681,7 +682,7 @@ html:has(body.jv-locked) {
 .jv-couple__stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 390 / 452;
+  aspect-ratio: 390 / 352;
   margin: 9cqw 0 3.6cqw;
   container-type: inline-size;
 }
@@ -1796,7 +1797,7 @@ html:has(body.jv-locked) {
 .jv-inviting__card {
   position: relative;
   width: 100%;
-  padding: 16cqw 12cqw;
+  padding: 20cqw 18cqw;
   background: url("/templates/jazz-vintage/frame-cream.webp") center / 100% 100% no-repeat;
   text-align: center;
 }
