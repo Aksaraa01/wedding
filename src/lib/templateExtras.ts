@@ -66,14 +66,13 @@ const EXTRA_EXAMPLE_HINTS: Record<string, Record<string, { id: string; en: strin
     video_caption: { id: "Contoh: Video singkat kisah kami.", en: "e.g. A short video of our story." },
   },
   sandhya: {
-    gallery_title: { id: "Contoh: Galeri", en: "e.g. Gallery" },
     gallery_intro: {
-      id: "Contoh: Sekilas momen kebersamaan kami.",
-      en: "e.g. A glimpse of our moments together.",
+      id: "Contoh: Bingkai-bingkai kecil dari perjalanan kami.",
+      en: "e.g. A few frames from the days that led us here.",
     },
     wishes_intro: {
-      id: "Contoh: Kirimkan ucapan dan doa terbaik Anda untuk kami.",
-      en: "e.g. Send us your warmest wishes and prayers.",
+      id: "Contoh: Tinggalkan pesan cinta dan doa untuk kedua mempelai.",
+      en: "e.g. Leave a message of love and a prayer for the couple.",
     },
   },
 }
@@ -1995,6 +1994,14 @@ const EXTRA_SECTION_LABEL_ID: Record<string, string> = {
 
 const EXTRA_LABEL_EN: Record<string, string> = {
   countdown_title: "Countdown Title",
+  couple_description: "Couple Section Description",
+  cover_syukur: "Cover Gratitude Line",
+  doa_blessing: "Closing Prayer Line",
+  events_intro: "Event Intro",
+  gift_signature: "Gift Section Signature",
+  gift_transfer_note: "Transfer Note",
+  gift_wish: "Flower Board Gift Message",
+  mempelai_intro: "Couple Intro",
   countdown_days: "Days Label",
   countdown_hours: "Hours Label",
   countdown_minutes: "Minutes Label",
@@ -2146,30 +2153,28 @@ const EXTRA_PLACEHOLDER_EN_FROM_ID = new Map(
   Object.entries(EXTRA_PLACEHOLDER_ID).map(([en, id]) => [id, en]),
 )
 
-const EXTRA_LABEL_EN_RE: Array<[RegExp, string]> = [
-  [/^Judul Hitung Mundur$/i, "Countdown Title"],
-  [/^Label Hari$/i, "Days Label"],
-  [/^Label Jam$/i, "Hours Label"],
-  [/^Label Menit$/i, "Minutes Label"],
-  [/^Label Detik$/i, "Seconds Label"],
-  [/^Teks Tombol /i, "Button Text: "],
-  [/^Judul /i, "Title: "],
-  [/^Label /i, "Label: "],
-  [/^Pengantar /i, "Intro: "],
-  [/^Kalimat Pengantar /i, "Intro Text: "],
-  [/^Deskripsi /i, "Description: "],
-  [/^Keterangan /i, "Caption: "],
-  [/^Sapaan /i, "Greeting: "],
-  [/^Notifikasi /i, "Toast: "],
-  [/^Pesan /i, "Message: "],
-  [/^Placeholder /i, "Placeholder: "],
-  [/^Teks /i, "Text: "],
-  [/^Nama /i, "Name: "],
-]
-
 function translateExtraLabelToEn(label: string): string {
+  // Indonesian puts the head noun first ("Judul Galeri", "Bagian Ayat",
+  // "Kartu Doa", "Sesi Rundown"); English puts it last ("Gallery Title",
+  // "Verse Section", "Prayer Card", "Rundown Session").
   let out = label
+  let suffix = ""
+  const judul = out.match(/^Judul\s+(.*)$/i)
+  if (judul) {
+    out = judul[1]
+    suffix = " Title"
+  }
+  const bagian = out.match(/^Bagian\s+(.*)$/i)
+  if (bagian) out = `${bagian[1]} Section`
+  const kartu = out.match(/^Kartu\s+(.*)$/i)
+  if (kartu) out = `${kartu[1]} Card`
+  const sesi = out.match(/^Sesi\s+(.*)$/i)
+  if (sesi) out = `${sesi[1]} Session`
   const replacements: Array<[RegExp, string]> = [
+    [/\bDoa & Ucapan\b/gi, "Prayers & Wishes"],
+    [/\bAlamat Hadiah\b/gi, "Gift Address"],
+    [/\bKirim Hadiah\b/gi, "Send Gift"],
+    [/\bLive Streaming\b/gi, "Live Stream"],
     [/\bHitung Mundur\b/gi, "Countdown"],
     [/\bSimpan Tanggal\b/gi, "Save the Date"],
     [/\bSiaran Langsung\b/gi, "Live Stream"],
@@ -2210,6 +2215,8 @@ function translateExtraLabelToEn(label: string): string {
     [/\bPesan\b/gi, "Message"],
     [/\bTamu\b/gi, "Guest"],
     [/\bWaktu\b/gi, "Time"],
+    [/\bTempat\b/gi, "Place"],
+    [/\bAyat\b/gi, "Verse"],
     [/\bTanggal\b/gi, "Date"],
     [/\bFoto\b/gi, "Photo"],
     [/\bVideo\b/gi, "Video"],
@@ -2218,6 +2225,7 @@ function translateExtraLabelToEn(label: string): string {
     [/\bWarna\b/gi, "Color"],
   ]
   for (const [re, rep] of replacements) out = out.replace(re, rep)
+  if (suffix) out = `${out}${suffix}`
   out = out.replace(/\s+/g, " ").trim()
   return out
 }
@@ -3480,6 +3488,11 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
   }
 }
 
+// "Contoh:" / "e.g." hints are editor locators for fields the template renders
+// nothing for; merging one into the invitation would print the word "Contoh:"
+// to guests. They stay in the accordion, never in the rendered copy.
+const EXTRA_EXAMPLE_HINT_RE = /^(Contoh:|e\.g\.)\s/i
+
 /**
  * The copy a template prints when the couple has not filled a field: the same
  * text the editor shows as its hint. Merging this under the stored content
@@ -3493,7 +3506,9 @@ export function templateContentWithDefaults(
 ): Record<string, string> {
   const out: Record<string, string> = {}
   for (const field of getTemplateExtraFields(templateCode, lang)) {
-    if (field.placeholder) out[field.key] = field.placeholder
+    if (field.placeholder && !EXTRA_EXAMPLE_HINT_RE.test(field.placeholder)) {
+      out[field.key] = field.placeholder
+    }
   }
   // A stored empty string is "the couple cleared the field", not "use this".
   // Saving the editor writes "" for untouched inputs, so treating it as a value
