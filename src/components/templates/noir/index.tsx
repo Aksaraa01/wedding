@@ -453,6 +453,16 @@ export default function Noir(profile: TemplateProps) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     let holding = false
     let holdUntil = 0
+    let inView = false
+    // Only advance while the strip is on screen; otherwise a guest who scrolls
+    // down after a while arrives mid-list.
+    const visibility = new IntersectionObserver(
+      (entries) => {
+        inView = entries.some((entry) => entry.isIntersecting)
+      },
+      { threshold: 0.25 }
+    )
+    visibility.observe(el)
     const hold = () => {
       holding = true
     }
@@ -466,7 +476,7 @@ export default function Noir(profile: TemplateProps) {
     el.addEventListener("touchstart", hold, { passive: true })
     el.addEventListener("touchend", release)
     const id = window.setInterval(() => {
-      if (holding || document.hidden || Date.now() < holdUntil) return
+      if (!inView || holding || document.hidden || Date.now() < holdUntil) return
       const step = galleryStep()
       if (!step) return
       const current = Math.round(el.scrollLeft / step)
@@ -475,6 +485,7 @@ export default function Noir(profile: TemplateProps) {
     }, 4200)
     return () => {
       window.clearInterval(id)
+      visibility.disconnect()
       el.removeEventListener("pointerdown", hold)
       el.removeEventListener("pointerup", release)
       el.removeEventListener("pointercancel", release)
