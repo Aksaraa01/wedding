@@ -35,6 +35,7 @@ export async function GET(
           groom_full_name,
           display_name,
           slug,
+          user_id,
           whatsapp_number,
           estimated_wedding_date,
           sessions,
@@ -61,8 +62,7 @@ export async function GET(
           galeri_prev_photos,
           galeri_prev_guests,
           galeri_prev_tier,
-          galeri_prev_price,
-          scanner_pin
+          galeri_prev_price
         ),
         employees!left (
           id,
@@ -79,6 +79,20 @@ export async function GET(
     const wp = Array.isArray(queueItem.wedding_profiles)
       ? queueItem.wedding_profiles[0]
       : queueItem.wedding_profiles
+
+    // Registration PIN lives on the account (users.pin), not on the profile:
+    // wedding_profiles.scanner_pin is the kiosk PIN generated later and is
+    // usually empty. Profiles copied to staging without a user_id simply show
+    // no PIN instead of a fabricated one.
+    let registrationPin: string | null = null
+    if ((wp as any).user_id) {
+      const { data: account } = await supabaseAdmin
+        .from("users")
+        .select("pin")
+        .eq("id", (wp as any).user_id)
+        .maybeSingle()
+      registrationPin = (account as any)?.pin || null
+    }
 
     const { data: featureActions } = await supabaseAdmin
       .from("feature_actions")
@@ -240,7 +254,7 @@ export async function GET(
         groom_full_name: (wp as any).groom_full_name || null,
         display_name: wp.display_name,
         slug: wp.slug,
-        scanner_pin: wp.scanner_pin || null,
+        registration_pin: registrationPin,
         whatsapp_number: wp.whatsapp_number,
         estimated_wedding_date: wp.estimated_wedding_date,
         sessions: wp.sessions,

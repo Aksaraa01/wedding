@@ -67,7 +67,7 @@ type QueueItem = {
     groom_full_name?: string | null
     display_name?: string | null
     slug: string
-    scanner_pin?: string | null
+    registration_pin?: string | null
     whatsapp_number: string
     estimated_wedding_date: string
     sessions: any
@@ -2188,15 +2188,15 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <span className="font-bold text-primary">{currentWp.estimated_guest_count} Tamu</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">PIN Scanner:</span>
-                  {currentWp.scanner_pin ? (
+                  <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">PIN Undangan:</span>
+                  {currentWp.registration_pin ? (
                     <>
-                      <span className="font-mono font-bold tracking-[0.2em] text-primary">{currentWp.scanner_pin}</span>
+                      <span className="font-mono font-bold tracking-[0.2em] text-primary">{currentWp.registration_pin}</span>
                       <button
                         type="button"
                         onClick={() => {
-                          if (!currentWp.scanner_pin) return
-                          copyPlainText(currentWp.scanner_pin).then((ok) => {
+                          if (!currentWp.registration_pin) return
+                          copyPlainText(currentWp.registration_pin).then((ok) => {
                             if (!ok) return
                             setPinCopied(true)
                             window.setTimeout(() => setPinCopied(false), 1500)
