@@ -61,7 +61,8 @@ export async function GET(
           galeri_prev_photos,
           galeri_prev_guests,
           galeri_prev_tier,
-          galeri_prev_price
+          galeri_prev_price,
+          scanner_pin
         ),
         employees!left (
           id,
@@ -239,6 +240,7 @@ export async function GET(
         groom_full_name: (wp as any).groom_full_name || null,
         display_name: wp.display_name,
         slug: wp.slug,
+        scanner_pin: wp.scanner_pin || null,
         whatsapp_number: wp.whatsapp_number,
         estimated_wedding_date: wp.estimated_wedding_date,
         sessions: wp.sessions,
