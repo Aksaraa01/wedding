@@ -1851,21 +1851,13 @@
     "lentera-zamrud": {
       "allow": {
         "Aksaraa": "brand badge logo alt text, fixed by the platform",
-        "by Aksaraa": "brand attribution in the Aksaraa footer badge required by every in-house template",
-        "Hari": "countdown unit — a time unit, never couple copy",
-        "Jam": "countdown unit — a time unit, never couple copy",
-        "Menit": "countdown unit — a time unit, never couple copy",
-        "Detik": "countdown unit — a time unit, never couple copy"
+        "by Aksaraa": "brand attribution in the Aksaraa footer badge required by every in-house template"
       }
     },
     "songket-marun": {
       "allow": {
         "Aksaraa": "brand badge logo alt text, fixed by the platform",
-        "by Aksaraa": "brand attribution in the Aksaraa footer badge required by every in-house template",
-        "Hari": "countdown unit — a time unit, never couple copy",
-        "Jam": "countdown unit — a time unit, never couple copy",
-        "Menit": "countdown unit — a time unit, never couple copy",
-        "Detik": "countdown unit — a time unit, never couple copy"
+        "by Aksaraa": "brand attribution in the Aksaraa footer badge required by every in-house template"
       }
     },
     "majestic": {

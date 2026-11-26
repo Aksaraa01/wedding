@@ -185,6 +185,8 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const basmalah = (tc.basmalah || "").trim() || d.basmalah
   const salam = (tc.opening_salam || "").trim() || d.salam
   const openingText = (profile.opening_description || "").trim() || d.opening
+  const anandaKicker = (tc.ananda_kicker || "").trim() || labels.subjectPossessive
+  const parentsLabel = (tc.parents_label || "").trim() || labels.subjectOf
   const countdownTitle = (tc.countdown_intro || "").trim() || labels.countdownLabel
   const saveDateLabel = (tc.save_date_label || "").trim() || t("saveToCalendar", lang)
   const eventsTitle = (tc.events_title || "").trim() || (lang === "en" ? "Time & Venue" : "Waktu & Tempat")
@@ -206,6 +208,14 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const giftNote = (tc.gift_transfer_note || "").trim() || (lang === "en" ? "transfer to the account below:" : "transfer ke rekening di bawah ini:")
   const copyAccountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
   const copyAddressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
+  const copyAccountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening disalin")
+  const copyAddressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat disalin")
+  const countdownLabels = {
+    days: (tc.countdown_days || "").trim() || t("days", lang),
+    hours: (tc.countdown_hours || "").trim() || t("hours", lang),
+    minutes: (tc.countdown_minutes || "").trim() || t("minutes", lang),
+    seconds: (tc.countdown_seconds || "").trim() || t("seconds", lang),
+  }
   const sendGiftLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
@@ -354,10 +364,10 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const countdownCells = (() => {
     const ms = target && now ? Math.max(0, target.getTime() - now) : 0
     return [
-      { value: Math.floor(ms / 86400000), label: t("days", lang) },
-      { value: Math.floor((ms % 86400000) / 3600000), label: t("hours", lang) },
-      { value: Math.floor((ms % 3600000) / 60000), label: t("minutes", lang) },
-      { value: Math.floor((ms % 60000) / 1000), label: t("seconds", lang) },
+      { value: Math.floor(ms / 86400000), label: countdownLabels.days },
+      { value: Math.floor((ms % 86400000) / 3600000), label: countdownLabels.hours },
+      { value: Math.floor((ms % 3600000) / 60000), label: countdownLabels.minutes },
+      { value: Math.floor((ms % 60000) / 1000), label: countdownLabels.seconds },
     ]
   })()
 
@@ -430,7 +440,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
             {/* Putra / Putri Kami */}
             <section className="lz-section lz-section--cream lz-putra">
               <div className="lz-paper" aria-hidden="true" />
-              <p className="lz-kicker lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{labels.subjectPossessive}</p>
+              <p className="lz-kicker lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{anandaKicker}</p>
 
               {ananda.length > 1 ? (
                 <div className="lz-ananda lz-reveal lz-reveal--in" data-lz-reveal style={reveal(0.04)}>
@@ -486,7 +496,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
               )}
               {parents && (
                 <>
-                  <p className="lz-kicker lz-kicker--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>{labels.subjectOf}</p>
+                  <p className="lz-kicker lz-kicker--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>{parentsLabel}</p>
                   <p className="lz-putra__parents lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.09)}>{parents}</p>
                 </>
               )}
@@ -714,7 +724,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
                         <button
                           type="button"
                           className="lz-gift-card__copy"
-                          onClick={() => copyText(account.account_number || "", lang === "en" ? "Account number copied" : "Nomor rekening disalin")}
+                          onClick={() => copyText(account.account_number || "", copyAccountToast)}
                           aria-label={copyAccountButton}
                         >
                           <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
@@ -732,7 +742,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
                       <button
                         type="button"
                         className="lz-gift-card__copy lz-gift-card__copy--wide"
-                        onClick={() => copyText(giftAddress, lang === "en" ? "Address copied" : "Alamat disalin")}
+                        onClick={() => copyText(giftAddress, copyAddressToast)}
                         aria-label={copyAddressButton}
                       >
                         <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>

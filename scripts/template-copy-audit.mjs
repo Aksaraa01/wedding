@@ -74,9 +74,11 @@ function readAllowlist() {
 
 function letterOnly(value) {
   // Strip HTML entities and markup noise, then require a real word character.
+  // Match any script, not just Latin: an Arabic basmalah rendered as a JSX child
+  // (ubin-ottoman) was invisible to a `[A-Za-z]` test.
   const text = value.replace(/&[a-z]+;|&#\d+;/gi, "").trim()
   if (!text) return ""
-  return /[A-Za-z]/.test(text) ? text : ""
+  return /\p{L}/u.test(text) ? text : ""
 }
 
 function walkFiles(dir, out = []) {

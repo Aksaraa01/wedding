@@ -19,11 +19,13 @@ const ART = (name: string) => `/templates/ubin-ottoman/${name}.webp`
 
 const DEFAULTS = {
   id: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
     opening: "Dengan memohon rahmat dan rido Allah SWT, kami mengundang Bapak/Ibu/Saudara pada tasyakuran khitanan putra kami:",
     closing: "Merupakan kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara.",
     gift: "Doa dan kehadiran Anda sudah lebih dari cukup. Bila ingin memberi tanda kasih, dapat melalui:",
   },
   en: {
+    basmalah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
     opening: "By the grace and mercy of Allah SWT, we invite you to the circumcision celebration of our beloved son:",
     closing: "It is our honor and joy to have your presence and prayers.",
     gift: "Your prayers and presence are more than enough. If you wish to send a token of love, you may do so below:",
@@ -195,9 +197,11 @@ export default function UbinOttoman(profile: TemplateProps) {
   const coverThanks = (tc.cover_syukur || "").trim() || (lang === "en" ? "with heartfelt gratitude" : "dengan penuh rasa syukur")
   const coverGuestLabel = (tc.cover_guest_label || "").trim() || t("toGuest", lang)
   const openLabel = (tc.open_button || "").trim() || t("openInvitation", lang)
+  const basmalah = (tc.basmalah || "").trim() || d.basmalah
   const salam = (tc.opening_salam || "").trim() || (lang === "en" ? "Peace be upon you" : "Assalamu'alaikum wr. wb.")
   const openingText = (profile.opening_description || "").trim() || d.opening
   const mempelaiTitle = (tc.mempelai_title || "").trim() || (lang === "en" ? "Our Beloved Child" : "Sang Buah Hati")
+  const anandaKicker = (tc.ananda_kicker || "").trim() || labels.subjectPossessive
   const parentsLabel = (tc.parents_label || "").trim() || labels.subjectOf
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
@@ -224,6 +228,14 @@ export default function UbinOttoman(profile: TemplateProps) {
   const giftLead = (tc.gift_intro_description || "").trim() || d.gift
   const copyAccountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
   const copyAddressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
+  const copyAccountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening disalin")
+  const copyAddressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat disalin")
+  const countdownLabels = {
+    days: (tc.countdown_days || "").trim() || t("days", lang),
+    hours: (tc.countdown_hours || "").trim() || t("hours", lang),
+    minutes: (tc.countdown_minutes || "").trim() || t("minutes", lang),
+    seconds: (tc.countdown_seconds || "").trim() || t("seconds", lang),
+  }
   const sendGiftLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
@@ -391,7 +403,7 @@ export default function UbinOttoman(profile: TemplateProps) {
           <section className="uo-section uo-section--navy uo-pembuka">
             <img className="uo-pembuka__star" src={ART("tile-star")} alt="" aria-hidden="true" data-uo-reveal />
             <p className="uo-arabic" lang="ar" dir="rtl" data-uo-reveal style={delay(0.04)}>
-              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              {basmalah}
             </p>
             <p className="uo-kicker uo-kicker--center" data-uo-reveal style={delay(0.06)}>{salam}</p>
             <p className="uo-pembuka__text" data-uo-reveal style={delay(0.08)}>{openingText}</p>
@@ -399,7 +411,7 @@ export default function UbinOttoman(profile: TemplateProps) {
 
           {/* Putra / Putri Kami */}
           <section className="uo-section uo-section--cream uo-putra">
-            <p className="uo-kicker uo-kicker--center" data-uo-reveal>{labels.subjectPossessive}</p>
+            <p className="uo-kicker uo-kicker--center" data-uo-reveal>{anandaKicker}</p>
             <div className="uo-title-row" data-uo-reveal style={delay(0.06)}>
               <i aria-hidden="true" />
               <h2 className="uo-title">{mempelaiTitle}</h2>
@@ -491,10 +503,10 @@ export default function UbinOttoman(profile: TemplateProps) {
               {target && (() => {
                 const ms = now ? Math.max(0, target.getTime() - now) : 0
                 const cells = [
-                  { v: Math.floor(ms / 86400000), l: t("days", lang) },
-                  { v: Math.floor((ms % 86400000) / 3600000), l: t("hours", lang) },
-                  { v: Math.floor((ms % 3600000) / 60000), l: t("minutes", lang) },
-                  { v: Math.floor((ms % 60000) / 1000), l: t("seconds", lang) },
+                  { v: Math.floor(ms / 86400000), l: countdownLabels.days },
+                  { v: Math.floor((ms % 86400000) / 3600000), l: countdownLabels.hours },
+                  { v: Math.floor((ms % 3600000) / 60000), l: countdownLabels.minutes },
+                  { v: Math.floor((ms % 60000) / 1000), l: countdownLabels.seconds },
                 ]
                 return (
                   <div className="uo-count" data-uo-reveal style={delay(0.1)}>
@@ -670,7 +682,7 @@ export default function UbinOttoman(profile: TemplateProps) {
                     <button
                       type="button"
                       className="uo-gift-card__copy"
-                      onClick={() => copyText(acc.account_number || "", lang === "en" ? "Account number copied" : "Nomor rekening disalin")}
+                      onClick={() => copyText(acc.account_number || "", copyAccountToast)}
                       aria-label={copyAccountButton}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>content_copy</span>
@@ -688,7 +700,7 @@ export default function UbinOttoman(profile: TemplateProps) {
                   <button
                     type="button"
                     className="uo-gift-copy"
-                    onClick={() => copyText(giftAddress, lang === "en" ? "Address copied" : "Alamat disalin")}
+                    onClick={() => copyText(giftAddress, copyAddressToast)}
                   >
                     {copyAddressButton}
                   </button>
