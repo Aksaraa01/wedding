@@ -2188,7 +2188,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <span className="font-bold text-primary">{currentWp.estimated_guest_count} Tamu</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">PIN Undangan:</span>
+                  <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">PIN Akun:</span>
                   {currentWp.registration_pin ? (
                     <>
                       <span className="font-mono font-bold tracking-[0.2em] text-primary">{currentWp.registration_pin}</span>
