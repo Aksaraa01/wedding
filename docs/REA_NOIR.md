@@ -80,7 +80,9 @@ in the reference) and the quote is the first block after it; Rundown follows
 the events; Turut mengundang lands after Wishes (brief); the inline RSVP form
 is replaced by the shared `InvitationOverlay` dock (playbook §6). Both sliders
 (love story, gallery) are swipe/drag tracks — the reference's slick behaviour —
-with a lightbox that ignores the click that ends a drag.
+with a lightbox that ignores the click that ends a drag. On desktop the gate
+is not hidden: it sits in the right column (music starts on the click) while
+the left pane plays the couple's film muted, falling back to the cover photo.
 
 ---
 
@@ -106,11 +108,11 @@ with a lightbox that ignores the click that ends a drag.
 | 3 | Welcome | names, date, guest | always; hidden only when the couple has no names | single date; range comes from `sessions` | `t("theWeddingOf")`, `tc.welcome_note` | `zoom-in` 1 s |
 | 4 | Kalimat pembuka | `opening_title`, `opening_description`, `quote_text`, `quote_source` | `!hidesOpeningSection("noir")` (active) | no title/description/quote ⇒ whole section absent; quote alone ⇒ quote card only | profile columns | `fade-up` 1 s on the card |
 | 5 | Mempelai | names, full names, portraits, parents, Instagram | `person_photos !== false` | one portrait ⇒ one card with monogram-free fallback photo; missing IG ⇒ link absent; DOM stays groom→bride and `.bride-first` reverses it once, so `tc.couple_order` is honoured | `tc.mempelai_title`, `tc.mempelai_intro`, `t("sonOf"/"daughterOf")` | `fade-up` 1 s, 120 ms step |
-| 6 | Event | `sessions[]` | always (publish blocked without it) | 1 event ⇒ one card; N ⇒ stacked cards; no `maps_url` ⇒ button absent | `tc.agenda_title`, `tc.events_intro`, `tc.maps_label` | `fade-up` 900 ms, 90 ms step |
+| 6 | Event | `sessions[]` | always (publish blocked without it) | 1 event ⇒ one card; N ⇒ stacked cards; no `maps_url` ⇒ button absent. The couple's film loops muted behind the section (cover photo when there is no film) | `tc.agenda_title`, `tc.events_intro`, `tc.maps_label` | `fade-up` 900 ms, 90 ms step |
 | 7 | Countdown | `estimated_wedding_date` (falls back to first session date) | always when a date exists | past date ⇒ zeros; 3-digit days fit | `tc.countdown_*`, `tc.calendar_button` | 1 s tick, no entrance animation |
-| 8 | Love story | `stories[]` | `feature_gates.story !== false` **and** `story_visible !== false` | 0 ⇒ section absent; 1 ⇒ slide without nav; a milestone without `image_url` becomes a typographic slide with its ordinal; photo per `story_photo` | `tc.love_story_title`, `t("storyPart")` | cross-fade 900 ms + bars |
+| 8 | Love story | `stories[]` | `feature_gates.story !== false` **and** `story_visible !== false` | 0 ⇒ section absent; 1 ⇒ slide without nav; a milestone without `image_url` becomes a typographic slide with its ordinal; photo per `story_photo`. Arrows/bars step exactly one card (the track is wider than a card on desktop); the active card's title/caption reveal themselves | `tc.love_story_title`, `t("storyPart")` | cross-fade 900 ms + bars |
 | 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ absent; 1 ⇒ single row | `tc.rundown_title` (default `t("rundownHeading")` = "Rundown") | none (list must stay scannable) |
-| 10 | Gallery | `gallery_photos[]` | `no_photo === false` + data | 1 photo ⇒ track without arrows; N ⇒ snap track + lightbox (keyboard + arrows). Advances every 4.2 s like the reference's slick autoplay; pauses on drag/hover, with the lightbox open, and for `prefers-reduced-motion` | `tc.gallery_title`, `tc.gallery_intro` | hover scale 0.9 s |
+| 10 | Gallery | `gallery_photos[]` | `no_photo === false` + data | 1 photo ⇒ track; N ⇒ reference proportions (one plate ≈62vw capped at 400px, next plate peeking, no dots/arrows) + lightbox. Advances one plate every 4.2 s, only while the strip is on screen; pauses on drag (6 s cooldown), with the lightbox open, and for `prefers-reduced-motion` | `tc.gallery_title`, `tc.gallery_intro` | hover scale 0.9 s |
 | 11 | Video | `video_url` | `feature_gates.video !== false` **and** `video_section_visible !== false` | YouTube ⇒ poster + click-to-mount; file ⇒ `<video>`; no poster ⇒ black frame. The player fills the theme's 16:9 frame (the iframe previously inherited a zero-height content box) | `tc.video_title`, `tc.video_caption` | poster fades on hover; player mounts on click |
 | 12 | Wedding gift | `gift_accounts[]`, `gift_address_name`, `gift_address` | `gift_section_visible !== false`; address also needs `feature_gates.gift_address !== false` | accounts only ⇒ no tabs; address only ⇒ no tabs; both ⇒ tabs; none ⇒ absent. Cards carry the reference's `.bank-item.show` markup + copy pill | `tc.gift_*`, `tc.copy_*` | none |
 | 13 | Dress code | `dresscode{title, description, colors[]}` | `dresscode_visible !== false` | colours only ⇒ swatches; text only ⇒ paragraph; neither ⇒ absent | `tc.dresscode_title`, `tc.dresscode_intro` | none |
@@ -162,6 +164,8 @@ agreed staging couple `fikri-dinda` (real data: 2 events, 3 text-only stories,
   reference does, including the cover photograph continuing behind the scroll
   pane (`.hero`, painted under the sections)
 - cover photography is spread across four slots (`Sampul`, `Foto Pembuka`, `Foto Kutipan`, `Foto Penutup`) so the gate, cover, quote and closing each show a different photo; missing slots fall back to the cover
+- desktop opens on the gate in the right column (the click starts the music); the left pane loops the couple's film (muted), cover photo when absent
+- the event band and the film section both use the film; the film has a visible play control and fills the 16:9 frame
 - motion is the reference's AOS build: `fade-up = translate3d(0,100px,0)`,
   `zoom-in = scale(0.6)`, `zoom-out = scale(1.2)`, `ease`, 1000–1600 ms with the
   reference's delays; the gate runs its own entrance on load and the cover
