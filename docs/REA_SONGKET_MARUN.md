@@ -65,7 +65,7 @@ RSVP is the shared `InvitationOverlay` dock (both `preview_mode` and
 |---|---|---|---|---|---|---|
 | 1 | Cover | `groom_name`, `cover_photos[0]`, `guest_name` | always | 0 photos ⇒ portrait ⇒ `ASSETS.defaults.couple`; guest block hidden for the placeholder name | `cover_kicker`, `cover_guest_label`, `open_button` | fadeUp names `.2s`, fade ribbon/date/guest `.3–.55s`, fadeUp CTA `.65s` |
 | 2 | Pembuka | `basmalah`, `opening_salam`, `opening_description` | always | paragraph wraps to 4–5 lines | `basmalah`, `opening_salam`; body: `opening_description` | zoom star, fadeUp `.06/.1`, ribbon fade `.06`, text `.14` |
-| 3 | Putra/Putri | `groom_full_name`, `groom_parents`, `groom_instagram`, `groom_photo_url` | always; IG hides when empty | 1 portrait; parents split on `&` into two lines | names: profile; labels: `event_labels.subjectPossessive` / `subjectOf` | fadeUp `.0–.11`, stage fade `.04` |
+| 3 | Putra/Putri | `groom_full_name`, `groom_parents`, `groom_instagram`, `groom_photo_url` | always; IG hides when empty | 1 portrait; parents split on `&` into two lines | names: profile; labels: `template_content.ananda_kicker` / `parents_label` (fallback `event_labels`) | fadeUp `.0–.11`, stage fade `.04` |
 | 4 | Doa | `doa_arabic`, `quote_text`, `quote_source`, `doa_blessing` | always | quote/source hide when empty | `doa_title`, `doa_arabic`, `doa_blessing`; quote: profile | fadeUp card `.06` |
 | 5 | Save the Date | `estimated_wedding_date` / `sessions[].date` | renders date block only with a parseable date; countdown also needs the target; CTA needs a session | 4 countdown cells always; `--` before hydration | `save_date_kicker`, `save_date_title`, `save_date_label` | fadeUp `.0–.14`, day zoom `.06` |
 | 6 | Acara | `sessions[]`, `cover_photos[1]` | renders when ≥1 session; venue photo hidden without a session/photo | 1 event ⇒ no trailing ribbon; venue/address lines render independently | `events_kicker`, `events_title`, `events_intro`, `maps_label`; rows: sessions | fadeUp header/lead, fade list, ribbon between rows |
@@ -104,7 +104,7 @@ RSVP is the shared `InvitationOverlay` dock (both `preview_mode` and
 ## Verification
 
 - `npx tsc --noEmit` clean · `npm run audit:copy -- songket-marun` clean
-  (6 allowlisted literals: brand badge ×2, countdown units ×4).
+  (2 allowlisted literals: brand badge ×2).
 - 390 × 844 and 1440 × 900: `scrollWidth === innerWidth`, 390 px plate on
   `#2E0C13`, no console errors.
 - `prefers-reduced-motion: reduce`: 56/56 reveal targets at `opacity: 1`.

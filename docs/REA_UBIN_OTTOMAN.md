@@ -117,12 +117,14 @@ Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
 Every visible string is a profile column, an `eventLabels` value, or a
 `template_content` field registered in `src/lib/templateExtras.ts`
 (`cover_kicker`, `cover_syukur`, `cover_guest_label`, `open_button`,
-`opening_salam`, `mempelai_title`, `parents_label`, `events_kicker`,
+`basmalah`, `opening_salam`, `mempelai_title`, `ananda_kicker`, `parents_label`, `events_kicker`,
 `events_title`, `agenda_kicker`, `agenda_title`, `maps_label`, `gallery_kicker`, `gallery_title`, `calendar_button`, `wishes_kicker`,
 `wishes_title`, `wishes_intro`, `wishes_name_*`, `wishes_message_*`,
 `wishes_submit`, `wishes_empty`, `wishes_loading`, `gift_kicker`,
 `gift_intro_title`, `gift_intro_description`, `copy_account_button`,
-`copy_address_button`, `gift_send_label`, `inviting_kicker`, `inviting_title`,
+`copy_address_button`, `copy_account_toast`, `copy_address_toast`,
+`gift_send_label`, `countdown_days`, `countdown_hours`, `countdown_minutes`,
+`countdown_seconds`, `inviting_kicker`, `inviting_title`,
 `closing_kicker`, `closing_message`, `closing_salam`).
 
 `npm run audit:copy -- ubin-ottoman` → clean. The only allowlisted literals are

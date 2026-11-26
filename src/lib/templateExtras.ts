@@ -80,6 +80,22 @@ const EXTRA_EXAMPLE_HINTS: Record<string, Record<string, { id: string; en: strin
       en: "Leave a message of love and a prayer for the couple.",
     },
   },
+  // Ceriavite: the child labels are derived from `subject_gender` ("Putra" vs
+  // "Putri"), so a static default would be wrong for half the invitations.
+  // Example-only hints keep the field editable while letting the component
+  // resolve the correct gender copy.
+  "ubin-ottoman": {
+    ananda_kicker: { id: "Putra/Putri Kami", en: "Our Child" },
+    parents_label: { id: "Putra/Putri dari", en: "Child of" },
+  },
+  "lentera-zamrud": {
+    ananda_kicker: { id: "Putra/Putri Kami", en: "Our Child" },
+    parents_label: { id: "Putra/Putri dari", en: "Child of" },
+  },
+  "songket-marun": {
+    ananda_kicker: { id: "Putra/Putri Kami", en: "Our Child" },
+    parents_label: { id: "Putra/Putri dari", en: "Child of" },
+  },
 }
 
 export interface TemplateExtraField {
@@ -952,7 +968,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Label Orang Tua",
     placeholders: { "ubin-ottoman": "Putra dari", "film-roll": "With the blessing of", teatro: "Blessed By" , "silver-gelatin": "Putra/Putri dari" },
     placeholder: "Anak dari",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "ubin-ottoman"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "ubin-ottoman", "lentera-zamrud", "songket-marun"],
   },
   {
     key: "story_kicker",
@@ -2431,6 +2447,17 @@ TEMPLATE_EXTRA_FIELDS.push(
     placeholders: { "ubin-ottoman": "kepada yang terhormat" },
   },
   {
+    key: "basmalah",
+    label: "Basmalah (teks Arab)",
+    section: "pembuka",
+    order: 9,
+    multiline: true,
+    rows: 2,
+    templates: ["ubin-ottoman"],
+    placeholders: { "ubin-ottoman": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ" },
+    placeholdersEn: { "ubin-ottoman": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ" },
+  },
+  {
     key: "opening_salam",
     label: "Salam Pembuka",
     section: "pembuka",
@@ -3153,6 +3180,81 @@ TEMPLATE_EXTRA_FIELDS.push(
     placeholders: { "songket-marun": "Keluarga Besar" },
   },
 
+)
+
+// Ceriavite shared copy: the ananda section label, the countdown unit labels
+// and the "copied" toasts are visible strings in all three kids designs. The
+// kicker/parent labels are example-only hints (see EXTRA_EXAMPLE_HINTS) so the
+// component keeps resolving "Putra"/"Putri" from subject_gender.
+TEMPLATE_EXTRA_FIELDS.push(
+  {
+    key: "ananda_kicker",
+    label: "Label Bagian Ananda",
+    labelEn: "Ananda Section Label",
+    section: "mempelai",
+    order: 10,
+    templates: ["ubin-ottoman", "lentera-zamrud", "songket-marun"],
+  },
+  {
+    key: "countdown_days",
+    label: "Label Hitung Mundur — Hari",
+    labelEn: "Countdown Label — Days",
+    section: "acara",
+    order: 71,
+    templates: ["ubin-ottoman", "lentera-zamrud", "songket-marun"],
+    placeholder: "Hari",
+    placeholderEn: "Days",
+  },
+  {
+    key: "countdown_hours",
+    label: "Label Hitung Mundur — Jam",
+    labelEn: "Countdown Label — Hours",
+    section: "acara",
+    order: 72,
+    templates: ["ubin-ottoman", "lentera-zamrud", "songket-marun"],
+    placeholder: "Jam",
+    placeholderEn: "Hours",
+  },
+  {
+    key: "countdown_minutes",
+    label: "Label Hitung Mundur — Menit",
+    labelEn: "Countdown Label — Minutes",
+    section: "acara",
+    order: 73,
+    templates: ["ubin-ottoman", "lentera-zamrud", "songket-marun"],
+    placeholder: "Menit",
+    placeholderEn: "Minutes",
+  },
+  {
+    key: "countdown_seconds",
+    label: "Label Hitung Mundur — Detik",
+    labelEn: "Countdown Label — Seconds",
+    section: "acara",
+    order: 74,
+    templates: ["ubin-ottoman", "lentera-zamrud", "songket-marun"],
+    placeholder: "Detik",
+    placeholderEn: "Seconds",
+  },
+  {
+    key: "copy_account_toast",
+    label: "Notifikasi Salin Rekening",
+    labelEn: "Copy Account Toast",
+    section: "gift",
+    order: 64,
+    templates: ["ubin-ottoman", "lentera-zamrud", "songket-marun"],
+    placeholder: "Nomor rekening disalin",
+    placeholderEn: "Account number copied",
+  },
+  {
+    key: "copy_address_toast",
+    label: "Notifikasi Salin Alamat",
+    labelEn: "Copy Address Toast",
+    section: "gift",
+    order: 65,
+    templates: ["ubin-ottoman", "lentera-zamrud", "songket-marun"],
+    placeholder: "Alamat disalin",
+    placeholderEn: "Address copied",
+  },
 )
 
 // Olan — the classical split-screen invitation. English sample copy (the

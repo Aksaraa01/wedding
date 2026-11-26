@@ -67,7 +67,7 @@ which this template renders with both `preview_mode` and `template_demo` guards.
 |---|---|---|---|---|---|---|
 | 1 | Cover | `groom_name`, `cover_photos[0]`, `groom_photo_url`, `guest_name` | always | 0 photos ⇒ portrait ⇒ `ASSETS.defaults.couple`; guest block hidden when the name is the placeholder | `template_content.cover_kicker`, `open_button`, `cover_guest_label`; name: `groom_name` | cover enter: fadeIn lanterns, fadeInDown kicker `.15s`, zoomIn photo `.3s`, fadeInUp name `.4s`, fadeIn divider/guest `.45–.55s`, fadeInUp CTA `.65s` |
 | 2 | Pembuka | `template_content.basmalah`, `opening_salam`, `opening_description` | always | paragraph wraps to 5 lines at 390 | `basmalah`, `opening_salam`; body: `opening_description` | fadeUp `.06/.09/.12`, divider fade `.06` |
-| 3 | Putra/Putri Kami | `groom_full_name`, `groom_parents`, `groom_instagram`, `groom_photo_url`, `quote_text`, `quote_source` | always; IG/quote hide when empty | 1 portrait; parents line optional; quote/source optional | names: profile; labels: `event_labels.subjectPossessive` / `subjectOf`; quote: profile | fadeUp `.06–.11`, stage fade `.04` |
+| 3 | Putra/Putri Kami | `groom_full_name`, `groom_parents`, `groom_instagram`, `groom_photo_url`, `quote_text`, `quote_source` | always; IG/quote hide when empty | 1 portrait; parents line optional; quote/source optional | names: profile; labels: `template_content.ananda_kicker` / `parents_label` (fallback `event_labels`) ; quote: profile | fadeUp `.06–.11`, stage fade `.04` |
 | 4 | Countdown | `estimated_wedding_date`/`sessions[].date`, `sessions[0]` for the calendar | renders only when a parseable date exists | cells are always 4; digits `--` before hydration; calendar pill hidden without `sessions` | `countdown_intro`; calendar text `save_date_label` | fadeUp title/date, zoomIn clock `.08` |
 | 5 | Waktu & Tempat | `sessions[]` | renders when ≥1 session | 1 event ⇒ no trailing divider; venue/address joined, either alone works | `events_title`, `events_intro`, `maps_label`; rows: sessions | fadeUp title/lead, fade list `.06` |
 | 6 | Galeri | `gallery_photos[]` (max 8) | renders when non-empty | 1 photo ⇒ single 72 % column, no offset; 2+ ⇒ 2 columns, even tile `translateY(18px)` | `gallery_title`, `gallery_intro` | fadeUp `.0/.04/.08` |
@@ -136,8 +136,8 @@ the ones with count branches; all were exercised at 1 and many.
 ## Verification
 
 - `npx tsc --noEmit` clean.
-- `npm run audit:copy -- lentera-zamrud` clean (6 allowlisted structural
-  literals: brand badge ×2, countdown units ×4).
+- `npm run audit:copy -- lentera-zamrud` clean (2 allowlisted structural
+  literals: brand badge ×2).
 - 390 × 844 and 1440 × 900: `scrollWidth === innerWidth`, reference plate
   390 px centred on `#1F5C4B`, no console errors.
 - `prefers-reduced-motion: reduce`: 39/39 reveal targets at `opacity: 1`.

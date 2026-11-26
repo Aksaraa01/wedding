@@ -188,6 +188,8 @@ export default function SongketMarun(profile: TemplateProps) {
   const salam = (tc.opening_salam || "").trim() || d.salam
   const basmalah = (tc.basmalah || "").trim() || d.basmalah
   const openingText = (profile.opening_description || "").trim() || d.opening
+  const anandaKicker = (tc.ananda_kicker || "").trim() || labels.subjectPossessive
+  const parentsLabel = (tc.parents_label || "").trim() || labels.subjectOf
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
   const doaTitle = (tc.doa_title || "").trim() || (lang === "en" ? "Prayer for the Child" : "Doa untuk Ananda")
@@ -208,6 +210,14 @@ export default function SongketMarun(profile: TemplateProps) {
   const giftLead = (tc.gift_intro_description || "").trim() || d.gift
   const copyAccountButton = (tc.copy_account_button || "").trim() || t("copyNumber", lang)
   const copyAddressButton = (tc.copy_address_button || "").trim() || t("copyAddress", lang)
+  const copyAccountToast = (tc.copy_account_toast || "").trim() || (lang === "en" ? "Account number copied" : "Nomor rekening disalin")
+  const copyAddressToast = (tc.copy_address_toast || "").trim() || (lang === "en" ? "Address copied" : "Alamat disalin")
+  const countdownLabels = {
+    days: (tc.countdown_days || "").trim() || t("days", lang),
+    hours: (tc.countdown_hours || "").trim() || t("hours", lang),
+    minutes: (tc.countdown_minutes || "").trim() || t("minutes", lang),
+    seconds: (tc.countdown_seconds || "").trim() || t("seconds", lang),
+  }
   const giftSendLabel = (tc.gift_send_label || "").trim() || t("sendGift", lang)
   const invitingKicker = (tc.inviting_kicker || "").trim() || t("secInviting", lang)
   const invitingTitle = (tc.inviting_title || "").trim() || (lang === "en" ? "Family & Relatives" : "Keluarga & Kerabat")
@@ -352,10 +362,10 @@ export default function SongketMarun(profile: TemplateProps) {
   const countdownCells = (() => {
     const ms = target && now ? Math.max(0, target.getTime() - now) : 0
     return [
-      { value: Math.floor(ms / 86400000), label: "Hari" },
-      { value: Math.floor((ms % 86400000) / 3600000), label: "Jam" },
-      { value: Math.floor((ms % 3600000) / 60000), label: "Menit" },
-      { value: Math.floor((ms % 60000) / 1000), label: "Detik" },
+      { value: Math.floor(ms / 86400000), label: countdownLabels.days },
+      { value: Math.floor((ms % 86400000) / 3600000), label: countdownLabels.hours },
+      { value: Math.floor((ms % 3600000) / 60000), label: countdownLabels.minutes },
+      { value: Math.floor((ms % 60000) / 1000), label: countdownLabels.seconds },
     ]
   })()
 
@@ -414,7 +424,7 @@ export default function SongketMarun(profile: TemplateProps) {
               <span className="skm-tepi skm-tepi--top" aria-hidden="true" />
               <span className="skm-tepi skm-tepi--bottom" aria-hidden="true" />
 
-              <p className="skm-kicker skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0)}>{labels.subjectPossessive}</p>
+              <p className="skm-kicker skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0)}>{anandaKicker}</p>
 
               {ananda.length > 1 ? (
                 <div className="skm-ananda skm-reveal skm-reveal--in" data-skm-reveal style={reveal(0.04)}>
@@ -458,7 +468,7 @@ export default function SongketMarun(profile: TemplateProps) {
               )}
               {parents && (
                 <>
-                  <p className="skm-kicker skm-kicker--mt skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0.09)}>{labels.subjectOf}</p>
+                  <p className="skm-kicker skm-kicker--mt skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0.09)}>{parentsLabel}</p>
                   <p className="skm-putra__parents skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0.11)}>{parentLines}</p>
                 </>
               )}
@@ -626,7 +636,7 @@ export default function SongketMarun(profile: TemplateProps) {
                       <button
                         type="button"
                         className="skm-gift__copy"
-                        onClick={() => copyText(account.account_number || "", "Nomor rekening disalin")}
+                        onClick={() => copyText(account.account_number || "", copyAccountToast)}
                         aria-label={copyAccountButton}
                       >
                         {copyAccountButton}
@@ -641,7 +651,7 @@ export default function SongketMarun(profile: TemplateProps) {
                       <button
                         type="button"
                         className="skm-gift__copy"
-                        onClick={() => copyText(giftAddress, "Alamat disalin")}
+                        onClick={() => copyText(giftAddress, copyAddressToast)}
                         aria-label={copyAddressButton}
                       >
                         {copyAddressButton}

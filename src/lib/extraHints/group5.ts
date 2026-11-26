@@ -45,7 +45,6 @@ export const HINTS: HintMap = {
     closing_message: { en: "Thank you for being part of our story. Your presence and prayers mean the world to us." },
   },
   "ubin-ottoman": {
-    parents_label: { en: "Parents of the Bride & Groom" },
     gift_kicker: { en: "With a Grateful Heart" },
     gift_intro_description: { en: "Your blessing and presence are more than enough for us." },
     wishes_intro: { en: "Leave your warmest wishes and prayers for us." },
