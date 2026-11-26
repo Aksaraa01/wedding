@@ -816,7 +816,6 @@
 }
 
 .noir-root .primary-pane .highlight > div,
-.noir-root .primary-pane .highlight iframe,
 .noir-root .primary-pane .highlight video {
   border: 0;
   height: 100%;
@@ -824,6 +823,23 @@
   object-fit: cover;
   position: absolute;
   width: 100%;
+}
+
+/* a background iframe has to cover, not letterbox: keep 16:9 and grow past
+   the shorter side of the frame */
+.noir-root .primary-pane .highlight iframe,
+.noir-root .agenda-wrap .section-media iframe {
+  aspect-ratio: 16 / 9;
+  border: 0;
+  height: auto;
+  inset: auto;
+  left: 50%;
+  min-height: 100%;
+  min-width: 100%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
 }
 
 /* event backdrop: the same film, dimmed, with the cover photo as fallback */
@@ -861,16 +877,7 @@
 }
 
 .noir-root .agenda-wrap .section-media iframe {
-  border: 0;
-  height: 100vh;
-  left: 50%;
-  min-height: 100%;
-  min-width: 100%;
   pointer-events: none;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 177.78vh;
 }
 
 .noir-root .agenda-wrap .agenda-inner {
