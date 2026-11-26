@@ -146,8 +146,8 @@
 }
 
 .noir-root .gallery__single-slider .slider-item {
-  flex: 0 0 100%;
-  scroll-snap-align: center;
+  flex: 0 0 min(62vw, 400px);
+  scroll-snap-align: start;
 }
 
 .noir-root .gallery__single-slider .slider-item .preview,
@@ -160,52 +160,6 @@
 .noir-root .gallery__single-slider .slider-item .preview .img {
   aspect-ratio: 3 / 4;
   object-fit: cover;
-}
-
-.noir-root .gallery__nav {
-  align-items: center;
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  padding-bottom: 40px;
-}
-
-.noir-root .gallery__arrow {
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 8px;
-}
-
-.noir-root .gallery__arrow svg {
-  display: block;
-  height: 18px;
-  width: 10px;
-}
-
-.noir-root .gallery__arrow path {
-  fill: none;
-  stroke: var(--text-secondary);
-  stroke-width: 1.4;
-}
-
-.noir-root .gallery__dots {
-  display: flex;
-  gap: 5px;
-}
-
-.noir-root .gallery__dot {
-  background-color: rgba(var(--light-rgb), 0.4);
-  border: 0;
-  cursor: pointer;
-  height: 3px;
-  padding: 0;
-  transition: background-color 0.25s ease;
-  width: 26px;
-}
-
-.noir-root .gallery__dot.is-active {
-  background-color: var(--light-clr);
 }
 
 /* love story: reference markup, slick replaced by stacked slides */
@@ -836,4 +790,144 @@
 .noir-root .video-gallery .preview.is-playing {
   opacity: 1;
   transform: none;
+}
+
+/* desktop opening: the right column holds the gate (button + music start) */
+@media (min-width: 961px) {
+  .noir-root section.top-cover {
+    display: flex;
+    height: 100vh;
+    left: 61%;
+    position: fixed;
+    top: 0;
+    width: 39%;
+    z-index: 60;
+  }
+
+  .noir-root section.top-cover.hide {
+    bottom: auto;
+    top: -120%;
+  }
+}
+
+/* the film on the left pane: muted loop, the cover photo when there is none */
+.noir-root .primary-pane .highlight {
+  overflow: hidden;
+}
+
+.noir-root .primary-pane .highlight > div,
+.noir-root .primary-pane .highlight iframe,
+.noir-root .primary-pane .highlight video {
+  border: 0;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+/* event backdrop: the same film, dimmed, with the cover photo as fallback */
+.noir-root .agenda-wrap {
+  isolation: isolate;
+}
+
+.noir-root .agenda-wrap .section-media {
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: 0;
+}
+
+.noir-root .agenda-wrap .section-media::after {
+  background: rgba(0, 0, 0, 0.7);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.noir-root .agenda-wrap .section-media__photo {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+}
+
+.noir-root .agenda-wrap .section-media__video {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.noir-root .agenda-wrap .section-media iframe {
+  border: 0;
+  height: 100vh;
+  left: 50%;
+  min-height: 100%;
+  min-width: 100%;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 177.78vh;
+}
+
+.noir-root .agenda-wrap .agenda-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* film: a real, visible play control over the poster */
+.noir-root .video-gallery .preview .play-btn {
+  align-items: center;
+  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  height: 64px;
+  justify-content: center;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  z-index: 2;
+}
+
+.noir-root .video-gallery .preview .play-btn svg {
+  height: 22px;
+  width: 22px;
+}
+
+/* story: the caption lives inside the card, not in an inner scrollbar */
+.noir-root .story-chitra__content {
+  overflow: hidden;
+}
+
+.noir-root .story-chitra__caption {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  display: -webkit-box;
+  max-height: none;
+  overflow: hidden;
+}
+
+.noir-root .story-chitra__arrow-btn {
+  align-items: center;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.noir-root .story-chitra__arrow-btn.prev {
+  left: 4px;
+}
+
+.noir-root .story-chitra__arrow-btn.next {
+  right: 4px;
 }

@@ -2172,7 +2172,7 @@ export function getTemplateConfig(code: string): TemplateConfig | undefined {
   return TEMPLATE_CONFIGS.find((t) => t.code === code)
 }
 
-export { hidesOpeningSection, hidesOpeningTitle } from "@/lib/templateSections"
+export { hidesOpeningSection } from "@/lib/templateSections"
 
 export function getTemplateContentSpec(code: string | null) {
   if (!code) return undefined

@@ -195,8 +195,6 @@ export default function Noir(profile: TemplateProps) {
   const openLabel = tc.open_button || t("openInvitation", lang)
   const welcomeTitle = tc.welcome_title || coupleShort
   const welcomeNote = tc.welcome_note || t("withLoveAndGratitude", lang)
-  const openingTitle = (profile.opening_title || "").trim()
-  const openingDescription = (profile.opening_description || "").trim()
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
   const agendaTitle = tc.agenda_title || t("secEvent", lang)
@@ -272,18 +270,6 @@ export default function Noir(profile: TemplateProps) {
     const pane = paneRef.current
     if (pane) pane.scrollTop = 0
   }, [playMusic])
-
-  // Desktop has no gate (the reference hides .top-cover above 960px).
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const mq = window.matchMedia("(min-width: 961px)")
-    const sync = () => {
-      if (mq.matches) setOpened(true)
-    }
-    sync()
-    mq.addEventListener("change", sync)
-    return () => mq.removeEventListener("change", sync)
-  }, [])
 
   useEffect(() => {
     if (!opened || typeof window === "undefined") return
@@ -445,56 +431,69 @@ export default function Noir(profile: TemplateProps) {
     },
   })
 
+  // A slide is one card wide; on desktop the track is much wider than a card,
+  // so stepping by clientWidth used to jump two or three milestones at once.
+  const storyStep = () => {
+    const el = storyRef.current
+    const item = el?.querySelector<HTMLElement>(".story-chitra__slider-for__item")
+    return item ? item.getBoundingClientRect().width + 10 : (el?.clientWidth ?? 0)
+  }
+
   const scrollStory = (dir: number) => {
     const el = storyRef.current
     if (!el) return
-    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" })
+    el.scrollBy({ left: dir * storyStep(), behavior: "smooth" })
   }
 
-  // The reference's gallery advances on its own (slick autoplay, ~4 s). Pause
-  // while the guest is dragging or hovering, and while the lightbox is open.
+  // The reference's gallery advances on its own (slick autoplay, ~4 s). One
+  // card per tick, no hover pause, and a cooldown after the guest intervenes.
   useEffect(() => {
     const el = galleryRef.current
     if (!el || gallery.length < 2 || lightbox !== null) return
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    let paused = false
-    const pause = () => {
-      paused = true
+    let holding = false
+    let holdUntil = 0
+    const hold = () => {
+      holding = true
     }
-    const resume = () => {
-      paused = false
+    const release = () => {
+      holding = false
+      holdUntil = Date.now() + 6000
     }
-    el.addEventListener("pointerdown", pause)
-    el.addEventListener("pointerup", resume)
-    el.addEventListener("pointercancel", resume)
-    el.addEventListener("mouseenter", pause)
-    el.addEventListener("mouseleave", resume)
-    el.addEventListener("touchstart", pause, { passive: true })
-    el.addEventListener("touchend", resume)
+    el.addEventListener("pointerdown", hold)
+    el.addEventListener("pointerup", release)
+    el.addEventListener("pointercancel", release)
+    el.addEventListener("touchstart", hold, { passive: true })
+    el.addEventListener("touchend", release)
     const id = window.setInterval(() => {
-      if (paused || document.hidden) return
-      const width = el.clientWidth
-      if (!width) return
-      const current = Math.round(el.scrollLeft / width)
+      if (holding || document.hidden || Date.now() < holdUntil) return
+      const step = galleryStep()
+      if (!step) return
+      const current = Math.round(el.scrollLeft / step)
       const next = current + 1 >= gallery.length ? 0 : current + 1
-      el.scrollTo({ left: next * width, behavior: "smooth" })
+      el.scrollTo({ left: next * step, behavior: "smooth" })
     }, 4200)
     return () => {
       window.clearInterval(id)
-      el.removeEventListener("pointerdown", pause)
-      el.removeEventListener("pointerup", resume)
-      el.removeEventListener("pointercancel", resume)
-      el.removeEventListener("mouseenter", pause)
-      el.removeEventListener("mouseleave", resume)
-      el.removeEventListener("touchstart", pause)
-      el.removeEventListener("touchend", resume)
+      el.removeEventListener("pointerdown", hold)
+      el.removeEventListener("pointerup", release)
+      el.removeEventListener("pointercancel", release)
+      el.removeEventListener("touchstart", hold)
+      el.removeEventListener("touchend", release)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gallery.length, lightbox])
+
+  const galleryStep = () => {
+    const el = galleryRef.current
+    const item = el?.querySelector<HTMLElement>(".slider-item")
+    return item ? item.getBoundingClientRect().width + 12 : (el?.clientWidth ?? 0)
+  }
 
   const scrollGallery = (dir: number) => {
     const el = galleryRef.current
     if (!el) return
-    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" })
+    el.scrollBy({ left: dir * galleryStep(), behavior: "smooth" })
   }
 
   const rootStyle = { "--bg-cover": `url("${cover}")` } as CSSProperties
@@ -588,9 +587,21 @@ export default function Noir(profile: TemplateProps) {
               </p>
             </div>
             <div className="highlight" data-aos="zoom-out" data-aos-duration="1000">
-              <div className="preview-container cover-show">
-                <div className="picture" style={{ backgroundImage: `url("${cover}")` }} />
-              </div>
+              {hasVideo && video ? (
+                video.kind === "file" ? (
+                  <video className="pane-media" src={video.src} autoPlay muted loop playsInline />
+                ) : videoPoster ? (
+                  <AutoplayYouTube videoId={videoPoster} title={videoTitle} autoplay />
+                ) : (
+                  <div className="preview-container cover-show">
+                    <div className="picture" style={{ backgroundImage: `url("${cover}")` }} />
+                  </div>
+                )
+              ) : (
+                <div className="preview-container cover-show">
+                  <div className="picture" style={{ backgroundImage: `url("${cover}")` }} />
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -706,15 +717,10 @@ export default function Noir(profile: TemplateProps) {
 
           {/* 2 — Opening video: the design opens on a still cover (REA_NOIR §3). */}
 
-          {/* 3 — Kalimat pembuka + the reference's quote card (first block after cover) */}
-          {openingDescription || quoteText ? (
+          {/* 3 — Quote (the design has no separate "kalimat pembuka" block) */}
+          {quoteText ? (
             <section className="quote-wrap" style={{ "--section-photo": `url("${quotePhoto}")` } as CSSProperties}>
               <div className="quote">
-                {openingDescription ? (
-                  <p className="quote-caption" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
-                    {openingDescription}
-                  </p>
-                ) : null}
                 {quoteText ? (
                   <p className="quote-caption" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="250">
                     &ldquo;{quoteText}&rdquo;
@@ -765,6 +771,19 @@ export default function Noir(profile: TemplateProps) {
           {/* 6 — Event */}
           {sessions.length > 0 ? (
             <section className="agenda-wrap">
+              <div className="section-media" aria-hidden>
+                {hasVideo && video ? (
+                  video.kind === "file" ? (
+                    <video className="section-media__video" src={video.src} autoPlay muted loop playsInline />
+                  ) : videoPoster ? (
+                    <AutoplayYouTube videoId={videoPoster} title={videoTitle} autoplay />
+                  ) : (
+                    <div className="section-media__photo" style={{ backgroundImage: `url("${cover}")` }} />
+                  )
+                ) : (
+                  <div className="section-media__photo" style={{ backgroundImage: `url("${cover}")` }} />
+                )}
+              </div>
               <div className="agenda-inner">
                 <div className="agenda-head">
                   <h1 className="agenda-title" data-aos="zoom-in" data-aos-duration="1500">
@@ -889,7 +908,7 @@ export default function Noir(profile: TemplateProps) {
                       onScroll={(event) => {
                         const el = event.currentTarget
                         if (!el.clientWidth) return
-                        setStoryIndex(Math.min(stories.length - 1, Math.round(el.scrollLeft / el.clientWidth)))
+                        setStoryIndex(Math.min(stories.length - 1, Math.round(el.scrollLeft / storyStep())))
                       }}
                       {...dragHandlers(storyRef)}
                     >
@@ -909,7 +928,7 @@ export default function Noir(profile: TemplateProps) {
                           <div className="story-chitra__content">
                             {story.title ? (
                               <h2
-                                className="story-chitra__title"
+                                className={`story-chitra__title${index === storyIndex ? " aos-animate" : ""}`}
                                 data-aos="fade-up"
                                 data-aos-duration="1000"
                               >
@@ -917,7 +936,11 @@ export default function Noir(profile: TemplateProps) {
                               </h2>
                             ) : null}
                             {story.description ? (
-                              <p className="story-chitra__caption" data-aos="fade-up" data-aos-duration="1000">
+                              <p
+                                className={`story-chitra__caption${index === storyIndex ? " aos-animate" : ""}`}
+                                data-aos="fade-up"
+                                data-aos-duration="1000"
+                              >
                                 {story.description}
                               </p>
                             ) : null}
@@ -944,7 +967,7 @@ export default function Noir(profile: TemplateProps) {
                             className={`story-chitra__slider-nav__item__manual${index === storyIndex ? " is-active" : ""}`}
                             onClick={() => {
                               const el = storyRef.current
-                              if (el) el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" })
+                              if (el) el.scrollTo({ left: index * storyStep(), behavior: "smooth" })
                             }}
                             aria-label={t("storyPart", lang).replace("{n}", pad2(index + 1))}
                           />
@@ -986,7 +1009,8 @@ export default function Noir(profile: TemplateProps) {
                       onScroll={(event) => {
                         const el = event.currentTarget
                         if (!el.clientWidth) return
-                        setGalleryIndex(Math.round(el.scrollLeft / el.clientWidth))
+                        const step = galleryStep()
+                        if (step) setGalleryIndex(Math.round(el.scrollLeft / step))
                       }}
                     >
                       {gallery.map((src, index) => (
@@ -1011,34 +1035,6 @@ export default function Noir(profile: TemplateProps) {
                       ))}
                     </div>
                   </div>
-                  {gallery.length > 1 ? (
-                    <div className="gallery__nav">
-                      <button type="button" className="gallery__arrow" onClick={() => scrollGallery(-1)} aria-label={t("previousPhoto", lang)}>
-                        <svg viewBox="0 0 12 22" aria-hidden>
-                          <path d="M10 1 2 11l8 10" />
-                        </svg>
-                      </button>
-                      <div className="gallery__dots">
-                        {gallery.map((src, index) => (
-                          <button
-                            type="button"
-                            key={`dot-${src}-${index}`}
-                            className={`gallery__dot${index === galleryIndex ? " is-active" : ""}`}
-                            onClick={() => {
-                              const el = galleryRef.current
-                              if (el) el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" })
-                            }}
-                            aria-label={t("storyPart", lang).replace("{n}", pad2(index + 1))}
-                          />
-                        ))}
-                      </div>
-                      <button type="button" className="gallery__arrow" onClick={() => scrollGallery(1)} aria-label={t("nextPhoto", lang)}>
-                        <svg viewBox="0 0 12 22" aria-hidden>
-                          <path d="M2 1l8 10-8 10" />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : null}
                 </div>
               </div>
             </section>
