@@ -137,6 +137,12 @@ export default function Noir(profile: TemplateProps) {
 
   const cover = coverPhoto(profile)
   const coverSlides = flattenPhotos(profile.cover_photos)
+  // Each surface takes its own cover slot so the invitation is not one photo
+  // repeated down the page. Missing slots fall back to the cover photo.
+  const coverAt = (index: number) => coverSlides[index] || ""
+  const gatePhoto = coverAt(1) || cover
+  const quotePhoto = coverAt(2) || coverAt(1) || cover
+  const closingPhoto = coverAt(3) || coverAt(1) || cover
   const groomPhoto = groomPhotoOf(profile.groom_photo_url)
   const bridePhoto = bridePhotoOf(profile.bride_photo_url)
   const gallery = flattenPhotos(profile.gallery_photos)
@@ -193,8 +199,6 @@ export default function Noir(profile: TemplateProps) {
   const openingDescription = (profile.opening_description || "").trim()
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
-  const groomLabel = tc.groom_label || t("groomLabel", lang)
-  const brideLabel = tc.bride_label || t("brideLabel", lang)
   const agendaTitle = tc.agenda_title || t("secEvent", lang)
   const eventsIntro = tc.events_intro || ""
   const mapsLabel = tc.maps_label || t("viewLocation", lang)
@@ -447,6 +451,46 @@ export default function Noir(profile: TemplateProps) {
     el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" })
   }
 
+  // The reference's gallery advances on its own (slick autoplay, ~4 s). Pause
+  // while the guest is dragging or hovering, and while the lightbox is open.
+  useEffect(() => {
+    const el = galleryRef.current
+    if (!el || gallery.length < 2 || lightbox !== null) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    let paused = false
+    const pause = () => {
+      paused = true
+    }
+    const resume = () => {
+      paused = false
+    }
+    el.addEventListener("pointerdown", pause)
+    el.addEventListener("pointerup", resume)
+    el.addEventListener("pointercancel", resume)
+    el.addEventListener("mouseenter", pause)
+    el.addEventListener("mouseleave", resume)
+    el.addEventListener("touchstart", pause, { passive: true })
+    el.addEventListener("touchend", resume)
+    const id = window.setInterval(() => {
+      if (paused || document.hidden) return
+      const width = el.clientWidth
+      if (!width) return
+      const current = Math.round(el.scrollLeft / width)
+      const next = current + 1 >= gallery.length ? 0 : current + 1
+      el.scrollTo({ left: next * width, behavior: "smooth" })
+    }, 4200)
+    return () => {
+      window.clearInterval(id)
+      el.removeEventListener("pointerdown", pause)
+      el.removeEventListener("pointerup", resume)
+      el.removeEventListener("pointercancel", resume)
+      el.removeEventListener("mouseenter", pause)
+      el.removeEventListener("mouseleave", resume)
+      el.removeEventListener("touchstart", pause)
+      el.removeEventListener("touchend", resume)
+    }
+  }, [gallery.length, lightbox])
+
   const scrollGallery = (dir: number) => {
     const el = galleryRef.current
     if (!el) return
@@ -484,9 +528,6 @@ export default function Noir(profile: TemplateProps) {
           </div>
         </div>
         <div className="couple-details-wrap previewed">
-          <h1 className="details-title" data-aos="zoom-in" data-aos-duration="1000">
-            {isGroom ? groomLabel : brideLabel}
-          </h1>
           <div className="couple-details">
             <h2 className="couple-name" data-aos="fade-up" data-aos-duration="1000">
               {name || short}
@@ -606,7 +647,7 @@ export default function Noir(profile: TemplateProps) {
               </div>
               <div className="highlight">
                 <div className="preview-container cover-show">
-                  <div className="picture" style={{ backgroundImage: `url("${cover}")` }} />
+                  <div className="picture" style={{ backgroundImage: `url("${gatePhoto}")` }} />
                 </div>
               </div>
             </div>
@@ -667,7 +708,7 @@ export default function Noir(profile: TemplateProps) {
 
           {/* 3 — Kalimat pembuka + the reference's quote card (first block after cover) */}
           {openingDescription || quoteText ? (
-            <section className="quote-wrap">
+            <section className="quote-wrap" style={{ "--section-photo": `url("${quotePhoto}")` } as CSSProperties}>
               <div className="quote">
                 {openingDescription ? (
                   <p className="quote-caption" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
@@ -712,18 +753,11 @@ export default function Noir(profile: TemplateProps) {
           {/* 5 — Mempelai */}
           <section className="couple-wrap">
             <div className="couple">
+              {/* The theme reverses this column with .bride-first, so the DOM
+                  order stays groom→bride and the editor's order is honoured. */}
               <div className={`couple-body${brideFirst ? " bride-first" : ""} show-picture`}>
-                {brideFirst ? (
-                  <>
-                    {person("bride")}
-                    {person("groom")}
-                  </>
-                ) : (
-                  <>
-                    {person("groom")}
-                    {person("bride")}
-                  </>
-                )}
+                {person("groom")}
+                {person("bride")}
               </div>
             </div>
           </section>
@@ -1037,7 +1071,16 @@ export default function Noir(profile: TemplateProps) {
                       ) : (
                         <>
                           {videoPoster ? (
-                            <img src={`https://i.ytimg.com/vi/${videoPoster}/maxresdefault.jpg`} alt="" loading="lazy" />
+                            <img
+                              src={`https://i.ytimg.com/vi/${videoPoster}/maxresdefault.jpg`}
+                              alt=""
+                              loading="lazy"
+                              onError={(event) => {
+                                const img = event.currentTarget
+                                const fallback = `https://i.ytimg.com/vi/${videoPoster}/hqdefault.jpg`
+                                if (img.src !== fallback) img.src = fallback
+                              }}
+                            />
                           ) : null}
                           <button type="button" className="play-btn" onClick={() => setVideoOn(true)} aria-label={videoTitle}>
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
@@ -1247,7 +1290,7 @@ export default function Noir(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="footnote-wrap">
+          <section className="footnote-wrap" style={{ "--section-photo": `url("${closingPhoto}")` } as CSSProperties}>
             <div className="footnote">
               <p className="top-text" data-aos="zoom-out" data-aos-duration="1200" data-aos-delay="100">
                 {kicker}

@@ -797,3 +797,36 @@
   object-fit: contain;
   width: 100%;
 }
+
+/* one photo per surface: the cover slot drives the gate, the quote and the
+   closing, so the page is not the same picture five times over */
+.noir-root .quote-wrap,
+.noir-root .footnote-wrap {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)), var(--section-photo);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* the theme prints the person's role above the card; the card keeps the rule
+   (the role label is gone so the editor's order cannot disagree with it) */
+.noir-root .couple-details-wrap.previewed::before {
+  background-color: var(--text-primary);
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 0 0 12px;
+  width: 100%;
+}
+
+/* the film player has to fill the 16:9 frame the theme reserves; without this
+   the YouTube iframe inherits a zero-height content box and never shows */
+.noir-root .video-gallery .preview.is-playing > div,
+.noir-root .video-gallery .preview.is-playing iframe,
+.noir-root .video-gallery .preview.is-playing video {
+  border: 0;
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}

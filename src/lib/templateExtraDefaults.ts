@@ -2284,14 +2284,6 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "With love and gratitude",
       "id": "Kami yang berbahagia"
     },
-    "groom_label": {
-      "en": "The Groom",
-      "id": "Mempelai Pria"
-    },
-    "bride_label": {
-      "en": "The Bride",
-      "id": "Mempelai Wanita"
-    },
     "agenda_title": {
       "en": "The Celebration",
       "id": "Rangkaian Acara"

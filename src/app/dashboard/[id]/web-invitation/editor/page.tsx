@@ -4,7 +4,7 @@ import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType }
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { profileView } from "@/lib/profileView"
-import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection } from "@/components/templates"
+import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection, hidesOpeningTitle } from "@/components/templates"
 import { visibleCoverSlotIndexes } from "@/lib/coverSlots"
 import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
 import type { RowGates } from "@/lib/featureGates"
@@ -1702,6 +1702,7 @@ function EditorInner({ id }: { id: string }) {
     )
   }
 
+  const openingTitleHidden = hidesOpeningTitle(template?.code)
   const openingMatch = matchOpeningPreset(data.opening_title)
   const isOpeningCustom = openingCustomMode || (!!data.opening_title && !openingMatch)
   const openingSelectValue =
@@ -2146,6 +2147,7 @@ function EditorInner({ id }: { id: string }) {
 
               {!hidesOpeningSection(template?.code) && renderSection("pembuka", "chat_bubble", "KALIMAT PEMBUKA",
                 <div className="mt-6 space-y-4">
+                  {!openingTitleHidden && (
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul</label>
                     <select
@@ -2171,7 +2173,8 @@ function EditorInner({ id }: { id: string }) {
                       <option value={OPENING_CUSTOM}>{OPENING_CUSTOM}</option>
                     </select>
                   </div>
-                  {isOpeningCustom && (
+                  )}
+                  {!openingTitleHidden && isOpeningCustom && (
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul Custom</label>
                       <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.opening_title || ""} onChange={v => updateField("opening_title", v)} placeholder="Perkenankanlah kami mengundang" />
@@ -2179,7 +2182,7 @@ function EditorInner({ id }: { id: string }) {
                   )}
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
-                    <AutoTextarea className="input-editorial w-full font-body-md text-[14px] resize-none disabled:opacity-60 overflow-hidden" value={data.opening_description || ""} onChange={v => updateField("opening_description", v)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!isOpeningCustom} minRows={3} />
+                    <AutoTextarea className="input-editorial w-full font-body-md text-[14px] resize-none disabled:opacity-60 overflow-hidden" value={data.opening_description || ""} onChange={v => updateField("opening_description", v)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!isOpeningCustom && !openingTitleHidden} minRows={3} />
                     {!template?.wp_manifest?.opening_description && (
                       <p className="text-[11px] text-on-surface-variant/70 mt-1 italic">Catatan: Template ini hanya menampilkan Judul. Deskripsi tidak akan tampil di undangan.</p>
                     )}

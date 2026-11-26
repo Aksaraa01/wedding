@@ -10,3 +10,12 @@ const TEMPLATES_WITHOUT_OPENING = new Set(["majestic", "nihara-mist", "dark-spli
 export function hidesOpeningSection(code: string | null | undefined): boolean {
   return !!code && TEMPLATES_WITHOUT_OPENING.has(code)
 }
+
+// Templates that render the opening *description* without the preset heading.
+// The editor then drops the title/preset control so no field is presented that
+// the invitation never prints.
+const TEMPLATES_WITHOUT_OPENING_TITLE = new Set(["noir"])
+
+export function hidesOpeningTitle(code: string | null | undefined): boolean {
+  return !!code && TEMPLATES_WITHOUT_OPENING_TITLE.has(code)
+}

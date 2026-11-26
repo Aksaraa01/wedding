@@ -2142,8 +2142,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.9, stagger: 0.08 },
     },
     content: {
-      cover_slots: 2,
-      cover_slot_labels: ["Sampul", "Foto Penutup"],
+      cover_slots: 4,
+      cover_slot_labels: ["Sampul", "Foto Pembuka", "Foto Kutipan", "Foto Penutup"],
       groom_photo: "single",
       bride_photo: "single",
       person_photos: true,
@@ -2172,7 +2172,7 @@ export function getTemplateConfig(code: string): TemplateConfig | undefined {
   return TEMPLATE_CONFIGS.find((t) => t.code === code)
 }
 
-export { hidesOpeningSection } from "@/lib/templateSections"
+export { hidesOpeningSection, hidesOpeningTitle } from "@/lib/templateSections"
 
 export function getTemplateContentSpec(code: string | null) {
   if (!code) return undefined

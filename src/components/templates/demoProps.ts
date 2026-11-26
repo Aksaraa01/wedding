@@ -3772,7 +3772,7 @@ DEMO_PROPS_BY_CODE.noir = {
   display_name: "#AldenVera",
   estimated_wedding_date: "2027-03-14",
   guest_name: "Tamu Undangan",
-  cover_photos: [`${DE}/cover.webp`, `${DE}/cover-6.webp`],
+  cover_photos: [`${DE}/cover.webp`, `${DE}/cover-6.webp`, `${DE}/cover-3.webp`, `${DE}/cover-4.webp`],
   groom_photo_url: [`${DE}/groom.webp`],
   bride_photo_url: [`${DE}/bride.webp`],
   gallery_photos: [...DE_GALLERY],
