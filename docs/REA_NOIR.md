@@ -93,7 +93,7 @@ with a lightbox that ignores the click that ends a drag.
 | **No inline RSVP** | Playbook rule: RSVP/QR is the floating dock, never a section. |
 | **Instagram filter dropped** | Outside the 16-section contract and no `wedding_profiles` column feeds it. Reported here instead of shipping a dead block. |
 | **Quote merged into Kalimat pembuka** | The reference's `.quote-wrap` is the couple's words surface; `opening_title` + `opening_description` sit above it on the same surface, so the editor's `quote_text` / `quote_source` stay reachable without inventing a 17th section. |
-| **No "The Groom"/"The Bride" labels** | Playbook §0.5(3): two portraits with their own names, parents and Instagram. |
+| **No "Mempelai Pria/Wanita" labels** | The role label would disagree with the editor's couple order. The card keeps the theme's hairline, names, parents and Instagram; `.bride-first` alone reverses the column, so the editor's order always wins. |
 | **No live streaming** | The reference has none and the contract does not require it; `livestream` is `false` in the content spec. |
 
 ---
@@ -105,13 +105,13 @@ with a lightbox that ignores the click that ends a drag.
 | 1 | Cover | `cover_photos[0]`, names, `estimated_wedding_date`, `guest_name` | always | no photo ⇒ black poster + type; photo ⇒ full-bleed with gradient veil | `tc.cover_kicker`, `tc.cover_guest_label`; date from profile | `fade-up` 1.2 s (names), 1.1 s (date/guest) |
 | 3 | Welcome | names, date, guest | always; hidden only when the couple has no names | single date; range comes from `sessions` | `t("theWeddingOf")`, `tc.welcome_note` | `zoom-in` 1 s |
 | 4 | Kalimat pembuka | `opening_title`, `opening_description`, `quote_text`, `quote_source` | `!hidesOpeningSection("noir")` (active) | no title/description/quote ⇒ whole section absent; quote alone ⇒ quote card only | profile columns | `fade-up` 1 s on the card |
-| 5 | Mempelai | names, full names, portraits, parents, Instagram | `person_photos !== false` | one portrait ⇒ one card with monogram-free fallback photo; missing IG ⇒ link absent | `tc.mempelai_title`, `tc.mempelai_intro`, `t("sonOf"/"daughterOf")` | `fade-up` 1 s, 120 ms step |
+| 5 | Mempelai | names, full names, portraits, parents, Instagram | `person_photos !== false` | one portrait ⇒ one card with monogram-free fallback photo; missing IG ⇒ link absent; DOM stays groom→bride and `.bride-first` reverses it once, so `tc.couple_order` is honoured | `tc.mempelai_title`, `tc.mempelai_intro`, `t("sonOf"/"daughterOf")` | `fade-up` 1 s, 120 ms step |
 | 6 | Event | `sessions[]` | always (publish blocked without it) | 1 event ⇒ one card; N ⇒ stacked cards; no `maps_url` ⇒ button absent | `tc.agenda_title`, `tc.events_intro`, `tc.maps_label` | `fade-up` 900 ms, 90 ms step |
 | 7 | Countdown | `estimated_wedding_date` (falls back to first session date) | always when a date exists | past date ⇒ zeros; 3-digit days fit | `tc.countdown_*`, `tc.calendar_button` | 1 s tick, no entrance animation |
 | 8 | Love story | `stories[]` | `feature_gates.story !== false` **and** `story_visible !== false` | 0 ⇒ section absent; 1 ⇒ slide without nav; a milestone without `image_url` becomes a typographic slide with its ordinal; photo per `story_photo` | `tc.love_story_title`, `t("storyPart")` | cross-fade 900 ms + bars |
 | 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ absent; 1 ⇒ single row | `tc.rundown_title` (default `t("rundownHeading")` = "Rundown") | none (list must stay scannable) |
-| 10 | Gallery | `gallery_photos[]` | `no_photo === false` + data | 1 photo ⇒ track without arrows; N ⇒ snap track + lightbox (keyboard + arrows) | `tc.gallery_title`, `tc.gallery_intro` | hover scale 0.9 s |
-| 11 | Video | `video_url` | `feature_gates.video !== false` **and** `video_section_visible !== false` | YouTube ⇒ poster + click-to-mount; file ⇒ `<video>`; no poster ⇒ black frame | `tc.video_title`, `tc.video_caption` | poster fades on hover; player mounts on click |
+| 10 | Gallery | `gallery_photos[]` | `no_photo === false` + data | 1 photo ⇒ track without arrows; N ⇒ snap track + lightbox (keyboard + arrows). Advances every 4.2 s like the reference's slick autoplay; pauses on drag/hover, with the lightbox open, and for `prefers-reduced-motion` | `tc.gallery_title`, `tc.gallery_intro` | hover scale 0.9 s |
+| 11 | Video | `video_url` | `feature_gates.video !== false` **and** `video_section_visible !== false` | YouTube ⇒ poster + click-to-mount; file ⇒ `<video>`; no poster ⇒ black frame. The player fills the theme's 16:9 frame (the iframe previously inherited a zero-height content box) | `tc.video_title`, `tc.video_caption` | poster fades on hover; player mounts on click |
 | 12 | Wedding gift | `gift_accounts[]`, `gift_address_name`, `gift_address` | `gift_section_visible !== false`; address also needs `feature_gates.gift_address !== false` | accounts only ⇒ no tabs; address only ⇒ no tabs; both ⇒ tabs; none ⇒ absent. Cards carry the reference's `.bank-item.show` markup + copy pill | `tc.gift_*`, `tc.copy_*` | none |
 | 13 | Dress code | `dresscode{title, description, colors[]}` | `dresscode_visible !== false` | colours only ⇒ swatches; text only ⇒ paragraph; neither ⇒ absent | `tc.dresscode_title`, `tc.dresscode_intro` | none |
 | 14 | Wishes | `/api/wishes` + form | always | 0 approved ⇒ empty state; >10 ⇒ "load more"; preview ⇒ demo feed. Feed uses the reference's `.comment-item/.comment-head/.comment-caption` card and `.comment-wrap.show` | `tc.wishes_*` | none |
@@ -161,6 +161,7 @@ agreed staging couple `fikri-dinda` (real data: 2 events, 3 text-only stories,
 - desktop keeps the fixed 61 % photo pane with the 39 % column exactly as the
   reference does, including the cover photograph continuing behind the scroll
   pane (`.hero`, painted under the sections)
+- cover photography is spread across four slots (`Sampul`, `Foto Pembuka`, `Foto Kutipan`, `Foto Penutup`) so the gate, cover, quote and closing each show a different photo; missing slots fall back to the cover
 - motion is the reference's AOS build: `fade-up = translate3d(0,100px,0)`,
   `zoom-in = scale(0.6)`, `zoom-out = scale(1.2)`, `ease`, 1000–1600 ms with the
   reference's delays; the gate runs its own entrance on load and the cover

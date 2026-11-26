@@ -2183,7 +2183,7 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
                     <AutoTextarea className="input-editorial w-full font-body-md text-[14px] resize-none disabled:opacity-60 overflow-hidden" value={data.opening_description || ""} onChange={v => updateField("opening_description", v)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!isOpeningCustom && !openingTitleHidden} minRows={3} />
-                    {!template?.wp_manifest?.opening_description && (
+                    {!openingTitleHidden && !template?.wp_manifest?.opening_description && (
                       <p className="text-[11px] text-on-surface-variant/70 mt-1 italic">Catatan: Template ini hanya menampilkan Judul. Deskripsi tidak akan tampil di undangan.</p>
                     )}
                   </div>
