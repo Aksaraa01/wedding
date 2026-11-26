@@ -1672,6 +1672,30 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Copy Address",
       "id": "Salin Alamat"
     },
+    "copy_account_toast": {
+      "en": "Account number copied",
+      "id": "Nomor rekening disalin"
+    },
+    "copy_address_toast": {
+      "en": "Address copied",
+      "id": "Alamat disalin"
+    },
+    "countdown_days": {
+      "en": "Days",
+      "id": "Hari"
+    },
+    "countdown_hours": {
+      "en": "Hours",
+      "id": "Jam"
+    },
+    "countdown_minutes": {
+      "en": "Minutes",
+      "id": "Menit"
+    },
+    "countdown_seconds": {
+      "en": "Seconds",
+      "id": "Detik"
+    },
     "gift_send_label": {
       "en": "Send Gift",
       "id": "Kirim Hadiah"
@@ -3126,6 +3150,30 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Copy Address",
       "id": "Salin Alamat"
     },
+    "copy_account_toast": {
+      "en": "Account number copied",
+      "id": "Nomor rekening disalin"
+    },
+    "copy_address_toast": {
+      "en": "Address copied",
+      "id": "Alamat disalin"
+    },
+    "countdown_days": {
+      "en": "Days",
+      "id": "Hari"
+    },
+    "countdown_hours": {
+      "en": "Hours",
+      "id": "Jam"
+    },
+    "countdown_minutes": {
+      "en": "Minutes",
+      "id": "Menit"
+    },
+    "countdown_seconds": {
+      "en": "Seconds",
+      "id": "Detik"
+    },
     "gift_send_label": {
       "en": "Send Gift",
       "id": "Kirim Hadiah"
@@ -3615,6 +3663,30 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "copy_address_button": {
       "en": "Copy Address",
       "id": "Salin Alamat"
+    },
+    "copy_account_toast": {
+      "en": "Account number copied",
+      "id": "Nomor rekening disalin"
+    },
+    "copy_address_toast": {
+      "en": "Address copied",
+      "id": "Alamat disalin"
+    },
+    "countdown_days": {
+      "en": "Days",
+      "id": "Hari"
+    },
+    "countdown_hours": {
+      "en": "Hours",
+      "id": "Jam"
+    },
+    "countdown_minutes": {
+      "en": "Minutes",
+      "id": "Menit"
+    },
+    "countdown_seconds": {
+      "en": "Seconds",
+      "id": "Detik"
     },
     "gift_send_label": {
       "en": "Send Gift",
