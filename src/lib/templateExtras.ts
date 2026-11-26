@@ -91,6 +91,12 @@ export interface TemplateExtraField {
   multiline?: boolean
   rows?: number
   placeholder?: string
+  /**
+   * Editor-only locator ("Contoh: …"): the resolved `placeholder` has the
+   * prefix stripped for display, and this field is never merged into the
+   * rendered invitation copy.
+   */
+  example?: boolean
   /** English placeholder when language is en. */
   placeholderEn?: string
   // Per-template placeholder override. Resolved by getTemplateExtraFields so a
@@ -2230,6 +2236,18 @@ function translateExtraLabelToEn(label: string): string {
   return out
 }
 
+const EXAMPLE_PREFIX_RE = /^(?:Contoh\s*:|Example\s*:|e\.g\.)\s*/i
+
+function isExampleHintText(text: string | null | undefined): boolean {
+  return !!text && EXAMPLE_PREFIX_RE.test(text.trim())
+}
+
+function stripExamplePrefix(text: string | undefined): string | undefined {
+  if (!text) return text
+  const stripped = text.replace(EXAMPLE_PREFIX_RE, "").trim()
+  return stripped || text
+}
+
 function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" | "en"): TemplateExtraField {
   // Hint precedence: the copy the template actually prints (generated from its
   // source), then a hand-written per-template placeholder, then the shared
@@ -2249,32 +2267,56 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
   }
   if (lang !== "en") {
     const gloss = KEY_TO_GLOSS[field.key]
-    const hint = generated?.id ?? example?.id ?? explicit ?? legacyPlaceholder ?? (gloss ? I18N[gloss].id : undefined)
-    const mapped = hint && EXTRA_PLACEHOLDER_ID[hint] ? EXTRA_PLACEHOLDER_ID[hint] : hint
+    // Track the source so an example hint never becomes rendered copy, and
+    // strip its "Contoh:" prefix from the text shown in the editor.
+    const source =
+      generated?.id != null
+        ? { text: generated.id, example: false }
+        : example?.id != null
+          ? { text: example.id, example: true }
+          : explicit != null
+            ? { text: explicit, example: isExampleHintText(explicit) }
+            : legacyPlaceholder != null
+              ? { text: legacyPlaceholder, example: isExampleHintText(legacyPlaceholder) }
+              : gloss
+                ? { text: I18N[gloss].id, example: false }
+                : undefined
+    const mapped = source?.text && EXTRA_PLACEHOLDER_ID[source.text] ? EXTRA_PLACEHOLDER_ID[source.text] : source?.text
     // No Indonesian default for this key (template ships a COPY object the
     // generator cannot read): hide an English-only hint rather than show the
     // couple copy the invitation will not print in their language.
     const hasIdDefault = !!(generated?.id || example?.id)
     if (mapped && !hasIdDefault && EN_PLACEHOLDER_RE.test(mapped) && !ID_PLACEHOLDER_RE.test(mapped)) {
-      return { ...base, placeholder: undefined }
+      return { ...base, placeholder: undefined, example: false }
     }
-    return { ...base, placeholder: mapped }
+    return { ...base, placeholder: stripExamplePrefix(mapped), example: source?.example ?? false }
   }
-  const enPlaceholder =
-    explicit ??
-    generated?.en ??
-    example?.en ??
-    field.placeholderEn ??
-    (KEY_TO_GLOSS[field.key] ? I18N[KEY_TO_GLOSS[field.key]].en : undefined) ??
-    (legacyPlaceholder
-      ? EXTRA_PLACEHOLDER_EN_FROM_ID.get(legacyPlaceholder) ??
-        (EXTRA_PLACEHOLDER_ID[legacyPlaceholder] ? legacyPlaceholder : undefined)
-      : undefined)
+  let legacyEn: string | undefined
+  if (legacyPlaceholder) {
+    legacyEn =
+      EXTRA_PLACEHOLDER_EN_FROM_ID.get(legacyPlaceholder) ??
+      (EXTRA_PLACEHOLDER_ID[legacyPlaceholder] ? legacyPlaceholder : undefined)
+  }
+  const source =
+    explicit != null
+      ? { text: explicit, example: isExampleHintText(explicit) }
+      : generated?.en != null
+        ? { text: generated.en, example: false }
+        : example?.en != null
+          ? { text: example.en, example: true }
+          : field.placeholderEn != null
+            ? { text: field.placeholderEn, example: isExampleHintText(field.placeholderEn) }
+            : KEY_TO_GLOSS[field.key]
+              ? { text: I18N[KEY_TO_GLOSS[field.key]].en, example: false }
+              : legacyEn != null
+                ? { text: legacyEn, example: isExampleHintText(legacyEn) }
+                : undefined
   const enLabel = field.labelEn ?? EXTRA_LABEL_EN[field.key] ?? translateExtraLabelToEn(base.label)
   return {
     ...base,
     label: enLabel,
-    placeholder: enPlaceholder,
+    placeholder: stripExamplePrefix(source?.text),
+    example: source?.example ?? false,
   }
 }
 
@@ -3517,13 +3559,15 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
 // "Contoh:" / "e.g." hints are editor locators for fields the template renders
 // nothing for; merging one into the invitation would print the word "Contoh:"
 // to guests. They stay in the accordion, never in the rendered copy.
-const EXTRA_EXAMPLE_HINT_RE = /^(Contoh:|e\.g\.)\s/i
-
 /**
  * The copy a template prints when the couple has not filled a field: the same
  * text the editor shows as its hint. Merging this under the stored content
  * makes "extra exists ⇒ the invitation shows the hint until it is changed"
  * true for every template, without threading defaults through each component.
+ *
+ * Example hints ("Contoh: …" / "e.g. …") are editor locators only: they are
+ * never merged, and a stored value carrying the prefix is ignored as well, so
+ * the word "Contoh" can never reach a guest.
  */
 export function templateContentWithDefaults(
   templateCode: string | null | undefined,
@@ -3532,15 +3576,13 @@ export function templateContentWithDefaults(
 ): Record<string, string> {
   const out: Record<string, string> = {}
   for (const field of getTemplateExtraFields(templateCode, lang)) {
-    if (field.placeholder && !EXTRA_EXAMPLE_HINT_RE.test(field.placeholder)) {
-      out[field.key] = field.placeholder
-    }
+    if (!field.example && field.placeholder) out[field.key] = field.placeholder
   }
   // A stored empty string is "the couple cleared the field", not "use this".
   // Saving the editor writes "" for untouched inputs, so treating it as a value
   // would suppress the hint that is supposed to render as the default.
   for (const [key, value] of Object.entries(content || {})) {
-    if (typeof value !== "string" || value.trim() === "") continue
+    if (typeof value !== "string" || value.trim() === "" || isExampleHintText(value)) continue
     out[key] = value
   }
   return out

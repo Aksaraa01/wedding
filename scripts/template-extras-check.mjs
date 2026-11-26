@@ -22,7 +22,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import { getTemplateExtraFields } from "../src/lib/templateExtras.ts"
+import { getTemplateExtraFields, templateContentWithDefaults } from "../src/lib/templateExtras.ts"
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(HERE, "..")
@@ -101,6 +101,30 @@ for (const code of codes) {
   for (const [label, list] of byLabel) {
     if (list.length > 1) {
       problems.push(`duplicate label "${label}" shared by ${list.map((f) => f.key).join(" / ")}`)
+    }
+  }
+
+  // The guest invitation must never print an editor example ("Contoh:" /
+  // "e.g."). Check the resolved hints, the merged defaults, and a stored value
+  // that carries the prefix (old rows may have saved one).
+  for (const lang of ["id", "en"]) {
+    const localized = getTemplateExtraFields(code, lang)
+    for (const f of localized) {
+      if (/^(Contoh:|Example:|e\.g\.)/i.test(f.placeholder ?? "")) {
+        problems.push(`example prefix still visible on "${f.key}" (${lang})`)
+      }
+    }
+    for (const [key, value] of Object.entries(templateContentWithDefaults(code, lang, null))) {
+      if (/^(Contoh:|Example:|e\.g\.)/i.test(value)) {
+        problems.push(`example hint "${key}" would render in the invitation (${lang})`)
+      }
+      if (localized.find((f) => f.key === key)?.example) {
+        problems.push(`example-only field "${key}" was merged into the invitation (${lang})`)
+      }
+    }
+    const rendered = templateContentWithDefaults(code, lang, { example_probe: "Contoh: probe" })
+    if (rendered.example_probe) {
+      problems.push(`stored example hint would render in the invitation (${lang})`)
     }
   }
 
