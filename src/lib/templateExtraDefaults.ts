@@ -1545,6 +1545,160 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "id": "Kami tidak sabar merayakan hari bahagia ini bersama Anda."
     }
   },
+  "jazz-vintage": {
+    "closing_message": {
+      "en": "It is an honour and a joy for us that you would come and give us your blessing.",
+      "id": "Merupakan kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu."
+    },
+    "welcome_title": {
+      "en": "Dearest family and friends",
+      "id": "Keluarga dan sahabat terkasih!"
+    },
+    "welcome_message": {
+      "en": "With joyful hearts, we invite you to share the day we begin our life together.",
+      "id": "Dengan penuh sukacita, kami ingin Anda hadir di hari pernikahan kami dan berbagi momen istimewa ini bersama."
+    },
+    "cover_guest_label": {
+      "en": "Dear Guest",
+      "id": "Tamu Terhormat"
+    },
+    "open_button": {
+      "en": "Open Invitation",
+      "id": "Buka Undangan"
+    },
+    "music_label": {
+      "en": "Play music",
+      "id": "Putar musik"
+    },
+    "pembuka_title": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    },
+    "mempelai_title": {
+      "en": "The Couple",
+      "id": "Kedua Mempelai"
+    },
+    "events_title": {
+      "en": "The Celebration",
+      "id": "Rangkaian Acara"
+    },
+    "maps_label": {
+      "en": "View Location",
+      "id": "Lihat Lokasi"
+    },
+    "countdown_title": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
+    },
+    "calendar_button": {
+      "en": "Save to Calendar",
+      "id": "Simpan ke Kalender"
+    },
+    "love_story_title": {
+      "en": "Our Love Story",
+      "id": "Perjalanan Cinta"
+    },
+    "love_story_intro": {
+      "en": "A few chapters from the story that brought us here.",
+      "id": "Potongan kecil perjalanan cinta kami."
+    },
+    "rundown_title": {
+      "en": "Order of Events",
+      "id": "Susunan Acara"
+    },
+    "gallery_title": {
+      "en": "Gallery",
+      "id": "Galeri"
+    },
+    "gallery_intro": {
+      "en": "Small pieces of the journey that brought us here.",
+      "id": "Potongan kecil perjalanan cinta kami."
+    },
+    "video_title": {
+      "en": "Video",
+      "id": "Video"
+    },
+    "video_caption": {
+      "en": "Watch",
+      "id": "Tonton"
+    },
+    "gift_title": {
+      "en": "Wedding Gift",
+      "id": "Tanda Kasih"
+    },
+    "gift_intro": {
+      "en": "Your prayers and presence are the greatest gift to us.",
+      "id": "Doa dan kehadiran Anda adalah hadiah terindah bagi kami."
+    },
+    "gift_transfer_tab": {
+      "en": "Bank Transfer",
+      "id": "Transfer Bank"
+    },
+    "gift_address_tab": {
+      "en": "Send a Gift",
+      "id": "Kirim Hadiah"
+    },
+    "gift_transfer_lead": {
+      "en": "Please transfer to the account below:",
+      "id": "Silakan transfer ke rekening berikut:"
+    },
+    "gift_address_lead": {
+      "en": "You may also send a gift to this address:",
+      "id": "Anda juga dapat mengirim hadiah ke alamat berikut:"
+    },
+    "copy_address_button": {
+      "en": "Copy Address",
+      "id": "Salin Alamat"
+    },
+    "dresscode_title": {
+      "en": "Dress Code",
+      "id": "Tema Busana"
+    },
+    "wishes_title": {
+      "en": "Wishes & Prayers",
+      "id": "Ucapan & Doa"
+    },
+    "wishes_intro": {
+      "en": "Leave your best prayers and wishes for us.",
+      "id": "Tuliskan doa dan ucapan terbaik Anda untuk kami."
+    },
+    "wishes_name_label": {
+      "en": "Your name",
+      "id": "Nama Anda"
+    },
+    "wishes_name_placeholder": {
+      "en": "Full name",
+      "id": "Nama lengkap"
+    },
+    "wishes_message_label": {
+      "en": "Your message",
+      "id": "Ucapan & Doa"
+    },
+    "wishes_message_placeholder": {
+      "en": "Write your prayer or wish",
+      "id": "Tulis doa atau ucapan Anda"
+    },
+    "wishes_submit": {
+      "en": "Send Wishes",
+      "id": "Kirim Ucapan"
+    },
+    "wishes_empty": {
+      "en": "No wishes yet. Be the first.",
+      "id": "Belum ada ucapan. Jadilah yang pertama."
+    },
+    "inviting_title": {
+      "en": "With the Blessing of",
+      "id": "Turut Mengundang"
+    },
+    "inviting_intro": {
+      "en": "We also present the families who extend this invitation with us:",
+      "id": "Kami juga menghadirkan keluarga yang turut mengundang:"
+    },
+    "closing_kicker": {
+      "en": "Thank You",
+      "id": "Terima Kasih"
+    }
+  },
   "lace": {
     "welcome_invite": {
       "en": "Together with their families",
