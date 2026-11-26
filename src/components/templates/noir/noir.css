@@ -242,16 +242,6 @@
   display: none;
 }
 
-/* wish form: the theme ships the two fields flush together and the message
-   box at one row; give the form its own rhythm and a real writing area */
-.noir-root .wedding-wish-form .guest-name-wrap {
-  margin-bottom: 12px;
-}
-
-.noir-root .wedding-wish-form textarea.form-control {
-  min-height: 132px;
-}
-
 /* ── wish list (the reference fills .comment-wrap from its API) ──────────── */
 .noir-root .comment-wrap .comment-empty {
   color: var(--text-secondary);

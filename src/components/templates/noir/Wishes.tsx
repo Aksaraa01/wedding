@@ -198,7 +198,7 @@ export default function Wishes({
               onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
               placeholder={copy.messagePlaceholder}
               aria-label={copy.messageLabel}
-              rows={4}
+              rows={1}
               maxLength={MAX_CHARS}
               required
             />
