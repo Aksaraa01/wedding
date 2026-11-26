@@ -3120,14 +3120,26 @@ function EditorInner({ id }: { id: string }) {
                             {group.fields.map((field) => (
                               <div key={field.key} className="space-y-2">
                                 <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                                <AutoTextarea
-                                  className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
-                                  value={data.template_content?.[field.key] || ""}
-                                  onChange={(v) => updateTemplateContent(field.key, v)}
-                                  placeholder={field.placeholder}
-                                  minRows={field.rows ?? 1}
-                                  disabled={data.is_published === true}
-                                />
+                                {field.key === "couple_order" ? (
+                                  <select
+                                    className="input-editorial w-full font-body-md text-[14px] cursor-pointer"
+                                    value={data.template_content?.couple_order || ""}
+                                    onChange={(e) => updateTemplateContent("couple_order", e.target.value)}
+                                    disabled={data.is_published === true}
+                                  >
+                                    <option value="">Pria dulu (bawaan)</option>
+                                    <option value="bride-first">Wanita dulu</option>
+                                  </select>
+                                ) : (
+                                  <AutoTextarea
+                                    className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
+                                    value={data.template_content?.[field.key] || ""}
+                                    onChange={(v) => updateTemplateContent(field.key, v)}
+                                    placeholder={field.placeholder}
+                                    minRows={field.rows ?? 1}
+                                    disabled={data.is_published === true}
+                                  />
+                                )}
                               </div>
                             ))}
                           </div>
