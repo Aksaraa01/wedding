@@ -134,11 +134,12 @@
 
 .noir-root .gallery__single-slider .slider-container {
   display: flex;
+  gap: 12px;
   overflow-x: auto;
+  padding: 40px 24px;
+  scroll-padding-inline: 24px;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  padding: 40px 24px;
-  gap: 12px;
 }
 
 .noir-root .gallery__single-slider .slider-container::-webkit-scrollbar {
