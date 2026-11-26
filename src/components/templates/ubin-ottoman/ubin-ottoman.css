@@ -6,8 +6,9 @@
      Marcellus (section titles) · Lora (body) · Cinzel Decorative (names)
 
    Geometry is authored in reference pixels and multiplied by --u, the design
-   pixel: 1px at a 390px-wide viewport, capped where the column stops growing
-   (max-width 430px). No container queries are used because `container-type`
+   pixel: 1px at a 390px-wide viewport. Phones up to 540px are full-bleed (a
+   430–480px handset would otherwise show side bands); above that the column
+   stops growing at 430px. No container queries are used because `container-type`
    would make this root a containing block for the fixed music button and the
    RSVP dock. */
 
@@ -36,6 +37,15 @@
   font-size: calc(14 * var(--u));
   line-height: 1.65;
   overflow-x: hidden;
+}
+
+/* mobile is full-bleed: a 430–480px phone must not show a narrower column */
+@media (max-width: 540px) {
+  .uo-root {
+    --u: calc(100vw / 390);
+    --uc: min(calc(100vw / 390), calc(100svh / 844));
+    max-width: none;
+  }
 }
 
 .uo-root *,
