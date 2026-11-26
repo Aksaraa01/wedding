@@ -45,11 +45,22 @@ html:has(body.jv-locked) {
 
 .jv-root img {
   display: block;
-  max-width: 100%;
+  max-width: none;
 }
 
 .jv-root button {
   font: inherit;
+}
+
+.jv-root p,
+.jv-root h1,
+.jv-root h2,
+.jv-root h3,
+.jv-root li,
+.jv-root span,
+.jv-root a {
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 /* ---------- reveal: one observer, one class ---------- */
@@ -541,35 +552,36 @@ html:has(body.jv-locked) {
 .jv-welcome__stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 390 / 470;
-  margin-top: 5.1cqw;
+  margin-top: 2.6cqw;
+  padding: 6.6cqw 0 9cqw;
   container-type: inline-size;
 }
 
 .jv-welcome__box {
   position: absolute;
   left: -12.05%;
-  top: -6.6%;
+  top: 3.3cqw;
   width: 124.1%;
   z-index: 1;
   pointer-events: none;
 }
 
 .jv-welcome__card {
-  position: absolute;
-  left: 10.18%;
-  top: 9.74%;
+  position: relative;
   z-index: 2;
-  width: 85.31%;
-  height: 89.87%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 4cqw;
+  width: 85.31cqw;
+  min-height: 108.3cqw;
+  margin: 0 auto;
+  padding: 17% 22% 14%;
   background: url("/templates/jazz-vintage/card-cream.webp") center / 100% 100% no-repeat;
+  text-align: center;
 }
 
 .jv-welcome__title {
-  position: absolute;
-  left: 24%;
-  top: 16.34%;
-  width: 52%;
   margin: 0;
   font-family: var(--jv-serif);
   font-size: clamp(17px, 5.64cqw, 30px);
@@ -580,10 +592,6 @@ html:has(body.jv-locked) {
 }
 
 .jv-welcome__body {
-  position: absolute;
-  left: 23%;
-  top: 37.13%;
-  width: 53%;
   margin: 0;
   font-family: var(--jv-sans);
   font-size: clamp(10px, 3.08cqw, 15px);
@@ -595,7 +603,7 @@ html:has(body.jv-locked) {
 .jv-welcome__cameo {
   position: absolute;
   left: 62.8%;
-  top: 11.85%;
+  top: 14.3cqw;
   width: 30.33%;
   z-index: 4;
   pointer-events: none;
@@ -604,7 +612,7 @@ html:has(body.jv-locked) {
 .jv-welcome__tulle {
   position: absolute;
   left: 63.51%;
-  top: 52.53%;
+  bottom: 5cqw;
   width: 41.46%;
   z-index: 4;
   pointer-events: none;
@@ -619,8 +627,9 @@ html:has(body.jv-locked) {
   position: relative;
   width: 84cqw;
   max-width: 84cqw;
+  min-height: 116.8cqw;
   margin: 0 auto;
-  aspect-ratio: 604 / 840;
+  padding: 14% 11%;
 }
 
 .jv-opening__card {
@@ -628,16 +637,17 @@ html:has(body.jv-locked) {
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: fill;
   pointer-events: none;
 }
 
 .jv-opening__copy {
-  position: absolute;
-  inset: 13% 9%;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
+  min-height: 88.8cqw;
   text-align: center;
 }
 
@@ -844,7 +854,7 @@ html:has(body.jv-locked) {
 .jv-event {
   position: relative;
   margin: 0 0 6cqw;
-  padding: 11cqw 12cqw 13cqw;
+  padding: 11cqw 14cqw 13cqw;
   background: url("/templates/jazz-vintage/frame-cream.webp") center / 100% 100% no-repeat;
   text-align: center;
 }
@@ -1152,7 +1162,7 @@ html:has(body.jv-locked) {
 .jv-day__stage {
   position: relative;
   width: 100%;
-  padding: 13% 12% 15% 19%;
+  padding: 13% 12% 18% 19%;
   container-type: inline-size;
 }
 
