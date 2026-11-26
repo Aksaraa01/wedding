@@ -144,5 +144,35 @@ only after open, only for a real guest link, and never in `preview_mode` /
 
 ## 7. QA results (staging)
 
-Filled in after the staging deploy: preview URL, couple test URL, per-section
-checks, and any fix that required a re-deploy.
+Deployed to `wedding-stg.aksaraa.com` (commit `d7b1a5a2`, build
+`NB5IB8ReoeB6qxg4qbfXs`). Preview:
+`https://wedding-stg.aksaraa.com/templates/jazz-vintage/preview`; couple test
+(staging test data, `fikri-dinda`): `https://wedding-stg.aksaraa.com/w/fikri-dinda`.
+
+| Check | Result |
+|---|---|
+| Section order (couple) | `welcome → pembuka → mempelai → acara → countdown → cerita → rundown → galeri → video → gift → dresscode → ucapan → inviting → closing` + cover gate + closing footer |
+| `scrollWidth === innerWidth` | 390 = 390 (no horizontal scroll) |
+| Console / network | 0 exceptions, 0 failed requests |
+| Long copy | Long welcome body and a 4-line street address were injected in the DOM: the greeting card and the event card grow with their text, nothing is clipped or spills over the gilded border |
+| Greeting vs decorations | Title column 36cqw (left-aligned like the reference) clears the cameo; the tulle sits behind the card, body text stays readable |
+| Mempelai | Portraits start below `mempelai_intro`; labels/names/parents/IG readable, no ornament over text |
+| Event | One decorative door plate for the section + identical cream cards for every session (1..n); 14% side padding, `overflow-wrap` on all event copy |
+| Countdown | Calendar month/date from `estimated_wedding_date`, selected-day heart, localised weekdays, live tick |
+| Love story | Description visible above the lace divider (lace is in flow, not absolute) |
+| Rundown | 5 rows inside the frame, icons cycle, separators, bow/bouquet on the corners |
+| Gallery | Mosaic 6 photos, lightbox opens (image + aria label) |
+| Video | Iframe opens in the shared lightbox (`youtube.com/embed/…`) |
+| Gift | Tabs switch, accounts + address render, copy handler fires (`copyPlainText`) |
+| Dress code | Title, description, four swatches, note |
+| Wishes | 3 approved wishes from staging, pagination, submit disabled while empty |
+| Turut mengundang | Frame-cream card, 22% side padding, gold separators between families |
+| RSVP dock | Opens the “Konfirmasi Kehadiran” sheet; anchored bottom-right, hidden in preview/demo |
+| Music | Cover preloads metadata, tap starts it, FAB toggles, ±10 s controls |
+| Gallery tile | `/templates` lists Jazz Vintage, `thumbnail.webp` 200 (96 KB, 720×1280) |
+
+Fixes made during QA (each re-deployed): global `max-width` clamped every
+ornament wider than the stage (table/garland/swag) — the cause of the “shifted”
+desk and flowers; content-driven welcome/opening cards; event-card padding and
+word wrapping; lace moved into flow; RSVP dock moved to the bottom; invited
+families card rebuilt on the cream frame without overlapping ornaments.
