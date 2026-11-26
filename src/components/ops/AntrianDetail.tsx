@@ -39,6 +39,7 @@ import {
 } from "@/lib/opsStatus"
 import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
 import { compressImage } from "@/lib/imageCompress"
+import { copyPlainText } from "@/lib/clipboard"
 import { pollWpJob, fetchWpJob } from "@/lib/wpJobPoll"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { normalizeVideoUrl } from "@/components/templates/shared/lib"
@@ -66,6 +67,7 @@ type QueueItem = {
     groom_full_name?: string | null
     display_name?: string | null
     slug: string
+    scanner_pin?: string | null
     whatsapp_number: string
     estimated_wedding_date: string
     sessions: any
@@ -599,6 +601,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [loadError, setLoadError] = useState(false)
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<FeedbackSubmission[]>([])
   const [loading, setLoading] = useState(true)
+  const [pinCopied, setPinCopied] = useState(false)
   const [waBlastSchedule, setWaBlastSchedule] = useState<any>(null)
   const [statusSaving, setStatusSaving] = useState(false)
   const [statusError, setStatusError] = useState("")
@@ -2183,6 +2186,32 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <div className="flex items-center gap-2">
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi:</span>
                   <span className="font-bold text-primary">{currentWp.estimated_guest_count} Tamu</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">PIN Scanner:</span>
+                  {currentWp.scanner_pin ? (
+                    <>
+                      <span className="font-mono font-bold tracking-[0.2em] text-primary">{currentWp.scanner_pin}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!currentWp.scanner_pin) return
+                          copyPlainText(currentWp.scanner_pin).then((ok) => {
+                            if (!ok) return
+                            setPinCopied(true)
+                            window.setTimeout(() => setPinCopied(false), 1500)
+                          })
+                        }}
+                        className="inline-flex items-center text-on-surface-variant hover:text-secondary transition-colors"
+                        title="Salin PIN"
+                        aria-label="Salin PIN"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">{pinCopied ? "check" : "content_copy"}</span>
+                      </button>
+                    </>
+                  ) : (
+                    <span className="italic text-on-surface-variant/60">Belum diatur</span>
+                  )}
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60 shrink-0">Paket:</span>
