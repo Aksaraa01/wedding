@@ -454,11 +454,14 @@ export default function Noir(profile: TemplateProps) {
     let holding = false
     let holdUntil = 0
     let inView = false
+    let visibleAt = 0
     // Only advance while the strip is on screen; otherwise a guest who scrolls
     // down after a while arrives mid-list.
     const visibility = new IntersectionObserver(
       (entries) => {
-        inView = entries.some((entry) => entry.isIntersecting)
+        const visible = entries.some((entry) => entry.isIntersecting)
+        if (visible && !inView) visibleAt = Date.now()
+        inView = visible
       },
       { threshold: 0.25 }
     )
@@ -476,7 +479,7 @@ export default function Noir(profile: TemplateProps) {
     el.addEventListener("touchstart", hold, { passive: true })
     el.addEventListener("touchend", release)
     const id = window.setInterval(() => {
-      if (!inView || holding || document.hidden || Date.now() < holdUntil) return
+      if (!inView || Date.now() - visibleAt < 4200 || holding || document.hidden || Date.now() < holdUntil) return
       const step = galleryStep()
       if (!step) return
       const current = Math.round(el.scrollLeft / step)
