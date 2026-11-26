@@ -4473,7 +4473,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum dipilih.</p>
                     )}
                   </InvAccordion>
-                  {invContentSpec?.extras && (
+                  {invExtraFields.length > 0 && (
                   <InvAccordion secKey="extras" icon="auto_awesome" label={invExtrasLabel} {...invAccProps("extras")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-4">
