@@ -26,7 +26,6 @@ type QueueItem = {
     whatsapp_number: string
     package_type: string
     express_service?: boolean | null
-    scanner_pin?: string | null
   }
 }
 
@@ -292,11 +291,6 @@ export default function OpsBoardPage() {
                                 {wp.whatsapp_number || "—"}
                               </div>
                               <div className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-[13px] opacity-60">lock</span>
-                                <span className="text-[10px] uppercase tracking-widest opacity-60">PIN</span>
-                                <span className="font-mono font-bold tracking-[0.15em] text-primary">{wp.scanner_pin || "Belum diatur"}</span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
                                 <span className="material-symbols-outlined text-[13px] opacity-60">event</span>
                                 {formatDate(item.registration_date || "")}
                               </div>
@@ -377,11 +371,6 @@ export default function OpsBoardPage() {
                             <div className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-[13px] opacity-60">call</span>
                               <span className="truncate">{wp.whatsapp_number || "—"}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="material-symbols-outlined text-[13px] opacity-60">lock</span>
-                              <span className="text-[10px] uppercase tracking-widest opacity-60">PIN</span>
-                              <span className="font-mono font-bold tracking-[0.15em] text-primary">{wp.scanner_pin || "Belum diatur"}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-[13px] opacity-60">event</span>
