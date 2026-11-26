@@ -132,6 +132,10 @@ the ones with count branches; all were exercised at 1 and many.
     name. The name is now `overflow: visible` and `z-index: 6`, the same layer
     as the cover name, so it always paints above the ornament and keeps every
     glyph.
+13. **Full-bleed up to 540 px.** The reference is a 390 px plate, and the old
+    `max-width: 430px` breakpoint left 25 px emerald side bands on a 440 px
+    handset (iPhone 16 Pro Max). Phones up to 540 px now stretch the frame to
+    the viewport; 541 px and up keeps the centred 390 px desktop plate.
 
 ## Verification
 

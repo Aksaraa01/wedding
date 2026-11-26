@@ -95,9 +95,10 @@ Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
    crop" rule is about templates whose gallery is unframed (Songket). Here the
    arch frame *is* the design; there is no lightbox in the reference either.
 8. **Desktop column is capped at 430 px** (the reference fixes its canvas at
-   390 px). Below 430 px everything scales proportionally with `--u`, so phone
-   rendering is exact; the 430 cap only affects tablets/desktop, where the
-   reference shows a cream-surrounded column as well.
+   390 px), but phones up to 540 px are full-bleed: the old 430 px cap left
+   5–35 px side bands on 440–500 px handsets. Below 540 px everything scales
+   proportionally with `--u`; the 430 cap only affects tablets/desktop, where
+   the reference shows a cream-surrounded column as well.
 9. **Names shrink to one line** like the reference renderer does: its payload
    ships 28 px but renders `19.04px` for a 25-character name. `useFitOneLine`
    (DOM probe measurement, re-run after `document.fonts.ready`) reproduces it,

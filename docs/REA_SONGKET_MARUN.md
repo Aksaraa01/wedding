@@ -100,6 +100,10 @@ RSVP is the shared `InvitationOverlay` dock (both `preview_mode` and
    `calc(78.67svh - 72.51svh)`, the exact gap between the name's top and the
    CTA's top, so "Buka Undangan" can never be covered. The guest name is fitted
    at a 0.5 floor (the helper default stays 0.55) so two lines clear the pill.
+10. **Full-bleed up to 540 px.** The reference is a 390 px plate, and the old
+    `max-width: 430px` breakpoint left 25 px maroon side bands on a 440 px
+    handset (iPhone 16 Pro Max). Phones up to 540 px now stretch the frame to
+    the viewport; 541 px and up keeps the centred 390 px desktop plate.
 
 ## Verification
 

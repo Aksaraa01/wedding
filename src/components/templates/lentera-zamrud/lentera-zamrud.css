@@ -69,7 +69,8 @@
 }
 
 /* the invitation is a fixed 390px plate, centred on an emerald field (the
-   reference's desktop `layout: center` + `sideBg: #1F5C4B`) */
+   reference's desktop `layout: center` + `sideBg: #1F5C4B`); phones up to
+   540px are full-bleed so a modern 430–480px handset never shows side bands */
 .lz-frame {
   position: relative;
   width: 100%;
@@ -80,7 +81,7 @@
   overflow-x: clip;
   overflow-y: visible;
 }
-@media (max-width: 430px) {
+@media (max-width: 540px) {
   .lz-frame { max-width: none; }
 }
 

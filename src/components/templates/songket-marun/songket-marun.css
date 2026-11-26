@@ -40,7 +40,8 @@
 .skm-root *::after { box-sizing: border-box; }
 
 /* the invitation is a fixed 390px plate on the darker maroon field
-   (reference: desktop `layout: center`, `sideBg: #2E0C13`) */
+   (reference: desktop `layout: center`, `sideBg: #2E0C13`); phones up to
+   540px are full-bleed so a modern 430–480px handset never shows side bands */
 .skm-frame {
   position: relative;
   width: 100%;
@@ -51,7 +52,7 @@
   overflow-x: clip;
   overflow-y: visible;
 }
-@media (max-width: 430px) {
+@media (max-width: 540px) {
   .skm-frame { max-width: none; }
 }
 
