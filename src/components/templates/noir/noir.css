@@ -197,6 +197,24 @@
   display: none;
 }
 
+/* wish form: the theme bundle drops the reference's global .form-control
+   sizing, so the fields shrink to their intrinsic width and sit flush. Make
+   them full width with real spacing and a message box worth writing in. */
+.noir-root .wedding-wish-form .form-control {
+  display: block;
+  width: 100%;
+}
+
+.noir-root .wedding-wish-form .guest-name-wrap,
+.noir-root .wedding-wish-form .guest-comment-wrap {
+  margin-bottom: 12px;
+}
+
+.noir-root .wedding-wish-form textarea.form-control {
+  min-height: 132px;
+  resize: vertical;
+}
+
 /* ── wish list (the reference fills .comment-wrap from its API) ──────────── */
 .noir-root .comment-wrap .comment-empty {
   color: var(--text-secondary);
