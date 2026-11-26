@@ -186,6 +186,59 @@ export const I18N = {
   weddingByAksaraa: { id: "Wedding by Aksaraa", en: "Wedding by Aksaraa" },
 
   // Wishes extras
+  yourName: { id: "Nama Anda", en: "Your name" },
+  namePlaceholder: { id: "Nama lengkap", en: "Full name" },
+  yourMessage: { id: "Ucapan & Doa", en: "Your message" },
+  messagePlaceholder: { id: "Tulis doa atau ucapan Anda", en: "Write your prayer or wish" },
+
+  // Jazz Vintage — section copy that used to be a design-only literal
+  welcomeKicker: { id: "Sepatah Kata", en: "A Word of Welcome" },
+  welcomeTitle: { id: "Keluarga dan sahabat terkasih!", en: "Dearest family and friends" },
+  welcomeMessage: {
+    id: "Dengan penuh sukacita, kami ingin Anda hadir di hari pernikahan kami dan berbagi momen istimewa ini bersama.",
+    en: "With joyful hearts, we invite you to share the day we begin our life together.",
+  },
+  mempelaiGroom: { id: "Mempelai Pria", en: "The Groom" },
+  mempelaiBride: { id: "Mempelai Wanita", en: "The Bride" },
+  musicBack: { id: "Mundur 10 detik", en: "Back 10 seconds" },
+  musicForward: { id: "Maju 10 detik", en: "Forward 10 seconds" },
+  locationLabel: { id: "Lokasi", en: "Location" },
+  atTime: { id: "Pukul", en: "At" },
+  storyIntro: {
+    id: "Potongan kecil perjalanan cinta kami.",
+    en: "A few chapters from the story that brought us here.",
+  },
+  galleryIntro: {
+    id: "Potongan kecil perjalanan cinta kami.",
+    en: "Small pieces of the journey that brought us here.",
+  },
+  giftIntro: {
+    id: "Doa dan kehadiran Anda adalah hadiah terindah bagi kami.",
+    en: "Your prayers and presence are the greatest gift to us.",
+  },
+  giftTransferTab: { id: "Transfer Bank", en: "Bank Transfer" },
+  giftAddressTab: { id: "Kirim Hadiah", en: "Send a Gift" },
+  giftTransferLead: { id: "Silakan transfer ke rekening berikut:", en: "Please transfer to the account below:" },
+  giftAddressLead: {
+    id: "Anda juga dapat mengirim hadiah ke alamat berikut:",
+    en: "You may also send a gift to this address:",
+  },
+  copyAddressToast: { id: "Alamat disalin", en: "Address copied" },
+  playFilm: { id: "Putar film", en: "Play the film" },
+  closingMessageDefault: {
+    id: "Merupakan kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu.",
+    en: "It is an honour and a joy for us that you would come and give us your blessing.",
+  },
+  invitingIntro: {
+    id: "Kami juga menghadirkan keluarga yang turut mengundang:",
+    en: "We also present the families who extend this invitation with us:",
+  },
+  wishesIntro: {
+    id: "Tuliskan doa dan ucapan terbaik Anda untuk kami.",
+    en: "Leave your best prayers and wishes for us.",
+  },
+  contactAksaraa: { id: "Hubungi Aksaraa Wedding via WhatsApp", en: "Contact Aksaraa Wedding on WhatsApp" },
+  aksaraaWedding: { id: "Aksaraa Wedding", en: "Aksaraa Wedding" },
 } as const satisfies Record<string, Record<Language, string>>
 
 export type I18nKey = keyof typeof I18N

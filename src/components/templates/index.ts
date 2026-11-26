@@ -50,6 +50,7 @@ import Majestic from "./majestic"
 import EmeraldHeirloom from "./emerald-heirloom"
 import SwanGarden from "./swan-garden"
 import Noir from "./noir"
+import JazzVintage from "./jazz-vintage"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -103,6 +104,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "emerald-heirloom": EmeraldHeirloom,
   "swan-garden": SwanGarden,
   noir: Noir,
+  "jazz-vintage": JazzVintage,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -2152,6 +2154,52 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       sections: {
         opening_description: true,
         quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "jazz-vintage",
+    name: "Jazz Vintage",
+    description:
+      "Undangan jazz-era burgundy dan zaitun: tirai beludru dengan lampu gantung, kertas krem bertekstur, kartu musik gramofon, bingkai oval emas, renda, dan pita beludru.",
+    theme: {
+      fonts: { display: "Playfair Display", script: "Cormorant Garamond", body: "Montserrat" },
+      colors: {
+        surface: "#f2e6d2",
+        text: "#3b2a22",
+        accent: "#6a1424",
+        accentMuted: "#5d6838",
+        overlay: "#f2e6d2",
+        dark: "#4a0e19",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.08 },
+    },
+    content: {
+      // The cover and the closing are the reference's own painted stage
+      // (curtain, chandelier, velvet table). A cover-photo slot would be an
+      // upload the design never renders; portraits come from the mempelai
+      // fields and the film poster falls back to the first gallery photo.
+      cover_slots: 0,
+      groom_photo: "single",
+      bride_photo: "single",
+      person_photos: true,
+      story_photo: true,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: false,
         countdown: true,
         inviting: true,
         video: true,
