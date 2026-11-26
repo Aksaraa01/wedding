@@ -4,75 +4,80 @@ import { EXTRA_HINTS } from "./extraHints/index"
 
 // Templates that render nothing when a field is empty still need a locator in
 // the extras accordion, so those few fields get an explicit example in both
-// languages. The "Contoh:"/"e.g." prefix keeps them visibly examples rather
-// than default copy. Only fields with no template default belong here; anything
-// the template itself prints is covered by EXTRA_DEFAULTS.
+// languages. The map itself marks them as examples: `localizeExtraField` sets
+// `example: true`, `templateContentWithDefaults` never merges them, and the
+// hint text carries no "Contoh"/"e.g." label. Only fields with no template
+// default belong here; anything the template itself prints is covered by
+// EXTRA_DEFAULTS.
 const EXTRA_EXAMPLE_HINTS: Record<string, Record<string, { id: string; en: string }>> = {
-  "altar-garden": { countdown_title: { id: "Contoh: Menuju Hari Bahagia", en: "e.g. Counting Down" } },
-  "piano-garden": { countdown_title: { id: "Contoh: Menuju Hari Bahagia", en: "e.g. Counting Down" } },
+  "altar-garden": { countdown_title: { id: "Menuju Hari Bahagia", en: "Counting Down" } },
+  "piano-garden": { countdown_title: { id: "Menuju Hari Bahagia", en: "Counting Down" } },
   evermore: {
     events_intro: {
-      id: "Contoh: Kami menantikan kehadiran Anda di acara kami.",
-      en: "e.g. We look forward to celebrating with you.",
+      id: "Kami menantikan kehadiran Anda di acara kami.",
+      en: "We look forward to celebrating with you.",
     },
+  },
+  "film-roll": {
+    dresscode_note: { id: "Mohon hindari warna putih.", en: "Please avoid white." },
   },
   iris: {
     cover_apology: {
-      id: "Contoh: Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
-      en: "e.g. We apologize for any misspelling of your name or title.",
+      id: "Mohon maaf bila ada kesalahan penulisan nama atau gelar Anda.",
+      en: "We apologize for any misspelling of your name or title.",
     },
     events_intro: {
-      id: "Contoh: Dengan hormat, berikut waktu dan tempat acara kami.",
-      en: "e.g. With due respect, here are the details of our event.",
+      id: "Dengan hormat, berikut waktu dan tempat acara kami.",
+      en: "With due respect, here are the details of our event.",
     },
     inviting_intro: {
-      id: "Contoh: Kami turut mengundang keluarga dan sahabat tercinta.",
-      en: "e.g. We also invite our beloved family and friends.",
+      id: "Kami turut mengundang keluarga dan sahabat tercinta.",
+      en: "We also invite our beloved family and friends.",
     },
     rundown_intro: {
-      id: "Contoh: Berikut susunan acara di hari bahagia kami.",
-      en: "e.g. Here is the order of events on our big day.",
+      id: "Berikut susunan acara di hari bahagia kami.",
+      en: "Here is the order of events on our big day.",
     },
     gallery_intro: {
-      id: "Contoh: Sekilas momen kebersamaan kami.",
-      en: "e.g. A glimpse of our moments together.",
+      id: "Sekilas momen kebersamaan kami.",
+      en: "A glimpse of our moments together.",
     },
-    video_intro: { id: "Contoh: Video singkat kisah kami.", en: "e.g. A short video of our story." },
+    video_intro: { id: "Video singkat kisah kami.", en: "A short video of our story." },
     dresscode_intro: {
-      id: "Contoh: Kami akan senang bila Anda hadir dengan palet warna di bawah ini.",
-      en: "e.g. We would be delighted if you joined us in the palette below.",
+      id: "Kami akan senang bila Anda hadir dengan palet warna di bawah ini.",
+      en: "We would be delighted if you joined us in the palette below.",
     },
     gift_intro_description: {
-      id: "Contoh: Doa restu Anda adalah hadiah terindah bagi kami.",
-      en: "e.g. Your blessings are the most beautiful gift to us.",
+      id: "Doa restu Anda adalah hadiah terindah bagi kami.",
+      en: "Your blessings are the most beautiful gift to us.",
     },
-    wishes_title: { id: "Contoh: Ucapan & Doa", en: "e.g. Wishes & Prayers" },
+    wishes_title: { id: "Ucapan & Doa", en: "Wishes & Prayers" },
     wishes_intro: {
-      id: "Contoh: Kirimkan ucapan dan doa terbaik Anda untuk kami.",
-      en: "e.g. Send us your warmest wishes and prayers.",
+      id: "Kirimkan ucapan dan doa terbaik Anda untuk kami.",
+      en: "Send us your warmest wishes and prayers.",
     },
   },
   "love-line": {
-    person_one_label: { id: "Contoh: Mempelai Wanita", en: "e.g. The Bride" },
-    person_two_label: { id: "Contoh: Mempelai Pria", en: "e.g. The Groom" },
-    parents_label_male: { id: "Contoh: Putra dari Bapak & Ibu", en: "e.g. Son of Mr. & Mrs." },
-    parents_label_female: { id: "Contoh: Putri dari Bapak & Ibu", en: "e.g. Daughter of Mr. & Mrs." },
+    person_one_label: { id: "Mempelai Wanita", en: "The Bride" },
+    person_two_label: { id: "Mempelai Pria", en: "The Groom" },
+    parents_label_male: { id: "Putra dari Bapak & Ibu", en: "Son of Mr. & Mrs." },
+    parents_label_female: { id: "Putri dari Bapak & Ibu", en: "Daughter of Mr. & Mrs." },
   },
   noir: {
     gallery_intro: {
-      id: "Contoh: Sekilas momen kebersamaan kami.",
-      en: "e.g. A glimpse of our moments together.",
+      id: "Sekilas momen kebersamaan kami.",
+      en: "A glimpse of our moments together.",
     },
-    video_caption: { id: "Contoh: Video singkat kisah kami.", en: "e.g. A short video of our story." },
+    video_caption: { id: "Video singkat kisah kami.", en: "A short video of our story." },
   },
   sandhya: {
     gallery_intro: {
-      id: "Contoh: Bingkai-bingkai kecil dari perjalanan kami.",
-      en: "e.g. A few frames from the days that led us here.",
+      id: "Bingkai-bingkai kecil dari perjalanan kami.",
+      en: "A few frames from the days that led us here.",
     },
     wishes_intro: {
-      id: "Contoh: Tinggalkan pesan cinta dan doa untuk kedua mempelai.",
-      en: "e.g. Leave a message of love and a prayer for the couple.",
+      id: "Tinggalkan pesan cinta dan doa untuk kedua mempelai.",
+      en: "Leave a message of love and a prayer for the couple.",
     },
   },
 }
@@ -92,9 +97,8 @@ export interface TemplateExtraField {
   rows?: number
   placeholder?: string
   /**
-   * Editor-only locator ("Contoh: …"): the resolved `placeholder` has the
-   * prefix stripped for display, and this field is never merged into the
-   * rendered invitation copy.
+   * Editor-only locator: the field is never merged into the rendered
+   * invitation copy. The hint text itself is plain copy (no "Contoh"/"e.g.").
    */
   example?: boolean
   /** English placeholder when language is en. */
@@ -1204,8 +1208,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Catatan Dress Code",
     multiline: true,
     rows: 2,
-    placeholders: { "film-roll": "Contoh: Mohon hindari warna putih.", teatro: "Please avoid white and burgundy, reserved for the couple." , "silver-gelatin": "Please avoid white and bright patterns." },
-    placeholdersEn: { "film-roll": "e.g. Please avoid white." },
+    placeholders: { teatro: "Please avoid white and burgundy, reserved for the couple." , "silver-gelatin": "Please avoid white and bright patterns." },
     templates: ["silver-gelatin", "teatro", "film-roll"],
   },
   {
@@ -1697,7 +1700,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     key: "inviting_kicker",
     label: "Label Turut Mengundang (opsional)",
     templates: ["fresco"],
-    placeholders: { fresco: "Optional — e.g. With the blessing of" },
+    placeholders: { fresco: "Optional — With the blessing of" },
   },
 
   {
@@ -2267,8 +2270,8 @@ function localizeExtraField(field: TemplateExtraField, code: string, lang: "id" 
   }
   if (lang !== "en") {
     const gloss = KEY_TO_GLOSS[field.key]
-    // Track the source so an example hint never becomes rendered copy, and
-    // strip its "Contoh:" prefix from the text shown in the editor.
+    // Track the source so an example hint never becomes rendered copy. The
+    // legacy "Contoh:"/"e.g." marker is stripped if an old row still has one.
     const source =
       generated?.id != null
         ? { text: generated.id, example: false }
@@ -3539,9 +3542,9 @@ for (const field of TEMPLATE_EXTRA_FIELDS) {
  * makes "extra exists ⇒ the invitation shows the hint until it is changed"
  * true for every template, without threading defaults through each component.
  *
- * Example hints ("Contoh: …" / "e.g. …") are editor locators only: they are
- * never merged, and a stored value carrying the prefix is ignored as well, so
- * the word "Contoh" can never reach a guest.
+ * Example hints are editor locators only: they are never merged, and a stored
+ * value still carrying a legacy "Contoh:"/"e.g." marker is ignored as well, so
+ * neither the example sentence nor the marker can reach a guest.
  */
 export function templateContentWithDefaults(
   templateCode: string | null | undefined,

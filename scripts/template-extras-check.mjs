@@ -90,19 +90,20 @@ for (const code of codes) {
     }
   }
 
-  // The guest invitation must never print an editor example ("Contoh:" /
-  // "e.g."). Check the resolved hints, the merged defaults, and a stored value
-  // that carries the prefix (old rows may have saved one).
+  // The guest invitation and the editor hint must never carry example labels
+  // ("Contoh", "example", "e.g."). Check the resolved hints, the merged
+  // defaults, and a stored value that still has the legacy marker.
+  const exampleLabel = /contoh|example|e\.g\./i
   for (const lang of ["id", "en"]) {
     const localized = getTemplateExtraFields(code, lang)
     for (const f of localized) {
-      if (/^(Contoh:|Example:|e\.g\.)/i.test(f.placeholder ?? "")) {
-        problems.push(`example prefix still visible on "${f.key}" (${lang})`)
+      if (exampleLabel.test(f.placeholder ?? "")) {
+        problems.push(`example label still visible on "${f.key}" (${lang})`)
       }
     }
     for (const [key, value] of Object.entries(templateContentWithDefaults(code, lang, null))) {
-      if (/^(Contoh:|Example:|e\.g\.)/i.test(value)) {
-        problems.push(`example hint "${key}" would render in the invitation (${lang})`)
+      if (exampleLabel.test(value)) {
+        problems.push(`example label "${key}" would render in the invitation (${lang})`)
       }
       if (localized.find((f) => f.key === key)?.example) {
         problems.push(`example-only field "${key}" was merged into the invitation (${lang})`)
