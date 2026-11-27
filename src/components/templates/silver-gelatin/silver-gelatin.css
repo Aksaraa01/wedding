@@ -1486,3 +1486,19 @@
   color: rgba(255, 255, 255, 0.96);
   animation: sg-fade 0.2s ease both;
 }
+
+/* ---------- colour mode ----------
+   The couple can turn the monochrome treatment off from the editor/ops photo
+   tone control (template_content.photo_tone = "color"). Layout, grain and
+   motion stay identical; only the tonal filter is dropped. */
+.sg-root--color .sg-cover__photo img,
+.sg-root--color .sg-film__poster,
+.sg-root--color .sg-photoBand__shot img,
+.sg-root--color .sg-chapter__plate img,
+.sg-root--color .sg-venue__plate img,
+.sg-root--color .sg-grid__cell img,
+.sg-root--color .sg-wishes__band img,
+.sg-root--color .sg-gift__photo img,
+.sg-root--color .sg-dress__photo img {
+  filter: none;
+}

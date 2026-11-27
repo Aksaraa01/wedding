@@ -133,7 +133,7 @@ Reference: **Bodoni Moda** (display), **Monsieur La Doulaise** (script), **Jost*
 | Muted | `rgba(46,46,46,.7)` |
 | Hairline | `rgba(46,46,46,.14)` |
 | Soft card | `#F3F0EB` |
-| Photo treatment | `grayscale(100%) contrast(104%)` |
+| Photo treatment | `grayscale(100%) contrast(104%)` by default; colour mode drops the filter (see below) |
 | Radii | 16 / 18 / 22 / 26 / 28 / 30 / 36 px depending on the plate |
 | Heading | Bodoni 26 px, `0.085em`, uppercase, centred |
 | Script | Monsieur 50 px (mempelai), 52 px (cover), 46 px (photo captions, bleeding past the plate like the reference), 34 px (closing) |
@@ -141,6 +141,15 @@ Reference: **Bodoni Moda** (display), **Monsieur La Doulaise** (script), **Jost*
 | Body | Jost 12.5 px / 1.5 |
 | Section rhythm | `96px 0 110px`; welcome `84px` top |
 | Cover unit | `--sg-u: calc(100cqw / 390)`, cover height `calc(844 * var(--sg-u))` |
+
+Colour mode: the template declares `photo_tone: true` in its `ContentSpec`, which
+adds a **TONE FOTO** control to the couple editor and makes the existing ops
+"Foto hitam putih (grayscale)" toggle meaningful. The choice is stored in
+`template_content.photo_tone` (`"mono"` | `"color"`) and mirrored into
+`wedding_profiles.grayscale`. Absent an explicit choice the template stays
+monochrome, so existing invitations do not flip; colour mode adds
+`.sg-root--color` to the root and the CSS drops every photo filter. Helper:
+`src/lib/photoTone.ts`.
 
 Cover geometry at 390 (converted verbatim):
 
