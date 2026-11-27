@@ -78,18 +78,26 @@ export default function JazzVintage(profile: TemplateProps) {
     { value: pad2(Math.floor((diff % 60_000) / 1000)), label: t("seconds", lang) },
   ]
 
+  const gallery = useMemo(() => flattenPhotos(profile.gallery_photos).filter(Boolean), [profile.gallery_photos])
+
   const stories = useMemo(() => {
     const allowed = gates.story !== false && profile.story_visible !== false
     if (!allowed) return []
     return (profile.stories || []).filter((story) => story && (story.title || story.description))
   }, [gates.story, profile.story_visible, profile.stories])
-  const storyPhotos = useMemo(
-    () => stories.map((story) => (story.image_url || "").trim()).filter(Boolean),
-    [stories]
-  )
+  // Two vintage prints sit under the intro. Story photos come first; when a
+  // couple has not uploaded any, the gallery supplies the rest so the pair is
+  // never empty (the section still disappears when there is no photo at all).
+  const storyPhotos = useMemo(() => {
+    const merged = stories.map((story) => (story.image_url || "").trim()).filter(Boolean)
+    for (const photo of gallery) {
+      if (merged.length >= 2) break
+      if (!merged.includes(photo)) merged.push(photo)
+    }
+    return merged
+  }, [stories, gallery])
 
   const rundown = profile.rundown_visible !== false ? (profile.rundown || []).filter((row) => row && (row.time || row.description)) : []
-  const gallery = useMemo(() => flattenPhotos(profile.gallery_photos).filter(Boolean), [profile.gallery_photos])
 
   const accounts = useMemo(
     () => (profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter((account) => account && account.account_number) : []),
