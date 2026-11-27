@@ -447,27 +447,40 @@ export default function Noir(profile: TemplateProps) {
 
   // The reference's gallery advances on its own (slick autoplay, ~4 s). One
   // card per tick, no hover pause, and a cooldown after the guest intervenes.
+  // The first move lands ~1.5 s after the strip appears, so it is visibly
+  // automatic the moment a guest reaches it.
   useEffect(() => {
     const el = galleryRef.current
     if (!el || gallery.length < 2 || lightbox !== null) return
-    // Reduced motion keeps the autoplay but advances without the glide, so the
-    // strip still moves on phones that disable animations system-wide.
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     let holding = false
     let holdUntil = 0
     let inView = false
-    let visibleAt = 0
-    // Only advance while the strip is on screen; otherwise a guest who scrolls
-    // down after a while arrives mid-list.
+    let kick = 0
+
+    const advance = () => {
+      const step = galleryStep()
+      if (!step) return
+      const current = Math.round(el.scrollLeft / step)
+      const next = current + 1 >= gallery.length ? 0 : current + 1
+      el.scrollTo({ left: next * step, behavior: reduceMotion ? "auto" : "smooth" })
+    }
+
     const visibility = new IntersectionObserver(
       (entries) => {
         const visible = entries.some((entry) => entry.isIntersecting)
-        if (visible && !inView) visibleAt = Date.now()
+        if (visible && !inView) {
+          window.clearTimeout(kick)
+          kick = window.setTimeout(() => {
+            if (!holding && !document.hidden && Date.now() >= holdUntil) advance()
+          }, 1500)
+        }
         inView = visible
       },
       { threshold: 0.1 }
     )
     visibility.observe(el)
+
     const hold = () => {
       holding = true
     }
@@ -481,16 +494,15 @@ export default function Noir(profile: TemplateProps) {
     el.addEventListener("touchstart", hold, { passive: true })
     el.addEventListener("touchend", release)
     el.addEventListener("touchcancel", release)
+
     const id = window.setInterval(() => {
-      if (!inView || Date.now() - visibleAt < 4200 || holding || document.hidden || Date.now() < holdUntil) return
-      const step = galleryStep()
-      if (!step) return
-      const current = Math.round(el.scrollLeft / step)
-      const next = current + 1 >= gallery.length ? 0 : current + 1
-      el.scrollTo({ left: next * step, behavior: reduceMotion ? "auto" : "smooth" })
+      if (!inView || holding || document.hidden || Date.now() < holdUntil) return
+      advance()
     }, 4200)
+
     return () => {
       window.clearInterval(id)
+      window.clearTimeout(kick)
       visibility.disconnect()
       el.removeEventListener("pointerdown", hold)
       el.removeEventListener("pointerup", release)
