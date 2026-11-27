@@ -450,7 +450,9 @@ export default function Noir(profile: TemplateProps) {
   useEffect(() => {
     const el = galleryRef.current
     if (!el || gallery.length < 2 || lightbox !== null) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    // Reduced motion keeps the autoplay but advances without the glide, so the
+    // strip still moves on phones that disable animations system-wide.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     let holding = false
     let holdUntil = 0
     let inView = false
@@ -463,7 +465,7 @@ export default function Noir(profile: TemplateProps) {
         if (visible && !inView) visibleAt = Date.now()
         inView = visible
       },
-      { threshold: 0.25 }
+      { threshold: 0.1 }
     )
     visibility.observe(el)
     const hold = () => {
@@ -471,20 +473,21 @@ export default function Noir(profile: TemplateProps) {
     }
     const release = () => {
       holding = false
-      holdUntil = Date.now() + 6000
+      holdUntil = Date.now() + 3000
     }
     el.addEventListener("pointerdown", hold)
     el.addEventListener("pointerup", release)
     el.addEventListener("pointercancel", release)
     el.addEventListener("touchstart", hold, { passive: true })
     el.addEventListener("touchend", release)
+    el.addEventListener("touchcancel", release)
     const id = window.setInterval(() => {
       if (!inView || Date.now() - visibleAt < 4200 || holding || document.hidden || Date.now() < holdUntil) return
       const step = galleryStep()
       if (!step) return
       const current = Math.round(el.scrollLeft / step)
       const next = current + 1 >= gallery.length ? 0 : current + 1
-      el.scrollTo({ left: next * step, behavior: "smooth" })
+      el.scrollTo({ left: next * step, behavior: reduceMotion ? "auto" : "smooth" })
     }, 4200)
     return () => {
       window.clearInterval(id)
@@ -494,6 +497,7 @@ export default function Noir(profile: TemplateProps) {
       el.removeEventListener("pointercancel", release)
       el.removeEventListener("touchstart", hold)
       el.removeEventListener("touchend", release)
+      el.removeEventListener("touchcancel", release)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gallery.length, lightbox])
