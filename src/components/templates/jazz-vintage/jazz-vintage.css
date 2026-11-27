@@ -827,21 +827,31 @@ html:has(body.jv-locked) {
   width: 49.92%;
 }
 
-.jv-event__tag {
+.jv-event__tagwrap {
   position: absolute;
   left: 41.74%;
   top: 51.14%;
   width: 35.46%;
+  aspect-ratio: 357 / 445;
   z-index: 3;
+  transform-origin: 50% 8%;
   pointer-events: none;
+}
+
+.jv-event__tag {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .jv-event__tag-text {
   position: absolute;
-  left: 49.36%;
-  top: 70.4%;
+  left: 21.5%;
+  top: 55.9%;
   z-index: 4;
-  width: 21.7%;
+  width: 61.2%;
   font-family: var(--jv-display);
   font-size: clamp(7px, 2.56cqw, 11px);
   font-weight: 500;
@@ -856,7 +866,7 @@ html:has(body.jv-locked) {
 .jv-event {
   position: relative;
   margin: 0 0 6cqw;
-  padding: 11cqw 14cqw 13cqw;
+  padding: 12cqw 15cqw 14cqw;
   background: url("/templates/jazz-vintage/frame-cream.webp") center / 100% 100% no-repeat;
   text-align: center;
 }
@@ -868,7 +878,7 @@ html:has(body.jv-locked) {
 .jv-event__name {
   margin: 0 0 1.6cqw;
   font-family: var(--jv-serif);
-  font-size: clamp(20px, 6.4cqw, 32px);
+  font-size: clamp(22px, 7cqw, 36px);
   font-weight: 500;
   line-height: 1.25;
   color: var(--jv-burgundy);
@@ -885,7 +895,7 @@ html:has(body.jv-locked) {
 .jv-event__venue {
   margin: 0 0 1cqw;
   font-family: var(--jv-serif);
-  font-size: clamp(17px, 6.2cqw, 26px);
+  font-size: clamp(18px, 6.4cqw, 28px);
   font-weight: 500;
   line-height: 1.3;
   color: var(--jv-burgundy);
@@ -895,7 +905,7 @@ html:has(body.jv-locked) {
   margin: 0 auto;
   max-width: 100%;
   font-family: var(--jv-sans);
-  font-size: clamp(10px, 3.2cqw, 15px);
+  font-size: clamp(11px, 3.35cqw, 16px);
   line-height: 1.6;
   color: rgba(59, 42, 34, 0.85);
 }
@@ -930,13 +940,68 @@ html:has(body.jv-locked) {
   pointer-events: none;
 }
 
-.jv-savedate__watch {
+.jv-watch {
   position: absolute;
   right: -2.05%;
   top: 61.26%;
   width: 37.26%;
+  aspect-ratio: 310 / 400;
   z-index: 3;
+  container-type: inline-size;
   pointer-events: none;
+}
+
+.jv-watch__face {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.jv-watch__dial {
+  position: absolute;
+  left: 32.25%;
+  top: 35%;
+  width: 35.5%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(40, 10, 12, 0.3);
+}
+
+.jv-watch__hand {
+  position: absolute;
+  left: 50%;
+  top: 48.75%;
+  width: 1.8cqw;
+  min-width: 1.5px;
+  max-width: 2.6px;
+  border-radius: 999px;
+  background: #3b2a22;
+  box-shadow: 0 0 0 0.5px rgba(255, 248, 232, 0.45);
+  transform-origin: 50% 100%;
+}
+
+.jv-watch__hand--hour {
+  height: 11cqw;
+  animation: jv-hand-hour 480s linear infinite;
+}
+
+.jv-watch__hand--minute {
+  height: 16cqw;
+  animation: jv-hand-minute 48s linear infinite;
+}
+
+.jv-watch__pin {
+  position: absolute;
+  left: 50%;
+  top: 48.75%;
+  width: 2.4cqw;
+  height: 2.4cqw;
+  min-width: 3px;
+  min-height: 3px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #3b2a22;
+  box-shadow: 0 0 0 1px rgba(255, 248, 232, 0.5);
 }
 
 .jv-cal {
@@ -1086,38 +1151,6 @@ html:has(body.jv-locked) {
 
 .jv-chapter + .jv-chapter {
   padding-top: 2cqw;
-}
-
-.jv-chapter__frame {
-  position: relative;
-  display: block;
-  width: 72%;
-  max-width: 320px;
-  margin: 0 auto 4.6cqw;
-  aspect-ratio: 301 / 371;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: zoom-in;
-}
-
-.jv-chapter__photo {
-  position: absolute;
-  left: 24.4%;
-  top: 26.1%;
-  width: 51.2%;
-  height: 50.6%;
-  object-fit: cover;
-  object-position: 50% 20%;
-}
-
-.jv-chapter__oval {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
 }
 
 .jv-chapter__index {
@@ -2186,5 +2219,412 @@ html:has(body.jv-locked) {
     opacity: 1;
     translate: none;
     scale: 1;
+  }
+}
+
+/* ==========================================================================
+   Motion — entrance, exit, sway and the little rhythm band.
+   Keyframes animate `translate`/`scale`/`rotate` (individual properties) so a
+   tilt or a sway set for the design is never overwritten by an entrance.
+   ========================================================================== */
+@keyframes jv-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes jv-rise {
+  from { opacity: 0; translate: 0 26px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes jv-drop {
+  from { opacity: 0; translate: 0 -16px; rotate: -4deg; }
+  to { opacity: 1; translate: 0 0; rotate: 0deg; }
+}
+
+@keyframes jv-vintage-in {
+  0% { opacity: 0; translate: 0 22px; scale: 1.02; filter: blur(7px); }
+  55% { filter: blur(0); }
+  100% { opacity: 1; translate: 0 0; scale: 1; filter: blur(0); }
+}
+
+@keyframes jv-vintage-text {
+  0% { opacity: 0; translate: 0 14px; scale: 0.995; filter: blur(5px); }
+  100% { opacity: 1; translate: 0 0; scale: 1; filter: blur(0); }
+}
+
+@keyframes jv-sway-soft {
+  0%, 100% { transform: rotate(-1.6deg); }
+  50% { transform: rotate(1.6deg); }
+}
+
+@keyframes jv-garland-sway {
+  0%, 100% { transform: rotate(-1.1deg) translateY(0); }
+  50% { transform: rotate(1.1deg) translateY(1.5px); }
+}
+
+@keyframes jv-sway-centered {
+  0%, 100% { transform: translateX(-50%) rotate(-1deg); }
+  50% { transform: translateX(-50%) rotate(1deg); }
+}
+
+@keyframes jv-eq {
+  0% { height: 14%; opacity: 0.4; }
+  100% { height: 92%; opacity: 0.95; }
+}
+
+@keyframes jv-gate-leave {
+  0% { opacity: 1; translate: 0 0; scale: 1; }
+  100% { opacity: 0; translate: 0 -7%; scale: 1.03; }
+}
+
+@keyframes jv-hand-hour {
+  from { transform: translate(-50%, -100%) rotate(300deg); }
+  to { transform: translate(-50%, -100%) rotate(660deg); }
+}
+
+@keyframes jv-hand-minute {
+  from { transform: translate(-50%, -100%) rotate(120deg); }
+  to { transform: translate(-50%, -100%) rotate(480deg); }
+}
+
+/* ---- cover: entrance chorus, then the curtain lifts away ---- */
+.jv-gate__bg {
+  animation: jv-fade 1.2s ease both;
+}
+
+.jv-gate__chandelier {
+  animation:
+    jv-fade 1s 0.12s ease both,
+    jv-sway-centered 9s 1.3s ease-in-out infinite;
+}
+
+.jv-gate__names {
+  animation: jv-rise 1.15s 0.26s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-gate__date {
+  animation: jv-rise 1s 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-gate__dear {
+  animation: jv-fade 0.9s 0.58s ease both;
+}
+
+.jv-gate__guest {
+  animation: jv-fade 0.9s 0.66s ease both;
+}
+
+.jv-gate__table {
+  animation: jv-rise 1.2s 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-gate__garland {
+  transform-origin: 50% 0;
+  animation:
+    jv-rise 1.1s 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both,
+    jv-garland-sway 8s 1.7s ease-in-out infinite;
+}
+
+.jv-gate__open {
+  animation: jv-rise 0.9s 0.72s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-gate.is-leaving {
+  animation: jv-gate-leave 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+/* ---- music card: swinging garland, rhythm band behind the player ---- */
+.jv-music::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 30%;
+  bottom: 6%;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 55%, rgba(201, 161, 90, 0.32), transparent 68%);
+  filter: blur(12px);
+  pointer-events: none;
+}
+
+.jv-music__rhythm {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  top: 88%;
+  height: 10%;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3%;
+  pointer-events: none;
+  opacity: 0.75;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.jv-music__rhythm span {
+  flex: 1;
+  max-width: 7px;
+  height: 32%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(201, 161, 90, 0.95), rgba(106, 20, 36, 0.5));
+  animation: jv-eq 1.9s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.13s);
+}
+
+.jv-music__garland {
+  transform-origin: 50% 0;
+  animation: jv-garland-sway 7.5s ease-in-out infinite;
+}
+
+.jv-music__sheet {
+  animation: jv-fade 1.2s 0.1s ease both;
+}
+
+.jv-music__card {
+  z-index: 3;
+  animation: jv-rise 1.1s 0.25s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* ---- welcome: jewel box, card frame, cameo bow and the greeting ---- */
+.jv-welcome__stage.is-in .jv-welcome__box {
+  animation: jv-vintage-in 1.25s 0.05s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-welcome__stage.is-in .jv-welcome__card {
+  animation: jv-vintage-in 1.2s 0.18s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-welcome__stage.is-in .jv-welcome__cameo {
+  transform-origin: 50% 6%;
+  animation:
+    jv-drop 1s 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both,
+    jv-sway-soft 6.5s 1.7s ease-in-out infinite;
+}
+
+.jv-welcome__tulle {
+  transform-origin: 50% 90%;
+}
+
+.jv-welcome__stage.is-in .jv-welcome__tulle {
+  animation: jv-sway-soft 8s 0.8s ease-in-out infinite;
+}
+
+.jv-welcome__stage.is-in .jv-welcome__title {
+  animation: jv-vintage-text 1.05s 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-welcome__stage.is-in .jv-welcome__body {
+  animation: jv-vintage-text 1.05s 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* ---- kalimat pembuka ---- */
+.jv-opening__stage.is-in .jv-opening__card {
+  animation: jv-vintage-in 1.15s 0.05s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-opening__stage.is-in .jv-opening__title {
+  animation: jv-vintage-text 1s 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-opening__stage.is-in .jv-opening__body {
+  animation: jv-vintage-text 1s 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* ---- event: orchids and velvet tag breathe, cards rise ---- */
+.jv-event__orchid--left {
+  transform-origin: 30% 4%;
+}
+
+.jv-event__orchid--right {
+  transform-origin: 70% 4%;
+}
+
+.jv-event__plate.is-in .jv-event__orchid--left {
+  animation: jv-sway-soft 6.4s 0.6s ease-in-out infinite;
+}
+
+.jv-event__plate.is-in .jv-event__orchid--right {
+  animation: jv-sway-soft 7.2s 1s ease-in-out infinite;
+}
+
+.jv-event__plate.is-in .jv-event__tagwrap {
+  animation: jv-sway-soft 5.6s 0.8s ease-in-out infinite;
+}
+
+.jv-event__plate.is-in {
+  animation: jv-vintage-in 1.2s 0.05s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-event.is-in {
+  animation: jv-vintage-in 1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* ---- countdown: vintage entrance and a clock that actually ticks ---- */
+.jv-savedate.is-in .jv-savedate__tulle {
+  animation: jv-fade 1.2s ease both;
+}
+
+.jv-savedate.is-in .jv-cal {
+  animation: jv-vintage-in 1.15s 0.1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-savedate.is-in .jv-watch {
+  transform-origin: 50% 12%;
+  animation:
+    jv-drop 1s 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both,
+    jv-sway-soft 7s 1.7s ease-in-out infinite;
+}
+
+.jv-count.is-in .jv-count__unit {
+  animation: jv-vintage-text 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-count.is-in .jv-count__unit:nth-child(1) { animation-delay: 0.45s; }
+.jv-count.is-in .jv-count__unit:nth-child(2) { animation-delay: 0.55s; }
+.jv-count.is-in .jv-count__unit:nth-child(3) { animation-delay: 0.65s; }
+.jv-count.is-in .jv-count__unit:nth-child(4) { animation-delay: 0.75s; }
+
+.jv-countdown .jv-btn--solid.is-in {
+  animation: jv-rise 0.9s 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* ---- love story: two vintage prints under the intro ---- */
+.jv-story__photos {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4.5cqw;
+  margin: 1cqw 0 11cqw;
+}
+
+.jv-story__photo {
+  position: relative;
+  width: 43%;
+  padding: 1.4cqw 1.4cqw 5cqw;
+  border: 1px solid rgba(201, 161, 90, 0.55);
+  background: #fffaf0;
+  box-shadow: 0 12px 24px rgba(50, 20, 15, 0.22);
+  cursor: zoom-in;
+}
+
+.jv-story__photo::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -2.4cqw;
+  width: 36%;
+  height: 5.2cqw;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(226, 205, 168, 0.78);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+}
+
+.jv-story__photo img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  filter: sepia(0.42) saturate(0.85) contrast(0.98) brightness(1.02);
+}
+
+.jv-story__photo--left {
+  transform: rotate(-2.2deg);
+}
+
+.jv-story__photo--right {
+  transform: rotate(1.8deg);
+  margin-top: 7cqw;
+}
+
+.jv-story__photos.is-in .jv-story__photo--left {
+  animation: jv-vintage-in 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-story__photos.is-in .jv-story__photo--right {
+  animation: jv-vintage-in 1.1s 0.15s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* ---- turut mengundang: frame and every line arrive together ---- */
+.jv-inviting__card.is-in {
+  animation: jv-vintage-in 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-inviting__card.is-in li {
+  animation: jv-vintage-text 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.jv-inviting__card.is-in li:nth-child(1) { animation-delay: 0.3s; }
+.jv-inviting__card.is-in li:nth-child(2) { animation-delay: 0.42s; }
+.jv-inviting__card.is-in li:nth-child(3) { animation-delay: 0.54s; }
+.jv-inviting__card.is-in li:nth-child(4) { animation-delay: 0.66s; }
+.jv-inviting__card.is-in li:nth-child(5) { animation-delay: 0.78s; }
+
+/* ---- reduced motion: keep everything visible and still ---- */
+@media (prefers-reduced-motion: reduce) {
+  .jv-gate__bg,
+  .jv-gate__chandelier,
+  .jv-gate__names,
+  .jv-gate__date,
+  .jv-gate__dear,
+  .jv-gate__guest,
+  .jv-gate__table,
+  .jv-gate__garland,
+  .jv-gate__open,
+  .jv-music__rhythm span,
+  .jv-music__garland,
+  .jv-music__sheet,
+  .jv-music__card,
+  .jv-welcome__box,
+  .jv-welcome__card,
+  .jv-welcome__cameo,
+  .jv-welcome__tulle,
+  .jv-welcome__title,
+  .jv-welcome__body,
+  .jv-opening__card,
+  .jv-opening__title,
+  .jv-opening__body,
+  .jv-event__orchid,
+  .jv-event__tagwrap,
+  .jv-event__plate,
+  .jv-event,
+  .jv-cal,
+  .jv-watch,
+  .jv-count__unit,
+  .jv-story__photo,
+  .jv-inviting__card,
+  .jv-inviting__card li {
+    animation: none !important;
+    opacity: 1 !important;
+    translate: none !important;
+    scale: 1 !important;
+    filter: none !important;
+  }
+
+  .jv-watch__hand {
+    animation: none !important;
+  }
+}
+
+@media (scripting: none) {
+  .jv-gate__names,
+  .jv-gate__date,
+  .jv-gate__dear,
+  .jv-gate__guest,
+  .jv-gate__open,
+  .jv-welcome__title,
+  .jv-welcome__body,
+  .jv-opening__title,
+  .jv-opening__body,
+  .jv-event,
+  .jv-story__photo,
+  .jv-inviting__card li {
+    opacity: 1 !important;
+    translate: none !important;
+    filter: none !important;
   }
 }

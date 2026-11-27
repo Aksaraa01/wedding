@@ -28,6 +28,7 @@ export const JV = {
   velvetBow: A("velvet-bow.webp"),
   bouquet: A("bouquet.webp"),
   giftEnvelope: A("gift-envelope.webp"),
+  clockFace: A("clock-face.webp"),
 } as const
 
 // One vintage vignette per rundown row. The list cycles, so a five-row day and

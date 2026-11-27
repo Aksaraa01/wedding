@@ -127,6 +127,7 @@ export default function JazzVintage(profile: TemplateProps) {
   const filmPoster = gallery[0] || (profile.cover_photos && flattenPhotos(profile.cover_photos)[0]) || heroPhoto
 
   const [opened, setOpened] = useState(false)
+  const [gateMounted, setGateMounted] = useState(true)
   const [playing, setPlaying] = useState(false)
   const [viewer, setViewer] = useState<Viewer>(null)
   const [filmOpen, setFilmOpen] = useState(false)
@@ -173,6 +174,7 @@ export default function JazzVintage(profile: TemplateProps) {
 
   const openInvitation = useCallback(() => {
     setOpened(true)
+    window.setTimeout(() => setGateMounted(false), 900)
     window.scrollTo({ top: 0, behavior: "auto" })
     const audio = audioRef.current
     if (audio) {
@@ -280,8 +282,8 @@ export default function JazzVintage(profile: TemplateProps) {
         />
       )}
 
-      {!opened && (
-        <div className="jv-gate" onClick={openInvitation}>
+      {gateMounted && (
+        <div className={`jv-gate${opened ? " is-leaving" : ""}`} onClick={opened ? undefined : openInvitation} aria-hidden={opened || undefined}>
           <div className="jv-gate__stage">
             <img className="jv-gate__bg" src={JV.coverCurtain} alt="" aria-hidden="true" fetchPriority="high" />
             <img className="jv-gate__chandelier" src={JV.coverChandelier} alt="" aria-hidden="true" />
@@ -312,6 +314,11 @@ export default function JazzVintage(profile: TemplateProps) {
           {trackUrl && (
             <div className="jv-music" data-jv-reveal>
               <img className="jv-music__sheet" src={JV.sheetMusic} alt="" aria-hidden="true" />
+              <div className="jv-music__rhythm" aria-hidden="true">
+                {Array.from({ length: 13 }).map((_, index) => (
+                  <span key={index} style={{ "--i": index } as CSSProperties} />
+                ))}
+              </div>
               <div className="jv-music__card">
                 <img className="jv-music__photo" src={JV.gramophone} alt="" aria-hidden="true" />
                 <p className="jv-music__label">{tc.music_label || t("playMusic", lang)}</p>
@@ -372,20 +379,7 @@ export default function JazzVintage(profile: TemplateProps) {
           </div>
         </section>
 
-        {/* 4 — KALIMAT PEMBUKA */}
-        {hasOpening && (
-          <section className="jv-sec jv-opening" id="pembuka" aria-label={t("welcomeKicker", lang)}>
-            <div className="jv-opening__stage" data-jv-reveal>
-              <img className="jv-opening__card" src={JV.cardCream} alt="" aria-hidden="true" loading="lazy" />
-              <div className="jv-opening__copy">
-                <h2 className="jv-opening__title">{openingTitle || tc.pembuka_title || t("saveTheDate", lang)}</h2>
-                {openingBody && <p className="jv-opening__body">{openingBody}</p>}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* 5 — MEMPELAI */}
+        {/* 4 — MEMPELAI */}
         <section className="jv-sec jv-couple" id="mempelai" aria-label={t("secCouple", lang)}>
           <div className="jv-pad">
             <h2 className="jv-title" data-jv-reveal>
@@ -455,6 +449,19 @@ export default function JazzVintage(profile: TemplateProps) {
           </div>
         </section>
 
+        {/* 5 — KALIMAT PEMBUKA (setelah mempelai) */}
+        {hasOpening && (
+          <section className="jv-sec jv-opening" id="pembuka" aria-label={t("welcomeKicker", lang)}>
+            <div className="jv-opening__stage" data-jv-reveal>
+              <img className="jv-opening__card" src={JV.cardCream} alt="" aria-hidden="true" loading="lazy" />
+              <div className="jv-opening__copy">
+                <h2 className="jv-opening__title">{openingTitle || tc.pembuka_title || t("saveTheDate", lang)}</h2>
+                {openingBody && <p className="jv-opening__body">{openingBody}</p>}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* 6 — EVENT */}
         {sessions.length > 0 && (
           <section className="jv-sec jv-events" id="acara" aria-label={t("secEvent", lang)}>
@@ -473,8 +480,10 @@ export default function JazzVintage(profile: TemplateProps) {
               <img className="jv-event__door-img" src={JV.door} alt="" loading="lazy" />
               <img className="jv-event__orchid jv-event__orchid--left" src={JV.orchid} alt="" loading="lazy" />
               <img className="jv-event__orchid jv-event__orchid--right" src={JV.orchid} alt="" loading="lazy" />
-              <img className="jv-event__tag" src={JV.velvetTag} alt="" loading="lazy" />
-              <span className="jv-event__tag-text">{t("locationLabel", lang)}</span>
+              <div className="jv-event__tagwrap">
+                <img className="jv-event__tag" src={JV.velvetTag} alt="" loading="lazy" />
+                <span className="jv-event__tag-text">{t("locationLabel", lang)}</span>
+              </div>
             </div>
 
             <div className="jv-pad">
@@ -503,7 +512,42 @@ export default function JazzVintage(profile: TemplateProps) {
           </section>
         )}
 
-        {/* 7 — COUNTDOWN */}
+        {/* 7 — RUNDOWN (sebelum hitung mundur) */}
+        {rundown.length > 0 && (
+          <section className="jv-sec jv-day" id="rundown" aria-label={t("secRundown", lang)}>
+            <div className="jv-pad">
+              <h2 className="jv-title" data-jv-reveal>
+                {tc.rundown_title || t("secRundown", lang)}
+              </h2>
+              {tc.rundown_intro && (
+                <p className="jv-lead" data-jv-reveal>
+                  {tc.rundown_intro}
+                </p>
+              )}
+            </div>
+
+            <div className="jv-day__stage" data-jv-reveal>
+              <img className="jv-day__lace" src={JV.lace} alt="" aria-hidden="true" loading="lazy" />
+              <img className="jv-day__frame" src={JV.frameCream} alt="" aria-hidden="true" loading="lazy" />
+              <img className="jv-day__bow" src={JV.velvetBow} alt="" aria-hidden="true" loading="lazy" />
+              <img className="jv-day__bouquet" src={JV.bouquet} alt="" aria-hidden="true" loading="lazy" />
+              <ol className="jv-day__list">
+                {rundown.map((row, index) => (
+                  <li className="jv-day__row" key={`${row.time || "row"}-${index}`}>
+                    <img className="jv-day__icon" src={rundownArt(index)} alt="" aria-hidden="true" loading="lazy" />
+                    <div className="jv-day__text">
+                      {row.time && <span className="jv-day__time">{row.time}</span>}
+                      {row.description && <span className="jv-day__desc">{row.description}</span>}
+                    </div>
+                    {index < rundown.length - 1 && <span className="jv-day__sep" aria-hidden="true" />}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+        )}
+
+        {/* 8 — COUNTDOWN */}
         {target && (
           <section className="jv-sec jv-countdown" id="countdown" aria-label={t("secCountdown", lang)}>
             <div className="jv-pad">
@@ -547,7 +591,13 @@ export default function JazzVintage(profile: TemplateProps) {
                   </p>
                 )}
               </div>
-              <img className="jv-savedate__watch" src={JV.pocketWatch} alt="" aria-hidden="true" loading="lazy" />
+              <div className="jv-watch" aria-hidden="true">
+                <img className="jv-watch__face" src={JV.pocketWatch} alt="" loading="lazy" />
+                <img className="jv-watch__dial" src={JV.clockFace} alt="" aria-hidden="true" loading="lazy" />
+                <span className="jv-watch__hand jv-watch__hand--hour" />
+                <span className="jv-watch__hand jv-watch__hand--minute" />
+                <span className="jv-watch__pin" />
+              </div>
             </div>
 
             <div className="jv-count jv-pad" data-jv-reveal>
@@ -569,7 +619,7 @@ export default function JazzVintage(profile: TemplateProps) {
           </section>
         )}
 
-        {/* 8 — LOVE STORY */}
+        {/* 9 — LOVE STORY */}
         {stories.length > 0 && (
           <section className="jv-sec jv-story" id="cerita" aria-label={t("secStory", lang)}>
             <div className="jv-pad">
@@ -582,24 +632,25 @@ export default function JazzVintage(profile: TemplateProps) {
               </p>
             )}
 
+            {storyPhotos.length > 0 && (
+              <div className="jv-story__photos" data-jv-reveal>
+                {storyPhotos.slice(0, 2).map((photo, index) => (
+                  <button
+                    type="button"
+                    className={`jv-story__photo jv-story__photo--${index === 0 ? "left" : "right"}`}
+                    key={`${photo}-${index}`}
+                    onClick={() => setViewer({ photos: storyPhotos, index })}
+                    aria-label={t("photoViewer", lang)}
+                  >
+                    <img src={photo} alt="" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="jv-story__list">
               {stories.map((story, index) => (
                 <article className="jv-chapter" key={`${story.title || "chapter"}-${index}`} data-jv-reveal>
-                  {story.image_url && (
-                    <button
-                      type="button"
-                      className="jv-chapter__frame"
-                      onClick={() => {
-                        const list = storyPhotos
-                        const at = (story.image_url && list.indexOf(story.image_url)) || 0
-                        setViewer({ photos: list, index: at })
-                      }}
-                      aria-label={t("photoViewer", lang)}
-                    >
-                      <img className="jv-chapter__photo" src={story.image_url} alt="" loading="lazy" />
-                      <img className="jv-chapter__oval" src={JV.frameOval} alt="" aria-hidden="true" loading="lazy" />
-                    </button>
-                  )}
                   <div className="jv-chapter__copy">
                     <span className="jv-chapter__index" aria-hidden="true">
                       {pad2(index + 1)}
@@ -611,41 +662,6 @@ export default function JazzVintage(profile: TemplateProps) {
                 </article>
               ))}
             </div>
-            </div>
-          </section>
-        )}
-
-        {/* 9 — RUNDOWN */}
-        {rundown.length > 0 && (
-          <section className="jv-sec jv-day" id="rundown" aria-label={t("secRundown", lang)}>
-            <div className="jv-pad">
-              <h2 className="jv-title" data-jv-reveal>
-                {tc.rundown_title || t("secRundown", lang)}
-              </h2>
-              {tc.rundown_intro && (
-                <p className="jv-lead" data-jv-reveal>
-                  {tc.rundown_intro}
-                </p>
-              )}
-            </div>
-
-            <div className="jv-day__stage" data-jv-reveal>
-              <img className="jv-day__lace" src={JV.lace} alt="" aria-hidden="true" loading="lazy" />
-              <img className="jv-day__frame" src={JV.frameCream} alt="" aria-hidden="true" loading="lazy" />
-              <img className="jv-day__bow" src={JV.velvetBow} alt="" aria-hidden="true" loading="lazy" />
-              <img className="jv-day__bouquet" src={JV.bouquet} alt="" aria-hidden="true" loading="lazy" />
-              <ol className="jv-day__list">
-                {rundown.map((row, index) => (
-                  <li className="jv-day__row" key={`${row.time || "row"}-${index}`}>
-                    <img className="jv-day__icon" src={rundownArt(index)} alt="" aria-hidden="true" loading="lazy" />
-                    <div className="jv-day__text">
-                      {row.time && <span className="jv-day__time">{row.time}</span>}
-                      {row.description && <span className="jv-day__desc">{row.description}</span>}
-                    </div>
-                    {index < rundown.length - 1 && <span className="jv-day__sep" aria-hidden="true" />}
-                  </li>
-                ))}
-              </ol>
             </div>
           </section>
         )}
