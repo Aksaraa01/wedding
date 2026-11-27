@@ -47,6 +47,7 @@ import { getTemplateContentSpec } from "@/components/templates"
 import { visibleCoverSlotIndexes, type CoverSlotGateData } from "@/lib/coverSlots"
 import { hidesOpeningSection } from "@/lib/templateSections"
 import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
+import { resolvePhotoTone, templateDefaultsToMono } from "@/lib/photoTone"
 import BankSelect from "@/components/dashboard/BankSelect"
 import { getBankBySlug, getBankByName, bankLogoUrl } from "@/lib/bankList"
 import { LANGUAGE_OPTIONS, normalizeLanguage } from "@/lib/i18n"
@@ -1267,6 +1268,16 @@ export default function AntrianDetail({ id }: { id: string }) {
   // couple editor (content spec for in-house, manifest for WP). Ops must never
   // show fields the template does not render.
   const invContentSpec = invTpl?.code ? getTemplateContentSpec(invTpl.code) : undefined
+  // Photo tone follows the template spec (Silver Gelatin opts in). The edit
+  // form wins while editing; the saved profile drives the read-only preview.
+  const invPhotoTone = resolvePhotoTone(
+    invForm?.template_content ?? invitationData?.profile?.template_content,
+    invForm?.grayscale ?? invitationData?.profile?.grayscale,
+    templateDefaultsToMono(invTpl?.code)
+  )
+  const invMonoPhotos = invContentSpec?.photo_tone
+    ? invPhotoTone === "mono"
+    : !!(invForm?.grayscale ?? invitationData?.profile?.grayscale)
   const invShowStoryPhoto = invContentSpec?.story_photo !== false && !invNoPhoto
   // Same split as the couple editor: a design can take a gallery/film but no
   // cover or portrait photos (lace).
@@ -1568,7 +1579,10 @@ export default function AntrianDetail({ id }: { id: string }) {
     strField("Video", f.video_url, orig.video_url)
     strField("Tanggal Acara", f.estimated_wedding_date, orig.estimated_wedding_date)
     if (Number(f.rsvp_max_pax) !== Number(orig.rsvp_max_pax)) changed.push("Maks Pax")
-    if (!!f.grayscale !== (orig.grayscale === true)) changed.push("Grayscale")
+    const toneChanged = invContentSpec?.photo_tone
+      ? (f.template_content?.photo_tone ?? "mono") !== (orig.template_content?.photo_tone ?? "mono")
+      : false
+    if (!!f.grayscale !== (orig.grayscale === true) || toneChanged) changed.push("Grayscale")
     const arrField = (label: string, nv: any[], ov: any[]) => {
       if (JSON.stringify(nv || []) !== JSON.stringify(ov || [])) changed.push(`${label} (${(ov || []).length}→${(nv || []).length})`)
     }
@@ -3335,7 +3349,17 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </div>
                     )}
                     <div className="space-y-2">
-                      <InvCheck label="Foto hitam putih (grayscale)" checked={!!invForm.grayscale} onChange={(v) => setInvForm({ ...invForm, grayscale: v })} />
+                      <InvCheck
+                        label="Foto hitam putih (grayscale)"
+                        checked={invContentSpec?.photo_tone ? invPhotoTone === "mono" : !!invForm.grayscale}
+                        onChange={(v) => setInvForm((prev: any) => ({
+                          ...prev,
+                          grayscale: v,
+                          ...(invContentSpec?.photo_tone
+                            ? { template_content: { ...(prev?.template_content || {}), photo_tone: v ? "mono" : "color" } }
+                            : {}),
+                        }))}
+                      />
                     </div>
                   </div>
                 ) : invSectionState(invitationData.profile, "sampul") === "empty" ? (
@@ -3347,7 +3371,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <img
                           src={invitationData.profile.couple_illustration_url}
                           alt="Cover"
-                          className={`w-full h-full object-cover ${invitationData.profile.grayscale ? "grayscale" : ""}`}
+                          className={`w-full h-full object-cover ${invMonoPhotos ? "grayscale" : ""}`}
                           crossOrigin="anonymous"
                         />
                         <button

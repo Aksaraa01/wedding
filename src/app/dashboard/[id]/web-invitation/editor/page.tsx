@@ -21,6 +21,7 @@ import { resolveCoupleName } from "@/lib/coupleName"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { MAX_CHILDREN, parseChildren, readChildren, resolveChildren, type InvitationChild } from "@/lib/children"
 import { LANGUAGE_OPTIONS, normalizeLanguage } from "@/lib/i18n"
+import { resolvePhotoTone, templateDefaultsToMono, type PhotoTone } from "@/lib/photoTone"
 
 type Profile = {
   id: string
@@ -511,6 +512,11 @@ function EditorInner({ id }: { id: string }) {
   const isInhouse = template?.source_type === "inhouse" ||
     (!!template?.code && !!getTemplateComponent(template.code) && !template?.wp_master_slug)
   const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
+  // Photo tone is offered only by templates whose spec opts in (currently
+  // Silver Gelatin). The legacy grayscale boolean still drives templates that
+  // do not expose the choice.
+  const photoTone = resolvePhotoTone(data.template_content, data.grayscale, templateDefaultsToMono(template?.code))
+  const monoPhotos = contentSpec?.photo_tone ? photoTone === "mono" : data.grayscale === true
   const extraFields = getTemplateExtraFields(template?.code, data.language === "en" ? "en" : "id")
   const extrasLabel = templateExtrasLabel(template?.name, data.language === "en" ? "en" : "id")
   // Bilingual UI is opt-in per environment. The i18n engine stays; this only
@@ -711,6 +717,15 @@ function EditorInner({ id }: { id: string }) {
       scheduleSave()
       return { ...prev, ...updates }
     })
+  }
+
+  // The tone choice lives in template_content (template-scoped) and mirrors the
+  // legacy grayscale column so ops, previews and any future template agree.
+  const setPhotoTone = (tone: PhotoTone) => {
+    applyFields(prev => ({
+      grayscale: tone === "mono",
+      template_content: { ...(prev.template_content || {}), photo_tone: tone },
+    }))
   }
 
   const firstCoverUrl = (covers: any[]): string => {
@@ -1665,6 +1680,7 @@ function EditorInner({ id }: { id: string }) {
         gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
         couple_illustration_url={data.couple_illustration_url || undefined}
         grayscale={data.grayscale}
+        template_content={data.template_content || undefined}
         groom_full_name={data.groom_full_name || undefined}
         bride_full_name={data.bride_full_name || undefined}
         groom_photo_url={data.groom_photo_url || undefined}
@@ -1977,7 +1993,7 @@ function EditorInner({ id }: { id: string }) {
                                   }
                                   return url ? (
                                     <div key={s} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
-                                      <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
+                                      <div className={`absolute inset-0 bg-cover bg-center ${monoPhotos ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
                                       <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}.{s === 0 ? "a" : "b"}</span>
                                       <button onClick={() => { setCoverSlideTarget({ slot: i, slide: s }); coverSlideRef.current?.click() }} className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100" title="Ganti foto">
                                         <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
@@ -2007,7 +2023,7 @@ function EditorInner({ id }: { id: string }) {
                         if (url) {
                           return (
                             <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
-                              <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
+                              <div className={`absolute inset-0 bg-cover bg-center ${monoPhotos ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
                               <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
                               <span className="absolute bottom-1 left-1 right-1 bg-black/55 text-white text-[9px] px-1 py-0.5 rounded-sm truncate">{coverSlotLabel(i)}</span>
                               <button
@@ -2141,6 +2157,34 @@ function EditorInner({ id }: { id: string }) {
                     <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: WD, AC — semua karakter yang ditulis tampil pada monogram sampul; otomatis mengecil bila lebih dari 2.</p>
                   </div>
                   )}
+                </div>
+              )}
+
+              {contentSpec?.photo_tone && renderSection("tone", "palette", "TONE FOTO",
+                <div className="mt-6 space-y-3">
+                  <p className="text-[11px] text-on-surface-variant italic">
+                    Pilih tampilan semua foto undangan. Bawaan template ini hitam putih.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      { tone: "mono" as const, label: "Hitam Putih", hint: "Grayscale" },
+                      { tone: "color" as const, label: "Berwarna", hint: "Normal" },
+                    ]).map((opt) => {
+                      const active = photoTone === opt.tone
+                      return (
+                        <button
+                          key={opt.tone}
+                          type="button"
+                          onClick={() => setPhotoTone(opt.tone)}
+                          disabled={data.is_published === true}
+                          className={`rounded-lg border px-3 py-3 text-left transition-colors disabled:opacity-50 ${active ? "border-[#B34E3F] bg-[#B34E3F]/5" : "border-outline-variant hover:border-[#B34E3F]"}`}
+                        >
+                          <span className={`block font-label-md text-[11px] uppercase tracking-widest ${active ? "text-[#B34E3F]" : "text-on-surface"}`}>{opt.label}</span>
+                          <span className="block text-[10px] text-on-surface-variant mt-1">{opt.hint}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
 

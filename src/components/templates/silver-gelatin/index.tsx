@@ -19,6 +19,7 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
+import { resolvePhotoTone } from "@/lib/photoTone"
 import "./silver-gelatin.css"
 import { normalizeLanguage, t } from "@/lib/i18n"
 
@@ -156,6 +157,9 @@ export default function SilverGelatin(profile: TemplateProps) {
 
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
+  // Silver Gelatin is monochrome by design; the couple can opt into colour from
+  // the editor/ops tone control (`template_content.photo_tone`).
+  const monoPhotos = resolvePhotoTone(profile.template_content, profile.grayscale, true) === "mono"
 
   const slots = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
   const gallery = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
@@ -440,7 +444,7 @@ export default function SilverGelatin(profile: TemplateProps) {
   const initialB = coupleInitials.charAt(1)
 
   return (
-    <div ref={rootRef} className={`sg-root${opened ? " is-open" : ""}`}>
+    <div ref={rootRef} className={`sg-root${opened ? " is-open" : ""}${monoPhotos ? "" : " sg-root--color"}`}>
       {trackUrl && <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" />}
 
       <div className="sg-page">

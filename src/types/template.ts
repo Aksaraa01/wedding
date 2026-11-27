@@ -191,6 +191,9 @@ export type ContentSpec = {
   // Whether the couple-initials monogram is offered/rendered. Absent ⇒ true.
   // Set false for templates that never print the initials field.
   initials?: boolean
+  // Whether the editor/ops offer a photo tone choice (grayscale vs colour).
+  // The choice is stored in `template_content.photo_tone`.
+  photo_tone?: boolean
   // Sections the template renders. Absent/false ⇒ the section's content either
   // never appears or, where the toggle exists, hides its entry point entirely.
   sections?: {
