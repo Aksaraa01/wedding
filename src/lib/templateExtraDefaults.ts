@@ -1570,13 +1570,13 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
       "en": "Play music",
       "id": "Putar musik"
     },
-    "pembuka_title": {
-      "en": "Save the Date",
-      "id": "Simpan Tanggal"
-    },
     "mempelai_title": {
       "en": "The Couple",
       "id": "Kedua Mempelai"
+    },
+    "pembuka_title": {
+      "en": "Save the Date",
+      "id": "Simpan Tanggal"
     },
     "events_title": {
       "en": "The Celebration",
@@ -1585,6 +1585,10 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "maps_label": {
       "en": "View Location",
       "id": "Lihat Lokasi"
+    },
+    "rundown_title": {
+      "en": "Order of Events",
+      "id": "Susunan Acara"
     },
     "countdown_title": {
       "en": "Save the Date",
@@ -1601,10 +1605,6 @@ export const EXTRA_DEFAULTS: Record<string, Record<string, ExtraDefault>> = {
     "love_story_intro": {
       "en": "A few chapters from the story that brought us here.",
       "id": "Potongan kecil perjalanan cinta kami."
-    },
-    "rundown_title": {
-      "en": "Order of Events",
-      "id": "Susunan Acara"
     },
     "gallery_title": {
       "en": "Gallery",
